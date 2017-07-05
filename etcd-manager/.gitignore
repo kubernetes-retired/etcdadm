@@ -1,0 +1,10 @@
+.idea/
+*.iml
+
+bazel-bin
+bazel-etcd-manager
+bazel-genfiles
+bazel-out
+bazel-testlogs
+
+
