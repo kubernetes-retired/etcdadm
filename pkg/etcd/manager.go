@@ -10,6 +10,9 @@ import (
 	"sync"
 	"time"
 
+	"io/ioutil"
+	"os"
+
 	"github.com/golang/glog"
 	"golang.org/x/net/context"
 	"kope.io/etcd-manager/pkg/privateapi"
@@ -53,20 +56,21 @@ func (s *EtcdServer) NewEtcdManager(model *EtcdCluster, baseDir string) (*EtcdMa
 func (m *EtcdManager) Run() {
 	for {
 		ctx := context.Background()
-		err := m.run(ctx)
+		progress, err := m.run(ctx)
 		if err != nil {
 			glog.Warningf("unexpected error running etcd cluster reconciliation loop: %v", err)
 		}
-		time.Sleep(10 * time.Second)
+		if !progress {
+			time.Sleep(10 * time.Second)
+		}
 	}
 }
 
-func (m *EtcdManager) run(ctx context.Context) error {
+func (m *EtcdManager) run(ctx context.Context) (bool, error) {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 
 	desiredMemberCount := int(m.model.DesiredClusterSize)
-	quorumSize := (desiredMemberCount / 2) + 1
 
 	peers := m.peers.Peers()
 	sort.SliceStable(peers, func(i, j int) bool {
@@ -81,68 +85,20 @@ func (m *EtcdManager) run(ctx context.Context) error {
 		}
 	}
 	if me == nil {
-		return fmt.Errorf("cannot find self %q in list of peers %s", m.me, peers)
+		return false, fmt.Errorf("cannot find self %q in list of peers %s", m.me, peers)
 	}
 
 	if m.process == nil {
-		if len(peers) < quorumSize {
-			glog.Infof("Insufficient peers to form a quorum %d, won't proceed", quorumSize)
-			return nil
-		}
-
-		if peers[0].Id != me.Id {
-			// We are not the leader, we won't initiate
-			glog.Infof("we are not leader, won't initiate cluster creation")
-			return nil
-		}
-
-		// TODO: Query the others to make sure they are OK with joining?
-
-		// We will start a single member cluster, with us as the node, and then we will try to join others to us
-		clusterToken := randomToken()
-
-		dataDir := filepath.Join(m.baseDir, clusterToken)
-
-		meNode := &EtcdNode{
-			Name: me.Id,
-		}
-		for _, a := range me.Addresses {
-			peerUrl := fmt.Sprintf("http://%s:%d", a, m.model.PeerPort)
-			meNode.PeerUrls = append(meNode.PeerUrls, peerUrl)
-		}
-		for _, a := range me.Addresses {
-			clientUrl := fmt.Sprintf("http://%s:%d", a, m.model.ClientPort)
-			meNode.ClientUrls = append(meNode.ClientUrls, clientUrl)
-		}
-		p := &etcdProcess{
-			CreateNewCluster: true,
-			BinDir:           "/home/justinsb/apps/etcd2/etcd-v2.2.1-linux-amd64",
-			DataDir:          dataDir,
-
-			Cluster: &EtcdCluster{
-				PeerPort:     m.model.PeerPort,
-				ClientPort:   m.model.ClientPort,
-				ClusterName:  m.model.ClusterName,
-				ClusterToken: clusterToken,
-				Me:           meNode,
-				Nodes:        []*EtcdNode{meNode},
-			},
-		}
-
-		err := p.Start()
-		if err != nil {
-			return fmt.Errorf("error starting etcd: %v", err)
-		}
-		m.process = p
+		return m.stepStartCluster(me, peers)
 	}
 
 	if m.process == nil {
-		return fmt.Errorf("unexpected state in control loop - no etcd process")
+		return false, fmt.Errorf("unexpected state in control loop - no etcd process")
 	}
 
 	members, err := m.process.listMembers()
 	if err != nil {
-		return fmt.Errorf("error querying members from etcd: %v", err)
+		return false, fmt.Errorf("error querying members from etcd: %v", err)
 	}
 
 	// TODO: Only if we are leader
@@ -180,15 +136,15 @@ func (m *EtcdManager) run(ctx context.Context) error {
 			}
 			peerGrpcClient, err := m.peers.GetPeerClient(privateapi.PeerId(peer.Id))
 			if err != nil {
-				return fmt.Errorf("error getting peer client %q: %v", peer.Id, err)
+				return false, fmt.Errorf("error getting peer client %q: %v", peer.Id, err)
 			}
 			peerClient := NewEtcdManagerServiceClient(peerGrpcClient)
 			joinClusterResponse, err := peerClient.JoinCluster(ctx, joinClusterRequest)
 			if err != nil {
-				return fmt.Errorf("error from JoinClusterRequest from peer %q: %v", peer.Id, err)
+				return false, fmt.Errorf("error from JoinClusterRequest from peer %q: %v", peer.Id, err)
 			}
 			if joinClusterResponse.Node == nil {
-				return fmt.Errorf("JoingClusterResponse from peer %q did not include peer info", peer.Id, joinClusterResponse)
+				return false, fmt.Errorf("JoingClusterResponse from peer %q did not include peer info", peer.Id, joinClusterResponse)
 			}
 			peerURLs := joinClusterResponse.Node.PeerUrls
 			//var peerURLs []string
@@ -199,7 +155,7 @@ func (m *EtcdManager) run(ctx context.Context) error {
 			glog.Infof("will try to add member %s @ %s", peer.Id, peerURLs)
 			member, err := m.process.addMember(peer.Id, peerURLs)
 			if err != nil {
-				return fmt.Errorf("failed to add peer %s %s: %v", peer.Id, peerURLs, err)
+				return false, fmt.Errorf("failed to add peer %s %s: %v", peer.Id, peerURLs, err)
 			}
 			glog.Infof("Added member: %s", member)
 			actualMemberCount++
@@ -211,7 +167,7 @@ func (m *EtcdManager) run(ctx context.Context) error {
 
 	// TODO: Eventually replace unhealthy members?
 
-	return nil
+	return false, nil
 }
 
 func randomToken() string {
@@ -309,4 +265,111 @@ func (m *EtcdManager) joinCluster(ctx context.Context, request *JoinClusterReque
 		Node: meNode,
 	}
 	return response, nil
+}
+
+func (m *EtcdManager) stepStartCluster(me *privateapi.PeerInfo, peers []*privateapi.PeerInfo) (bool, error) {
+	desiredMemberCount := int(m.model.DesiredClusterSize)
+	quorumSize := (desiredMemberCount / 2) + 1
+
+	if len(peers) < quorumSize {
+		glog.Infof("Insufficient peers to form a quorum %d, won't proceed", quorumSize)
+		return false, nil
+	}
+
+	if peers[0].Id != me.Id {
+		// We are not the leader, we won't initiate
+		glog.Infof("we are not leader, won't initiate cluster creation")
+		return false, nil
+	}
+
+	// TODO: Query the others to make sure they are OK with joining?
+
+	// We will start a single member cluster, with us as the node, and then we will try to join others to us
+	var dirs []string
+	files, err := ioutil.ReadDir(m.baseDir)
+	if err != nil {
+		return false, fmt.Errorf("error listing contents of %s: %v", m.baseDir, err)
+	}
+	for _, f := range files {
+		name := f.Name()
+		if f.IsDir() {
+			dirs = append(dirs, name)
+		}
+	}
+
+	if len(dirs) > 1 {
+		// If there are multiple dirs see if we can whittle the list using the state file
+		var activeDirs []string
+		for _, dir := range dirs {
+			p := filepath.Join(m.baseDir, dir+".etcdmanager")
+			_, err := os.Stat(p)
+			if err != nil {
+				if !os.IsNotExist(err) {
+					return false, fmt.Errorf("error checking for stat of %s: %v", p, err)
+				}
+			} else {
+				activeDirs = append(activeDirs)
+			}
+		}
+		if len(activeDirs) != 0 {
+			dirs = activeDirs
+		}
+	}
+
+	var clusterToken string
+
+	if len(dirs) > 1 {
+		return false, fmt.Errorf("unable to determine active cluster version from %s", dirs)
+	} else if len(dirs) == 1 {
+		clusterToken = dirs[0]
+	} else {
+		clusterToken = randomToken()
+	}
+
+	dataDir := filepath.Join(m.baseDir, clusterToken)
+
+	{
+		p := filepath.Join(m.baseDir, clusterToken+".etcdmanager")
+		if err := ioutil.WriteFile(p, []byte{}, 0755); err != nil {
+			return false, fmt.Errorf("error writing state file %s: %q", p)
+		}
+	}
+
+	meNode := &EtcdNode{
+		// TODO: Include the cluster token (or a portion of it) in the name?
+		Name: me.Id,
+	}
+	for _, a := range me.Addresses {
+		peerUrl := fmt.Sprintf("http://%s:%d", a, m.model.PeerPort)
+		meNode.PeerUrls = append(meNode.PeerUrls, peerUrl)
+	}
+	for _, a := range me.Addresses {
+		clientUrl := fmt.Sprintf("http://%s:%d", a, m.model.ClientPort)
+		meNode.ClientUrls = append(meNode.ClientUrls, clientUrl)
+	}
+	p := &etcdProcess{
+		// We always create new cluster, because etcd will ignore if the cluster exists
+		// TODO: Should we do better?
+		CreateNewCluster: true,
+		BinDir:           "/home/justinsb/apps/etcd2/etcd-v2.2.1-linux-amd64",
+		DataDir:          dataDir,
+
+		Cluster: &EtcdCluster{
+			PeerPort:     m.model.PeerPort,
+			ClientPort:   m.model.ClientPort,
+			ClusterName:  m.model.ClusterName,
+			ClusterToken: clusterToken,
+			Me:           meNode,
+			Nodes:        []*EtcdNode{meNode},
+		},
+	}
+
+	if err := p.Start(); err != nil {
+		return false, fmt.Errorf("error starting etcd: %v", err)
+	}
+	m.process = p
+
+	// TODO: Wait till etcd has started and then write state file?
+
+	return true, nil
 }
