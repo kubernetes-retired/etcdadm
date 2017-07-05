@@ -1,0 +1,20 @@
+syntax = "proto3";
+package privateapi;
+
+service ClusterService {
+    // Ping just pings another node, part of the discovery protocol
+    rpc Ping (PingRequest) returns (PingResponse);
+}
+
+message PingRequest {
+    PeerInfo info = 1;
+}
+
+message PingResponse {
+    PeerInfo info = 1;
+}
+
+message PeerInfo {
+    string id = 1;
+    repeated string addresses = 2;
+}
