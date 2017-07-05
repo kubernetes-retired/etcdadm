@@ -75,7 +75,12 @@ func main() {
 
 	etcdServer := etcd.NewEtcdServer(server)
 
-	manager, err := etcdServer.NewEtcdManager(c, "/home/justinsb/etcdmanager/data/"+c.ClusterName+"/"+address+"/")
+	baseDir := "/home/justinsb/etcdmanager/data/" + c.ClusterName + "/" + address + "/"
+	if err := os.MkdirAll(baseDir, 0755); err != nil {
+		glog.Fatalf("error doing mkdirs on base directory %s: %v", baseDir, err)
+	}
+
+	manager, err := etcdServer.NewEtcdManager(c, baseDir)
 	if err != nil {
 		glog.Fatalf("error registering etcd cluster %s to be managed: %v", c.ClusterName, err)
 	}
