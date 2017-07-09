@@ -9,7 +9,6 @@ import (
 	"sort"
 	"sync"
 	"time"
-
 	"io/ioutil"
 	"os"
 
@@ -271,17 +270,6 @@ func (m *EtcdManager) stepStartCluster(me *privateapi.PeerInfo, peers []*private
 	desiredMemberCount := int(m.model.DesiredClusterSize)
 	quorumSize := (desiredMemberCount / 2) + 1
 
-	if len(peers) < quorumSize {
-		glog.Infof("Insufficient peers to form a quorum %d, won't proceed", quorumSize)
-		return false, nil
-	}
-
-	if peers[0].Id != me.Id {
-		// We are not the leader, we won't initiate
-		glog.Infof("we are not leader, won't initiate cluster creation")
-		return false, nil
-	}
-
 	// TODO: Query the others to make sure they are OK with joining?
 
 	// We will start a single member cluster, with us as the node, and then we will try to join others to us
@@ -317,12 +305,28 @@ func (m *EtcdManager) stepStartCluster(me *privateapi.PeerInfo, peers []*private
 	}
 
 	var clusterToken string
+	createNewCluster := false
 
 	if len(dirs) > 1 {
 		return false, fmt.Errorf("unable to determine active cluster version from %s", dirs)
 	} else if len(dirs) == 1 {
+		// Existing cluster
 		clusterToken = dirs[0]
 	} else {
+		// Consider starting a new cluster?
+
+		if len(peers) < quorumSize {
+			glog.Infof("Insufficient peers to form a quorum %d, won't proceed", quorumSize)
+			return false, nil
+		}
+
+		if peers[0].Id != me.Id {
+			// We are not the leader, we won't initiate
+			glog.Infof("we are not leader, won't initiate cluster creation")
+			return false, nil
+		}
+
+		createNewCluster = true
 		clusterToken = randomToken()
 	}
 
@@ -350,7 +354,7 @@ func (m *EtcdManager) stepStartCluster(me *privateapi.PeerInfo, peers []*private
 	p := &etcdProcess{
 		// We always create new cluster, because etcd will ignore if the cluster exists
 		// TODO: Should we do better?
-		CreateNewCluster: true,
+		CreateNewCluster: createNewCluster,
 		BinDir:           "/home/justinsb/apps/etcd2/etcd-v2.2.1-linux-amd64",
 		DataDir:          dataDir,
 
