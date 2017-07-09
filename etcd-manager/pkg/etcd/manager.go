@@ -65,6 +65,10 @@ func (m *EtcdManager) Run() {
 	}
 }
 
+func buildEtcdNodeName(clusterToken string, peerId string) string {
+	return clusterToken + "--" + peerId
+}
+
 func (m *EtcdManager) run(ctx context.Context) (bool, error) {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
@@ -114,7 +118,8 @@ func (m *EtcdManager) run(ctx context.Context) (bool, error) {
 		}
 
 		for _, peer := range peers {
-			if membersByName[peer.Id] != nil {
+			peerMemberName := buildEtcdNodeName(m.process.Cluster.ClusterToken, peer.Id)
+			if membersByName[peerMemberName] != nil {
 				continue
 			}
 
@@ -151,10 +156,10 @@ func (m *EtcdManager) run(ctx context.Context) (bool, error) {
 			//	peerURL := fmt.Sprintf("http://%s:%d", address, m.model.PeerPort)
 			//	peerURLs = append(peerURLs, peerURL)
 			//}
-			glog.Infof("will try to add member %s @ %s", peer.Id, peerURLs)
-			member, err := m.process.addMember(peer.Id, peerURLs)
+			glog.Infof("will try to add member %s @ %s", peerMemberName, peerURLs)
+			member, err := m.process.addMember(peerMemberName, peerURLs)
 			if err != nil {
-				return false, fmt.Errorf("failed to add peer %s %s: %v", peer.Id, peerURLs, err)
+				return false, fmt.Errorf("failed to add peer %s %s: %v", peerMemberName, peerURLs, err)
 			}
 			glog.Infof("Added member: %s", member)
 			actualMemberCount++
@@ -223,7 +228,7 @@ func (m *EtcdManager) joinCluster(ctx context.Context, request *JoinClusterReque
 	dataDir := filepath.Join(m.baseDir, clusterToken)
 
 	meNode := &EtcdNode{
-		Name: me.Id,
+		Name: buildEtcdNodeName(clusterToken, me.Id),
 	}
 	for _, a := range me.Addresses {
 		peerUrl := fmt.Sprintf("http://%s:%d", a, m.model.PeerPort)
@@ -341,7 +346,7 @@ func (m *EtcdManager) stepStartCluster(me *privateapi.PeerInfo, peers []*private
 
 	meNode := &EtcdNode{
 		// TODO: Include the cluster token (or a portion of it) in the name?
-		Name: me.Id,
+		Name: buildEtcdNodeName(clusterToken, me.Id),
 	}
 	for _, a := range me.Addresses {
 		peerUrl := fmt.Sprintf("http://%s:%d", a, m.model.PeerPort)
