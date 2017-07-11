@@ -18,6 +18,8 @@ type Peers interface {
 	Peers() []*PeerInfo
 	MyPeerId() PeerId
 	GetPeerClient(peerId PeerId) (*grpc.ClientConn, error)
+	BecomeLeader(ctx context.Context) (string, error)
+	IsLeader(token string) (bool)
 }
 
 type peer struct {
@@ -65,10 +67,10 @@ func (s *Server) updateFromPingRequest(request *PingRequest) {
 			id:     id,
 		}
 		s.peers[id] = existing
-		existing.updateFromPingRequest(request)
+		existing.updatePeerInfo(request.Info)
 		go existing.Run()
 	} else {
-		existing.updateFromPingRequest(request)
+		existing.updatePeerInfo(request.Info)
 	}
 
 }
@@ -114,20 +116,11 @@ func (p *peer) updateFromDiscovery(discoveryNode DiscoveryNode) {
 	p.discoveryNode = discoveryNode
 }
 
-func (p *peer) updateFromPingRequest(pingRequest *PingRequest) {
+func (p *peer) updatePeerInfo(peerInfo *PeerInfo) {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 
-	p.lastInfo = pingRequest.Info
-	p.lastPingTime = time.Now()
-}
-
-func (p *peer) updateFromPingResponse(response *PingResponse) {
-	p.mutex.Lock()
-	defer p.mutex.Unlock()
-
-	glog.Infof("got ping response from %s: %v", p.id, response)
-	p.lastInfo = response.Info
+	p.lastInfo = peerInfo
 	p.lastPingTime = time.Now()
 }
 
@@ -236,7 +229,10 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 			conn.Close()
 			continue
 		}
-		p.updateFromPingResponse(response)
+
+
+		glog.Infof("got ping response from %s: %v", p.id, response)
+		p.updatePeerInfo(response.Info)
 
 		{
 			p.mutex.Lock()

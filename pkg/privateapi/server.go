@@ -18,6 +18,7 @@ type Server struct {
 
 	mutex sync.Mutex
 	peers map[PeerId]*peer
+	leadership *leadership
 }
 
 func NewServer(myInfo PeerInfo, discovery Discovery) (*Server, error) {
