@@ -4,6 +4,12 @@ package privateapi;
 service ClusterService {
     // Ping just pings another node, part of the discovery protocol
     rpc Ping (PingRequest) returns (PingResponse);
+
+    // LeaderNotification is sent by a node that (thinks it) is the leader
+    rpc LeaderNotification (LeaderNotificationRequest) returns (LeaderNotificationResponse);
+
+    // ViewExchange performs a view exchange of all nodes
+//    rpc ViewExchange (ViewExchangeRequest) returns (ViewExchangeResponse);
 }
 
 message PingRequest {
@@ -17,4 +23,33 @@ message PingResponse {
 message PeerInfo {
     string id = 1;
     repeated string addresses = 2;
+}
+
+//message ViewExchangeRequest {
+//    View view = 1;
+//    uint64 view_hash = 2;
+//}
+//
+//message ViewExchangeResponse {
+//    View view = 1;
+//    uint64 view_hash = 2;
+//}
+
+message View {
+    repeated PeerInfo healthy = 1;
+//    repeated PeerInfo unhealthy = 2;
+}
+
+message LeaderNotificationRequest {
+    PeerInfo leader = 1;
+    string leadership_token = 2;
+    View view = 3;
+}
+
+message LeaderNotificationResponse {
+    // True if this node acknowledges the new leader
+    bool accepted = 1;
+
+    // If the node has a different (bigger) view, it rejects the leadership bid and sends the view
+    View view = 2;
 }
