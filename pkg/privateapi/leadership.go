@@ -1,19 +1,19 @@
 package privateapi
 
 import (
-	"github.com/golang/glog"
+	"context"
+	crypto_rand "crypto/rand"
+	"encoding/base64"
 	"fmt"
-	"time"
+	"github.com/golang/glog"
 	grpccontext "golang.org/x/net/context"
 	"io"
-	"encoding/base64"
-	crypto_rand "crypto/rand"
-	"context"
+	"time"
 )
 
 type leadership struct {
 	notification *LeaderNotificationRequest
-	timestamp time.Time
+	timestamp    time.Time
 }
 
 func (s *Server) LeaderNotification(ctx grpccontext.Context, request *LeaderNotificationRequest) (*LeaderNotificationResponse, error) {
@@ -51,9 +51,7 @@ func (s *Server) LeaderNotification(ctx grpccontext.Context, request *LeaderNoti
 		}
 	}
 
-
-	response := &LeaderNotificationResponse{
-	}
+	response := &LeaderNotificationResponse{}
 
 	if reject {
 		response.Accepted = false
@@ -70,7 +68,7 @@ func (s *Server) LeaderNotification(ctx grpccontext.Context, request *LeaderNoti
 	response.Accepted = true
 	s.leadership = &leadership{
 		notification: request,
-		timestamp: time.Now(),
+		timestamp:    time.Now(),
 	}
 	return response, nil
 }
@@ -91,7 +89,7 @@ func (s *Server) snapshotHealthy() (map[PeerId]*peer, map[PeerId]*PeerInfo) {
 	return snapshot, infos
 }
 
-func (s *Server) addPeersFromView(view *View) () {
+func (s *Server) addPeersFromView(view *View) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -112,7 +110,7 @@ func (s *Server) addPeersFromView(view *View) () {
 	}
 }
 
-func (s *Server) IsLeader(leadershipToken string) (bool) {
+func (s *Server) IsLeader(leadershipToken string) bool {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -121,7 +119,7 @@ func (s *Server) IsLeader(leadershipToken string) (bool) {
 	return s.leadership != nil && s.leadership.notification != nil && s.leadership.notification.LeadershipToken == leadershipToken
 }
 
-func (s *Server) BecomeLeader(ctx context.Context) (string ,error) {
+func (s *Server) BecomeLeader(ctx context.Context) (string, error) {
 	snapshot, infos := s.snapshotHealthy()
 
 	request := &LeaderNotificationRequest{}
@@ -133,7 +131,7 @@ func (s *Server) BecomeLeader(ctx context.Context) (string ,error) {
 		request.View.Healthy = append(request.View.Healthy, info)
 	}
 
-	for peerId, _ := range snapshot {
+	for peerId := range snapshot {
 		conn, err := s.GetPeerClient(peerId)
 		if err != nil {
 			return "", fmt.Errorf("error getting peer client for %s: %v", peerId, err)
@@ -157,7 +155,6 @@ func (s *Server) BecomeLeader(ctx context.Context) (string ,error) {
 
 	return request.LeadershipToken, nil
 }
-
 
 func randomToken() string {
 	b := make([]byte, 16, 16)

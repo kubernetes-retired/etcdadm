@@ -16,8 +16,8 @@ type Server struct {
 
 	discovery Discovery
 
-	mutex sync.Mutex
-	peers map[PeerId]*peer
+	mutex      sync.Mutex
+	peers      map[PeerId]*peer
 	leadership *leadership
 }
 
