@@ -2,15 +2,16 @@ package etcd
 
 import (
 	"fmt"
-	"github.com/golang/glog"
-	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
-	"kope.io/etcd-manager/pkg/backup"
 	"os"
 	"os/exec"
 	"path"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/golang/glog"
+	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
+	"kope.io/etcd-manager/pkg/backup"
 )
 
 type etcdProcess struct {

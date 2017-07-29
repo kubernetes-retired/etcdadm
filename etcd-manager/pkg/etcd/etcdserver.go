@@ -2,17 +2,18 @@ package etcd
 
 import (
 	"fmt"
-	"github.com/golang/glog"
-	"github.com/golang/protobuf/proto"
-	"golang.org/x/net/context"
 	"io/ioutil"
-	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
-	"kope.io/etcd-manager/pkg/backup"
-	"kope.io/etcd-manager/pkg/privateapi"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
+
+	"github.com/golang/glog"
+	"github.com/golang/protobuf/proto"
+	"golang.org/x/net/context"
+	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
+	"kope.io/etcd-manager/pkg/backup"
+	"kope.io/etcd-manager/pkg/privateapi"
 )
 
 const PreparedValidity = time.Minute

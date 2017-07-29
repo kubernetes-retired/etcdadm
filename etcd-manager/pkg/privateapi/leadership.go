@@ -5,10 +5,11 @@ import (
 	crypto_rand "crypto/rand"
 	"encoding/base64"
 	"fmt"
-	"github.com/golang/glog"
-	grpccontext "golang.org/x/net/context"
 	"io"
 	"time"
+
+	"github.com/golang/glog"
+	grpccontext "golang.org/x/net/context"
 )
 
 type leadership struct {
