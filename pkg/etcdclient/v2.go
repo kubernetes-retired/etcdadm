@@ -1,13 +1,13 @@
 package etcdclient
 
 import (
-	"net/http"
-	"fmt"
-	"io/ioutil"
-	"encoding/json"
 	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
 	"github.com/golang/glog"
+	"io/ioutil"
+	"net/http"
 )
 
 type etcdClient struct {
@@ -33,11 +33,12 @@ type etcdProcessMemberList struct {
 	Members []*EtcdProcessMember `json:"members"`
 }
 
-func NewClient(clientURL string) (*etcdClient) {
+func NewClient(clientURL string) *etcdClient {
 	return &etcdClient{
 		ClientURL: clientURL,
 	}
 }
+
 func (e *etcdClient) ListMembers(ctx context.Context) ([]*EtcdProcessMember, error) {
 	client := &http.Client{}
 	method := "GET"
@@ -67,8 +68,6 @@ func (e *etcdClient) ListMembers(ctx context.Context) ([]*EtcdProcessMember, err
 	}
 	return members.Members, nil
 }
-
-
 
 func (e *etcdClient) AddMember(ctx context.Context, name string, peerURLs []string) (*EtcdProcessMember, error) {
 	client := &http.Client{}

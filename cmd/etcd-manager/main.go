@@ -23,8 +23,8 @@ import (
 
 	"github.com/golang/glog"
 	apis_etcd "kope.io/etcd-manager/pkg/apis/etcd"
-	"kope.io/etcd-manager/pkg/etcd"
 	"kope.io/etcd-manager/pkg/controller"
+	"kope.io/etcd-manager/pkg/etcd"
 	"kope.io/etcd-manager/pkg/privateapi"
 )
 
@@ -83,9 +83,9 @@ func main() {
 	peerUrls = append(peerUrls, fmt.Sprintf("http://%s:%d", address, peerPort))
 
 	me := &apis_etcd.EtcdNode{
-		Name: "node-" + address,
+		Name:       "node-" + address,
 		ClientUrls: clientUrls,
-		PeerUrls: peerUrls,
+		PeerUrls:   peerUrls,
 	}
 	//c.Me = me
 	//c.Nodes = append(c.Nodes, me)

@@ -2,29 +2,29 @@ package etcd
 
 import (
 	"fmt"
-	"sync"
 	"github.com/golang/glog"
-	"golang.org/x/net/context"
-	"kope.io/etcd-manager/pkg/privateapi"
-	"time"
-	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
-	"path/filepath"
-	"io/ioutil"
-	"os"
 	"github.com/golang/protobuf/proto"
+	"golang.org/x/net/context"
+	"io/ioutil"
+	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
+	"kope.io/etcd-manager/pkg/privateapi"
+	"os"
+	"path/filepath"
+	"sync"
+	"time"
 )
 
 const PreparedValidity = time.Minute
 
 type EtcdServer struct {
-	baseDir  string
+	baseDir     string
 	peerServer  *privateapi.Server
-	nodeInfo *protoetcd.EtcdNode
+	nodeInfo    *protoetcd.EtcdNode
 	clusterName string
 
-	mutex       sync.Mutex
+	mutex sync.Mutex
 
-	state *protoetcd.EtcdState
+	state    *protoetcd.EtcdState
 	prepared *preparedState
 	process  *etcdProcess
 }
@@ -36,10 +36,10 @@ type preparedState struct {
 
 func NewEtcdServer(baseDir string, clusterName string, nodeInfo *protoetcd.EtcdNode, peerServer *privateapi.Server) *EtcdServer {
 	s := &EtcdServer{
-		baseDir: baseDir,
+		baseDir:     baseDir,
 		clusterName: clusterName,
-		peerServer: peerServer,
-		nodeInfo: nodeInfo,
+		peerServer:  peerServer,
+		nodeInfo:    nodeInfo,
 	}
 
 	protoetcd.RegisterEtcdManagerServiceServer(peerServer.GrpcServer(), s)
@@ -77,8 +77,7 @@ func readState(baseDir string) (*protoetcd.EtcdState, error) {
 	return state, nil
 }
 
-
-func writeState(baseDir string, state *protoetcd.EtcdState) (error) {
+func writeState(baseDir string, state *protoetcd.EtcdState) error {
 	p := filepath.Join(baseDir, "state")
 
 	b, err := proto.Marshal(state)
@@ -91,7 +90,6 @@ func writeState(baseDir string, state *protoetcd.EtcdState) (error) {
 	}
 	return nil
 }
-
 
 func (s *EtcdServer) runOnce() error {
 	s.mutex.Lock()
@@ -152,7 +150,7 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 
 	response := &protoetcd.JoinClusterResponse{}
 
-	switch (request.Phase) {
+	switch request.Phase {
 	case protoetcd.Phase_PHASE_PREPARE:
 		if s.process != nil {
 			return nil, fmt.Errorf("etcd process already running")
@@ -163,7 +161,7 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 		}
 
 		s.prepared = &preparedState{
-			validUntil: time.Now().Add(PreparedValidity),
+			validUntil:   time.Now().Add(PreparedValidity),
 			clusterToken: request.ClusterToken,
 		}
 
@@ -185,7 +183,7 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 		s.state.NewCluster = true
 		s.state.Cluster = &protoetcd.EtcdCluster{
 			ClusterToken: request.ClusterToken,
-			Nodes: request.Nodes,
+			Nodes:        request.Nodes,
 		}
 
 		if err := writeState(s.baseDir, s.state); err != nil {
@@ -202,7 +200,6 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 			return nil, err
 		}
 
-
 	case protoetcd.Phase_PHASE_JOIN_EXISTING:
 		if s.process != nil {
 			return nil, fmt.Errorf("etcd process already running")
@@ -218,7 +215,7 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 		s.state.NewCluster = false
 		s.state.Cluster = &protoetcd.EtcdCluster{
 			ClusterToken: request.ClusterToken,
-			Nodes: request.Nodes,
+			Nodes:        request.Nodes,
 		}
 
 		if err := writeState(s.baseDir, s.state); err != nil {
@@ -230,7 +227,6 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 		}
 	// TODO: Wait for join?
 
-
 	default:
 		return nil, fmt.Errorf("unknown status %s", request.Phase)
 	}
@@ -238,7 +234,7 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 	return response, nil
 }
 
-func (s* EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
+func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 	dataDir := filepath.Join(s.baseDir, "data", state.Cluster.ClusterToken)
 
 	// TODO: Validate this during the PREPARE phase
@@ -265,7 +261,7 @@ func (s* EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 		CreateNewCluster: false,
 		BinDir:           "/home/justinsb/apps/etcd2/etcd-v2.2.1-linux-amd64",
 		DataDir:          dataDir,
-		ClientURL: clientURL,
+		ClientURL:        clientURL,
 		Cluster: &protoetcd.EtcdCluster{
 			ClusterToken: state.Cluster.ClusterToken,
 			Me:           meNode,
