@@ -11,6 +11,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"io"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
+	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/etcdclient"
 	"kope.io/etcd-manager/pkg/privateapi"
 	math_rand "math/rand"
@@ -21,6 +22,7 @@ import (
 
 type EtcdController struct {
 	clusterName string
+	backupStore backup.Store
 
 	mutex sync.Mutex
 
@@ -85,7 +87,7 @@ func (p *peer) String() string {
 	return s
 }
 
-func NewEtcdController(clusterName string, peers privateapi.Peers) (*EtcdController, error) {
+func NewEtcdController(backupStore backup.Store, clusterName string, peers privateapi.Peers) (*EtcdController, error) {
 	//s.mutex.Lock()
 	//defer s.mutex.Unlock()
 
@@ -100,6 +102,7 @@ func NewEtcdController(clusterName string, peers privateapi.Peers) (*EtcdControl
 	//}
 	m := &EtcdController{
 		clusterName: clusterName,
+		backupStore: backupStore,
 		peers:       peers,
 		//model:   *model,
 		//baseDir: baseDir,
@@ -226,12 +229,20 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	}
 
 	if configuredMembers < int(clusterSpec.MemberCount) {
+		// TODO: Still backup when we have an under-quorum cluster
 		return m.addNodeToCluster(ctx, clusterState)
 	}
 
 	if len(clusterState.members) == 0 {
 		glog.Warningf("no members are actually running")
 		return false, nil
+	}
+
+	backup, err := m.doClusterBackup(ctx, clusterSpec, clusterState)
+	if err != nil {
+		glog.Warningf("error during backup: %v", err)
+	} else {
+		glog.Infof("took backup: %v", backup)
 	}
 
 	glog.Warningf("No additional controller logic")
@@ -626,6 +637,35 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterState *etc
 
 	glog.Infof("Want to expand cluster but no available nodes")
 	return false, nil
+}
+
+func (m *EtcdController) doClusterBackup(ctx context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState) (*protoetcd.DoBackupResponse, error) {
+	for _, peer := range clusterState.peers {
+		doBackupRequest := &protoetcd.DoBackupRequest{
+			LeadershipToken: m.leadership.token,
+			ClusterName:     m.clusterName,
+			Storage:         m.backupStore.Spec(),
+		}
+
+		doBackupResponse, err := peer.peer.rpcDoBackup(ctx, doBackupRequest)
+		if err != nil {
+			glog.Warningf("peer gave error while trying to do backup: %v", err)
+		} else {
+			glog.V(2).Infof("backup response: %v", doBackupResponse)
+			return doBackupResponse, nil
+		}
+	}
+
+	return nil, fmt.Errorf("no peer was able to perform a backup")
+}
+
+func (p *peer) rpcDoBackup(ctx context.Context, doBackupRequest *protoetcd.DoBackupRequest) (*protoetcd.DoBackupResponse, error) {
+	peerGrpcClient, err := p.peers.GetPeerClient(p.Id)
+	if err != nil {
+		return nil, fmt.Errorf("error getting peer client %q: %v", p.Id, err)
+	}
+	peerClient := protoetcd.NewEtcdManagerServiceClient(peerGrpcClient)
+	return peerClient.DoBackup(ctx, doBackupRequest)
 }
 
 func (p *peer) rpcJoinCluster(ctx context.Context, joinClusterRequest *protoetcd.JoinClusterRequest) (*protoetcd.JoinClusterResponse, error) {

@@ -7,6 +7,7 @@ import (
 	"golang.org/x/net/context"
 	"io/ioutil"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
+	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/privateapi"
 	"os"
 	"path/filepath"
@@ -21,6 +22,8 @@ type EtcdServer struct {
 	peerServer  *privateapi.Server
 	nodeInfo    *protoetcd.EtcdNode
 	clusterName string
+
+	backupStore backup.Store
 
 	mutex sync.Mutex
 
@@ -231,6 +234,34 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 		return nil, fmt.Errorf("unknown status %s", request.Phase)
 	}
 
+	return response, nil
+}
+
+// GetInfo gets info about the node
+func (s *EtcdServer) DoBackup(ctx context.Context, request *protoetcd.DoBackupRequest) (*protoetcd.DoBackupResponse, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	if !s.peerServer.IsLeader(request.LeadershipToken) {
+		return nil, fmt.Errorf("LeadershipToken in request %q is not current leader", request.LeadershipToken)
+	}
+
+	if s.process == nil {
+		return nil, fmt.Errorf("etcd not running")
+	}
+
+	if request.Storage == "" {
+		return nil, fmt.Errorf("Storage is required")
+	}
+	backupStore, err := backup.NewStore(request.Storage)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := s.process.DoBackup(backupStore)
+	if err != nil {
+		return nil, err
+	}
 	return response, nil
 }
 
