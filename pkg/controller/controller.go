@@ -6,17 +6,18 @@ import (
 	crypto_rand "crypto/rand"
 	"encoding/base64"
 	"fmt"
-	etcd_client "github.com/coreos/etcd/client"
-	"github.com/golang/glog"
 	"io"
-	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
-	"kope.io/etcd-manager/pkg/backup"
-	"kope.io/etcd-manager/pkg/etcdclient"
-	"kope.io/etcd-manager/pkg/privateapi"
 	math_rand "math/rand"
 	"sort"
 	"sync"
 	"time"
+
+	etcd_client "github.com/coreos/etcd/client"
+	"github.com/golang/glog"
+	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
+	"kope.io/etcd-manager/pkg/backup"
+	"kope.io/etcd-manager/pkg/etcdclient"
+	"kope.io/etcd-manager/pkg/privateapi"
 )
 
 type EtcdController struct {

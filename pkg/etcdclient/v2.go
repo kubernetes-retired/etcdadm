@@ -5,9 +5,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/golang/glog"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/golang/glog"
 )
 
 type etcdClient struct {
