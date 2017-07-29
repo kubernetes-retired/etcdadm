@@ -3,11 +3,7 @@ load("@org_pubref_rules_protobuf//go:rules.bzl", "go_proto_compile")
 
 go_library(
     name = "go_default_library",
-    srcs = [
-        "v2.go",
-    ],
+    srcs = ["v2.go"],
     visibility = ["//visibility:public"],
-    deps = [
-        "@com_github_golang_glog//:go_default_library",
-    ],
+    deps = ["@com_github_golang_glog//:go_default_library"],
 )

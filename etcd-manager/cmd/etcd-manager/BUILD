@@ -5,6 +5,8 @@ go_library(
     srcs = ["main.go"],
     visibility = ["//visibility:private"],
     deps = [
+        "//pkg/apis/etcd:go_default_library",
+        "//pkg/backup:go_default_library",
         "//pkg/controller:go_default_library",
         "//pkg/etcd:go_default_library",
         "//pkg/privateapi:go_default_library",
