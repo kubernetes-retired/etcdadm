@@ -2,14 +2,15 @@ package backup
 
 import (
 	"fmt"
-	"github.com/golang/glog"
 	"io"
 	"io/ioutil"
-	"kope.io/etcd-manager/pkg/apis/etcd"
 	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
+
+	"github.com/golang/glog"
+	"kope.io/etcd-manager/pkg/apis/etcd"
 )
 
 const MetaFilename = "_kopeio_etcd_manager.meta"
