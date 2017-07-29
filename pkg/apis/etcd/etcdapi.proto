@@ -11,6 +11,9 @@ service EtcdManagerService {
 
     // JoinCluster requests that the node join an existing cluster
     rpc JoinCluster (JoinClusterRequest) returns (JoinClusterResponse);
+
+    // DoBackup requests that the node backup etcd
+    rpc DoBackup (DoBackupRequest) returns (DoBackupResponse);
 }
 
 enum Phase {
@@ -30,6 +33,18 @@ message GetInfoResponse {
     EtcdCluster cluster_configuration = 3;
 
     EtcdNode node_configuration = 4;
+}
+
+message DoBackupRequest {
+    string leadership_token = 1;
+
+    string storage = 2;
+
+    string cluster_name = 3;
+}
+
+message DoBackupResponse {
+    string name = 1;
 }
 
 message JoinClusterRequest {
