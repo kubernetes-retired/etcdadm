@@ -10,6 +10,7 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/apis/etcd:go_default_library",
+        "//pkg/backup:go_default_library",
         "//pkg/etcdclient:go_default_library",
         "//pkg/privateapi:go_default_library",
         "@com_github_coreos_etcd//client:go_default_library",

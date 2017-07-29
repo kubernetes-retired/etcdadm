@@ -23,6 +23,7 @@ import (
 
 	"github.com/golang/glog"
 	apis_etcd "kope.io/etcd-manager/pkg/apis/etcd"
+	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/controller"
 	"kope.io/etcd-manager/pkg/etcd"
 	"kope.io/etcd-manager/pkg/privateapi"
@@ -33,6 +34,8 @@ func main() {
 	flag.StringVar(&address, "address", address, "local address to use")
 	clusterName := ""
 	flag.StringVar(&clusterName, "cluster-name", clusterName, "name of cluster")
+	backupStorePath := ""
+	flag.StringVar(&backupStorePath, "backup-store", backupStorePath, "backup store location")
 
 	flag.Parse()
 
@@ -40,6 +43,14 @@ func main() {
 
 	if clusterName == "" {
 		fmt.Fprintf(os.Stderr, "cluster-name is required\n")
+		os.Exit(1)
+	}
+
+	glog.Warningf("hard coding backup store location")
+	backupStorePath = "file:///home/justinsb/etcdmanager/backups/" + clusterName + "/"
+
+	if backupStorePath == "" {
+		fmt.Fprintf(os.Stderr, "backup-store is required\n")
 		os.Exit(1)
 	}
 
@@ -96,11 +107,16 @@ func main() {
 		glog.Fatalf("error doing mkdirs on base directory %s: %v", baseDir, err)
 	}
 
+	backupStore, err := backup.NewStore(backupStorePath)
+	if err != nil {
+		glog.Fatalf("error initializing backup store: %v", err)
+	}
+
 	etcdServer := etcd.NewEtcdServer(baseDir, clusterName, me, peerServer)
 
 	go etcdServer.Run()
 
-	c, err := controller.NewEtcdController(clusterName, peerServer)
+	c, err := controller.NewEtcdController(backupStore, clusterName, peerServer)
 	if err != nil {
 		glog.Fatalf("error building etcd controller: %v", err)
 	}
