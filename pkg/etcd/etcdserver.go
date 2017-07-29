@@ -253,12 +253,15 @@ func (s *EtcdServer) DoBackup(ctx context.Context, request *protoetcd.DoBackupRe
 	if request.Storage == "" {
 		return nil, fmt.Errorf("Storage is required")
 	}
+	if request.State == nil {
+		return nil, fmt.Errorf("State is required")
+	}
 	backupStore, err := backup.NewStore(request.Storage)
 	if err != nil {
 		return nil, err
 	}
 
-	response, err := s.process.DoBackup(backupStore)
+	response, err := s.process.DoBackup(backupStore, request.State)
 	if err != nil {
 		return nil, err
 	}

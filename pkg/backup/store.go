@@ -2,16 +2,29 @@ package backup
 
 import (
 	"fmt"
+	"github.com/golang/glog"
+	"io"
+	"io/ioutil"
+	"kope.io/etcd-manager/pkg/apis/etcd"
 	"net/url"
 	"os"
 	"path/filepath"
+	"sort"
 )
+
+const MetaFilename = "_kopeio_etcd_manager.meta"
 
 type Store interface {
 	Spec() string
 
 	CreateBackupTempDir(name string) (string, error)
-	AddBackup(name string, srcdir string) error
+	AddBackup(name string, srcdir string, state *etcd.ClusterSpec) error
+
+	// ListBackups returns all the available backups, in chronological order
+	ListBackups() ([]string, error)
+
+	// LoadClusterState loads the state information that should have been saved alongside a backup
+	LoadClusterState(backup string) (*etcd.ClusterSpec, error)
 }
 
 func NewStore(storage string) (Store, error) {
@@ -38,9 +51,12 @@ func NewFilesystemStore(u *url.URL) (Store, error) {
 
 	s := &filesystemStore{
 		spec:        u.String(),
+		tempBase:    filepath.Join(base, "tmp"),
 		backupsBase: filepath.Join(base, "backups"),
 	}
-
+	if err := os.MkdirAll(s.tempBase, 0700); err != nil {
+		return nil, fmt.Errorf("error creating directories %q: %v", s.tempBase, err)
+	}
 	if err := os.MkdirAll(s.backupsBase, 0700); err != nil {
 		return nil, fmt.Errorf("error creating directories %q: %v", s.backupsBase, err)
 	}
@@ -50,13 +66,14 @@ func NewFilesystemStore(u *url.URL) (Store, error) {
 
 type filesystemStore struct {
 	spec        string
+	tempBase    string
 	backupsBase string
 }
 
 var _ Store = &filesystemStore{}
 
 func (s *filesystemStore) CreateBackupTempDir(name string) (string, error) {
-	p := filepath.Join(s.backupsBase, name+".tmp")
+	p := filepath.Join(s.tempBase, name)
 	err := os.Mkdir(p, 0700)
 	if err != nil {
 		return "", fmt.Errorf("unable to create backup temp directory %s: %v", p, err)
@@ -64,13 +81,85 @@ func (s *filesystemStore) CreateBackupTempDir(name string) (string, error) {
 	return p, nil
 }
 
-func (s *filesystemStore) AddBackup(name string, srcdir string) error {
-	p := filepath.Join(s.backupsBase, name)
-	err := os.Rename(srcdir, p)
+func createFile(p string, data []byte, mode os.FileMode) error {
+	f, err := os.OpenFile(p, os.O_WRONLY|os.O_CREATE|os.O_EXCL, mode)
 	if err != nil {
-		return fmt.Errorf("error renaming %q to %q: %v", srcdir, p, err)
+		return err
 	}
+
+	n, err := f.Write(data)
+	if err == nil && n < len(data) {
+		err = io.ErrShortWrite
+	}
+	if err1 := f.Close(); err == nil {
+		err = err1
+	}
+	return err
+}
+
+func (s *filesystemStore) AddBackup(name string, srcdir string, state *etcd.ClusterSpec) error {
+	// Save the meta file
+	{
+		p := filepath.Join(srcdir, MetaFilename)
+
+		data, err := etcd.ToJson(state)
+		if err != nil {
+			return fmt.Errorf("error marshalling state: %v", err)
+		}
+
+		err = createFile(p, []byte(data), 0700)
+		if err != nil {
+			return fmt.Errorf("error writing file %q: %v", p, err)
+		}
+	}
+
+	// Move the backup dir in place
+	{
+		p := filepath.Join(s.backupsBase, name)
+		err := os.Rename(srcdir, p)
+		if err != nil {
+			return fmt.Errorf("error renaming %q to %q: %v", srcdir, p, err)
+		}
+	}
+
 	return nil
+}
+
+func (s *filesystemStore) ListBackups() ([]string, error) {
+	files, err := ioutil.ReadDir(s.backupsBase)
+	if err != nil {
+		return nil, fmt.Errorf("error reading %s: %v", s.backupsBase, err)
+	}
+
+	var backups []string
+	for _, f := range files {
+		if !f.IsDir() {
+			glog.Infof("skipping non-directory %s", filepath.Join(s.backupsBase, f.Name()))
+			continue
+		}
+
+		backups = append(backups, f.Name())
+	}
+
+	sort.Strings(backups)
+
+	return backups, nil
+}
+
+func (s *filesystemStore) LoadClusterState(name string) (*etcd.ClusterSpec, error) {
+	p := filepath.Join(s.backupsBase, name, MetaFilename)
+
+	data, err := ioutil.ReadFile(p)
+	if err != nil {
+		return nil, fmt.Errorf("error reading file %q: %v", p, err)
+	}
+
+	spec := &etcd.ClusterSpec{}
+	if err = etcd.FromJson(string(data), spec); err != nil {
+		return nil, fmt.Errorf("error parsing file %q: %v", p, err)
+	}
+
+	return spec, nil
 }
 
 func (s *filesystemStore) Spec() string {
