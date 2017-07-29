@@ -19,7 +19,7 @@ type Peers interface {
 	MyPeerId() PeerId
 	GetPeerClient(peerId PeerId) (*grpc.ClientConn, error)
 	BecomeLeader(ctx context.Context) (string, error)
-	IsLeader(token string) (bool)
+	IsLeader(token string) bool
 }
 
 type peer struct {
@@ -229,7 +229,6 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 			conn.Close()
 			continue
 		}
-
 
 		glog.Infof("got ping response from %s: %v", p.id, response)
 		p.updatePeerInfo(response.Info)

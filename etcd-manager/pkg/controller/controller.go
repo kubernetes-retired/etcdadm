@@ -1,26 +1,28 @@
 package controller
 
 import (
+	"bytes"
+	"context"
 	crypto_rand "crypto/rand"
-	math_rand "math/rand"
 	"encoding/base64"
 	"fmt"
-	"io"
-	"sync"
-	"time"
+	etcd_client "github.com/coreos/etcd/client"
 	"github.com/golang/glog"
-	"kope.io/etcd-manager/pkg/privateapi"
+	"github.com/golang/protobuf/proto"
+	"io"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/etcdclient"
-	"context"
+	"kope.io/etcd-manager/pkg/privateapi"
+	math_rand "math/rand"
 	"sort"
+	"sync"
+	"time"
 )
 
 type EtcdController struct {
 	clusterName string
 
-	mutex       sync.Mutex
-
+	mutex sync.Mutex
 
 	////model   EtcdCluster
 	//baseDir string
@@ -28,7 +30,7 @@ type EtcdController struct {
 	//process *etcdProcess
 	//
 	//me    privateapi.PeerId
-	peers       privateapi.Peers
+	peers privateapi.Peers
 
 	leadership *leadershipState
 }
@@ -43,23 +45,39 @@ type etcdClusterState struct {
 	peers       map[privateapi.PeerId]*etcdClusterPeerInfo
 }
 
-type etcdClusterPeerInfo  struct {
+func (s *etcdClusterState) String() string {
+	var b bytes.Buffer
+
+	fmt.Fprintf(&b, "etcdClusterState\n")
+	fmt.Fprintf(&b, "  members:\n")
+	for _, m := range s.members {
+		fmt.Fprintf(&b, "    %s\n", m)
+	}
+	fmt.Fprintf(&b, "  peers:\n")
+	for _, m := range s.peers {
+		fmt.Fprintf(&b, "    %s\n", m)
+	}
+	return b.String()
+}
+
+type etcdClusterPeerInfo struct {
 	peer *peer
 	info *protoetcd.GetInfoResponse
 }
 
-func (p*etcdClusterPeerInfo) String() string {
+func (p *etcdClusterPeerInfo) String() string {
 	return fmt.Sprintf("etcdClusterPeerInfo{peer=%s}", p.peer)
 }
+
 type etcdMember struct {
 	node *protoetcd.EtcdNode
 	peer *privateapi.PeerInfo
 }
 
 type peer struct {
-	Id privateapi.PeerId
-	info *privateapi.PeerInfo
-	peers       privateapi.Peers
+	Id    privateapi.PeerId
+	info  *privateapi.PeerInfo
+	peers privateapi.Peers
 }
 
 func (p *peer) String() string {
@@ -82,7 +100,7 @@ func NewEtcdController(clusterName string, peers privateapi.Peers) (*EtcdControl
 	//}
 	m := &EtcdController{
 		clusterName: clusterName,
-		peers: peers,
+		peers:       peers,
 		//model:   *model,
 		//baseDir: baseDir,
 		//peers:   s.peerServer,
@@ -109,10 +127,10 @@ func buildEtcdNodeName(clusterToken string, peerId string) string {
 	return clusterToken + "--" + peerId
 }
 
-func (m*EtcdController) newPeer(info *privateapi.PeerInfo) *peer {
+func (m *EtcdController) newPeer(info *privateapi.PeerInfo) *peer {
 	p := &peer{
-		Id: privateapi.PeerId(info.Id),
-		info: info,
+		Id:    privateapi.PeerId(info.Id),
+		info:  info,
 		peers: m.peers,
 	}
 	return p
@@ -171,15 +189,15 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		return false, fmt.Errorf("error building cluster state: %v", err)
 	}
 
-	glog.V(2).Infof("etcd cluster members: %s", clusterState.members)
-	
-	var clusterSpec *protoetcd.ClusterSpec
+	glog.Infof("etcd cluster state: %s", clusterState)
 
-	// TODO: Source from etcd / from state / from backup
-	glog.Warningf("Using hard coded ClusterSpec")
-	clusterSpec = &protoetcd.ClusterSpec{
-		MemberCount: 3,
+	glog.V(2).Infof("etcd cluster members: %s", clusterState.members)
+
+	clusterSpec, err := m.loadClusterSpec(ctx, clusterState)
+	if err != nil {
+		return false, fmt.Errorf("error fetching cluster spec: %v", err)
 	}
+
 	//if len(clusterState.Running)  == 0 {
 	//	glog.Warningf("No running etcd pods")
 	//	// TODO: Recover from backup; if no backup seed backup
@@ -301,6 +319,29 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	//return false, nil
 }
 
+func (m *EtcdController) loadClusterSpec(ctx context.Context, etcdClusterState *etcdClusterState) (*protoetcd.ClusterSpec, error) {
+	clusterSpec := &protoetcd.ClusterSpec{}
+
+	key := "/kope.io/etcd-manager/" + m.clusterName + "/spec"
+	b, err := etcdClusterState.etcdGet(ctx, key)
+	if err == nil {
+		err := proto.Unmarshal(b, clusterSpec)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing cluster spec from etcd %q: %v", key, err)
+		}
+		return clusterSpec, nil
+	} else {
+		glog.Warningf("unable to read cluster spec from etcd: %v", err)
+	}
+
+	// TODO: Source from etcd / from state / from backup
+	glog.Warningf("Using hard coded ClusterSpec")
+	clusterSpec = &protoetcd.ClusterSpec{
+		MemberCount: 3,
+	}
+	return clusterSpec, nil
+
+}
 func randomToken() string {
 	b := make([]byte, 16, 16)
 	_, err := io.ReadFull(crypto_rand.Reader, b)
@@ -310,15 +351,14 @@ func randomToken() string {
 	return base64.RawURLEncoding.EncodeToString(b)
 }
 
-func (m*EtcdController) updateClusterState(ctx context.Context, peers []*peer) (*etcdClusterState, error) {
+func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) (*etcdClusterState, error) {
 	clusterState := &etcdClusterState{
 		peers: make(map[privateapi.PeerId]*etcdClusterPeerInfo),
 	}
 
 	// Collect info from each peer
 	for _, peer := range peers {
-		getInfoRequest := &protoetcd.GetInfoRequest{
-		}
+		getInfoRequest := &protoetcd.GetInfoRequest{}
 
 		getInfoResponse, err := peer.rpcGetInfo(ctx, getInfoRequest)
 		if err != nil {
@@ -337,19 +377,50 @@ func (m*EtcdController) updateClusterState(ctx context.Context, peers []*peer) (
 		if p.info.NodeConfiguration == nil || len(p.info.NodeConfiguration.ClientUrls) == 0 {
 			continue
 		}
-		clientURL := p.info.NodeConfiguration.ClientUrls[0]
-		etcdClient := etcdclient.NewClient(clientURL)
-		members, err := etcdClient.ListMembers(ctx)
+
+		cfg := etcd_client.Config{
+			Endpoints: p.info.NodeConfiguration.ClientUrls,
+			Transport: etcd_client.DefaultTransport,
+			// set timeout per request to fail fast when the target endpoint is unavailable
+			HeaderTimeoutPerRequest: time.Second,
+		}
+		etcdClient, err := etcd_client.New(cfg)
 		if err != nil {
 			glog.Warningf("unable to reach member %s: %v", p, err)
+			continue
 		}
-		if err == nil {
-			clusterState.members = make(map[string]*etcdclient.EtcdProcessMember)
-			for _, m := range members {
-				clusterState.members[m.Name] = m
+
+		membersAPI := etcd_client.NewMembersAPI(etcdClient)
+		members, err := membersAPI.List(ctx)
+		if err != nil {
+			glog.Warningf("unable to reach member %s: %v", p, err)
+			continue
+		}
+
+		clusterState.members = make(map[string]*etcdclient.EtcdProcessMember)
+		for _, m := range members {
+			clusterState.members[m.Name] = &etcdclient.EtcdProcessMember{
+				Name:       m.Name,
+				Id:         m.ID,
+				PeerURLs:   m.PeerURLs,
+				ClientURLs: m.ClientURLs,
 			}
-			break
 		}
+		break
+
+		//clientURL := p.info.NodeConfiguration.ClientUrls[0]
+		//etcdClient := etcdclient.NewClient(clientURL)
+		//members, err := etcdClient.ListMembers(ctx)
+		//if err != nil {
+		//	glog.Warningf("unable to reach member %s: %v", p, err)
+		//}
+		//if err == nil {
+		//	clusterState.members = make(map[string]*etcdclient.EtcdProcessMember)
+		//	for _, m := range members {
+		//		clusterState.members[m.Name] = m
+		//	}
+		//	break
+		//}
 	}
 
 	// TODO: Query each cluster member to see if it is healthy
@@ -358,7 +429,6 @@ func (m*EtcdController) updateClusterState(ctx context.Context, peers []*peer) (
 
 	return clusterState, nil
 }
-
 
 func (s *etcdClusterState) etcdAddMember(ctx context.Context, nodeInfo *protoetcd.EtcdNode) (*etcdclient.EtcdProcessMember, error) {
 	for _, member := range s.members {
@@ -375,6 +445,50 @@ func (s *etcdClusterState) etcdAddMember(ctx context.Context, nodeInfo *protoetc
 		return member, nil
 	}
 	return nil, fmt.Errorf("unable to reach any cluster member, when trying to add new member")
+}
+
+func (s *etcdClusterState) etcdGet(ctx context.Context, key string) ([]byte, error) {
+	for _, member := range s.members {
+		if len(member.ClientURLs) == 0 {
+			glog.Warningf("skipping member with no ClientURLs: %v", member)
+			continue
+		}
+
+		cfg := etcd_client.Config{
+			Endpoints: member.ClientURLs,
+			Transport: etcd_client.DefaultTransport,
+			// set timeout per request to fail fast when the target endpoint is unavailable
+			HeaderTimeoutPerRequest: time.Second,
+		}
+		etcdClient, err := etcd_client.New(cfg)
+		if err != nil {
+			glog.Warningf("unable to reach member %s: %v", member, err)
+			continue
+		}
+
+		keysAPI := etcd_client.NewKeysAPI(etcdClient)
+		// TODO: Quorum?  Read from all nodes?
+		opts := &etcd_client.GetOptions{
+			Quorum: true,
+		}
+		response, err := keysAPI.Get(ctx, key, opts)
+		if err != nil {
+			return nil, fmt.Errorf("error reading from member %s: %v", member, err)
+		}
+
+		if response.Node == nil {
+			return nil, fmt.Errorf("node not set reading from member %s", member)
+		}
+
+		val, err := base64.RawStdEncoding.DecodeString(response.Node.Value)
+		if err != nil {
+			return nil, fmt.Errorf("error decoding key %q: %v", key, err)
+		}
+
+		return val, nil
+	}
+
+	return nil, fmt.Errorf("unable to reach any cluster member, when trying to read key %q", key)
 }
 
 //func (m *EtcdController) processCluster(cluster *etcdClusterState) {
@@ -415,8 +529,8 @@ func (s *etcdClusterState) etcdAddMember(ctx context.Context, nodeInfo *protoetc
 //}
 
 func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterState *etcdClusterState) (bool, error) {
-	var peersMissingFromEtcd  []*etcdClusterPeerInfo
-	var idlePeers  []*etcdClusterPeerInfo
+	var peersMissingFromEtcd []*etcdClusterPeerInfo
+	var idlePeers []*etcdClusterPeerInfo
 	for _, peer := range clusterState.peers {
 		if peer.info != nil {
 			etcdMember := clusterState.members[peer.info.NodeConfiguration.Name]
@@ -443,7 +557,6 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterState *etc
 		return true, nil
 	}
 
-
 	// We need to start etcd on a new node
 	if len(idlePeers) != 0 {
 		peer := idlePeers[math_rand.Intn(len(idlePeers))]
@@ -452,9 +565,9 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterState *etc
 		var nodes []*protoetcd.EtcdNode
 		for _, member := range clusterState.members {
 			node := &protoetcd.EtcdNode{
-				Name: member.Name,
+				Name:       member.Name,
 				ClientUrls: member.ClientURLs,
-				PeerUrls: member.PeerURLs,
+				PeerUrls:   member.PeerURLs,
 			}
 			nodes = append(nodes, node)
 		}
@@ -473,10 +586,10 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterState *etc
 		{
 			joinClusterRequest := &protoetcd.JoinClusterRequest{
 				LeadershipToken: m.leadership.token,
-				Phase: protoetcd.Phase_PHASE_PREPARE,
-				ClusterName: clusterState.clusterName,
-				ClusterToken: clusterToken,
-				Nodes: nodes,
+				Phase:           protoetcd.Phase_PHASE_PREPARE,
+				ClusterName:     clusterState.clusterName,
+				ClusterToken:    clusterToken,
+				Nodes:           nodes,
 			}
 
 			joinClusterResponse, err := peer.peer.rpcJoinCluster(ctx, joinClusterRequest)
@@ -489,10 +602,10 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterState *etc
 		{
 			joinClusterRequest := &protoetcd.JoinClusterRequest{
 				LeadershipToken: m.leadership.token,
-				Phase: protoetcd.Phase_PHASE_JOIN_EXISTING,
-				ClusterName: clusterState.clusterName,
-				ClusterToken: clusterToken,
-				Nodes: nodes,
+				Phase:           protoetcd.Phase_PHASE_JOIN_EXISTING,
+				ClusterName:     clusterState.clusterName,
+				ClusterToken:    clusterToken,
+				Nodes:           nodes,
 			}
 
 			joinClusterResponse, err := peer.peer.rpcJoinCluster(ctx, joinClusterRequest)
@@ -573,10 +686,10 @@ func (m *EtcdController) stepStartCluster(ctx context.Context, clusterSpec *prot
 		joinClusterRequest := &protoetcd.JoinClusterRequest{
 			LeadershipToken: m.leadership.token,
 
-			Phase: protoetcd.Phase_PHASE_PREPARE,
-			ClusterName: m.clusterName,
+			Phase:        protoetcd.Phase_PHASE_PREPARE,
+			ClusterName:  m.clusterName,
 			ClusterToken: clusterToken,
-			Nodes: proposedNodes,
+			Nodes:        proposedNodes,
 		}
 
 		joinClusterResponse, err := p.peer.rpcJoinCluster(ctx, joinClusterRequest)
@@ -595,10 +708,10 @@ func (m *EtcdController) stepStartCluster(ctx context.Context, clusterSpec *prot
 		joinClusterRequest := &protoetcd.JoinClusterRequest{
 			LeadershipToken: m.leadership.token,
 
-			Phase: protoetcd.Phase_PHASE_INITIAL_CLUSTER,
-			ClusterName: m.clusterName,
+			Phase:        protoetcd.Phase_PHASE_INITIAL_CLUSTER,
+			ClusterName:  m.clusterName,
 			ClusterToken: clusterToken,
-			Nodes: proposedNodes,
+			Nodes:        proposedNodes,
 		}
 
 		joinClusterResponse, err := p.peer.rpcJoinCluster(ctx, joinClusterRequest)

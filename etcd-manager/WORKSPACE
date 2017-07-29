@@ -23,6 +23,14 @@ go_proto_repositories()
 
 #=============================================================================
 
+new_go_repository(
+    name = "com_github_coreos_etcd",
+    commit = "cb2a496c4ddd1c87a9f280e116649b599999ec79",
+    importpath = "github.com/coreos/etcd",
+)
+
+#=============================================================================
+
 # for building docker base images
 debs = (
     (
@@ -35,11 +43,9 @@ debs = (
         "2d8de90c084a26c266fa8efa91564f99b2373a7949caa9a1db83460918e6e832",
         "http://ftp.us.debian.org/debian/pool/main/g/glibc/libc6_2.19-18+deb8u7_amd64.deb",
     ),
-
     ("deb_iptables", "7747388a97ba71fede302d70361c81d486770a2024185514c18b5d8eab6aaf4e", "http://ftp.us.debian.org/debian/pool/main/i/iptables/iptables_1.4.21-2+b1_amd64.deb"),
     ("deb_libnfnetlink0", "5d486022cd9e047e9afbb1617cf4519c0decfc3d2c1fad7e7fe5604943dbbf37", "http://ftp.us.debian.org/debian/pool/main/libn/libnfnetlink/libnfnetlink0_1.0.1-3_amd64.deb"),
     ("deb_libxtables10", "6783f316af4cbf3ada8b9a2b7bb5f53a87c0c2575c1903ce371fdbd45d3626c6", "http://ftp.us.debian.org/debian/pool/main/i/iptables/libxtables10_1.4.21-2+b1_amd64.deb"),
-
 )
 
 [http_file(
@@ -48,3 +54,14 @@ debs = (
     url = url,
 ) for name, sha256, url in debs]
 
+new_go_repository(
+    name = "com_github_ugorji_go",
+    commit = "5efa3251c7f7d05e5d9704a69a984ec9f1386a40",
+    importpath = "github.com/ugorji/go",
+)
+
+new_go_repository(
+    name = "com_github_coreos_go_semver",
+    commit = "1817cd4bea52af76542157eeabd74b057d1a199e",
+    importpath = "github.com/coreos/go-semver",
+)
