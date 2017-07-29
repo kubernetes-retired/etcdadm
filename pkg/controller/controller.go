@@ -8,7 +8,6 @@ import (
 	"fmt"
 	etcd_client "github.com/coreos/etcd/client"
 	"github.com/golang/glog"
-	"github.com/golang/protobuf/proto"
 	"io"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
@@ -167,12 +166,13 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		return false, fmt.Errorf("cannot find self %q in list of peers %s", m.peers.MyPeerId(), peers)
 	}
 
-	// We only act as controller if we are the leader
+	// We only act as controller if we are the leader (lowest id)
 	if peers[0].Id != me.Id {
 		glog.Infof("we are not leader")
 		return false, nil
 	}
 
+	// If we believe we are the leader, we try to tell everyone we know
 	if m.leadership == nil {
 		leadershipToken, err := m.peers.BecomeLeader(ctx)
 		if err != nil {
@@ -187,19 +187,21 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		return true, nil
 	}
 
+	// Query all our peers to try to find the state of etcd on each node
 	clusterState, err := m.updateClusterState(ctx, peers)
 	if err != nil {
 		return false, fmt.Errorf("error building cluster state: %v", err)
 	}
-
 	glog.Infof("etcd cluster state: %s", clusterState)
-
 	glog.V(2).Infof("etcd cluster members: %s", clusterState.members)
 
+	// Determine what our desired state is
 	clusterSpec, err := m.loadClusterSpec(ctx, clusterState)
 	if err != nil {
 		return false, fmt.Errorf("error fetching cluster spec: %v", err)
 	}
+
+	glog.Infof("spec %v", clusterSpec)
 
 	//if len(clusterState.Running)  == 0 {
 	//	glog.Warningf("No running etcd pods")
@@ -331,28 +333,68 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 }
 
 func (m *EtcdController) loadClusterSpec(ctx context.Context, etcdClusterState *etcdClusterState) (*protoetcd.ClusterSpec, error) {
-	clusterSpec := &protoetcd.ClusterSpec{}
-
 	key := "/kope.io/etcd-manager/" + m.clusterName + "/spec"
 	b, err := etcdClusterState.etcdGet(ctx, key)
 	if err == nil {
-		err := proto.Unmarshal(b, clusterSpec)
+		state := &protoetcd.ClusterSpec{}
+		err := protoetcd.FromJson(b, state)
 		if err != nil {
 			return nil, fmt.Errorf("error parsing cluster spec from etcd %q: %v", key, err)
 		}
-		return clusterSpec, nil
+		return state, nil
 	} else {
 		glog.Warningf("unable to read cluster spec from etcd: %v", err)
 	}
 
+	{
+		var state *protoetcd.ClusterSpec
+
+		backups, err := m.backupStore.ListBackups()
+		if err != nil {
+			return nil, fmt.Errorf("error listing backups: %v", err)
+		}
+
+		for i := len(backups) - 1; i >= 0; i-- {
+			backup := backups[i]
+
+			state, err = m.backupStore.LoadClusterState(backup)
+			if err != nil {
+				glog.Warningf("error reading cluster state in %q: %v", backup, err)
+				continue
+			}
+			if state == nil {
+				glog.Warningf("cluster state not found in %q", backup)
+				continue
+			} else {
+				break
+			}
+		}
+
+		if state != nil {
+			data, err := protoetcd.ToJson(state)
+			if err != nil {
+				return nil, fmt.Errorf("error serializing cluster spec: %v", err)
+			}
+
+			err = etcdClusterState.etcdCreate(ctx, key, data)
+			if err != nil {
+				// Concurrent leader wrote this?
+				return nil, fmt.Errorf("error writing cluster spec back to etcd: %v", err)
+			}
+
+			return state, nil
+		}
+	}
+
 	// TODO: Source from etcd / from state / from backup
 	glog.Warningf("Using hard coded ClusterSpec")
-	clusterSpec = &protoetcd.ClusterSpec{
+	state := &protoetcd.ClusterSpec{
 		MemberCount: 3,
 	}
-	return clusterSpec, nil
+	return state, nil
 
 }
+
 func randomToken() string {
 	b := make([]byte, 16, 16)
 	_, err := io.ReadFull(crypto_rand.Reader, b)
@@ -458,7 +500,7 @@ func (s *etcdClusterState) etcdAddMember(ctx context.Context, nodeInfo *protoetc
 	return nil, fmt.Errorf("unable to reach any cluster member, when trying to add new member")
 }
 
-func (s *etcdClusterState) etcdGet(ctx context.Context, key string) ([]byte, error) {
+func (s *etcdClusterState) etcdGet(ctx context.Context, key string) (string, error) {
 	for _, member := range s.members {
 		if len(member.ClientURLs) == 0 {
 			glog.Warningf("skipping member with no ClientURLs: %v", member)
@@ -484,22 +526,53 @@ func (s *etcdClusterState) etcdGet(ctx context.Context, key string) ([]byte, err
 		}
 		response, err := keysAPI.Get(ctx, key, opts)
 		if err != nil {
-			return nil, fmt.Errorf("error reading from member %s: %v", member, err)
+			return "", fmt.Errorf("error reading from member %s: %v", member, err)
 		}
 
 		if response.Node == nil {
-			return nil, fmt.Errorf("node not set reading from member %s", member)
+			return "", fmt.Errorf("node not set reading from member %s", member)
 		}
 
-		val, err := base64.RawStdEncoding.DecodeString(response.Node.Value)
-		if err != nil {
-			return nil, fmt.Errorf("error decoding key %q: %v", key, err)
-		}
-
-		return val, nil
+		return response.Node.Value, nil
 	}
 
-	return nil, fmt.Errorf("unable to reach any cluster member, when trying to read key %q", key)
+	return "", fmt.Errorf("unable to reach any cluster member, when trying to read key %q", key)
+}
+
+func (s *etcdClusterState) etcdCreate(ctx context.Context, key string, value string) error {
+	for _, member := range s.members {
+		if len(member.ClientURLs) == 0 {
+			glog.Warningf("skipping member with no ClientURLs: %v", member)
+			continue
+		}
+
+		cfg := etcd_client.Config{
+			Endpoints: member.ClientURLs,
+			Transport: etcd_client.DefaultTransport,
+			// set timeout per request to fail fast when the target endpoint is unavailable
+			HeaderTimeoutPerRequest: time.Second,
+		}
+		etcdClient, err := etcd_client.New(cfg)
+		if err != nil {
+			glog.Warningf("unable to reach member %s: %v", member, err)
+			continue
+		}
+
+		keysAPI := etcd_client.NewKeysAPI(etcdClient)
+
+		options := &etcd_client.SetOptions{
+			PrevExist: etcd_client.PrevNoExist,
+		}
+		response, err := keysAPI.Set(ctx, key, value, options)
+		if err != nil {
+			return fmt.Errorf("error creating %q on member %s: %v", key, member, err)
+		}
+		glog.V(2).Infof("Set returned %v", response)
+
+		return nil
+	}
+
+	return fmt.Errorf("unable to reach any cluster member, when trying to write key %q", key)
 }
 
 //func (m *EtcdController) processCluster(cluster *etcdClusterState) {
@@ -645,6 +718,7 @@ func (m *EtcdController) doClusterBackup(ctx context.Context, clusterSpec *proto
 			LeadershipToken: m.leadership.token,
 			ClusterName:     m.clusterName,
 			Storage:         m.backupStore.Spec(),
+			State:           clusterSpec,
 		}
 
 		doBackupResponse, err := peer.peer.rpcDoBackup(ctx, doBackupRequest)

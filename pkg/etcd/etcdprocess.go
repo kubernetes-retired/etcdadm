@@ -132,7 +132,7 @@ func (p *etcdProcess) Start() error {
 	return nil
 }
 
-func (p *etcdProcess) DoBackup(store backup.Store) (*protoetcd.DoBackupResponse, error) {
+func (p *etcdProcess) DoBackup(store backup.Store, state *protoetcd.ClusterSpec) (*protoetcd.DoBackupResponse, error) {
 	response := &protoetcd.DoBackupResponse{}
 
 	timestamp := time.Now().UTC().Format(time.RFC3339)
@@ -213,7 +213,7 @@ func (p *etcdProcess) DoBackup(store backup.Store) (*protoetcd.DoBackupResponse,
 
 	response.Name = timestamp
 
-	err = store.AddBackup(response.Name, tempDir)
+	err = store.AddBackup(response.Name, tempDir, state)
 	if err != nil {
 		return nil, fmt.Errorf("error copying backup to storage: %v", err)
 	}
