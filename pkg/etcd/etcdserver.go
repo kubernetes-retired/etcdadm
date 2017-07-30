@@ -145,6 +145,12 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
+	if request.ClusterName != s.clusterName {
+		return nil, fmt.Errorf("cluster name mismatch")
+	}
+
+	// TODO: Validate (our) peer id?
+
 	if !s.peerServer.IsLeader(request.LeadershipToken) {
 		return nil, fmt.Errorf("LeadershipToken in request %q is not current leader", request.LeadershipToken)
 	}
@@ -247,6 +253,10 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 func (s *EtcdServer) DoBackup(ctx context.Context, request *protoetcd.DoBackupRequest) (*protoetcd.DoBackupResponse, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
+
+	if s.clusterName != request.ClusterName {
+		return nil, fmt.Errorf("ClusterName mismatch")
+	}
 
 	if !s.peerServer.IsLeader(request.LeadershipToken) {
 		return nil, fmt.Errorf("LeadershipToken in request %q is not current leader", request.LeadershipToken)
