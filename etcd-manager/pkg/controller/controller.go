@@ -743,20 +743,20 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterState *etc
 		}
 	}
 
-	if len(peersMissingFromEtcd) != 0 {
-		glog.Infof("detected etcd servers not added to etcd cluster: %v", peersMissingFromEtcd)
-
-		peer := peersMissingFromEtcd[math_rand.Intn(len(peersMissingFromEtcd))]
-		glog.Infof("trying to add peer: %v", peer)
-
-		member, err := clusterState.etcdAddMember(ctx, peer.info.NodeConfiguration)
-		if err != nil {
-			return false, fmt.Errorf("error adding peer %q to cluster: %v", peer, err)
-		}
-		glog.Infof("Adding existing member to cluster: %s", member)
-		// We made some progress here; give it a cycle to join & sync
-		return true, nil
-	}
+	//if len(peersMissingFromEtcd) != 0 {
+	//	glog.Infof("detected etcd servers not added to etcd cluster: %v", peersMissingFromEtcd)
+	//
+	//	peer := peersMissingFromEtcd[math_rand.Intn(len(peersMissingFromEtcd))]
+	//	glog.Infof("trying to add peer: %v", peer)
+	//
+	//	member, err := clusterState.etcdAddMember(ctx, peer.info.NodeConfiguration)
+	//	if err != nil {
+	//		return false, fmt.Errorf("error adding peer %q to cluster: %v", peer, err)
+	//	}
+	//	glog.Infof("Adding existing member to cluster: %s", member)
+	//	// We made some progress here; give it a cycle to join & sync
+	//	return true, nil
+	//}
 
 	// We need to start etcd on a new node
 	if len(idlePeers) != 0 {
@@ -784,6 +784,15 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterState *etc
 		if clusterToken == "" {
 			// Should be unreachable
 			return false, fmt.Errorf("unable to determine cluster token")
+		}
+
+		// We have to add the peer to etcd before starting it
+		// * because the node fails to start if it is not added to the cluster first
+		// * and because we want etcd to be our source of truth
+		glog.Infof("Adding member to cluster: %s", peer.info.NodeConfiguration)
+		_, err := clusterState.etcdAddMember(ctx, peer.info.NodeConfiguration)
+		if err != nil {
+			return false, fmt.Errorf("error adding peer %q to cluster: %v", peer, err)
 		}
 
 		{
@@ -818,11 +827,6 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterState *etc
 			glog.V(2).Infof("JoinCluster returned %s", joinClusterResponse)
 		}
 
-		addedMember, err := clusterState.etcdAddMember(ctx, peer.info.NodeConfiguration)
-		if err != nil {
-			return false, fmt.Errorf("error adding peer %q to cluster: %v", peer, err)
-		}
-		glog.Infof("Added new member to cluster: %s", addedMember)
 		// We made some progress here; give it a cycle to join & sync
 		return true, nil
 	}
