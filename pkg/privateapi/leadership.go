@@ -117,32 +117,52 @@ func (s *Server) IsLeader(leadershipToken string) bool {
 
 	// TODO: Immediately depose leader if we see a lower peer?
 
-	return s.leadership != nil && s.leadership.notification != nil && s.leadership.notification.LeadershipToken == leadershipToken
+	if s.leadership == nil {
+		glog.Infof("will reject leadership token %q: no leadership", leadershipToken)
+		return false
+	}
+	if s.leadership.notification == nil {
+		glog.Infof("will reject leadership token %q: no leadership notification", leadershipToken)
+		return false
+	}
+	if s.leadership.notification.View == nil {
+		glog.Infof("will reject leadership token %q: no leadership notification view", leadershipToken)
+		return false
+	}
+	if s.leadership.notification.View.LeadershipToken != leadershipToken {
+		glog.Infof("will reject leadership token %q: actual leadership is %q", leadershipToken, s.leadership.notification.View.LeadershipToken)
+		return false
+	} else {
+		return true
+	}
 }
 
-func (s *Server) BecomeLeader(ctx context.Context) (string, error) {
+func (s *Server) BecomeLeader(ctx context.Context) ([]PeerId, string, error) {
+	// TODO: Should we send a notification if we ourselves would reject it?
 	snapshot, infos := s.snapshotHealthy()
 
 	request := &LeaderNotificationRequest{}
 
-	request.Leader = &s.myInfo
-	request.LeadershipToken = randomToken()
 	request.View = &View{}
 	for _, info := range infos {
 		request.View.Healthy = append(request.View.Healthy, info)
 	}
+	request.View.Leader = &s.myInfo
+	request.View.LeadershipToken = randomToken()
+
+	var acked []PeerId
 
 	for peerId := range snapshot {
 		conn, err := s.GetPeerClient(peerId)
 		if err != nil {
-			return "", fmt.Errorf("error getting peer client for %s: %v", peerId, err)
+			return nil, "", fmt.Errorf("error getting peer client for %s: %v", peerId, err)
 		}
 
 		peerClient := NewClusterServiceClient(conn)
 
 		response, err := peerClient.LeaderNotification(ctx, request)
 		if err != nil {
-			return "", fmt.Errorf("error sending leader notification to %s: %v", peerId, err)
+			return nil, "", fmt.Errorf("error sending leader notification to %s: %v", peerId, err)
 		}
 
 		if response.View != nil {
@@ -150,11 +170,12 @@ func (s *Server) BecomeLeader(ctx context.Context) (string, error) {
 		}
 
 		if !response.Accepted {
-			return "", fmt.Errorf("our leadership bid was not accepted by peer %q: %v", peerId, response)
+			return nil, "", fmt.Errorf("our leadership bid was not accepted by peer %q: %v", peerId, response)
 		}
+		acked = append(acked, peerId)
 	}
 
-	return request.LeadershipToken, nil
+	return acked, request.View.LeadershipToken, nil
 }
 
 func randomToken() string {

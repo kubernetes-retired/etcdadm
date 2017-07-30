@@ -14,6 +14,7 @@ go_library(
     srcs = [
         "discovery.go",
         "filesystemdiscovery.go",
+        "id.go",
         "leadership.go",
         "peers.go",
         "protolib",  # keep
@@ -21,6 +22,7 @@ go_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
+        "//pkg/ioutils:go_default_library",
         "@com_github_golang_glog//:go_default_library",
         "@com_github_golang_protobuf//proto:go_default_library",
         "@org_golang_google_grpc//:go_default_library",

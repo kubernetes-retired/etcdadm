@@ -36,14 +36,15 @@ message PeerInfo {
 //}
 
 message View {
-    repeated PeerInfo healthy = 1;
+    PeerInfo leader = 1;
+    string leadership_token = 2;
+
+    repeated PeerInfo healthy = 3;
 //    repeated PeerInfo unhealthy = 2;
 }
 
 message LeaderNotificationRequest {
-    PeerInfo leader = 1;
-    string leadership_token = 2;
-    View view = 3;
+    View view = 1;
 }
 
 message LeaderNotificationResponse {

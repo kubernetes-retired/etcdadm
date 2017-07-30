@@ -18,7 +18,7 @@ type Peers interface {
 	Peers() []*PeerInfo
 	MyPeerId() PeerId
 	GetPeerClient(peerId PeerId) (*grpc.ClientConn, error)
-	BecomeLeader(ctx context.Context) (string, error)
+	BecomeLeader(ctx context.Context) ([]PeerId, string, error)
 	IsLeader(token string) bool
 }
 
@@ -120,6 +120,12 @@ func (p *peer) updatePeerInfo(peerInfo *PeerInfo) {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 
+	if PeerId(peerInfo.Id) != p.id {
+		// TODO: We should probably keep a map by ip & socket
+		glog.Warningf("ignoring peer info with unexpected identity: %q vs %q", peerInfo.Id, p.id)
+		return
+	}
+
 	p.lastInfo = peerInfo
 	p.lastPingTime = time.Now()
 }
@@ -167,10 +173,12 @@ func (p *peer) runOnce() error {
 			Info: &p.server.myInfo,
 		}
 		response, err := client.Ping(context, request)
-		glog.Infof("got ping response from %s: %v", p.id, response)
+		glog.V(8).Infof("got ping response from %s: %v", p.id, response)
 		if err != nil {
 			return fmt.Errorf("error pinging %s: %v", p.id, err)
 		}
+
+		p.updatePeerInfo(response.Info)
 
 		time.Sleep(10 * time.Second)
 	}
@@ -230,7 +238,7 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 			continue
 		}
 
-		glog.Infof("got ping response from %s: %v", p.id, response)
+		glog.V(8).Infof("got ping response from %s: %v", p.id, response)
 		p.updatePeerInfo(response.Info)
 
 		{

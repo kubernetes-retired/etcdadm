@@ -59,9 +59,9 @@ func (s *Server) GrpcServer() *grpc.Server {
 	return s.grpcServer
 }
 
-// Ping just pings another node, part of the discovery protocol
+// Ping is just nodes pinging each other, part of the discovery protocol
 func (s *Server) Ping(ctx context.Context, request *PingRequest) (*PingResponse, error) {
-	glog.Infof("Got ping %s", request)
+	glog.V(8).Infof("Got ping %s", request)
 
 	if request.Info == nil || request.Info.Id == "" {
 		glog.Warningf("ping request did not have id: %s", request)

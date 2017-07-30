@@ -129,9 +129,11 @@ func (s *EtcdServer) GetInfo(context.Context, *protoetcd.GetInfoRequest) (*proto
 	response := &protoetcd.GetInfoResponse{}
 	response.ClusterName = s.clusterName
 	if s.state != nil && s.state.Cluster != nil {
-		pb := &protoetcd.EtcdCluster{}
-		*pb = *s.state.Cluster
-		response.ClusterConfiguration = pb
+		//pb := &protoetcd.EtcdCluster{}
+		//*pb = *s.state.Cluster
+		response.EtcdConfigured = true
+		response.ClusterToken = s.state.Cluster.ClusterToken
+		//response.ClusterConfiguration = pb
 	}
 	response.NodeConfiguration = s.nodeInfo
 
@@ -209,8 +211,11 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 			return nil, fmt.Errorf("etcd process already running")
 		}
 
-		if s.prepared != nil {
-			return nil, fmt.Errorf("cannot join; already prepared")
+		if s.prepared == nil {
+			return nil, fmt.Errorf("not prepared")
+		}
+		if s.prepared.clusterToken != request.ClusterToken {
+			return nil, fmt.Errorf("clusterToken %q does not match prepared %q", request.ClusterToken, s.prepared.clusterToken)
 		}
 
 		if s.state == nil {
@@ -271,6 +276,7 @@ func (s *EtcdServer) DoBackup(ctx context.Context, request *protoetcd.DoBackupRe
 
 func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 	dataDir := filepath.Join(s.baseDir, "data", state.Cluster.ClusterToken)
+	glog.Infof("starting etcd with datadir %s", dataDir)
 
 	// TODO: Validate this during the PREPARE phase
 	var meNode *protoetcd.EtcdNode
@@ -284,6 +290,8 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 		}
 	}
 	if meNode == nil {
+		glog.Infof("self node: %v", s.nodeInfo)
+		glog.Infof("cluster: %v", state.Cluster.Nodes)
 		return fmt.Errorf("self node was not included in cluster")
 	}
 
@@ -291,8 +299,6 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 	clientURL := s.nodeInfo.ClientUrls[0]
 
 	p := &etcdProcess{
-		// We always create new cluster, because etcd will ignore if the cluster exists
-		// TODO: Should we do better?
 		CreateNewCluster: false,
 		BinDir:           "/home/justinsb/apps/etcd2/etcd-v2.2.1-linux-amd64",
 		DataDir:          dataDir,
