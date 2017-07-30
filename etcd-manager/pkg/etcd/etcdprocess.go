@@ -43,6 +43,13 @@ type etcdProcess struct {
 	exitState *os.ProcessState
 }
 
+func (p *etcdProcess) ExitState() (error, *os.ProcessState) {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+
+	return p.exitError, p.exitState
+}
+
 func (p *etcdProcess) Stop() error {
 	if p.cmd == nil {
 		glog.Warningf("received Stop when process not running")
