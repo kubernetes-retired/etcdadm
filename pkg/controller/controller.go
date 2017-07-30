@@ -55,7 +55,7 @@ type leadershipState struct {
 type EtcdMemberId string
 
 type etcdClusterState struct {
-	clusterName    string
+	//clusterName    string
 	members        map[EtcdMemberId]*etcdclient.EtcdProcessMember
 	peers          map[privateapi.PeerId]*etcdClusterPeerInfo
 	healthyMembers map[EtcdMemberId]*etcdclient.EtcdProcessMember
@@ -791,7 +791,7 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterState *etc
 			joinClusterRequest := &protoetcd.JoinClusterRequest{
 				LeadershipToken: m.leadership.token,
 				Phase:           protoetcd.Phase_PHASE_PREPARE,
-				ClusterName:     clusterState.clusterName,
+				ClusterName:     m.clusterName,
 				ClusterToken:    clusterToken,
 				Nodes:           nodes,
 			}
@@ -816,7 +816,7 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterState *etc
 			joinClusterRequest := &protoetcd.JoinClusterRequest{
 				LeadershipToken: m.leadership.token,
 				Phase:           protoetcd.Phase_PHASE_JOIN_EXISTING,
-				ClusterName:     clusterState.clusterName,
+				ClusterName:     m.clusterName,
 				ClusterToken:    clusterToken,
 				Nodes:           nodes,
 			}
