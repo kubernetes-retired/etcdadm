@@ -315,7 +315,8 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		glog.Infof("took backup: %v", backup)
 	}
 
-	glog.Warningf("No additional controller logic")
+	glog.Infof("controller loop complete")
+
 	return false, nil
 	//if m.process == nil {
 	//	return m.stepStartCluster(me, peers)
@@ -786,15 +787,6 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterState *etc
 			return false, fmt.Errorf("unable to determine cluster token")
 		}
 
-		// We have to add the peer to etcd before starting it
-		// * because the node fails to start if it is not added to the cluster first
-		// * and because we want etcd to be our source of truth
-		glog.Infof("Adding member to cluster: %s", peer.info.NodeConfiguration)
-		_, err := clusterState.etcdAddMember(ctx, peer.info.NodeConfiguration)
-		if err != nil {
-			return false, fmt.Errorf("error adding peer %q to cluster: %v", peer, err)
-		}
-
 		{
 			joinClusterRequest := &protoetcd.JoinClusterRequest{
 				LeadershipToken: m.leadership.token,
@@ -809,6 +801,15 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterState *etc
 				return false, fmt.Errorf("error from JoinClusterRequest from peer %q: %v", peer.peer.Id, err)
 			}
 			glog.V(2).Infof("JoinCluster returned %s", joinClusterResponse)
+		}
+
+		// We have to add the peer to etcd before starting it
+		// * because the node fails to start if it is not added to the cluster first
+		// * and because we want etcd to be our source of truth
+		glog.Infof("Adding member to cluster: %s", peer.info.NodeConfiguration)
+		_, err := clusterState.etcdAddMember(ctx, peer.info.NodeConfiguration)
+		if err != nil {
+			return false, fmt.Errorf("error adding peer %q to cluster: %v", peer, err)
 		}
 
 		{
