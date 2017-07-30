@@ -110,8 +110,17 @@ func (s *EtcdServer) runOnce() error {
 		}
 	}
 
-	// TODO: Check that etcd process is still running
+	// Check that etcd process is still running
+	if s.process != nil {
+		exitError, exitState := s.process.ExitState()
+		if exitError != nil || exitState != nil {
+			glog.Warningf("etc process exited (error=%v, state=%v)", exitError, exitState)
 
+			s.process = nil
+		}
+	}
+
+	// Start etcd, if it is not running but should be
 	if s.state != nil && s.process == nil {
 		if err := s.startEtcdProcess(s.state); err != nil {
 			return err
@@ -146,7 +155,8 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 	defer s.mutex.Unlock()
 
 	if request.ClusterName != s.clusterName {
-		return nil, fmt.Errorf("cluster name mismatch")
+		glog.Infof("request had incorrect ClusterName.  ClusterName=%q but request=%q", s.clusterName, request)
+		return nil, fmt.Errorf("ClusterName mismatch")
 	}
 
 	// TODO: Validate (our) peer id?
@@ -255,6 +265,7 @@ func (s *EtcdServer) DoBackup(ctx context.Context, request *protoetcd.DoBackupRe
 	defer s.mutex.Unlock()
 
 	if s.clusterName != request.ClusterName {
+		glog.Infof("request had incorrect ClusterName.  ClusterName=%q but request=%q", s.clusterName, request)
 		return nil, fmt.Errorf("ClusterName mismatch")
 	}
 
