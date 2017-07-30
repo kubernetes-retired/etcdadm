@@ -48,13 +48,20 @@ func main() {
 
 	glog.Warningf("hard coding backup store location")
 	backupStorePath = "file:///home/justinsb/etcdmanager/backups/" + clusterName + "/"
-
 	if backupStorePath == "" {
 		fmt.Fprintf(os.Stderr, "backup-store is required\n")
 		os.Exit(1)
 	}
 
-	uniqueID := privateapi.PeerId(fmt.Sprintf("nodeid-%s", address))
+	baseDir := "/home/justinsb/etcdmanager/data/" + clusterName + "/" + address + "/"
+	if err := os.MkdirAll(baseDir, 0755); err != nil {
+		glog.Fatalf("error doing mkdirs on base directory %s: %v", baseDir, err)
+	}
+
+	uniqueID, err := privateapi.PersistentPeerId(baseDir)
+	if err != nil {
+		glog.Fatalf("error getting persistent peer id: %v", err)
+	}
 
 	grpcPort := 8000
 	discoMe := privateapi.DiscoveryNode{
@@ -94,18 +101,13 @@ func main() {
 	peerUrls = append(peerUrls, fmt.Sprintf("http://%s:%d", address, peerPort))
 
 	me := &apis_etcd.EtcdNode{
-		Name:       "node-" + address,
+		Name:       string(uniqueID),
 		ClientUrls: clientUrls,
 		PeerUrls:   peerUrls,
 	}
 	//c.Me = me
 	//c.Nodes = append(c.Nodes, me)
 	//c.ClusterToken = "etcd-cluster-token-" + c.ClusterName
-
-	baseDir := "/home/justinsb/etcdmanager/data/" + clusterName + "/" + address + "/"
-	if err := os.MkdirAll(baseDir, 0755); err != nil {
-		glog.Fatalf("error doing mkdirs on base directory %s: %v", baseDir, err)
-	}
 
 	backupStore, err := backup.NewStore(backupStorePath)
 	if err != nil {

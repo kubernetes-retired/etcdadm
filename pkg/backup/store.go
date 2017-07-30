@@ -2,7 +2,6 @@ package backup
 
 import (
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/url"
 	"os"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/golang/glog"
 	"kope.io/etcd-manager/pkg/apis/etcd"
+	"kope.io/etcd-manager/pkg/ioutils"
 )
 
 const MetaFilename = "_kopeio_etcd_manager.meta"
@@ -82,22 +82,6 @@ func (s *filesystemStore) CreateBackupTempDir(name string) (string, error) {
 	return p, nil
 }
 
-func createFile(p string, data []byte, mode os.FileMode) error {
-	f, err := os.OpenFile(p, os.O_WRONLY|os.O_CREATE|os.O_EXCL, mode)
-	if err != nil {
-		return err
-	}
-
-	n, err := f.Write(data)
-	if err == nil && n < len(data) {
-		err = io.ErrShortWrite
-	}
-	if err1 := f.Close(); err == nil {
-		err = err1
-	}
-	return err
-}
-
 func (s *filesystemStore) AddBackup(name string, srcdir string, state *etcd.ClusterSpec) error {
 	// Save the meta file
 	{
@@ -108,7 +92,7 @@ func (s *filesystemStore) AddBackup(name string, srcdir string, state *etcd.Clus
 			return fmt.Errorf("error marshalling state: %v", err)
 		}
 
-		err = createFile(p, []byte(data), 0700)
+		err = ioutils.CreateFile(p, []byte(data), 0700)
 		if err != nil {
 			return fmt.Errorf("error writing file %q: %v", p, err)
 		}

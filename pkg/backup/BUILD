@@ -7,6 +7,7 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/apis/etcd:go_default_library",
+        "//pkg/ioutils:go_default_library",
         "@com_github_golang_glog//:go_default_library",
     ],
 )
