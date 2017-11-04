@@ -7,12 +7,10 @@ DOCKER_TAG=1.0.20170421
 all: images
 
 gofmt:
-	gofmt -w -s cmd/
-	gofmt -w -s pkg/
+	gofmt -w -s cmd/ pkg/
 
 goimports:
-	goimports -w cmd/
-	goimports -w pkg/
+	goimports -w cmd/ pkg/ test/
 
 push: images
 	docker push ${DOCKER_REGISTRY}/etcd-manager:${DOCKER_TAG}

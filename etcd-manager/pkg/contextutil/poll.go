@@ -2,8 +2,9 @@ package contextutil
 
 import (
 	"context"
-	"github.com/golang/glog"
 	"time"
+
+	"github.com/golang/glog"
 )
 
 func Sleep(ctx context.Context, duration time.Duration) error {
