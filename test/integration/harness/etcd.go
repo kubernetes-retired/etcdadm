@@ -3,6 +3,7 @@ package harness
 import (
 	"context"
 	"fmt"
+	"testing"
 	"time"
 
 	etcd_client "github.com/coreos/etcd/client"
@@ -77,7 +78,7 @@ func (n *TestHarnessNode) KeysAPI() (etcd_client.KeysAPI, error) {
 	return keysAPI, nil
 }
 
-func waitForListMembers(client etcdclient.Client, timeout time.Duration) {
+func waitForListMembers(t *testing.T, client etcdclient.Client, timeout time.Duration) {
 	endAt := time.Now().Add(timeout)
 	for {
 		members, err := client.ListMembers(context.Background())
@@ -87,7 +88,8 @@ func waitForListMembers(client etcdclient.Client, timeout time.Duration) {
 		}
 		glog.Infof("Got error reading members from %s: (%v)", client, err)
 		if time.Now().After(endAt) {
-			break
+			t.Fatalf("list-members did not succeed within %v", timeout)
+			return
 		}
 		time.Sleep(time.Second)
 	}
@@ -105,7 +107,8 @@ func (n *TestHarnessNode) WaitForQuorumRead(ctx context.Context, timeout time.Du
 		}
 		glog.Infof("error from quorum-read on %q: %v", "/", err)
 		if time.Now().After(endAt) {
-			break
+			n.TestHarness.T.Fatalf("quorum-read did not succeed within %v", timeout)
+			return
 		}
 		time.Sleep(time.Second)
 	}
