@@ -30,8 +30,7 @@ const (
 
 type simpleEncDriver struct {
 	noBuiltInTypes
-	encDriverNoopContainerWriter
-	// encNoSeparator
+	encNoSeparator
 	e *Encoder
 	h *SimpleHandle
 	w encWriter
@@ -125,11 +124,11 @@ func (e *simpleEncDriver) encodeExtPreamble(xtag byte, length int) {
 	e.w.writen1(xtag)
 }
 
-func (e *simpleEncDriver) WriteArrayStart(length int) {
+func (e *simpleEncDriver) EncodeArrayStart(length int) {
 	e.encLen(simpleVdArray, length)
 }
 
-func (e *simpleEncDriver) WriteMapStart(length int) {
+func (e *simpleEncDriver) EncodeMapStart(length int) {
 	e.encLen(simpleVdMap, length)
 }
 
@@ -156,10 +155,10 @@ type simpleDecDriver struct {
 	bdRead bool
 	bd     byte
 	br     bool // bytes reader
-	b      [scratchByteArrayLen]byte
 	noBuiltInTypes
-	// noStreamingCodec
-	decDriverNoopContainerReader
+	noStreamingCodec
+	decNoSeparator
+	b [scratchByteArrayLen]byte
 }
 
 func (d *simpleDecDriver) readNextBd() {
@@ -175,9 +174,6 @@ func (d *simpleDecDriver) uncacheRead() {
 }
 
 func (d *simpleDecDriver) ContainerType() (vt valueType) {
-	if !d.bdRead {
-		d.readNextBd()
-	}
 	if d.bd == simpleVdNil {
 		return valueTypeNil
 	} else if d.bd == simpleVdByteArray || d.bd == simpleVdByteArray+1 ||
@@ -319,17 +315,11 @@ func (d *simpleDecDriver) DecodeBool() (b bool) {
 }
 
 func (d *simpleDecDriver) ReadMapStart() (length int) {
-	if !d.bdRead {
-		d.readNextBd()
-	}
 	d.bdRead = false
 	return d.decLen()
 }
 
 func (d *simpleDecDriver) ReadArrayStart() (length int) {
-	if !d.bdRead {
-		d.readNextBd()
-	}
 	d.bdRead = false
 	return d.decLen()
 }
@@ -362,14 +352,10 @@ func (d *simpleDecDriver) decLen() int {
 }
 
 func (d *simpleDecDriver) DecodeString() (s string) {
-	return string(d.DecodeBytes(d.b[:], true))
+	return string(d.DecodeBytes(d.b[:], true, true))
 }
 
-func (d *simpleDecDriver) DecodeStringAsBytes() (s []byte) {
-	return d.DecodeBytes(d.b[:], true)
-}
-
-func (d *simpleDecDriver) DecodeBytes(bs []byte, zerocopy bool) (bsOut []byte) {
+func (d *simpleDecDriver) DecodeBytes(bs []byte, isstring, zerocopy bool) (bsOut []byte) {
 	if !d.bdRead {
 		d.readNextBd()
 	}
@@ -386,7 +372,7 @@ func (d *simpleDecDriver) DecodeBytes(bs []byte, zerocopy bool) (bsOut []byte) {
 			bs = d.b[:]
 		}
 	}
-	return decByteSlice(d.r, clen, d.d.h.MaxInitLen, bs)
+	return decByteSlice(d.r, clen, bs)
 }
 
 func (d *simpleDecDriver) DecodeExt(rv interface{}, xtag uint64, ext Ext) (realxtag uint64) {
@@ -420,7 +406,7 @@ func (d *simpleDecDriver) decodeExtV(verifyTag bool, tag byte) (xtag byte, xbs [
 		}
 		xbs = d.r.readx(l)
 	case simpleVdByteArray, simpleVdByteArray + 1, simpleVdByteArray + 2, simpleVdByteArray + 3, simpleVdByteArray + 4:
-		xbs = d.DecodeBytes(nil, true)
+		xbs = d.DecodeBytes(nil, false, true)
 	default:
 		d.d.errorf("Invalid d.bd for extensions (Expecting extensions or byte array). Got: 0x%x", d.bd)
 		return
@@ -434,7 +420,7 @@ func (d *simpleDecDriver) DecodeNaked() {
 		d.readNextBd()
 	}
 
-	n := d.d.n
+	n := &d.d.n
 	var decodeFurther bool
 
 	switch d.bd {
@@ -468,7 +454,7 @@ func (d *simpleDecDriver) DecodeNaked() {
 		n.s = d.DecodeString()
 	case simpleVdByteArray, simpleVdByteArray + 1, simpleVdByteArray + 2, simpleVdByteArray + 3, simpleVdByteArray + 4:
 		n.v = valueTypeBytes
-		n.l = d.DecodeBytes(nil, false)
+		n.l = d.DecodeBytes(nil, false, false)
 	case simpleVdExt, simpleVdExt + 1, simpleVdExt + 2, simpleVdExt + 3, simpleVdExt + 4:
 		n.v = valueTypeExt
 		l := d.decLen()
@@ -513,7 +499,6 @@ func (d *simpleDecDriver) DecodeNaked() {
 type SimpleHandle struct {
 	BasicHandle
 	binaryEncodingType
-	noElemSeparators
 }
 
 func (h *SimpleHandle) SetBytesExt(rt reflect.Type, tag uint64, ext BytesExt) (err error) {
@@ -525,7 +510,7 @@ func (h *SimpleHandle) newEncDriver(e *Encoder) encDriver {
 }
 
 func (h *SimpleHandle) newDecDriver(d *Decoder) decDriver {
-	return &simpleDecDriver{d: d, h: h, r: d.r, br: d.bytes}
+	return &simpleDecDriver{d: d, r: d.r, h: h, br: d.bytes}
 }
 
 func (e *simpleEncDriver) reset() {
@@ -533,7 +518,7 @@ func (e *simpleEncDriver) reset() {
 }
 
 func (d *simpleDecDriver) reset() {
-	d.r, d.br = d.d.r, d.d.bytes
+	d.r = d.d.r
 	d.bd, d.bdRead = 0, false
 }
 
