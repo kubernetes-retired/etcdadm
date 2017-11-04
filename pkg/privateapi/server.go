@@ -21,16 +21,30 @@ type Server struct {
 	peers      map[PeerId]*peer
 	leadership *leadership
 
+	// context is the context bounding the lifetime of this Server
+	context context.Context
+
 	// DiscoveryPollInterval is the interval with which we request peers from discovery
 	DiscoveryPollInterval time.Duration
+
+	// PingInterval is the interval between pings to each of our peers
+	PingInterval time.Duration
+
+	// HealthyTimeout is the time after which we will consider a peer down if we have not heard a ping from it
+	// HealthyTimeout should be a moderate multiple of PingInterval (e.g. 10x)
+	HealthyTimeout time.Duration
 }
 
-func NewServer(myInfo PeerInfo, discovery Discovery) (*Server, error) {
+func NewServer(ctx context.Context, myInfo PeerInfo, discovery Discovery) (*Server, error) {
 	s := &Server{
 		discovery: discovery,
 		myInfo:    myInfo,
 		peers:     make(map[PeerId]*peer),
+		context:   ctx,
+
 		DiscoveryPollInterval: defaultDiscoveryPollInterval,
+		PingInterval:          defaultPingInterval,
+		HealthyTimeout:        defaultHealthyTimeout,
 	}
 
 	var opts []grpc.ServerOption
@@ -58,10 +72,10 @@ func (s *Server) ListenAndServe(ctx context.Context, listen string) error {
 
 	go func() {
 		<-ctx.Done()
-		glog.Infof("context closed; forcing close of listening socket")
+		glog.Infof("context closed; forcing close of listening socket %q", listen)
 		err := lis.Close()
 		if err != nil {
-			glog.Warningf("error closing listening socket: %v", err)
+			glog.Warningf("error closing listening socket %q: %v", listen, err)
 		}
 	}()
 
