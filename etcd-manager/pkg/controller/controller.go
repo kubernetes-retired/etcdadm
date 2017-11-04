@@ -23,6 +23,9 @@ import (
 
 const removeUnhealthyDeadline = time.Minute // TODO: increase
 
+// defaultCycleInterval is the default value of EtcdController::CycleInterval
+const defaultCycleInterval = 10 * time.Second
+
 type EtcdController struct {
 	clusterName string
 	backupStore backup.Store
@@ -42,6 +45,9 @@ type EtcdController struct {
 	peerState map[privateapi.PeerId]*peerState
 
 	InitialClusterSpecProvider InitialClusterSpecProvider
+
+	// CycleInterval is the time to wait in between iterations of the state synchronization loop, when no progress has been made prevbious
+	CycleInterval time.Duration
 }
 
 // peerState holds persistent information about a peer
@@ -129,6 +135,7 @@ func NewEtcdController(backupStore backup.Store, clusterName string, peers priva
 		//peers:   s.peerServer,
 		//me:      s.peerServer.MyPeerId(),
 		InitialClusterSpecProvider: initialClusterState,
+		CycleInterval:              defaultCycleInterval,
 	}
 	//s.etcdClusters[model.ClusterName] = m
 	return m, nil
@@ -143,7 +150,7 @@ func (m *EtcdController) Run(ctx context.Context) {
 				glog.Warningf("unexpected error running etcd cluster reconciliation loop: %v", err)
 			}
 			if !progress {
-				contextutil.Sleep(ctx, 10*time.Second)
+				contextutil.Sleep(ctx, m.CycleInterval)
 			}
 		})
 }
