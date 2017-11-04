@@ -1,6 +1,8 @@
 syntax = "proto3";
 package privateapi;
 
+option go_package = "kope.io/etcd-manager/pkg/privateapi";
+
 service ClusterService {
     // Ping just pings another node, part of the discovery protocol
     rpc Ping (PingRequest) returns (PingResponse);
