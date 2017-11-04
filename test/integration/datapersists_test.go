@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"kope.io/etcd-manager/pkg/etcdclient"
+	"kope.io/etcd-manager/test/integration/harness"
 )
 
 func TestClusterDataPersists(t *testing.T) {
@@ -14,7 +15,7 @@ func TestClusterDataPersists(t *testing.T) {
 
 	defer cancel()
 
-	h := NewTestHarness(t, ctx)
+	h := harness.NewTestHarness(t, ctx)
 	h.MemberCount = 1
 	defer h.Close()
 
@@ -22,7 +23,7 @@ func TestClusterDataPersists(t *testing.T) {
 	go n1.Run()
 
 	client := etcdclient.NewClient("http://127.0.0.1:4001")
-	waitForListMembers(client, 20*time.Second)
+	harness.WaitForListMembers(client, 20*time.Second)
 
 	key := "/testing/hello"
 
