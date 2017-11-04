@@ -12,7 +12,7 @@ import (
 
 func TestClusterDataPersists(t *testing.T) {
 	ctx := context.TODO()
-	ctx, cancel := context.WithTimeout(ctx, time.Second*30)
+	ctx, cancel := context.WithCancel(ctx)
 
 	defer cancel()
 
@@ -83,11 +83,12 @@ func TestHAReadWrite(t *testing.T) {
 	n2 := h.NewNode("127.0.0.2")
 	go n2.Run()
 
-	n1.WaitForListMembers(20 * time.Second)
-
 	key := "/testing/hareadwrite"
 
 	value := "write-on-one-read-on-another"
+
+	// Wait for cluster to achieve quorum
+	n1.WaitForQuorumRead(ctx, time.Second*30)
 
 	err := n1.Set(ctx, key, value)
 	if err != nil {
@@ -117,7 +118,7 @@ func TestHAReadWrite(t *testing.T) {
 	}
 
 	// After a leader loss, quorum reads fail until etcd recovers
-	n3.WaitForQuorumRead(ctx, time.Second*20)
+	n3.WaitForQuorumRead(ctx, time.Second*30)
 
 	{
 		actual, err := n3.GetQuorum(ctx, key)
@@ -151,7 +152,7 @@ func TestHARecovery(t *testing.T) {
 	n3 := h.NewNode("127.0.0.3")
 	go n3.Run()
 
-	n1.WaitForListMembers(20 * time.Second)
+	n1.WaitForQuorumRead(ctx, 30*time.Second)
 
 	key := "/testing/harecovery-" + strconv.FormatInt(time.Now().Unix(), 10)
 	value := time.Now().String()
@@ -182,18 +183,8 @@ func TestHARecovery(t *testing.T) {
 	// Wait for n3 node to be running (but not necessarily happy)
 	n3.WaitForListMembers(20 * time.Second)
 
-	{
-		actual, err := n3.GetLocal(ctx, key)
-		if err != nil {
-			t.Fatalf("error rereading key (local) %q: %v", key, err)
-		}
-		if actual != value {
-			t.Fatalf("could not reread key %q: %q vs %q", key, actual, value)
-		}
-	}
-
 	// After a leader loss, quorum reads fail until etcd recovers
-	n3.WaitForQuorumRead(ctx, time.Second*20)
+	n3.WaitForQuorumRead(ctx, time.Second*30)
 
 	{
 		actual, err := n3.GetQuorum(ctx, key)

@@ -117,7 +117,7 @@ func (n *TestHarnessNode) Run() {
 
 func (n *TestHarnessNode) WaitForListMembers(timeout time.Duration) {
 	client := etcdclient.NewClient(n.ClientURL)
-	waitForListMembers(client, timeout)
+	waitForListMembers(n.TestHarness.T, client, timeout)
 }
 
 func (n *TestHarnessNode) ListMembers(ctx context.Context) ([]*etcdclient.EtcdProcessMember, error) {
