@@ -1,8 +1,8 @@
 package controller
 
 import (
-	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"github.com/golang/glog"
+	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 )
 
 type InitialClusterSpecProvider interface {
@@ -19,7 +19,6 @@ func StaticInitialClusterSpecProvider(spec *protoetcd.ClusterSpec) InitialCluste
 type staticInitialClusterSpecProvider struct {
 	spec *protoetcd.ClusterSpec
 }
-
 
 var _ InitialClusterSpecProvider = &staticInitialClusterSpecProvider{}
 

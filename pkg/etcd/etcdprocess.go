@@ -58,16 +58,20 @@ func (p *etcdProcess) Stop() error {
 	if err := p.cmd.Process.Kill(); err != nil {
 		p.mutex.Lock()
 		if p.exitState != nil {
+			glog.Infof("Exited etcd: %v", p.exitState)
 			return nil
 		}
 		p.mutex.Unlock()
-		return fmt.Errorf("failed to kill process: ", err)
+		return fmt.Errorf("failed to kill process: %v", err)
 	}
 
 	for {
+		glog.Infof("Waiting for etcd to exit")
 		p.mutex.Lock()
 		if p.exitState != nil {
+			exitState := p.exitState
 			p.mutex.Unlock()
+			glog.Infof("Exited etcd: %v", exitState)
 			return nil
 		}
 		p.mutex.Unlock()
