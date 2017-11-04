@@ -11,7 +11,8 @@ import (
 	"kope.io/etcd-manager/pkg/contextutil"
 )
 
-const HealthyTimeout = time.Minute
+const defaultPingInterval = time.Second * 5
+const defaultHealthyTimeout = time.Minute
 
 // defaultDiscoveryPollInterval is the default value of Server::DiscoveryPollInterval
 const defaultDiscoveryPollInterval = time.Minute
@@ -66,14 +67,14 @@ func (s *Server) updateFromPingRequest(request *PingRequest) {
 
 	existing := s.peers[id]
 	if existing == nil {
-		glog.Infof("discovery found new candidate peer: %s", id)
+		glog.Infof("discovery found new candidate peer: %s %v", id, request.Info)
 		existing = &peer{
 			server: s,
 			id:     id,
 		}
-		s.peers[id] = existing
 		existing.updatePeerInfo(request.Info)
-		go existing.Run()
+		s.peers[id] = existing
+		go existing.Run(s.context, s.PingInterval)
 	} else {
 		existing.updatePeerInfo(request.Info)
 	}
@@ -88,14 +89,14 @@ func (s *Server) updateFromDiscovery(discoveryNode DiscoveryNode) {
 
 	existing := s.peers[id]
 	if existing == nil {
-		glog.Infof("discovery found new candidate peer: %s", id)
+		glog.Infof("discovery found new candidate peer: %s %v", id, discoveryNode.Addresses)
 		existing = &peer{
 			server: s,
 			id:     id,
 		}
-		s.peers[id] = existing
 		existing.updateFromDiscovery(discoveryNode)
-		go existing.Run()
+		s.peers[id] = existing
+		go existing.Run(s.context, s.PingInterval)
 	} else {
 		existing.updateFromDiscovery(discoveryNode)
 	}
@@ -135,7 +136,7 @@ func (p *peer) updatePeerInfo(peerInfo *PeerInfo) {
 	p.lastPingTime = time.Now()
 }
 
-func (p *peer) status() (*PeerInfo, bool) {
+func (p *peer) status(healthyTimeout time.Duration) (*PeerInfo, bool) {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 
@@ -144,25 +145,23 @@ func (p *peer) status() (*PeerInfo, bool) {
 	}
 
 	now := time.Now()
-	if now.Sub(p.lastPingTime) > HealthyTimeout {
+	if now.Sub(p.lastPingTime) > healthyTimeout {
 		return nil, false
 	}
 
 	return p.lastInfo, true
 }
 
-func (p *peer) Run() {
-	for {
-		err := p.runOnce()
+func (p *peer) Run(ctx context.Context, pingInterval time.Duration) {
+	contextutil.Forever(ctx, pingInterval, func() {
+		err := p.sendPings(ctx, pingInterval)
 		if err != nil {
 			glog.Warningf("unexpected error from peer intercommunications: %v", err)
 		}
-
-		time.Sleep(1 * time.Minute)
-	}
+	})
 }
 
-func (p *peer) runOnce() error {
+func (p *peer) sendPings(ctx context.Context, pingInterval time.Duration) error {
 	conn, err := p.connect()
 	if err != nil {
 		return err
@@ -173,6 +172,10 @@ func (p *peer) runOnce() error {
 
 	client := NewClusterServiceClient(conn)
 	for {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+
 		context := context.Background()
 		request := &PingRequest{
 			Info: &p.server.myInfo,
@@ -185,9 +188,8 @@ func (p *peer) runOnce() error {
 
 		p.updatePeerInfo(response.Info)
 
-		time.Sleep(10 * time.Second)
+		contextutil.Sleep(ctx, pingInterval)
 	}
-	return nil
 }
 
 func (p *peer) connect() (*grpc.ClientConn, error) {
@@ -272,7 +274,7 @@ func (s *Server) Peers() []*PeerInfo {
 	var infos []*PeerInfo
 
 	for _, peer := range s.peers {
-		lastInfo, status := peer.status()
+		lastInfo, status := peer.status(s.HealthyTimeout)
 		if status == false {
 			continue
 		}
@@ -291,7 +293,7 @@ func (s *Server) GetPeerClient(peerId PeerId) (*grpc.ClientConn, error) {
 	}
 	s.mutex.Unlock()
 
-	_, status := peer.status()
+	_, status := peer.status(s.HealthyTimeout)
 	if status == false {
 		return nil, fmt.Errorf("peer %q is not healthy", peerId)
 	}
