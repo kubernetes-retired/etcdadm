@@ -1,0 +1,44 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "base.go",
+        "peer.go",
+    ],
+    importpath = "github.com/coreos/etcd/etcdserver/api/etcdhttp",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/coreos/etcd/error:go_default_library",
+        "//vendor/github.com/coreos/etcd/etcdserver:go_default_library",
+        "//vendor/github.com/coreos/etcd/etcdserver/api:go_default_library",
+        "//vendor/github.com/coreos/etcd/etcdserver/api/v2http/httptypes:go_default_library",
+        "//vendor/github.com/coreos/etcd/etcdserver/etcdserverpb:go_default_library",
+        "//vendor/github.com/coreos/etcd/lease/leasehttp:go_default_library",
+        "//vendor/github.com/coreos/etcd/pkg/logutil:go_default_library",
+        "//vendor/github.com/coreos/etcd/raft:go_default_library",
+        "//vendor/github.com/coreos/etcd/rafthttp:go_default_library",
+        "//vendor/github.com/coreos/etcd/version:go_default_library",
+        "//vendor/github.com/coreos/pkg/capnslog:go_default_library",
+        "//vendor/github.com/prometheus/client_golang/prometheus:go_default_library",
+        "//vendor/golang.org/x/net/context:go_default_library",
+    ],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = [
+        "peer_test.go",
+        "version_test.go",
+    ],
+    importpath = "github.com/coreos/etcd/etcdserver/api/etcdhttp",
+    library = ":go_default_library",
+    deps = [
+        "//vendor/github.com/coreos/etcd/etcdserver/membership:go_default_library",
+        "//vendor/github.com/coreos/etcd/pkg/testutil:go_default_library",
+        "//vendor/github.com/coreos/etcd/pkg/types:go_default_library",
+        "//vendor/github.com/coreos/etcd/rafthttp:go_default_library",
+        "//vendor/github.com/coreos/etcd/version:go_default_library",
+        "//vendor/github.com/coreos/go-semver/semver:go_default_library",
+    ],
+)
