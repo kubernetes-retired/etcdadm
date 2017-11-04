@@ -13,6 +13,9 @@ import (
 
 const HealthyTimeout = time.Minute
 
+// defaultDiscoveryPollInterval is the default value of Server::DiscoveryPollInterval
+const defaultDiscoveryPollInterval = time.Minute
+
 type PeerId string
 
 type Peers interface {
@@ -37,10 +40,13 @@ type peer struct {
 	lastPingTime time.Time
 
 	conn *grpc.ClientConn
+
+	// DiscoveryPollInterval is the frequency with which we perform peer discovery
+	DiscoveryPollInterval time.Duration
 }
 
 func (s *Server) runDiscovery(ctx context.Context) {
-	contextutil.Forever(ctx, time.Minute, func() {
+	contextutil.Forever(ctx, s.DiscoveryPollInterval, func() {
 		err := s.runDiscoveryOnce()
 		if err != nil {
 			glog.Warningf("unexpected error from peer intercommunications: %v", err)

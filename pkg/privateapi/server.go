@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"sync"
+	"time"
 
 	"github.com/golang/glog"
 	"golang.org/x/net/context"
@@ -19,6 +20,9 @@ type Server struct {
 	mutex      sync.Mutex
 	peers      map[PeerId]*peer
 	leadership *leadership
+
+	// DiscoveryPollInterval is the interval with which we request peers from discovery
+	DiscoveryPollInterval time.Duration
 }
 
 func NewServer(myInfo PeerInfo, discovery Discovery) (*Server, error) {
@@ -26,6 +30,7 @@ func NewServer(myInfo PeerInfo, discovery Discovery) (*Server, error) {
 		discovery: discovery,
 		myInfo:    myInfo,
 		peers:     make(map[PeerId]*peer),
+		DiscoveryPollInterval: defaultDiscoveryPollInterval,
 	}
 
 	var opts []grpc.ServerOption
