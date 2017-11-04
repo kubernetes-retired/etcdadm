@@ -8,6 +8,7 @@ import (
 
 	"github.com/golang/glog"
 	"google.golang.org/grpc"
+	"kope.io/etcd-manager/pkg/contextutil"
 )
 
 const HealthyTimeout = time.Minute
@@ -38,15 +39,13 @@ type peer struct {
 	conn *grpc.ClientConn
 }
 
-func (s *Server) runDiscovery() {
-	for {
+func (s *Server) runDiscovery(ctx context.Context) {
+	contextutil.Forever(ctx, time.Minute, func() {
 		err := s.runDiscoveryOnce()
 		if err != nil {
 			glog.Warningf("unexpected error from peer intercommunications: %v", err)
 		}
-
-		time.Sleep(1 * time.Minute)
-	}
+	})
 }
 
 func (s *Server) updateFromPingRequest(request *PingRequest) {

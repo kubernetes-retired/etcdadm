@@ -43,13 +43,22 @@ func NewServer(myInfo PeerInfo, discovery Discovery) (*Server, error) {
 
 var _ ClusterServiceServer = &Server{}
 
-func (s *Server) ListenAndServe(listen string) error {
-	go s.runDiscovery()
+func (s *Server) ListenAndServe(ctx context.Context, listen string) error {
+	go s.runDiscovery(ctx)
 
 	lis, err := net.Listen("tcp", listen)
 	if err != nil {
 		return fmt.Errorf("failed to listen on %s: %v", listen, err)
 	}
+
+	go func() {
+		<-ctx.Done()
+		glog.Infof("context closed; forcing close of listening socket")
+		err := lis.Close()
+		if err != nil {
+			glog.Warningf("error closing listening socket: %v", err)
+		}
+	}()
 
 	RegisterClusterServiceServer(s.grpcServer, s)
 	return s.grpcServer.Serve(lis)
