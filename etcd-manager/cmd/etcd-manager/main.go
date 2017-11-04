@@ -17,12 +17,14 @@ limitations under the License.
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
 
 	"github.com/golang/glog"
 	apis_etcd "kope.io/etcd-manager/pkg/apis/etcd"
+	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/controller"
 	"kope.io/etcd-manager/pkg/etcd"
@@ -32,6 +34,8 @@ import (
 func main() {
 	address := "127.0.0.1"
 	flag.StringVar(&address, "address", address, "local address to use")
+	memberCount := 1
+	flag.IntVar(&memberCount, "members", memberCount, "initial cluster size; cluster won't start until we have a quorum of this size")
 	clusterName := ""
 	flag.StringVar(&clusterName, "cluster-name", clusterName, "name of cluster")
 	backupStorePath := ""
@@ -114,18 +118,25 @@ func main() {
 		glog.Fatalf("error initializing backup store: %v", err)
 	}
 
+	ctx := context.TODO()
+
 	etcdServer := etcd.NewEtcdServer(baseDir, clusterName, me, peerServer)
+	go etcdServer.Run(ctx)
 
-	go etcdServer.Run()
-
-	c, err := controller.NewEtcdController(backupStore, clusterName, peerServer)
+	spec := &protoetcd.ClusterSpec{
+		MemberCount: int32(memberCount),
+	}
+	initialClusterState := controller.StaticInitialClusterSpecProvider(spec)
+	c, err := controller.NewEtcdController(backupStore, clusterName, peerServer, initialClusterState)
 	if err != nil {
 		glog.Fatalf("error building etcd controller: %v", err)
 	}
-	go c.Run()
+	go c.Run(ctx)
 
-	if err := peerServer.ListenAndServe(grpcAddress); err != nil {
-		glog.Fatalf("error creating private API server: %v", err)
+	if err := peerServer.ListenAndServe(ctx, grpcAddress); err != nil {
+		if ctx.Err() == nil {
+			glog.Fatalf("error creating private API server: %v", err)
+		}
 	}
 
 	os.Exit(0)
