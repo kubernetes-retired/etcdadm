@@ -16,9 +16,9 @@ import (
 	"github.com/golang/glog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
+	"kope.io/etcd-manager/pkg/contextutil"
 	"kope.io/etcd-manager/pkg/etcdclient"
 	"kope.io/etcd-manager/pkg/privateapi"
-	"kope.io/etcd-manager/pkg/contextutil"
 )
 
 const removeUnhealthyDeadline = time.Minute // TODO: increase
@@ -107,7 +107,6 @@ func (p *peer) String() string {
 	return s
 }
 
-
 func NewEtcdController(backupStore backup.Store, clusterName string, peers privateapi.Peers, initialClusterState InitialClusterSpecProvider) (*EtcdController, error) {
 	//s.mutex.Lock()
 	//defer s.mutex.Unlock()
@@ -144,7 +143,7 @@ func (m *EtcdController) Run(ctx context.Context) {
 				glog.Warningf("unexpected error running etcd cluster reconciliation loop: %v", err)
 			}
 			if !progress {
-				contextutil.Sleep(ctx, 10 * time.Second)
+				contextutil.Sleep(ctx, 10*time.Second)
 			}
 		})
 }
@@ -245,7 +244,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 
 	now := time.Now()
 
-	for id, _ := range clusterState.members {
+	for id := range clusterState.members {
 		ps := m.peerState[privateapi.PeerId(id)]
 		if ps == nil {
 			ps = &peerState{

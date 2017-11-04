@@ -29,8 +29,8 @@ func init() {
 type TestHarness struct {
 	T *testing.T
 
-	ClusterName     string
-	BackupStorePath string
+	ClusterName       string
+	BackupStorePath   string
 	DiscoveryStoreDir string
 
 	MemberCount int
@@ -54,8 +54,8 @@ func NewTestHarness(t *testing.T, ctx context.Context) *TestHarness {
 		ClusterName: clusterName,
 		WorkDir:     path.Join(tmpDir, clusterName),
 		MemberCount: 3,
-		Nodes: make(map[string]*TestHarnessNode),
-		Context: ctx,
+		Nodes:       make(map[string]*TestHarnessNode),
+		Context:     ctx,
 	}
 
 	h.BackupStorePath = "file://" + filepath.Join(h.WorkDir, "backupstore")
@@ -66,6 +66,14 @@ func NewTestHarness(t *testing.T, ctx context.Context) *TestHarness {
 
 func (h *TestHarness) Close() {
 	t := h.T
+
+
+	for k, node := range h.Nodes {
+		glog.Infof("Terminating node %q", k)
+		if err := node.Close(); err != nil {
+			t.Errorf("error closing node %q: %v", k, err)
+		}
+	}
 
 	if h.WorkDir != "" {
 		if err := os.RemoveAll(h.WorkDir); err != nil {
@@ -78,6 +86,9 @@ type TestHarnessNode struct {
 	TestHarness *TestHarness
 	Address     string
 	NodeDir     string
+
+	etcdServer *etcd.EtcdServer
+	etcdController *controller.EtcdController
 }
 
 func (h *TestHarness) NewNode(address string) *TestHarnessNode {
@@ -168,7 +179,7 @@ func (h *TestHarnessNode) Run() {
 	}
 
 	etcdServer := etcd.NewEtcdServer(h.NodeDir, h.TestHarness.ClusterName, me, peerServer)
-
+h.etcdServer = etcdServer
 	go etcdServer.Run(ctx)
 
 	initState := &protoetcd.ClusterSpec{
@@ -179,18 +190,31 @@ func (h *TestHarnessNode) Run() {
 	if err != nil {
 		t.Fatalf("error building etcd controller: %v", err)
 	}
+	h.etcdController = c
 	go c.Run(ctx)
 
 	if err := peerServer.ListenAndServe(ctx, grpcAddress); err != nil {
-		t.Fatalf("error creating private API server: %v", err)
+		if ctx.Done() == nil {
+			t.Fatalf("error creating private API server: %v", err)
+		}
 	}
 }
 
 
+func (h *TestHarnessNode) Close() error {
+	if h.etcdServer != nil {
+		_, err := h.etcdServer.StopEtcdProcess()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
-func TestSingleNodeCluster(t *testing.T) {
+
+func TestClusterWithOneMember(t *testing.T) {
 	ctx := context.TODO()
-	ctx, cancel := context.WithTimeout(ctx, time.Second * 30)
+	ctx, cancel := context.WithTimeout(ctx, time.Second*30)
 
 	defer cancel()
 
@@ -209,6 +233,90 @@ func TestSingleNodeCluster(t *testing.T) {
 		t.Errorf("error doing etcd ListMembers: %v", err)
 	}
 	if len(members) != 1 {
-		t.Errorf("members was not as expected: %v", err)
+		t.Errorf("members was not as expected: %v", members)
 	}
 }
+
+func TestClusterWithThreeMembers(t *testing.T) {
+	ctx := context.TODO()
+	ctx, cancel := context.WithTimeout(ctx, time.Second*30)
+
+	defer cancel()
+
+	h := NewTestHarness(t, ctx)
+	h.MemberCount = 3
+	defer h.Close()
+
+	n1 := h.NewNode("127.0.0.1")
+	go n1.Run()
+	n2 := h.NewNode("127.0.0.2")
+	go n2.Run()
+	n3 := h.NewNode("127.0.0.3")
+	go n3.Run()
+
+	time.Sleep(20 * time.Second)
+
+	client := etcdclient.NewClient("http://127.0.0.1:4001")
+	members, err := client.ListMembers(ctx)
+	if err != nil {
+		t.Errorf("error doing etcd ListMembers: %v", err)
+	}
+	if len(members) != 3 {
+		t.Errorf("members was not as expected: %v", members)
+	}
+
+	h.Close()
+}
+
+//
+//func TestMultiNodeCluster(t *testing.T) {
+//	ctx := context.TODO()
+//	ctx, cancel := context.WithTimeout(ctx, time.Second*30)
+//
+//	defer cancel()
+//
+//	h := NewTestHarness(t, ctx)
+//	h.MemberCount = 3
+//	defer h.Close()
+//
+//	n1 := h.NewNode("127.0.0.1")
+//	go n1.Run()
+//
+//	n2 := h.NewNode("127.0.0.2")
+//	go n2.Run()
+//
+//	time.Sleep(20 * time.Second)
+//
+//	client1 := etcdclient.NewClient("http://127.0.0.1:4001")
+//	members1, err := client1.ListMembers(ctx)
+//	if err != nil {
+//		t.Errorf("error doing etcd ListMembers: %v", err)
+//	}
+//	if len(members1) != 2 {
+//		t.Errorf("members was not as expected: %v", err)
+//	}
+//
+//	client2 := etcdclient.NewClient("http://127.0.0.2:4002")
+//	members2, err := client2.ListMembers(ctx)
+//	if err != nil {
+//		t.Errorf("error doing etcd ListMembers: %v", err)
+//	}
+//	if len(members2) != 2 {
+//		t.Errorf("members was not as expected: %v", err)
+//	}
+//
+//
+//	n3 := h.NewNode("127.0.0.3")
+//	go n3.Run()
+//
+//	time.Sleep(20 * time.Second)
+//
+//	client3 := etcdclient.NewClient("http://127.0.0.3:4001")
+//	members3, err := client3.ListMembers(ctx)
+//	if err != nil {
+//		t.Errorf("error doing etcd ListMembers: %v", err)
+//	}
+//	if len(members3) != 2 {
+//		t.Errorf("members was not as expected: %v", err)
+//	}
+//}
