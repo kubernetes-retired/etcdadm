@@ -13,8 +13,8 @@ import (
 	"golang.org/x/net/context"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
-	"kope.io/etcd-manager/pkg/privateapi"
 	"kope.io/etcd-manager/pkg/contextutil"
+	"kope.io/etcd-manager/pkg/privateapi"
 )
 
 const PreparedValidity = time.Minute
@@ -54,7 +54,7 @@ func NewEtcdServer(baseDir string, clusterName string, nodeInfo *protoetcd.EtcdN
 var _ protoetcd.EtcdManagerServiceServer = &EtcdServer{}
 
 func (s *EtcdServer) Run(ctx context.Context) {
-	contextutil.Forever(ctx, time.Second * 10, func() {
+	contextutil.Forever(ctx, time.Second*10, func() {
 		err := s.runOnce()
 		if err != nil {
 			glog.Warningf("error running etcd: %v", err)
@@ -250,7 +250,7 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 		if err := s.startEtcdProcess(s.state); err != nil {
 			return nil, err
 		}
-	// TODO: Wait for join?
+		// TODO: Wait for join?
 
 	default:
 		return nil, fmt.Errorf("unknown status %s", request.Phase)
@@ -342,6 +342,24 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 	s.process = p
 
 	return nil
+}
+
+// StopEtcdProcess terminates etcd if it is running; primarily used for testing
+func (s *EtcdServer) StopEtcdProcess() (bool, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	if s.process == nil {
+		return false, nil
+	}
+
+	glog.Infof("killing etcd with datadir %s", s.process.DataDir)
+	err := s.process.Stop()
+	if err != nil {
+		return true, fmt.Errorf("error killing etcd: %v", err)
+	}
+	s.process = nil
+	return true, nil
 }
 
 func stringSlicesEqual(a, b []string) bool {
