@@ -1,33 +1,16 @@
-git_repository(
+http_archive(
     name = "io_bazel_rules_go",
-    remote = "https://github.com/bazelbuild/rules_go.git",
-    tag = "0.5.0",
+    url = "https://github.com/bazelbuild/rules_go/releases/download/0.7.0/rules_go-0.7.0.tar.gz",
+    sha256 = "91fca9cf860a1476abdc185a5f675b641b60d3acf0596679a27b580af60bf19c",
 )
 
-load("@io_bazel_rules_go//go:def.bzl", "go_repositories", "go_repository", "new_go_repository")
+load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_toolchains")
+go_rules_dependencies()
+go_register_toolchains()
 
-go_repositories()
+load("@io_bazel_rules_go//proto:def.bzl", "proto_register_toolchains")
+proto_register_toolchains()
 
-#=============================================================================
-
-git_repository(
-    name = "org_pubref_rules_protobuf",
-    remote = "https://github.com/pubref/rules_protobuf.git",
-    #commit = "44de96db3881de9e646c222303a58f26c05fc88a",
-    tag = "v0.7.1",
-)
-
-load("@org_pubref_rules_protobuf//go:rules.bzl", "go_proto_repositories")
-
-go_proto_repositories()
-
-#=============================================================================
-
-new_go_repository(
-    name = "com_github_coreos_etcd",
-    commit = "cb2a496c4ddd1c87a9f280e116649b599999ec79",
-    importpath = "github.com/coreos/etcd",
-)
 
 #=============================================================================
 
@@ -53,15 +36,3 @@ debs = (
     sha256 = sha256,
     url = url,
 ) for name, sha256, url in debs]
-
-new_go_repository(
-    name = "com_github_ugorji_go",
-    commit = "5efa3251c7f7d05e5d9704a69a984ec9f1386a40",
-    importpath = "github.com/ugorji/go",
-)
-
-new_go_repository(
-    name = "com_github_coreos_go_semver",
-    commit = "1817cd4bea52af76542157eeabd74b057d1a199e",
-    importpath = "github.com/coreos/go-semver",
-)
