@@ -1,4 +1,4 @@
-package integration
+package harness
 
 import (
 	"context"
@@ -6,6 +6,8 @@ import (
 	"time"
 
 	etcd_client "github.com/coreos/etcd/client"
+	"github.com/golang/glog"
+	"kope.io/etcd-manager/pkg/etcdclient"
 )
 
 func (n *TestHarnessNode) Get(ctx context.Context, key string) (string, error) {
@@ -28,14 +30,13 @@ func (n *TestHarnessNode) Get(ctx context.Context, key string) (string, error) {
 	return response.Node.Value, nil
 }
 
-func (n *TestHarnessNode) Set(ctx context.Context, key string, value string) (error) {
+func (n *TestHarnessNode) Set(ctx context.Context, key string, value string) error {
 	keysAPI, err := n.KeysAPI()
 	if err != nil {
 		return err
 	}
 
-	opts := &etcd_client.SetOptions{
-	}
+	opts := &etcd_client.SetOptions{}
 	_, err = keysAPI.Set(ctx, key, value, opts)
 	if err != nil {
 		return fmt.Errorf("error writing to  %s: %v", n.ClientURL, err)
@@ -61,4 +62,19 @@ func (n *TestHarnessNode) KeysAPI() (etcd_client.KeysAPI, error) {
 
 	keysAPI := etcd_client.NewKeysAPI(etcdClient)
 	return keysAPI, nil
+}
+
+func WaitForListMembers(client etcdclient.Client, timeout time.Duration) {
+	endAt := time.Now().Add(timeout)
+	for {
+		members, err := client.ListMembers(context.Background())
+		if err == nil {
+			return
+		}
+		glog.Infof("Got members from %s: (%v, %v)", client, members, err)
+		if time.Now().After(endAt) {
+			break
+		}
+		time.Sleep(time.Second)
+	}
 }
