@@ -12,9 +12,15 @@ import (
 	"github.com/golang/glog"
 )
 
+type Client interface {
+	ListMembers(ctx context.Context) ([]*EtcdProcessMember, error)
+}
+
 type etcdClient struct {
 	ClientURL string
 }
+
+var _ Client = &etcdClient{}
 
 type EtcdProcessMember struct {
 	Id         string   `json:"id,omitempty"`
@@ -49,7 +55,7 @@ type etcdProcessMemberList struct {
 	Members []*EtcdProcessMember `json:"members"`
 }
 
-func NewClient(clientURL string) *etcdClient {
+func NewClient(clientURL string) Client {
 	return &etcdClient{
 		ClientURL: clientURL,
 	}

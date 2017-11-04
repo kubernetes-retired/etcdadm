@@ -21,6 +21,10 @@ import (
 	"kope.io/etcd-manager/pkg/privateapi"
 )
 
+// testCycleInterval is the cycle interval to use for tests.
+// A shorter value here has two advantages: tests are faster, and it is less likely to mask problems
+const testCycleInterval = time.Second
+
 func init() {
 	flag.Set("logtostderr", "true")
 	flag.Set("v", "2")
@@ -48,6 +52,8 @@ func NewTestHarness(t *testing.T, ctx context.Context) *TestHarness {
 	if err != nil {
 		t.Errorf("error building tempdir: %v", err)
 	}
+
+	glog.Infof("Starting new testharness in %s", tmpDir)
 
 	clusterName := "testharnesscluster"
 	h := &TestHarness{
@@ -187,6 +193,7 @@ func (h *TestHarnessNode) Run() {
 	}
 
 	c, err := controller.NewEtcdController(backupStore, h.TestHarness.ClusterName, peerServer, controller.StaticInitialClusterSpecProvider(initState))
+	c.CycleInterval = testCycleInterval
 	if err != nil {
 		t.Fatalf("error building etcd controller: %v", err)
 	}
@@ -223,15 +230,31 @@ func TestClusterWithOneMember(t *testing.T) {
 	n1 := h.NewNode("127.0.0.1")
 	go n1.Run()
 
-	time.Sleep(20 * time.Second)
-
 	client := etcdclient.NewClient("http://127.0.0.1:4001")
+	waitForListMembers(client, 20*time.Second)
 	members, err := client.ListMembers(ctx)
 	if err != nil {
 		t.Errorf("error doing etcd ListMembers: %v", err)
 	}
 	if len(members) != 1 {
 		t.Errorf("members was not as expected: %v", members)
+	}
+
+	cancel()
+	h.Close()
+}
+
+func waitForListMembers(client etcdclient.Client, timeout time.Duration) {
+	endAt := time.Now().Add(timeout)
+	for {
+		_, err := client.ListMembers(context.Background())
+		if err == nil {
+			return
+		}
+		if time.Now().After(endAt) {
+			break
+		}
+		time.Sleep(time.Second)
 	}
 }
 
@@ -252,9 +275,8 @@ func TestClusterWithThreeMembers(t *testing.T) {
 	n3 := h.NewNode("127.0.0.3")
 	go n3.Run()
 
-	time.Sleep(20 * time.Second)
-
 	client := etcdclient.NewClient("http://127.0.0.1:4001")
+	waitForListMembers(client, 20*time.Second)
 	members, err := client.ListMembers(ctx)
 	if err != nil {
 		t.Errorf("error doing etcd ListMembers: %v", err)
@@ -263,13 +285,13 @@ func TestClusterWithThreeMembers(t *testing.T) {
 		t.Errorf("members was not as expected: %v", members)
 	}
 
+	cancel()
 	h.Close()
 }
 
-//
-//func TestMultiNodeCluster(t *testing.T) {
+//func TestClusterExpansion(t *testing.T) {
 //	ctx := context.TODO()
-//	ctx, cancel := context.WithTimeout(ctx, time.Second*30)
+//	ctx, cancel := context.WithTimeout(ctx, time.Second*60)
 //
 //	defer cancel()
 //
@@ -279,18 +301,15 @@ func TestClusterWithThreeMembers(t *testing.T) {
 //
 //	n1 := h.NewNode("127.0.0.1")
 //	go n1.Run()
-//
 //	n2 := h.NewNode("127.0.0.2")
 //	go n2.Run()
 //
-//	time.Sleep(20 * time.Second)
-//
 //	client1 := etcdclient.NewClient("http://127.0.0.1:4001")
+//	waitForListMembers(client1, 20*time.Second)
 //	members1, err := client1.ListMembers(ctx)
 //	if err != nil {
 //		t.Errorf("error doing etcd ListMembers: %v", err)
-//	}
-//	if len(members1) != 2 {
+//	} else if len(members1) != 2 {
 //		t.Errorf("members was not as expected: %v", err)
 //	}
 //
@@ -298,23 +317,22 @@ func TestClusterWithThreeMembers(t *testing.T) {
 //	members2, err := client2.ListMembers(ctx)
 //	if err != nil {
 //		t.Errorf("error doing etcd ListMembers: %v", err)
-//	}
-//	if len(members2) != 2 {
+//	} else if len(members2) != 2 {
 //		t.Errorf("members was not as expected: %v", err)
 //	}
-//
 //
 //	n3 := h.NewNode("127.0.0.3")
 //	go n3.Run()
 //
-//	time.Sleep(20 * time.Second)
-//
 //	client3 := etcdclient.NewClient("http://127.0.0.3:4001")
+//	waitForListMembers(client3, 30*time.Second)
 //	members3, err := client3.ListMembers(ctx)
 //	if err != nil {
 //		t.Errorf("error doing etcd ListMembers: %v", err)
-//	}
-//	if len(members3) != 2 {
+//	} else if len(members3) != 3 {
 //		t.Errorf("members was not as expected: %v", err)
 //	}
+//
+//	cancel()
+//	h.Close()
 //}
