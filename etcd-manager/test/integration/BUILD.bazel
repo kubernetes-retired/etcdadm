@@ -10,5 +10,6 @@ go_test(
     deps = [
         "//pkg/etcdclient:go_default_library",
         "//test/integration/harness:go_default_library",
+        "//vendor/github.com/golang/glog:go_default_library",
     ],
 )

@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang/glog"
 	"kope.io/etcd-manager/pkg/etcdclient"
 	"kope.io/etcd-manager/test/integration/harness"
 )
@@ -34,13 +35,33 @@ func TestClusterDataPersists(t *testing.T) {
 		t.Fatalf("error writing key %q: %v", key, err)
 	}
 
-	actual, err := n1.Get(ctx, key)
-	if err != nil {
-		t.Fatalf("error reading key %q: %v", key, err)
+	{
+		actual, err := n1.Get(ctx, key)
+		if err != nil {
+			t.Fatalf("error reading key %q: %v", key, err)
+		}
+		if actual != value {
+			t.Fatalf("could not read back key %q: %q vs %q", key, actual, value)
+		}
 	}
 
-	if actual != value {
-		t.Fatalf("could not read back key %q: %q vs %q", key, actual, value)
+	if err := n1.Close(); err != nil {
+		t.Fatalf("failed to stop node 1: %v", err)
+	}
+
+	glog.Infof("restarting node %v", n1)
+	go n1.Run()
+
+	n1.WaitForListMembers(time.Second * 20)
+
+	{
+		actual, err := n1.Get(ctx, key)
+		if err != nil {
+			t.Fatalf("error rereading key %q: %v", key, err)
+		}
+		if actual != value {
+			t.Fatalf("could not reread key %q: %q vs %q", key, actual, value)
+		}
 	}
 
 	cancel()
