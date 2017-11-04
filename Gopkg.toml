@@ -33,6 +33,10 @@
   branch = "master"
   name = "github.com/golang/protobuf"
 
+[[override]]
+  name = "github.com/ugorji/go"
+  revision = "ded73eae5db7e7a0ef6f55aace87a2873c5d2b74"
+
 [[constraint]]
   branch = "master"
   name = "golang.org/x/net"

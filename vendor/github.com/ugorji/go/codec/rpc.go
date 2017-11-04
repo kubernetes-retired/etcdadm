@@ -4,11 +4,19 @@
 package codec
 
 import (
-	"errors"
+	"bufio"
 	"io"
 	"net/rpc"
 	"sync"
 )
+
+// rpcEncodeTerminator allows a handler specify a []byte terminator to send after each Encode.
+//
+// Some codecs like json need to put a space after each encoded value, to serve as a
+// delimiter for things like numbers (else json codec will continue reading till EOF).
+type rpcEncodeTerminator interface {
+	rpcEncodeTerminate() []byte
+}
 
 // Rpc provides a rpc Server or Client Codec for rpc communication.
 type Rpc interface {
@@ -16,68 +24,51 @@ type Rpc interface {
 	ClientCodec(conn io.ReadWriteCloser, h Handle) rpc.ClientCodec
 }
 
-// // RpcCodecBuffered allows access to the underlying bufio.Reader/Writer
-// // used by the rpc connection. It accommodates use-cases where the connection
-// // should be used by rpc and non-rpc functions, e.g. streaming a file after
-// // sending an rpc response.
-// type RpcCodecBuffered interface {
-// 	BufferedReader() *bufio.Reader
-// 	BufferedWriter() *bufio.Writer
-// }
+// RpcCodecBuffered allows access to the underlying bufio.Reader/Writer
+// used by the rpc connection. It accommodates use-cases where the connection
+// should be used by rpc and non-rpc functions, e.g. streaming a file after
+// sending an rpc response.
+type RpcCodecBuffered interface {
+	BufferedReader() *bufio.Reader
+	BufferedWriter() *bufio.Writer
+}
 
 // -------------------------------------
 
-type rpcFlusher interface {
-	Flush() error
-}
-
 // rpcCodec defines the struct members and common methods.
 type rpcCodec struct {
-	c io.Closer
-	r io.Reader
-	w io.Writer
-	f rpcFlusher
-
+	rwc io.ReadWriteCloser
 	dec *Decoder
 	enc *Encoder
-	// bw  *bufio.Writer
-	// br  *bufio.Reader
-	mu sync.Mutex
-	h  Handle
+	bw  *bufio.Writer
+	br  *bufio.Reader
+	mu  sync.Mutex
+	h   Handle
 
 	cls   bool
 	clsmu sync.RWMutex
 }
 
 func newRPCCodec(conn io.ReadWriteCloser, h Handle) rpcCodec {
-	// return newRPCCodec2(bufio.NewReader(conn), bufio.NewWriter(conn), conn, h)
-	return newRPCCodec2(conn, conn, conn, h)
-}
-
-func newRPCCodec2(r io.Reader, w io.Writer, c io.Closer, h Handle) rpcCodec {
-	// defensive: ensure that jsonH has TermWhitespace turned on.
-	if jsonH, ok := h.(*JsonHandle); ok && !jsonH.TermWhitespace {
-		panic(errors.New("rpc requires a JsonHandle with TermWhitespace set to true"))
-	}
-	f, _ := w.(rpcFlusher)
+	bw := bufio.NewWriter(conn)
+	br := bufio.NewReader(conn)
 	return rpcCodec{
-		c:   c,
-		w:   w,
-		r:   r,
-		f:   f,
+		rwc: conn,
+		bw:  bw,
+		br:  br,
+		enc: NewEncoder(bw, h),
+		dec: NewDecoder(br, h),
 		h:   h,
-		enc: NewEncoder(w, h),
-		dec: NewDecoder(r, h),
 	}
 }
 
-// func (c *rpcCodec) BufferedReader() *bufio.Reader {
-// 	return c.br
-// }
+func (c *rpcCodec) BufferedReader() *bufio.Reader {
+	return c.br
+}
 
-// func (c *rpcCodec) BufferedWriter() *bufio.Writer {
-// 	return c.bw
-// }
+func (c *rpcCodec) BufferedWriter() *bufio.Writer {
+	return c.bw
+}
 
 func (c *rpcCodec) write(obj1, obj2 interface{}, writeObj2, doFlush bool) (err error) {
 	if c.isClosed() {
@@ -86,13 +77,20 @@ func (c *rpcCodec) write(obj1, obj2 interface{}, writeObj2, doFlush bool) (err e
 	if err = c.enc.Encode(obj1); err != nil {
 		return
 	}
+	t, tOk := c.h.(rpcEncodeTerminator)
+	if tOk {
+		c.bw.Write(t.rpcEncodeTerminate())
+	}
 	if writeObj2 {
 		if err = c.enc.Encode(obj2); err != nil {
 			return
 		}
+		if tOk {
+			c.bw.Write(t.rpcEncodeTerminate())
+		}
 	}
-	if doFlush && c.f != nil {
-		return c.f.Flush()
+	if doFlush {
+		return c.bw.Flush()
 	}
 	return
 }
@@ -110,9 +108,6 @@ func (c *rpcCodec) read(obj interface{}) (err error) {
 }
 
 func (c *rpcCodec) isClosed() bool {
-	if c.c == nil {
-		return false
-	}
 	c.clsmu.RLock()
 	x := c.cls
 	c.clsmu.RUnlock()
@@ -120,17 +115,13 @@ func (c *rpcCodec) isClosed() bool {
 }
 
 func (c *rpcCodec) Close() error {
-	if c.c == nil {
-		return nil
-	}
 	if c.isClosed() {
 		return io.EOF
 	}
 	c.clsmu.Lock()
 	c.cls = true
-	err := c.c.Close()
 	c.clsmu.Unlock()
-	return err
+	return c.rwc.Close()
 }
 
 func (c *rpcCodec) ReadResponseBody(body interface{}) error {
@@ -186,10 +177,4 @@ func (x goRpc) ClientCodec(conn io.ReadWriteCloser, h Handle) rpc.ClientCodec {
 	return &goRpcCodec{newRPCCodec(conn, h)}
 }
 
-// Use this method to allow you create wrapped versions of the reader, writer if desired.
-// For example, to create a buffered implementation.
-func (x goRpc) Codec(r io.Reader, w io.Writer, c io.Closer, h Handle) *goRpcCodec {
-	return &goRpcCodec{newRPCCodec2(r, w, c, h)}
-}
-
-// var _ RpcCodecBuffered = (*rpcCodec)(nil) // ensure *rpcCodec implements RpcCodecBuffered
+var _ RpcCodecBuffered = (*rpcCodec)(nil) // ensure *rpcCodec implements RpcCodecBuffered
