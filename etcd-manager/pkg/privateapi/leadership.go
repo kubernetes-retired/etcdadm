@@ -44,7 +44,7 @@ func (s *Server) LeaderNotification(ctx grpccontext.Context, request *LeaderNoti
 		if leaderView != nil {
 			continue
 		}
-		_, healthy := peer.status()
+		_, healthy := peer.status(s.HealthyTimeout)
 		if healthy {
 			glog.Warningf("LeaderElection view did not include peer %s; will reject", id)
 			reject = true
@@ -58,7 +58,7 @@ func (s *Server) LeaderNotification(ctx grpccontext.Context, request *LeaderNoti
 		response.Accepted = false
 		response.View = &View{}
 		for _, peer := range s.peers {
-			peerInfo, healthy := peer.status()
+			peerInfo, healthy := peer.status(s.HealthyTimeout)
 			if healthy {
 				response.View.Healthy = append(response.View.Healthy, peerInfo)
 			}
@@ -81,7 +81,7 @@ func (s *Server) snapshotHealthy() (map[PeerId]*peer, map[PeerId]*PeerInfo) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	for id, peer := range s.peers {
-		info, healthy := peer.status()
+		info, healthy := peer.status(s.HealthyTimeout)
 		if healthy {
 			snapshot[id] = peer
 			infos[id] = info
@@ -106,7 +106,7 @@ func (s *Server) addPeersFromView(view *View) {
 			}
 			s.peers[peerId] = existing
 			existing.updatePeerInfo(p)
-			go existing.Run()
+			go existing.Run(s.context, s.PingInterval)
 		}
 	}
 }

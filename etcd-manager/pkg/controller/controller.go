@@ -982,7 +982,7 @@ func (m *EtcdController) stepStartCluster(ctx context.Context, clusterSpec *prot
 
 		// But ... as a special case, we can allow it through if the quorum size is the same (i.e. one less than desired)
 		if quorumSize(len(clusterState.peers)) == desiredQuorumSize {
-			glog.Infof("Fewer peers (%d) than desired members (%d), but quorum size is the same, so will process", len(clusterState.peers), desiredQuorumSize)
+			glog.Infof("Fewer peers (%d) than desired members (%d), but quorum size is the same, so will proceed", len(clusterState.peers), desiredMemberCount)
 		} else {
 			glog.Infof("Insufficient peers to form full cluster %d, won't proceed", quorumSize)
 			return false, nil
