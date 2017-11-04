@@ -46,7 +46,7 @@ type EtcdController struct {
 
 	InitialClusterSpecProvider InitialClusterSpecProvider
 
-	// CycleInterval is the time to wait in between iterations of the state synchronization loop, when no progress has been made prevbious
+	// CycleInterval is the time to wait in between iterations of the state synchronization loop, when no progress has been made previously
 	CycleInterval time.Duration
 }
 
@@ -200,7 +200,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 
 	// We only act as controller if we are the leader (lowest id)
 	if peers[0].Id != me.Id {
-		glog.Infof("we are not leader")
+		glog.V(4).Infof("we are not leader")
 		return false, nil
 	}
 
@@ -964,19 +964,29 @@ func (m *EtcdController) removeNodeFromCluster(ctx context.Context, clusterSpec 
 	return true, nil
 }
 
+func quorumSize(desiredMemberCount int) int {
+	return (desiredMemberCount / 2) + 1
+}
+
 func (m *EtcdController) stepStartCluster(ctx context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState) (bool, error) {
 	desiredMemberCount := int(clusterSpec.MemberCount)
-	quorumSize := (desiredMemberCount / 2) + 1
+	desiredQuorumSize := quorumSize(desiredMemberCount)
 
-	if len(clusterState.peers) < quorumSize {
+	if len(clusterState.peers) < desiredQuorumSize {
 		glog.Infof("Insufficient peers to form a quorum %d, won't proceed", quorumSize)
 		return false, nil
 	}
 
 	if len(clusterState.peers) < desiredMemberCount {
 		// TODO: We should relax this, but that requires etcd to support an explicit quorum setting, or we can create dummy entries
-		glog.Infof("Insufficient peers to form full cluster %d, won't proceed", quorumSize)
-		return false, nil
+
+		// But ... as a special case, we can allow it through if the quorum size is the same (i.e. one less than desired)
+		if quorumSize(len(clusterState.peers)) == desiredQuorumSize {
+			glog.Infof("Fewer peers (%d) than desired members (%d), but quorum size is the same, so will process", len(clusterState.peers), desiredQuorumSize)
+		} else {
+			glog.Infof("Insufficient peers to form full cluster %d, won't proceed", quorumSize)
+			return false, nil
+		}
 	}
 
 	clusterToken := randomToken()
@@ -990,7 +1000,7 @@ func (m *EtcdController) stepStartCluster(ctx context.Context, clusterSpec *prot
 		}
 	}
 
-	if len(proposal) < desiredMemberCount {
+	if len(proposal) < desiredMemberCount && quorumSize(len(proposal)) < quorumSize(desiredMemberCount) {
 		glog.Fatalf("Need to add dummy peers to force quorum size :-(")
 	}
 
