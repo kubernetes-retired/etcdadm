@@ -18,6 +18,7 @@ import (
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/etcdclient"
 	"kope.io/etcd-manager/pkg/privateapi"
+	"kope.io/etcd-manager/pkg/contextutil"
 )
 
 const removeUnhealthyDeadline = time.Minute // TODO: increase
@@ -39,6 +40,8 @@ type EtcdController struct {
 	leadership *leadershipState
 
 	peerState map[privateapi.PeerId]*peerState
+
+	InitialClusterSpecProvider InitialClusterSpecProvider
 }
 
 // peerState holds persistent information about a peer
@@ -104,7 +107,8 @@ func (p *peer) String() string {
 	return s
 }
 
-func NewEtcdController(backupStore backup.Store, clusterName string, peers privateapi.Peers) (*EtcdController, error) {
+
+func NewEtcdController(backupStore backup.Store, clusterName string, peers privateapi.Peers, initialClusterState InitialClusterSpecProvider) (*EtcdController, error) {
 	//s.mutex.Lock()
 	//defer s.mutex.Unlock()
 
@@ -125,22 +129,24 @@ func NewEtcdController(backupStore backup.Store, clusterName string, peers priva
 		//baseDir: baseDir,
 		//peers:   s.peerServer,
 		//me:      s.peerServer.MyPeerId(),
+		InitialClusterSpecProvider: initialClusterState,
 	}
 	//s.etcdClusters[model.ClusterName] = m
 	return m, nil
 }
 
-func (m *EtcdController) Run() {
-	for {
-		ctx := context.Background()
-		progress, err := m.run(ctx)
-		if err != nil {
-			glog.Warningf("unexpected error running etcd cluster reconciliation loop: %v", err)
-		}
-		if !progress {
-			time.Sleep(10 * time.Second)
-		}
-	}
+func (m *EtcdController) Run(ctx context.Context) {
+	contextutil.Forever(ctx,
+		time.Millisecond, // We do our own sleeping
+		func() {
+			progress, err := m.run(ctx)
+			if err != nil {
+				glog.Warningf("unexpected error running etcd cluster reconciliation loop: %v", err)
+			}
+			if !progress {
+				contextutil.Sleep(ctx, 10 * time.Second)
+			}
+		})
 }
 
 //func buildEtcdNodeName(clusterToken string, peerId string) string {
@@ -458,9 +464,12 @@ func (m *EtcdController) loadClusterSpec(ctx context.Context, etcdClusterState *
 	}
 
 	// TODO: Source from etcd / from state / from backup
-	glog.Warningf("Using hard coded ClusterSpec")
-	state := &protoetcd.ClusterSpec{
-		MemberCount: 3,
+	if m.InitialClusterSpecProvider == nil {
+		return nil, fmt.Errorf("no cluster spec found, and no InitialClusterSpecProvider provider")
+	}
+	state, err := m.InitialClusterSpecProvider.GetInitialClusterSpec()
+	if err != nil {
+		return nil, fmt.Errorf("no cluster spec found, and error from InitialClusterSpecProvider provider: %v", err)
 	}
 	return state, nil
 
