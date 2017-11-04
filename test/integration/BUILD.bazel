@@ -1,24 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
-
-go_library(
-    name = "go_default_library",
-    srcs = [
-        "clusterformation.go",
-        "harness.go",
-    ],
-    importpath = "kope.io/etcd-manager/test/integration",
-    visibility = ["//visibility:public"],
-    deps = [
-        "//pkg/apis/etcd:go_default_library",
-        "//pkg/backup:go_default_library",
-        "//pkg/controller:go_default_library",
-        "//pkg/etcd:go_default_library",
-        "//pkg/etcdclient:go_default_library",
-        "//pkg/privateapi:go_default_library",
-        "//vendor/github.com/coreos/etcd/client:go_default_library",
-        "//vendor/github.com/golang/glog:go_default_library",
-    ],
-)
+load("@io_bazel_rules_go//go:def.bzl", "go_test")
 
 go_test(
     name = "go_default_test",
@@ -27,14 +7,8 @@ go_test(
         "datapersists_test.go",
     ],
     importpath = "kope.io/etcd-manager/test/integration",
-    library = ":go_default_library",
     deps = [
-        "//pkg/apis/etcd:go_default_library",
-        "//pkg/backup:go_default_library",
-        "//pkg/controller:go_default_library",
-        "//pkg/etcd:go_default_library",
         "//pkg/etcdclient:go_default_library",
-        "//pkg/privateapi:go_default_library",
-        "//vendor/github.com/golang/glog:go_default_library",
+        "//test/integration/harness:go_default_library",
     ],
 )

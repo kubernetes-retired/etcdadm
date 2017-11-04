@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"kope.io/etcd-manager/pkg/etcdclient"
+	"kope.io/etcd-manager/test/integration/harness"
 )
 
 func init() {
@@ -21,7 +22,7 @@ func TestClusterWithOneMember(t *testing.T) {
 
 	defer cancel()
 
-	h := NewTestHarness(t, ctx)
+	h := harness.NewTestHarness(t, ctx)
 	h.MemberCount = 1
 	defer h.Close()
 
@@ -29,7 +30,7 @@ func TestClusterWithOneMember(t *testing.T) {
 	go n1.Run()
 
 	client := etcdclient.NewClient("http://127.0.0.1:4001")
-	waitForListMembers(client, 20*time.Second)
+	harness.WaitForListMembers(client, 20*time.Second)
 	members, err := client.ListMembers(ctx)
 	if err != nil {
 		t.Errorf("error doing etcd ListMembers: %v", err)
@@ -48,7 +49,7 @@ func TestClusterWithThreeMembers(t *testing.T) {
 
 	defer cancel()
 
-	h := NewTestHarness(t, ctx)
+	h := harness.NewTestHarness(t, ctx)
 	h.MemberCount = 3
 	defer h.Close()
 
@@ -60,7 +61,7 @@ func TestClusterWithThreeMembers(t *testing.T) {
 	go n3.Run()
 
 	client := etcdclient.NewClient("http://127.0.0.1:4001")
-	waitForListMembers(client, 20*time.Second)
+	harness.WaitForListMembers(client, 20*time.Second)
 	members, err := client.ListMembers(ctx)
 	if err != nil {
 		t.Errorf("error doing etcd ListMembers: %v", err)
@@ -79,7 +80,7 @@ func TestClusterExpansion(t *testing.T) {
 
 	defer cancel()
 
-	h := NewTestHarness(t, ctx)
+	h := harness.NewTestHarness(t, ctx)
 	h.MemberCount = 3
 	defer h.Close()
 
@@ -89,7 +90,7 @@ func TestClusterExpansion(t *testing.T) {
 	go n2.Run()
 
 	client1 := etcdclient.NewClient("http://127.0.0.1:4001")
-	waitForListMembers(client1, 20*time.Second)
+	harness.WaitForListMembers(client1, 20*time.Second)
 	members1, err := client1.ListMembers(ctx)
 	if err != nil {
 		t.Errorf("error doing etcd ListMembers: %v", err)
@@ -109,7 +110,7 @@ func TestClusterExpansion(t *testing.T) {
 	go n3.Run()
 
 	client3 := etcdclient.NewClient("http://127.0.0.3:4001")
-	waitForListMembers(client3, 30*time.Second)
+	harness.WaitForListMembers(client3, 30*time.Second)
 	members3, err := client3.ListMembers(ctx)
 	if err != nil {
 		t.Errorf("error doing etcd ListMembers: %v", err)
