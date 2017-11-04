@@ -38,7 +38,7 @@ func NewTestHarness(t *testing.T, ctx context.Context) *TestHarness {
 		t.Errorf("error building tempdir: %v", err)
 	}
 
-	glog.Infof("Starting new testharness in %s", tmpDir)
+	glog.Infof("Starting new testharness for %q in %s", t.Name(), tmpDir)
 
 	clusterName := "testharnesscluster"
 	h := &TestHarness{
