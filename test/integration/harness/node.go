@@ -3,12 +3,15 @@ package harness
 import (
 	"fmt"
 
+	"time"
+
 	"github.com/golang/glog"
 	apis_etcd "kope.io/etcd-manager/pkg/apis/etcd"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/controller"
 	"kope.io/etcd-manager/pkg/etcd"
+	"kope.io/etcd-manager/pkg/etcdclient"
 	"kope.io/etcd-manager/pkg/privateapi"
 )
 
@@ -107,6 +110,11 @@ func (n *TestHarnessNode) Run() {
 			t.Fatalf("error creating private API server: %v", err)
 		}
 	}
+}
+
+func (n *TestHarnessNode) WaitForListMembers(timeout time.Duration) {
+	client := etcdclient.NewClient(n.ClientURL)
+	WaitForListMembers(client, timeout)
 }
 
 func (n *TestHarnessNode) Close() error {
