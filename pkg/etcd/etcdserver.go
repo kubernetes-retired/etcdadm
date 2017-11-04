@@ -14,6 +14,7 @@ import (
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/privateapi"
+	"kope.io/etcd-manager/pkg/contextutil"
 )
 
 const PreparedValidity = time.Minute
@@ -52,14 +53,13 @@ func NewEtcdServer(baseDir string, clusterName string, nodeInfo *protoetcd.EtcdN
 
 var _ protoetcd.EtcdManagerServiceServer = &EtcdServer{}
 
-func (s *EtcdServer) Run() {
-	for {
+func (s *EtcdServer) Run(ctx context.Context) {
+	contextutil.Forever(ctx, time.Second * 10, func() {
 		err := s.runOnce()
 		if err != nil {
 			glog.Warningf("error running etcd: %v", err)
 		}
-		time.Sleep(time.Second * 10)
-	}
+	})
 }
 
 func readState(baseDir string) (*protoetcd.EtcdState, error) {
