@@ -12,6 +12,7 @@ go_library(
     deps = [
         "//pkg/apis/etcd:go_default_library",
         "//pkg/backup:go_default_library",
+        "//pkg/contextutil:go_default_library",
         "//pkg/privateapi:go_default_library",
         "//vendor/github.com/golang/glog:go_default_library",
         "//vendor/github.com/golang/protobuf/proto:go_default_library",
