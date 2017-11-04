@@ -129,6 +129,8 @@ func (p *etcdProcess) Start() error {
 	if err != nil {
 		return fmt.Errorf("error starting etcd: %v", err)
 	}
+	p.cmd = c
+
 	go func() {
 		processState, err := p.cmd.Process.Wait()
 		if err != nil {
@@ -140,7 +142,6 @@ func (p *etcdProcess) Start() error {
 		p.mutex.Unlock()
 	}()
 
-	p.cmd = c
 	return nil
 }
 
