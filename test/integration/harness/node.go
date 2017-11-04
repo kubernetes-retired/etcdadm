@@ -1,7 +1,9 @@
 package harness
 
 import (
+	"context"
 	"fmt"
+	"time"
 
 	"github.com/golang/glog"
 	apis_etcd "kope.io/etcd-manager/pkg/apis/etcd"
@@ -9,6 +11,7 @@ import (
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/controller"
 	"kope.io/etcd-manager/pkg/etcd"
+	"kope.io/etcd-manager/pkg/etcdclient"
 	"kope.io/etcd-manager/pkg/privateapi"
 )
 
@@ -52,7 +55,10 @@ func (n *TestHarnessNode) Run() {
 		Id:        string(uniqueID),
 		Addresses: []string{address},
 	}
-	peerServer, err := privateapi.NewServer(myInfo, disco)
+	peerServer, err := privateapi.NewServer(ctx, myInfo, disco)
+	peerServer.PingInterval = time.Second
+	peerServer.HealthyTimeout = time.Second * 5
+	peerServer.DiscoveryPollInterval = time.Second * 5
 	if err != nil {
 		glog.Fatalf("error building server: %v", err)
 	}
@@ -107,6 +113,16 @@ func (n *TestHarnessNode) Run() {
 			t.Fatalf("error creating private API server: %v", err)
 		}
 	}
+}
+
+func (n *TestHarnessNode) WaitForListMembers(timeout time.Duration) {
+	client := etcdclient.NewClient(n.ClientURL)
+	waitForListMembers(client, timeout)
+}
+
+func (n *TestHarnessNode) ListMembers(ctx context.Context) ([]*etcdclient.EtcdProcessMember, error) {
+	client := etcdclient.NewClient(n.ClientURL)
+	return client.ListMembers(ctx)
 }
 
 func (n *TestHarnessNode) Close() error {

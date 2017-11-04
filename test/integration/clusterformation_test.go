@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"kope.io/etcd-manager/pkg/etcdclient"
+	"github.com/golang/glog"
 	"kope.io/etcd-manager/test/integration/harness"
 )
 
@@ -29,9 +29,8 @@ func TestClusterWithOneMember(t *testing.T) {
 	n1 := h.NewNode("127.0.0.1")
 	go n1.Run()
 
-	client := etcdclient.NewClient("http://127.0.0.1:4001")
-	harness.WaitForListMembers(client, 20*time.Second)
-	members, err := client.ListMembers(ctx)
+	n1.WaitForListMembers(20 * time.Second)
+	members, err := n1.ListMembers(ctx)
 	if err != nil {
 		t.Errorf("error doing etcd ListMembers: %v", err)
 	}
@@ -60,9 +59,8 @@ func TestClusterWithThreeMembers(t *testing.T) {
 	n3 := h.NewNode("127.0.0.3")
 	go n3.Run()
 
-	client := etcdclient.NewClient("http://127.0.0.1:4001")
-	harness.WaitForListMembers(client, 20*time.Second)
-	members, err := client.ListMembers(ctx)
+	n1.WaitForListMembers(20 * time.Second)
+	members, err := n1.ListMembers(ctx)
 	if err != nil {
 		t.Errorf("error doing etcd ListMembers: %v", err)
 	}
@@ -89,33 +87,36 @@ func TestClusterExpansion(t *testing.T) {
 	n2 := h.NewNode("127.0.0.2")
 	go n2.Run()
 
-	client1 := etcdclient.NewClient("http://127.0.0.1:4001")
-	harness.WaitForListMembers(client1, 20*time.Second)
-	members1, err := client1.ListMembers(ctx)
+	n1.WaitForListMembers(20 * time.Second)
+	members1, err := n1.ListMembers(ctx)
 	if err != nil {
 		t.Errorf("error doing etcd ListMembers: %v", err)
 	} else if len(members1) != 2 {
 		t.Errorf("members was not as expected: %v", err)
+	} else {
+		glog.Infof("got members from #1: %v", members1)
 	}
 
-	client2 := etcdclient.NewClient("http://127.0.0.2:4001")
-	members2, err := client2.ListMembers(ctx)
+	members2, err := n2.ListMembers(ctx)
 	if err != nil {
 		t.Errorf("error doing etcd ListMembers: %v", err)
 	} else if len(members2) != 2 {
 		t.Errorf("members was not as expected: %v", err)
+	} else {
+		glog.Infof("got members from #2: %v", members2)
 	}
 
 	n3 := h.NewNode("127.0.0.3")
 	go n3.Run()
 
-	client3 := etcdclient.NewClient("http://127.0.0.3:4001")
-	harness.WaitForListMembers(client3, 30*time.Second)
-	members3, err := client3.ListMembers(ctx)
+	n3.WaitForListMembers(20 * time.Second)
+	members3, err := n3.ListMembers(ctx)
 	if err != nil {
 		t.Errorf("error doing etcd ListMembers: %v", err)
 	} else if len(members3) != 3 {
 		t.Errorf("members was not as expected: %v", err)
+	} else {
+		glog.Infof("got members from #3: %v", members3)
 	}
 
 	cancel()
