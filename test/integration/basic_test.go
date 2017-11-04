@@ -1,23 +1,24 @@
 package integration
 
 import (
-	"kope.io/etcd-manager/pkg/backup"
-	"github.com/golang/glog"
-	"kope.io/etcd-manager/pkg/controller"
-	"kope.io/etcd-manager/pkg/privateapi"
-	"io/ioutil"
-	"testing"
-	"path/filepath"
-	"path"
-	"fmt"
-	"kope.io/etcd-manager/pkg/etcd"
-	"os"
-	apis_etcd "kope.io/etcd-manager/pkg/apis/etcd"
-	"kope.io/etcd-manager/pkg/etcdclient"
 	"context"
 	"flag"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"path"
+	"path/filepath"
+	"testing"
 	"time"
+
+	"github.com/golang/glog"
+	apis_etcd "kope.io/etcd-manager/pkg/apis/etcd"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
+	"kope.io/etcd-manager/pkg/backup"
+	"kope.io/etcd-manager/pkg/controller"
+	"kope.io/etcd-manager/pkg/etcd"
+	"kope.io/etcd-manager/pkg/etcdclient"
+	"kope.io/etcd-manager/pkg/privateapi"
 )
 
 func init() {
@@ -67,7 +68,6 @@ func NewTestHarness(t *testing.T, ctx context.Context) *TestHarness {
 func (h *TestHarness) Close() {
 	t := h.T
 
-
 	for k, node := range h.Nodes {
 		glog.Infof("Terminating node %q", k)
 		if err := node.Close(); err != nil {
@@ -87,7 +87,7 @@ type TestHarnessNode struct {
 	Address     string
 	NodeDir     string
 
-	etcdServer *etcd.EtcdServer
+	etcdServer     *etcd.EtcdServer
 	etcdController *controller.EtcdController
 }
 
@@ -179,7 +179,7 @@ func (h *TestHarnessNode) Run() {
 	}
 
 	etcdServer := etcd.NewEtcdServer(h.NodeDir, h.TestHarness.ClusterName, me, peerServer)
-h.etcdServer = etcdServer
+	h.etcdServer = etcdServer
 	go etcdServer.Run(ctx)
 
 	initState := &protoetcd.ClusterSpec{
@@ -200,7 +200,6 @@ h.etcdServer = etcdServer
 	}
 }
 
-
 func (h *TestHarnessNode) Close() error {
 	if h.etcdServer != nil {
 		_, err := h.etcdServer.StopEtcdProcess()
@@ -210,7 +209,6 @@ func (h *TestHarnessNode) Close() error {
 	}
 	return nil
 }
-
 
 func TestClusterWithOneMember(t *testing.T) {
 	ctx := context.TODO()
