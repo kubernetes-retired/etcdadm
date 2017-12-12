@@ -122,3 +122,37 @@ func TestClusterExpansion(t *testing.T) {
 	cancel()
 	h.Close()
 }
+
+func TestWeOnlyFormASingleCluster(t *testing.T) {
+	ctx := context.TODO()
+	ctx, cancel := context.WithTimeout(ctx, time.Second*60)
+
+	defer cancel()
+
+	h := harness.NewTestHarness(t, ctx)
+	h.MemberCount = 1
+	defer h.Close()
+
+	n1 := h.NewNode("127.0.0.1")
+	go n1.Run()
+
+	n1.WaitForListMembers(20 * time.Second)
+	members1, err := n1.ListMembers(ctx)
+	if err != nil {
+		t.Errorf("error doing etcd ListMembers: %v", err)
+	} else if len(members1) != 1 {
+		t.Errorf("members was not as expected: %v", err)
+	} else {
+		glog.Infof("got members from #1: %v", members1)
+	}
+
+	n2 := h.NewNode("127.0.0.2")
+	go n2.Run()
+
+	if _, err := n2.ListMembers(ctx); err == nil {
+		t.Errorf("did not expect second cluster to form: %v", err)
+	}
+
+	cancel()
+	h.Close()
+}

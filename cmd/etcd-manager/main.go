@@ -28,6 +28,7 @@ import (
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/controller"
 	"kope.io/etcd-manager/pkg/etcd"
+	"kope.io/etcd-manager/pkg/locking"
 	"kope.io/etcd-manager/pkg/privateapi"
 )
 
@@ -127,7 +128,9 @@ func main() {
 		MemberCount: int32(memberCount),
 	}
 	initialClusterState := controller.StaticInitialClusterSpecProvider(spec)
-	c, err := controller.NewEtcdController(backupStore, clusterName, peerServer, initialClusterState)
+
+	var leaderLock locking.Lock
+	c, err := controller.NewEtcdController(leaderLock, backupStore, clusterName, peerServer, initialClusterState)
 	if err != nil {
 		glog.Fatalf("error building etcd controller: %v", err)
 	}
