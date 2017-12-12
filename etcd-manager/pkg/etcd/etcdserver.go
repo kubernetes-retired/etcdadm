@@ -259,7 +259,7 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 	return response, nil
 }
 
-// GetInfo gets info about the node
+// DoBackup performs a backup to the backupstore
 func (s *EtcdServer) DoBackup(ctx context.Context, request *protoetcd.DoBackupRequest) (*protoetcd.DoBackupResponse, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
