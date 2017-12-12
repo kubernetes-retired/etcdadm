@@ -24,6 +24,9 @@ type Store interface {
 	// ListBackups returns all the available backups, in chronological order
 	ListBackups() ([]string, error)
 
+	// RemoveBackup deletes a backup (as returned by ListBackups)
+	RemoveBackup(backup string) error
+
 	// LoadClusterState loads the state information that should have been saved alongside a backup
 	LoadClusterState(backup string) (*etcd.ClusterSpec, error)
 }
@@ -129,6 +132,23 @@ func (s *filesystemStore) ListBackups() ([]string, error) {
 	sort.Strings(backups)
 
 	return backups, nil
+}
+
+func (s *filesystemStore) RemoveBackup(backup string) error {
+	p := filepath.Join(s.backupsBase, backup)
+	stat, err := os.Stat(p)
+	if err != nil {
+		return fmt.Errorf("error getting stat for %q: %v", p, err)
+	}
+
+	if !stat.IsDir() {
+		return fmt.Errorf("backup %q was not a directory", p)
+	}
+
+	if err := os.RemoveAll(p); err != nil {
+		return fmt.Errorf("error deleting backups in %q: %v", p, err)
+	}
+	return nil
 }
 
 func (s *filesystemStore) LoadClusterState(name string) (*etcd.ClusterSpec, error) {
