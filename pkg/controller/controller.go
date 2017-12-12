@@ -51,6 +51,12 @@ type EtcdController struct {
 
 	// CycleInterval is the time to wait in between iterations of the state synchronization loop, when no progress has been made previously
 	CycleInterval time.Duration
+
+	// lastBackup is the time at which we last performed a backup (as leader)
+	lastBackup time.Time
+
+	// lastBackupCleanup is the time at which we last performed a backup store cleanup (as leader)
+	lastBackupCleanup time.Time
 }
 
 // peerState holds persistent information about a peer
@@ -347,11 +353,25 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		return m.removeNodeFromCluster(ctx, clusterSpec, clusterState, false)
 	}
 
-	backup, err := m.doClusterBackup(ctx, clusterSpec, clusterState)
-	if err != nil {
-		glog.Warningf("error during backup: %v", err)
-	} else {
-		glog.Infof("took backup: %v", backup)
+	backupInterval := time.Minute
+	backupCleanupInterval := 15 * time.Minute
+	if now.Sub(m.lastBackup) > backupInterval {
+		backup, err := m.doClusterBackup(ctx, clusterSpec, clusterState)
+		if err != nil {
+			glog.Warningf("error during backup: %v", err)
+		} else {
+			glog.Infof("took backup: %v", backup)
+			m.lastBackup = now
+
+			if now.Sub(m.lastBackupCleanup) > backupCleanupInterval {
+				if err := m.doBackupMaintenance(ctx, clusterSpec); err != nil {
+					glog.Warningf("error during backup cleanup: %v", err)
+				} else {
+					glog.Infof("cleaned up backups")
+					m.lastBackupCleanup = now
+				}
+			}
+		}
 	}
 
 	glog.Infof("controller loop complete")
@@ -897,6 +917,84 @@ func (m *EtcdController) doClusterBackup(ctx context.Context, clusterSpec *proto
 	}
 
 	return nil, fmt.Errorf("no peer was able to perform a backup")
+}
+
+func (m *EtcdController) doBackupMaintenance(ctx context.Context, clusterSpec *protoetcd.ClusterSpec) error {
+	backupNames, err := m.backupStore.ListBackups()
+	if err != nil {
+		return fmt.Errorf("error listing backups: %v", err)
+	}
+
+	minRetention := time.Hour
+	hourly := time.Hour * 24 * 7
+	daily := time.Hour * 24 * 7 * 365
+
+	backups := make(map[time.Time]string)
+	retain := make(map[string]bool)
+	buckets := make(map[time.Time]time.Time)
+
+	now := time.Now()
+
+	for _, backup := range backupNames {
+		// Time parsing uses the same layout values as `Format`.
+		t, err := time.Parse(time.RFC3339, backup)
+		if err != nil {
+			glog.Warningf("ignoring unparseable backup %q", backup)
+			continue
+		}
+
+		backups[t] = backup
+
+		age := now.Sub(t)
+
+		if age < minRetention {
+			retain[backup] = true
+			continue
+		}
+
+		if age < hourly {
+			bucketed := t.Truncate(time.Hour)
+			existing := buckets[bucketed]
+			if existing.IsZero() || existing.After(t) {
+				buckets[bucketed] = t
+			}
+			continue
+		}
+
+		if age < daily {
+			bucketed := t.Truncate(time.Hour * 24)
+			existing := buckets[bucketed]
+			if existing.IsZero() || existing.After(t) {
+				buckets[bucketed] = t
+			}
+			continue
+		}
+	}
+
+	for _, t := range buckets {
+		retain[backups[t]] = true
+	}
+
+	removedCount := 0
+	for _, backup := range backupNames {
+		if retain[backup] {
+			glog.V(4).Infof("retaining backup %q", backup)
+			continue
+		}
+		glog.V(4).Infof("removing backup %q", backup)
+		if err := m.backupStore.RemoveBackup(backup); err != nil {
+			glog.Warningf("failed to remove backup %q: %v", backup, err)
+		} else {
+			glog.V(2).Infof("removed backup %q", backup)
+			removedCount++
+		}
+	}
+
+	if removedCount != 0 {
+		glog.Infof("Removed %d old backups", removedCount)
+	}
+
+	return nil
 }
 
 func (p *peer) rpcDoBackup(ctx context.Context, doBackupRequest *protoetcd.DoBackupRequest) (*protoetcd.DoBackupResponse, error) {
