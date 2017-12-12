@@ -17,8 +17,17 @@ container_image(
 container_image(
     name = "etcd-manager",
     base = "etcd-manager-base",
-    cmd = ["/etcd-manager"],
+    entrypoint = ["/etcd-manager"],
     files = [
         "//cmd/etcd-manager",
+    ],
+)
+
+container_image(
+    name = "etcd-dump",
+    base = "etcd-manager-base",
+    entrypoint = ["/etcd-dump"],
+    files = [
+        "//cmd/etcd-dump",
     ],
 )
