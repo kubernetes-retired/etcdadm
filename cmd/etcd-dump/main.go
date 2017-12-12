@@ -29,12 +29,6 @@ import (
 func main() {
 	flag.Set("logtostderr", "true")
 
-	//address := "127.0.0.1"
-	//flag.StringVar(&address, "address", address, "local address to use")
-	//memberCount := 1
-	//flag.IntVar(&memberCount, "members", memberCount, "initial cluster size; cluster won't start until we have a quorum of this size")
-	//clusterName := ""
-	//flag.StringVar(&clusterName, "cluster-name", clusterName, "name of cluster")
 	datadir := ""
 	flag.StringVar(&datadir, "data-dir", datadir, "data dir location")
 	out := ""
@@ -47,6 +41,17 @@ func main() {
 	if datadir == "" {
 		fmt.Printf("data-dir is required\n")
 		os.Exit(1)
+	}
+
+	_, err := os.Stat(datadir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			fmt.Printf("data-dir %q not found", datadir)
+			os.Exit(1)
+		} else {
+			fmt.Printf("error checking for data-dir %q: %v", datadir, err)
+			os.Exit(1)
+		}
 	}
 
 	if out == "" {
