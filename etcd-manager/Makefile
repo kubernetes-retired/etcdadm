@@ -19,6 +19,7 @@ goimports:
 
 .PHONY: image-etcd-manager
 image-etcd-manager:
+	bazel build //images:*
 	bazel run //images:etcd-manager
 	docker tag bazel/images:etcd-manager ${DOCKER_REGISTRY}/etcd-manager:${DOCKER_TAG}
 
@@ -26,6 +27,16 @@ image-etcd-manager:
 push-etcd-manager: image-etcd-manager
 	docker push ${DOCKER_REGISTRY}/etcd-manager:${DOCKER_TAG}
 
+.PHONY: image-etcd-dump
+image-etcd-dump:
+	bazel build //images:*
+	bazel run //images:etcd-dump
+	docker tag bazel/images:etcd-dump ${DOCKER_REGISTRY}/etcd-dump:${DOCKER_TAG}
+
+.PHONY: push-etcd-dump
+push-etcd-dump: image-etcd-dump
+	docker push ${DOCKER_REGISTRY}/etcd-dump:${DOCKER_TAG}
+
 .PHONY: push
-push: push-etcd-manager
-	echo "pushed image"
+push: push-etcd-manager push-etcd-dump
+	echo "pushed images"
