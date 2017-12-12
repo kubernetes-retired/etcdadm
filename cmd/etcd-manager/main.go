@@ -32,6 +32,8 @@ import (
 )
 
 func main() {
+	flag.Set("logtostderr", "true")
+
 	address := "127.0.0.1"
 	flag.StringVar(&address, "address", address, "local address to use")
 	memberCount := 1
@@ -50,14 +52,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	glog.Warningf("hard coding backup store location")
-	backupStorePath = "file:///home/justinsb/etcdmanager/backups/" + clusterName + "/"
 	if backupStorePath == "" {
 		fmt.Fprintf(os.Stderr, "backup-store is required\n")
 		os.Exit(1)
 	}
 
-	baseDir := "/home/justinsb/etcdmanager/data/" + clusterName + "/" + address + "/"
+	baseDir := "/data/" + clusterName + "/" + address + "/"
 	if err := os.MkdirAll(baseDir, 0755); err != nil {
 		glog.Fatalf("error doing mkdirs on base directory %s: %v", baseDir, err)
 	}
@@ -79,12 +79,14 @@ func main() {
 		glog.Fatalf("error building discovery: %v", err)
 	}
 
+	ctx := context.TODO()
+
 	grpcAddress := fmt.Sprintf("%s:%d", address, grpcPort)
 	myInfo := privateapi.PeerInfo{
 		Id:        string(uniqueID),
 		Addresses: []string{address},
 	}
-	peerServer, err := privateapi.NewServer(myInfo, disco)
+	peerServer, err := privateapi.NewServer(ctx, myInfo, disco)
 	if err != nil {
 		glog.Fatalf("error building server: %v", err)
 	}
@@ -117,8 +119,6 @@ func main() {
 	if err != nil {
 		glog.Fatalf("error initializing backup store: %v", err)
 	}
-
-	ctx := context.TODO()
 
 	etcdServer := etcd.NewEtcdServer(baseDir, clusterName, me, peerServer)
 	go etcdServer.Run(ctx)

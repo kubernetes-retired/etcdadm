@@ -1,5 +1,5 @@
-DOCKER_REGISTRY?=kopeio
-DOCKER_TAG=1.0.20170421
+DOCKER_REGISTRY?=$(shell whoami)
+DOCKER_TAG?=latest
 
 .PHONY: all
 all: test
@@ -16,10 +16,16 @@ gofmt:
 goimports:
 	goimports -w cmd/ pkg/ test/
 
-.PHONY: push
-push: images
+
+.PHONY: image-etcd-manager
+image-etcd-manager:
+	bazel run //images:etcd-manager
+	docker tag bazel/images:etcd-manager ${DOCKER_REGISTRY}/etcd-manager:${DOCKER_TAG}
+
+.PHONY: push-etcd-manager
+push-etcd-manager: image-etcd-manager
 	docker push ${DOCKER_REGISTRY}/etcd-manager:${DOCKER_TAG}
 
-.PHONY: images
-images:
-	bazel run //images:etcd-manager ${DOCKER_REGISTRY}/etcd-manager:${DOCKER_TAG}
+.PHONY: push
+push: push-etcd-manager
+	echo "pushed image"
