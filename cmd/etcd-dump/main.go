@@ -17,13 +17,11 @@ limitations under the License.
 package main
 
 import (
-	"archive/tar"
-	"compress/gzip"
 	"flag"
 	"fmt"
 	"os"
 
-	"kope.io/etcd-manager/pkg/etcd"
+	"kope.io/etcd-manager/pkg/etcd/dump"
 )
 
 func main() {
@@ -54,25 +52,22 @@ func main() {
 		}
 	}
 
+	var listener dump.DumpSink
 	if out == "" {
-		fmt.Printf("out is required\n")
-		os.Exit(1)
+		listener, err = dump.NewStreamDumpSink(os.Stdout)
+		if err != nil {
+			fmt.Printf("unable to create stream: %v\n", err)
+			os.Exit(1)
+		}
+	} else {
+		listener, err = dump.NewTarDumpSink(out)
+		if err != nil {
+			fmt.Printf("unable to create file %q: %v\n", out, err)
+			os.Exit(1)
+		}
 	}
 
-	f, err := os.Create(out)
-	if err != nil {
-		fmt.Printf("unable to create file %q: %v\n", out, err)
-		os.Exit(1)
-	}
-	defer f.Close()
-
-	gzw := gzip.NewWriter(f)
-	defer gzw.Close()
-
-	tw := tar.NewWriter(gzw)
-	defer tw.Close()
-
-	if err := etcd.DumpBackup(datadir, tw); err != nil {
+	if err := dump.DumpBackup(datadir, listener); err != nil {
 		fmt.Printf("error during dump: %v\n", err)
 		os.Exit(1)
 	}

@@ -6,7 +6,7 @@ go_library(
     importpath = "kope.io/etcd-manager/cmd/etcd-dump",
     visibility = ["//visibility:private"],
     deps = [
-        "//pkg/etcd:go_default_library",
+        "//pkg/etcd/dump:go_default_library",
         "//vendor/github.com/golang/glog:go_default_library",
     ],
 )
