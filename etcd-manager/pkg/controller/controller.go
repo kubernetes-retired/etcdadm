@@ -18,6 +18,7 @@ import (
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/contextutil"
 	"kope.io/etcd-manager/pkg/etcdclient"
+	"kope.io/etcd-manager/pkg/locking"
 	"kope.io/etcd-manager/pkg/privateapi"
 )
 
@@ -40,9 +41,11 @@ type EtcdController struct {
 	//me    privateapi.PeerId
 	peers privateapi.Peers
 
-	leadership *leadershipState
+	leaderLock      locking.Lock
+	leaderLockGuard locking.LockGuard
 
-	peerState map[privateapi.PeerId]*peerState
+	leadership *leadershipState
+	peerState  map[privateapi.PeerId]*peerState
 
 	InitialClusterSpecProvider InitialClusterSpecProvider
 
@@ -113,7 +116,7 @@ func (p *peer) String() string {
 	return s
 }
 
-func NewEtcdController(backupStore backup.Store, clusterName string, peers privateapi.Peers, initialClusterState InitialClusterSpecProvider) (*EtcdController, error) {
+func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, clusterName string, peers privateapi.Peers, initialClusterState InitialClusterSpecProvider) (*EtcdController, error) {
 	//s.mutex.Lock()
 	//defer s.mutex.Unlock()
 
@@ -130,6 +133,7 @@ func NewEtcdController(backupStore backup.Store, clusterName string, peers priva
 		clusterName: clusterName,
 		backupStore: backupStore,
 		peers:       peers,
+		leaderLock:  leaderLock,
 		//model:   *model,
 		//baseDir: baseDir,
 		//peers:   s.peerServer,
@@ -198,10 +202,33 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		return false, fmt.Errorf("cannot find self %q in list of peers %s", m.peers.MyPeerId(), peers)
 	}
 
-	// We only act as controller if we are the leader (lowest id)
+	// We only try to act as controller if we are the leader (lowest id)
 	if peers[0].Id != me.Id {
 		glog.V(4).Infof("we are not leader")
+
+		if m.leaderLockGuard != nil {
+			glog.Infof("releasing leader lock")
+			if err := m.leaderLockGuard.Release(); err != nil {
+				return false, fmt.Errorf("failed to release leader lock guard: %v", err)
+			}
+			m.leaderLockGuard = nil
+		}
+
 		return false, nil
+	}
+
+	// We now try to obtain the leader-lock; this is how we don't form multiple clusters if we split-brain,
+	// even if there are enough nodes to form 2 quorums
+	if m.leaderLock != nil && m.leaderLockGuard == nil {
+		leaderLockGuard, err := m.leaderLock.Acquire(ctx, string(me.Id))
+		if err != nil {
+			return false, fmt.Errorf("error acquiring leader lock: %v", err)
+		}
+		if leaderLockGuard == nil {
+			glog.Infof("could not acquire leader lock")
+			return false, nil
+		}
+		m.leaderLockGuard = leaderLockGuard
 	}
 
 	// If we believe we are the leader, we try to tell everyone we know
