@@ -20,6 +20,7 @@ type TestHarness struct {
 	T *testing.T
 
 	ClusterName       string
+	LockPath          string
 	BackupStorePath   string
 	DiscoveryStoreDir string
 
@@ -52,6 +53,11 @@ func NewTestHarness(t *testing.T, ctx context.Context) *TestHarness {
 
 	h.BackupStorePath = "file://" + filepath.Join(h.WorkDir, "backupstore")
 	h.DiscoveryStoreDir = filepath.Join(h.WorkDir, "discovery")
+
+	h.LockPath = filepath.Join(h.WorkDir, "lock")
+	if err := os.MkdirAll(h.WorkDir, 0755); err != nil {
+		t.Fatalf("error creating directory %s: %v", h.LockPath, err)
+	}
 
 	return h
 }
