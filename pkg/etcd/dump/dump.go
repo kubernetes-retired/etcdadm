@@ -1,20 +1,18 @@
-package etcd
+package dump
 
 import (
-	"archive/tar"
 	"context"
 	"fmt"
 	"os"
 	"os/exec"
 	"path"
-	"strings"
 	"time"
 
 	etcd_client "github.com/coreos/etcd/client"
 	"github.com/golang/glog"
 )
 
-func DumpBackup(dataDir string, tw *tar.Writer) error {
+func DumpBackup(dataDir string, sink DumpSink) error {
 	clientURL := "http://127.0.0.1:4001"
 	peerURL := "http://127.0.0.1:2379"
 
@@ -71,7 +69,7 @@ func DumpBackup(dataDir string, tw *tar.Writer) error {
 		time.Sleep(time.Second)
 	}
 
-	if err := dumpRecursive(keysAPI, "/", tw); err != nil {
+	if err := dumpRecursive(keysAPI, "/", sink); err != nil {
 		return fmt.Errorf("error dumping keys: %v", err)
 	}
 
@@ -82,7 +80,7 @@ func DumpBackup(dataDir string, tw *tar.Writer) error {
 	return nil
 }
 
-func dumpRecursive(keys etcd_client.KeysAPI, p string, tw *tar.Writer) error {
+func dumpRecursive(keys etcd_client.KeysAPI, p string, sink DumpSink) error {
 	ctx := context.TODO()
 	opts := &etcd_client.GetOptions{
 		Quorum: false,
@@ -97,37 +95,12 @@ func dumpRecursive(keys etcd_client.KeysAPI, p string, tw *tar.Writer) error {
 		return fmt.Errorf("node %q not found", p)
 	}
 
-	hdr := &tar.Header{
-		Name: response.Node.Key,
-	}
-	if response.Node.Dir {
-		hdr.Mode = 0755
-		hdr.Name += "/"
-		hdr.Typeflag = tar.TypeDir
-	} else {
-		hdr.Mode = 0644
-		hdr.Typeflag = tar.TypeReg
-		hdr.Size = int64(len(response.Node.Value))
-	}
-
-	if hdr.Name != "/" {
-		hdr.Name = strings.TrimPrefix(hdr.Name, "/")
-
-		// write the header
-		if err := tw.WriteHeader(hdr); err != nil {
-			return fmt.Errorf("error writing tar header: %v", err)
-		}
-
-		if !response.Node.Dir && response.Node.Value != "" {
-			_, err := tw.Write([]byte(response.Node.Value))
-			if err != nil {
-				return fmt.Errorf("error writing tar data: %v", err)
-			}
-		}
+	if err := sink.Write(response.Node); err != nil {
+		return fmt.Errorf("error writing node: %v", err)
 	}
 
 	for _, n := range response.Node.Nodes {
-		err := dumpRecursive(keys, n.Key, tw)
+		err := dumpRecursive(keys, n.Key, sink)
 		if err != nil {
 			return err
 		}
