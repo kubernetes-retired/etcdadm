@@ -321,7 +321,7 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 
 	p := &etcdProcess{
 		CreateNewCluster: false,
-		BinDir:           "/home/justinsb/apps/etcd2/etcd-v2.2.1-linux-amd64",
+		BinDir:           "/opt/etcd-v2.2.1-linux-amd64",
 		DataDir:          dataDir,
 		ClientURL:        clientURL,
 		Cluster: &protoetcd.EtcdCluster{
