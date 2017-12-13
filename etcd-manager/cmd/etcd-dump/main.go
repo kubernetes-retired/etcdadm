@@ -19,8 +19,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 
+	"github.com/golang/glog"
 	"kope.io/etcd-manager/pkg/etcd/dump"
 )
 
@@ -52,6 +56,23 @@ func main() {
 		}
 	}
 
+	tmpdir, err := ioutil.TempDir("", "")
+	if err != nil {
+		fmt.Printf("error creating temp dir: %v", err)
+		os.Exit(1)
+	}
+
+	defer func() {
+		if err := os.RemoveAll(tmpdir); err != nil {
+			glog.Warningf("error removing tmpdir %q: %v", tmpdir, err)
+		}
+	}()
+
+	if err := copyTree(datadir, tmpdir); err != nil {
+		fmt.Printf("error copying to temp dir: %v", err)
+		os.Exit(1)
+	}
+
 	var listener dump.DumpSink
 	if out == "" {
 		listener, err = dump.NewStreamDumpSink(os.Stdout)
@@ -67,8 +88,55 @@ func main() {
 		}
 	}
 
-	if err := dump.DumpBackup(datadir, listener); err != nil {
+	if err := dump.DumpBackup(tmpdir, listener); err != nil {
 		fmt.Printf("error during dump: %v\n", err)
 		os.Exit(1)
 	}
+}
+
+func copyTree(srcdir string, destdir string) error {
+	files, err := ioutil.ReadDir(srcdir)
+	if err != nil {
+		return fmt.Errorf("error reading dir %q: %v", srcdir, err)
+	}
+
+	for _, f := range files {
+		src := filepath.Join(srcdir, f.Name())
+		dest := filepath.Join(destdir, f.Name())
+
+		if f.IsDir() {
+			if err := os.Mkdir(dest, 0755); err != nil {
+				return fmt.Errorf("error creating dir %q: %v", dest, err)
+			}
+			if err := copyTree(src, dest); err != nil {
+				return err
+			}
+		} else {
+			if err := copyFile(src, dest); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func copyFile(src, dst string) error {
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, in)
+	if err != nil {
+		return err
+	}
+	return out.Close()
 }
