@@ -5,6 +5,7 @@ option go_package = "kope.io/etcd-manager/pkg/apis/etcd";
 
 message ClusterSpec {
     int32 member_count = 1;
+    string etcd_version = 2;
 }
 
 service EtcdManagerService {
@@ -13,6 +14,9 @@ service EtcdManagerService {
 
     // JoinCluster requests that the node join an existing cluster
     rpc JoinCluster (JoinClusterRequest) returns (JoinClusterResponse);
+
+    // Reconfigure changes the configuration of an existing node, primarily for a version upgrade/downgrade
+    rpc Reconfigure (ReconfigureRequest) returns (ReconfigureResponse);
 
     // DoBackup requests that the node backup etcd
     rpc DoBackup (DoBackupRequest) returns (DoBackupResponse);
@@ -39,6 +43,7 @@ message GetInfoResponse {
     string cluster_token = 4;
 
     EtcdNode node_configuration = 5;
+    string etcd_version = 6;
 }
 
 message DoBackupRequest {
@@ -77,6 +82,22 @@ message JoinClusterResponse {
 //    JoinResult result = 2;
 }
 
+
+message ReconfigureRequest {
+    string leadership_token = 1;
+
+    string cluster_name = 3;
+//    string cluster_token = 4;
+//    repeated EtcdNode nodes = 5;
+//
+//    EtcdNode add_node = 6;
+
+    string etcd_version = 10;
+}
+
+message ReconfigureResponse {
+}
+
 message EtcdCluster {
     int32 desired_cluster_size = 1;
 
@@ -93,6 +114,7 @@ message EtcdNode {
     string name = 1;
     repeated string peer_urls = 2;
     repeated string client_urls = 3;
+    string etcd_version = 4;
 }
 
 message EtcdState {
