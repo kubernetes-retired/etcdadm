@@ -9,14 +9,20 @@ import (
 	"sync"
 	"time"
 
+	"path/filepath"
+
 	"github.com/golang/glog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 )
 
+// etcdProcess wraps a running etcd process
 type etcdProcess struct {
 	BinDir  string
 	DataDir string
+
+	// EtcdVersion is the version of etcd we are running
+	EtcdVersion string
 
 	ClientURL string
 
@@ -77,6 +83,25 @@ func (p *etcdProcess) Stop() error {
 		p.mutex.Unlock()
 		time.Sleep(100 * time.Millisecond)
 	}
+}
+
+// bindirForEtcdVersion returns the directory in which the etcd binary is located, for the specified version
+// It returns an error if the specified version cannot be found
+func bindirForEtcdVersion(etcdVersion string) (string, error) {
+	if !strings.HasPrefix(etcdVersion, "v") {
+		etcdVersion = "v" + etcdVersion
+	}
+	binDir := "/opt/etcd-" + etcdVersion + "-linux-amd64/"
+	etcdBinary := filepath.Join(binDir, "etcd")
+	_, err := os.Stat(etcdBinary)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return "", fmt.Errorf("unknown etcd version (etcd not found at %s)", etcdBinary)
+		} else {
+			return "", fmt.Errorf("error checking for etcd at %s: %v", etcdBinary, err)
+		}
+	}
+	return binDir, nil
 }
 
 func (p *etcdProcess) Start() error {
