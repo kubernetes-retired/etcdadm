@@ -33,12 +33,6 @@ type EtcdController struct {
 
 	mutex sync.Mutex
 
-	////model   EtcdCluster
-	//baseDir string
-	//
-	//process *etcdProcess
-	//
-	//me    privateapi.PeerId
 	peers privateapi.Peers
 
 	leaderLock      locking.Lock
@@ -73,7 +67,6 @@ type leadershipState struct {
 type EtcdMemberId string
 
 type etcdClusterState struct {
-	//clusterName    string
 	members        map[EtcdMemberId]*etcdclient.EtcdProcessMember
 	peers          map[privateapi.PeerId]*etcdClusterPeerInfo
 	healthyMembers map[EtcdMemberId]*etcdclient.EtcdProcessMember
@@ -123,31 +116,17 @@ func (p *peer) String() string {
 }
 
 func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, clusterName string, peers privateapi.Peers, initialClusterState InitialClusterSpecProvider) (*EtcdController, error) {
-	//s.mutex.Lock()
-	//defer s.mutex.Unlock()
-
-	//if model.DesiredClusterSize < 1 {
-	//	return nil, fmt.Errorf("DesiredClusterSize must be > 1")
-	//}
 	if clusterName == "" {
 		return nil, fmt.Errorf("ClusterName is required")
 	}
-	//if s.etcdClusters[model.ClusterName] != nil {
-	//	return nil, fmt.Errorf("cluster %q already registered", model.ClusterName)
-	//}
 	m := &EtcdController{
-		clusterName: clusterName,
-		backupStore: backupStore,
-		peers:       peers,
-		leaderLock:  leaderLock,
-		//model:   *model,
-		//baseDir: baseDir,
-		//peers:   s.peerServer,
-		//me:      s.peerServer.MyPeerId(),
+		clusterName:                clusterName,
+		backupStore:                backupStore,
+		peers:                      peers,
+		leaderLock:                 leaderLock,
 		InitialClusterSpecProvider: initialClusterState,
 		CycleInterval:              defaultCycleInterval,
 	}
-	//s.etcdClusters[model.ClusterName] = m
 	return m, nil
 }
 
@@ -165,10 +144,6 @@ func (m *EtcdController) Run(ctx context.Context) {
 		})
 }
 
-//func buildEtcdNodeName(clusterToken string, peerId string) string {
-//	return clusterToken + "--" + peerId
-//}
-
 func (m *EtcdController) newPeer(info *privateapi.PeerInfo) *peer {
 	p := &peer{
 		Id:    privateapi.PeerId(info.Id),
@@ -179,12 +154,6 @@ func (m *EtcdController) newPeer(info *privateapi.PeerInfo) *peer {
 }
 
 func (m *EtcdController) run(ctx context.Context) (bool, error) {
-	//m.mutex.Lock()
-	//defer m.mutex.Unlock()
-	//
-	//desiredMemberCount := int(m.model.DesiredClusterSize)
-	//
-
 	glog.Infof("starting controller iteration")
 
 	// Get all (responsive) peers in the discovery cluster
@@ -377,87 +346,6 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	glog.Infof("controller loop complete")
 
 	return false, nil
-	//if m.process == nil {
-	//	return m.stepStartCluster(me, peers)
-	//}
-	//
-	//if m.process == nil {
-	//	return false, fmt.Errorf("unexpected state in control loop - no etcd process")
-	//}
-	//
-	//members, err := m.process.listMembers()
-	//if err != nil {
-	//	return false, fmt.Errorf("error querying members from etcd: %v", err)
-	//}
-	//
-	//// TODO: Only if we are leader
-	//
-	//actualMemberCount := len(members)
-	//if actualMemberCount < desiredMemberCount {
-	//	glog.Infof("will try to add %d members; existing members: %s", desiredMemberCount - actualMemberCount, members)
-	//
-	//	// TODO: Randomize peer selection?
-	//
-	//	membersByName := make(map[string]*etcdProcessMember)
-	//	for _, member := range members {
-	//		membersByName[member.Name] = member
-	//	}
-	//
-	//	for _, peer := range peers {
-	//		peerMemberName := buildEtcdNodeName(m.process.Cluster.ClusterToken, peer.Id)
-	//		if membersByName[peerMemberName] != nil {
-	//			continue
-	//		}
-	//
-	//		cluster := &EtcdCluster{
-	//			ClusterToken: m.process.Cluster.ClusterToken,
-	//			ClusterName:  m.process.Cluster.ClusterName,
-	//		}
-	//		for _, member := range members {
-	//			etcdNode := &EtcdNode{
-	//				Name:       member.Name,
-	//				PeerUrls:   member.PeerURLs,
-	//				ClientUrls: member.ClientURLs,
-	//			}
-	//			cluster.Nodes = append(cluster.Nodes, etcdNode)
-	//		}
-	//		joinClusterRequest := &JoinClusterRequest{
-	//			Cluster: cluster,
-	//		}
-	//		peerGrpcClient, err := m.peers.GetPeerClient(privateapi.PeerId(peer.Id))
-	//		if err != nil {
-	//			return false, fmt.Errorf("error getting peer client %q: %v", peer.Id, err)
-	//		}
-	//		peerClient := NewEtcdManagerServiceClient(peerGrpcClient)
-	//		joinClusterResponse, err := peerClient.JoinCluster(ctx, joinClusterRequest)
-	//		if err != nil {
-	//			return false, fmt.Errorf("error from JoinClusterRequest from peer %q: %v", peer.Id, err)
-	//		}
-	//		if joinClusterResponse.Node == nil {
-	//			return false, fmt.Errorf("JoingClusterResponse from peer %q did not include peer info", peer.Id, joinClusterResponse)
-	//		}
-	//		peerURLs := joinClusterResponse.Node.PeerUrls
-	//		//var peerURLs []string
-	//		//for _, address := range peer.Addresses {
-	//		//	peerURL := fmt.Sprintf("http://%s:%d", address, m.model.PeerPort)
-	//		//	peerURLs = append(peerURLs, peerURL)
-	//		//}
-	//		glog.Infof("will try to add member %s @ %s", peerMemberName, peerURLs)
-	//		member, err := m.process.addMember(peerMemberName, peerURLs)
-	//		if err != nil {
-	//			return false, fmt.Errorf("failed to add peer %s %s: %v", peerMemberName, peerURLs, err)
-	//		}
-	//		glog.Infof("Added member: %s", member)
-	//		actualMemberCount++
-	//		if actualMemberCount == desiredMemberCount {
-	//			break
-	//		}
-	//	}
-	//}
-	//
-	//// TODO: Eventually replace unhealthy members?
-	//
-	//return false, nil
 }
 
 func (m *EtcdController) loadClusterSpec(ctx context.Context, etcdClusterState *etcdClusterState, etcdIsRunning bool) (*protoetcd.ClusterSpec, error) {
@@ -599,20 +487,6 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 			}
 		}
 		break
-
-		//clientURL := p.info.NodeConfiguration.ClientUrls[0]
-		//etcdClient := etcdclient.NewClient(clientURL)
-		//members, err := etcdClient.ListMembers(ctx)
-		//if err != nil {
-		//	glog.Warningf("unable to reach member %s: %v", p, err)
-		//}
-		//if err == nil {
-		//	clusterState.members = make(map[string]*etcdclient.EtcdProcessMember)
-		//	for _, m := range members {
-		//		clusterState.members[m.Name] = m
-		//	}
-		//	break
-		//}
 	}
 
 	// Query each cluster member to see if it is healthy
@@ -750,43 +624,6 @@ func (s *etcdClusterState) etcdCreate(ctx context.Context, key string, value str
 	return fmt.Errorf("unable to reach any cluster member, when trying to write key %q", key)
 }
 
-//func (m *EtcdController) processCluster(cluster *etcdClusterState) {
-//	// If there is no member at all, we can try to start the cluster
-//	if len(cluster.members) == 0 {
-//		return m.stepStartCluster()
-//	}
-//
-//	var expectedClusterState *EtcdCluster
-//	var err error
-//	leader := cluster.Leader()
-//	if leader != nil {
-//		expectedClusterState, err = etcdQueryState(leader, expectedClusterState)
-//		if err != nil {
-//			// TODO: Not found - maybe fall back to bootstrap expectation?  Or better.. to backup manager...
-//			return fmt.Errorf("error querying leader for expected query state: %v", err)
-//		}
-//	}
-//	if expectedClusterState == nil {
-//		for _, member := range cluster.members {
-//			if member.Healthy {
-//				expectedClusterState, err = etcdQueryState(member, expectedClusterState)
-//				if err != nil {
-//					return fmt.Errorf("error querying member for expected query state: %v", err)
-//				}
-//				if expectedClusterState != nil {
-//					break
-//				}
-//			}
-//		}
-//	}
-//	if expectedClusterState == nil {
-//		// TODO: This is the no healthy nodes case
-//		return fmt.Errorf("unable to find expected query state: %v", err)
-//	}
-//
-//	if expectedClusterState.MemberCount ==
-//}
-
 func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterState *etcdClusterState) (bool, error) {
 	var peersMissingFromEtcd []*etcdClusterPeerInfo
 	var idlePeers []*etcdClusterPeerInfo
@@ -805,21 +642,6 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterState *etc
 			idlePeers = append(idlePeers, peer)
 		}
 	}
-
-	//if len(peersMissingFromEtcd) != 0 {
-	//	glog.Infof("detected etcd servers not added to etcd cluster: %v", peersMissingFromEtcd)
-	//
-	//	peer := peersMissingFromEtcd[math_rand.Intn(len(peersMissingFromEtcd))]
-	//	glog.Infof("trying to add peer: %v", peer)
-	//
-	//	member, err := clusterState.etcdAddMember(ctx, peer.info.NodeConfiguration)
-	//	if err != nil {
-	//		return false, fmt.Errorf("error adding peer %q to cluster: %v", peer, err)
-	//	}
-	//	glog.Infof("Adding existing member to cluster: %s", member)
-	//	// We made some progress here; give it a cycle to join & sync
-	//	return true, nil
-	//}
 
 	// We need to start etcd on a new node
 	if len(idlePeers) != 0 {
@@ -1025,9 +847,6 @@ func (p *peer) rpcGetInfo(ctx context.Context, request *protoetcd.GetInfoRequest
 }
 
 func (m *EtcdController) removeNodeFromCluster(ctx context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState, removeHealthy bool) (bool, error) {
-	//desiredMemberCount := int(clusterSpec.MemberCount)
-	//quorumSize := (desiredMemberCount / 2) + 1
-
 	// TODO: Sanity checks that we aren't about to break the cluster
 
 	var victim *etcdclient.EtcdProcessMember
@@ -1151,9 +970,6 @@ func (m *EtcdController) stepStartCluster(ctx context.Context, clusterSpec *prot
 			return false, fmt.Errorf("error from JoinClusterRequest from peer %q: %v", p.peer, err)
 		}
 		glog.V(2).Infof("JoinClusterResponse: %s", joinClusterResponse)
-		//if joinClusterResponse.Node == nil {
-		//	return false, fmt.Errorf("JoingClusterResponse from peer %q did not include peer info", p.peer, joinClusterResponse)
-		//}
 	}
 
 	for _, p := range proposal {
@@ -1173,33 +989,7 @@ func (m *EtcdController) stepStartCluster(ctx context.Context, clusterSpec *prot
 			return false, fmt.Errorf("error from JoinClusterRequest from peer %q: %v", p.peer, err)
 		}
 		glog.V(2).Infof("JoinClusterResponse: %s", joinClusterResponse)
-		//if joinClusterResponse.Node == nil {
-		//	return false, fmt.Errorf("JoingClusterResponse from peer %q did not include peer info", peer.Id, joinClusterResponse)
-		//}
 	}
 
 	return true, nil
 }
-
-//type clusterInfo struct {
-//	PeerPort     int
-//	ClientPort   int
-//	ClusterToken string
-//}
-//
-//func (c *clusterInfo) buildEtcdNode(nodeInfo *privateapi.PeerInfo) (*EtcdNode) {
-//	etcdNode := &EtcdNode{
-//		// TODO: Include the cluster token (or a portion of it) in the name?
-//		Name: buildEtcdNodeName(c.ClusterToken, nodeInfo.Id),
-//	}
-//	for _, a := range nodeInfo.Addresses {
-//		peerUrl := fmt.Sprintf("http://%s:%d", a, c.PeerPort)
-//		etcdNode.PeerUrls = append(etcdNode.PeerUrls, peerUrl)
-//	}
-//	for _, a := range nodeInfo.Addresses {
-//		clientUrl := fmt.Sprintf("http://%s:%d", a, c.ClientPort)
-//		etcdNode.ClientUrls = append(etcdNode.ClientUrls, clientUrl)
-//	}
-//
-//	return etcdNode
-//}
