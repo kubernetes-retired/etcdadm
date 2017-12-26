@@ -40,3 +40,9 @@ push-etcd-dump: image-etcd-dump
 .PHONY: push
 push: push-etcd-manager push-etcd-dump
 	echo "pushed images"
+
+.PHONY: gazelle
+gazelle:
+	bazel run //:gazelle
+	git checkout -- vendor
+	rm vendor/github.com/golang/protobuf/protoc-gen-go/testdata/multi/BUILD.bazel
