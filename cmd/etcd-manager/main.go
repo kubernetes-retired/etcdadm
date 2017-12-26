@@ -41,8 +41,10 @@ func main() {
 	flag.IntVar(&memberCount, "members", memberCount, "initial cluster size; cluster won't start until we have a quorum of this size")
 	clusterName := ""
 	flag.StringVar(&clusterName, "cluster-name", clusterName, "name of cluster")
-	backupStorePath := ""
+	backupStorePath := "/backups"
 	flag.StringVar(&backupStorePath, "backup-store", backupStorePath, "backup store location")
+	dataDir := "/data"
+	flag.StringVar(&dataDir, "data-dir", dataDir, "directory for storing etcd data")
 
 	flag.Parse()
 
@@ -58,12 +60,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	baseDir := "/data/" + clusterName + "/" + address + "/"
-	if err := os.MkdirAll(baseDir, 0755); err != nil {
-		glog.Fatalf("error doing mkdirs on base directory %s: %v", baseDir, err)
+	if err := os.MkdirAll(dataDir, 0755); err != nil {
+		glog.Fatalf("error doing mkdirs on base directory %s: %v", dataDir, err)
 	}
 
-	uniqueID, err := privateapi.PersistentPeerId(baseDir)
+	uniqueID, err := privateapi.PersistentPeerId(dataDir)
 	if err != nil {
 		glog.Fatalf("error getting persistent peer id: %v", err)
 	}
@@ -121,7 +122,7 @@ func main() {
 		glog.Fatalf("error initializing backup store: %v", err)
 	}
 
-	etcdServer := etcd.NewEtcdServer(baseDir, clusterName, me, peerServer)
+	etcdServer := etcd.NewEtcdServer(dataDir, clusterName, me, peerServer)
 	go etcdServer.Run(ctx)
 
 	spec := &protoetcd.ClusterSpec{
@@ -129,7 +130,7 @@ func main() {
 	}
 	initialClusterState := controller.StaticInitialClusterSpecProvider(spec)
 
-	var leaderLock locking.Lock
+	var leaderLock locking.Lock // nil
 	c, err := controller.NewEtcdController(leaderLock, backupStore, clusterName, peerServer, initialClusterState)
 	if err != nil {
 		glog.Fatalf("error building etcd controller: %v", err)
