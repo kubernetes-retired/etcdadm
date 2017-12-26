@@ -45,6 +45,8 @@ func main() {
 	flag.StringVar(&backupStorePath, "backup-store", backupStorePath, "backup store location")
 	dataDir := "/data"
 	flag.StringVar(&dataDir, "data-dir", dataDir, "directory for storing etcd data")
+	etcdVersion := "3.2.12"
+	flag.StringVar(&etcdVersion, "etcd-version", etcdVersion, "etcd version")
 
 	flag.Parse()
 
@@ -127,6 +129,7 @@ func main() {
 
 	spec := &protoetcd.ClusterSpec{
 		MemberCount: int32(memberCount),
+		EtcdVersion: etcdVersion,
 	}
 	initialClusterState := controller.StaticInitialClusterSpecProvider(spec)
 
