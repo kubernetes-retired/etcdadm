@@ -39,6 +39,8 @@ func main() {
 	flag.StringVar(&address, "address", address, "local address to use")
 	peerPort := 2380
 	flag.IntVar(&peerPort, "peer-port", peerPort, "peer-port to use")
+	clientPort := 4001
+	flag.IntVar(&clientPort, "client-port", clientPort, "client-port to use")
 	memberCount := 1
 	flag.IntVar(&memberCount, "members", memberCount, "initial cluster size; cluster won't start until we have a quorum of this size")
 	clusterName := ""
@@ -98,27 +100,23 @@ func main() {
 	}
 
 	var clientUrls []string
-	clientPort := 4001
 	clientUrls = append(clientUrls, fmt.Sprintf("http://%s:%d", address, clientPort))
 
 	var peerUrls []string
 	peerUrls = append(peerUrls, fmt.Sprintf("http://%s:%d", address, peerPort))
 
-	me := &apis_etcd.EtcdNode{
+	etcdNodeInfo := &apis_etcd.EtcdNode{
 		Name:       string(uniqueID),
 		ClientUrls: clientUrls,
 		PeerUrls:   peerUrls,
 	}
-	//c.Me = me
-	//c.Nodes = append(c.Nodes, me)
-	//c.ClusterToken = "etcd-cluster-token-" + c.ClusterName
 
 	backupStore, err := backup.NewStore(backupStorePath)
 	if err != nil {
 		glog.Fatalf("error initializing backup store: %v", err)
 	}
 
-	etcdServer := etcd.NewEtcdServer(dataDir, clusterName, me, peerServer)
+	etcdServer := etcd.NewEtcdServer(dataDir, clusterName, etcdNodeInfo, peerServer)
 	go etcdServer.Run(ctx)
 
 	spec := &protoetcd.ClusterSpec{

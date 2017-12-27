@@ -95,6 +95,7 @@ func (h *TestHarness) NewNode(address string) *TestHarnessNode {
 		TestHarness: h,
 		Address:     address,
 		NodeDir:     nodeDir,
+		EtcdVersion: "2.2.1",
 	}
 
 	h.Nodes[address] = n
