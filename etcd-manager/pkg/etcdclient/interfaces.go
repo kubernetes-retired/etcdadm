@@ -24,5 +24,4 @@ func NewClient(etcdVersion string, clientURLs []string) (EtcdClient, error) {
 		return NewV3Client(clientURLs)
 	}
 	return nil, fmt.Errorf("unhandled etcd version %q", etcdVersion)
-
 }
