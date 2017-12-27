@@ -20,6 +20,13 @@ service EtcdManagerService {
 
     // DoBackup requests that the node backup etcd
     rpc DoBackup (DoBackupRequest) returns (DoBackupResponse);
+
+    // DoRestore requests that the node restores an etcd backup
+    rpc DoRestore (DoRestoreRequest) returns (DoRestoreResponse);
+
+    // StopEtcd requests that the node no longer run etcd.
+    // Typically the node will already have been removed from the etcd cluster.
+    rpc StopEtcd(StopEtcdRequest) returns (StopEtcdResponse);
 }
 
 enum Phase {
@@ -33,17 +40,19 @@ message GetInfoRequest {
 }
 
 message GetInfoResponse {
-//    string node_name = 1;
     string cluster_name = 2;
 
-//// If the node is running etcd, cluster_configuration holds the cluster configuration
-//    EtcdCluster cluster_configuration = 3;
-
-    bool etcd_configured = 3;
-    string cluster_token = 4;
+//    bool etcd_configured = 3;
+//    string cluster_token = 4;
 
     EtcdNode node_configuration = 5;
-    string etcd_version = 6;
+    EtcdState etcd_state = 6;
+}
+
+message BackupInfo {
+    string etcd_version = 1;
+    int64 timestamp = 2;
+    ClusterSpec cluster_spec = 3;
 }
 
 message DoBackupRequest {
@@ -53,11 +62,37 @@ message DoBackupRequest {
 
     string cluster_name = 3;
 
-    ClusterSpec state = 10;
+    // If allow_offline_backup is true, backup will be permitted even if etcd is not running on the node
+    bool allow_offline_backup = 4;
+
+    BackupInfo info = 10;
 }
 
 message DoBackupResponse {
     string name = 1;
+}
+
+
+message DoRestoreRequest {
+    string leadership_token = 1;
+
+    string storage = 2;
+
+    string cluster_name = 3;
+
+    string backup_name = 4;
+}
+
+message DoRestoreResponse {
+}
+
+
+message StopEtcdRequest {
+    string leadership_token = 1;
+    string cluster_name = 2;
+}
+
+message StopEtcdResponse {
 }
 
 message JoinClusterRequest {
@@ -70,6 +105,8 @@ message JoinClusterRequest {
     repeated EtcdNode nodes = 5;
 
     EtcdNode add_node = 6;
+
+    string etcd_version = 7;
 }
 
 //enum JoinResult {
@@ -89,7 +126,9 @@ message ReconfigureRequest {
     string cluster_name = 3;
 
     string etcd_version = 10;
-    repeated string client_urls = 11;
+
+    // Note that because this is bool this must always be specified
+    bool quarantined = 11;
 }
 
 message ReconfigureResponse {
@@ -103,18 +142,26 @@ message EtcdCluster {
 //    string cluster_name = 4;
     string cluster_token = 5;
 
-    EtcdNode me = 6;
+    string my_id = 6;
     repeated EtcdNode nodes = 7;
 }
+
+//message EtcdNode {
+//    string name = 1;
+//    repeated string peer_urls = 2;
+//    repeated string client_urls = 3;
+//}
 
 message EtcdNode {
     string name = 1;
     repeated string peer_urls = 2;
     repeated string client_urls = 3;
-    string etcd_version = 4;
+    repeated string quarantined_client_urls = 4;
 }
 
 message EtcdState {
     bool new_cluster = 1;
     EtcdCluster cluster = 2;
+    string etcd_version = 3;
+    bool quarantined = 4;
 }

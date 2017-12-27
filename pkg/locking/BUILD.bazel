@@ -20,6 +20,6 @@ go_test(
     srcs = [
         "lock_test.go",
     ],
+    embed = [":go_default_library"],
     importpath = "kope.io/etcd-manager/pkg/locking",
-    library = ":go_default_library",
 )
