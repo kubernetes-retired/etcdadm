@@ -5,7 +5,6 @@ go_library(
     srcs = [
         "etcdprocess.go",
         "etcdserver.go",
-        "manager.go",
     ],
     importpath = "kope.io/etcd-manager/pkg/etcd",
     visibility = ["//visibility:public"],
