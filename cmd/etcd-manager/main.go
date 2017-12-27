@@ -37,6 +37,8 @@ func main() {
 
 	address := "127.0.0.1"
 	flag.StringVar(&address, "address", address, "local address to use")
+	peerPort := 2380
+	flag.IntVar(&peerPort, "peer-port", peerPort, "peer-port to use")
 	memberCount := 1
 	flag.IntVar(&memberCount, "members", memberCount, "initial cluster size; cluster won't start until we have a quorum of this size")
 	clusterName := ""
@@ -95,19 +97,11 @@ func main() {
 		glog.Fatalf("error building server: %v", err)
 	}
 
-	//c := &apis_etcd.EtcdNode{
-	//	DesiredClusterSize: 3,
-	//	ClusterName:        "etcd-main",
-	//
-	//	ClientPort: 4001,
-	//	PeerPort:   2380,
-	//}
 	var clientUrls []string
 	clientPort := 4001
 	clientUrls = append(clientUrls, fmt.Sprintf("http://%s:%d", address, clientPort))
 
 	var peerUrls []string
-	peerPort := 2380
 	peerUrls = append(peerUrls, fmt.Sprintf("http://%s:%d", address, peerPort))
 
 	me := &apis_etcd.EtcdNode{

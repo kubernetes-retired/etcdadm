@@ -367,10 +367,10 @@ func (s *EtcdServer) DoBackup(ctx context.Context, request *protoetcd.DoBackupRe
 func (s *EtcdServer) findSelfNode(state *protoetcd.EtcdState) (*protoetcd.EtcdNode, error) {
 	var meNode *protoetcd.EtcdNode
 	for _, node := range state.Cluster.Nodes {
-		if stringSlicesEqual(node.ClientUrls, s.nodeInfo.ClientUrls) {
+		if stringSlicesEqual(node.PeerUrls, s.nodeInfo.PeerUrls) {
 			if meNode != nil {
 				glog.Infof("Nodes: %v", state.Cluster.Nodes)
-				return nil, fmt.Errorf("multiple nodes matching local client urls %s included in cluster", node.ClientUrls)
+				return nil, fmt.Errorf("multiple nodes matching local peer urls %s included in cluster", node.PeerUrls)
 			}
 			meNode = node
 		}
@@ -393,13 +393,9 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 		return fmt.Errorf("self node was not included in cluster")
 	}
 
-	// TODO: Force choice to localhost?
-	clientURL := s.nodeInfo.ClientUrls[0]
-
 	p := &etcdProcess{
 		CreateNewCluster: false,
 		DataDir:          dataDir,
-		ClientURL:        clientURL,
 		Cluster: &protoetcd.EtcdCluster{
 			ClusterToken: state.Cluster.ClusterToken,
 			Me:           meNode,
