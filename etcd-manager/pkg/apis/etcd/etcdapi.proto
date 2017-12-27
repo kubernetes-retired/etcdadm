@@ -87,12 +87,9 @@ message ReconfigureRequest {
     string leadership_token = 1;
 
     string cluster_name = 3;
-//    string cluster_token = 4;
-//    repeated EtcdNode nodes = 5;
-//
-//    EtcdNode add_node = 6;
 
     string etcd_version = 10;
+    repeated string client_urls = 11;
 }
 
 message ReconfigureResponse {

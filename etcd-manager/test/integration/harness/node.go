@@ -20,6 +20,7 @@ type TestHarnessNode struct {
 	TestHarness *TestHarness
 	Address     string
 	NodeDir     string
+	EtcdVersion string
 
 	ClientURL      string
 	etcdServer     *etcd.EtcdServer
@@ -104,6 +105,7 @@ func (n *TestHarnessNode) Run() {
 
 	initState := &protoetcd.ClusterSpec{
 		MemberCount: int32(n.TestHarness.MemberCount),
+		EtcdVersion: n.EtcdVersion,
 	}
 
 	c, err := controller.NewEtcdController(leaderLock, backupStore, n.TestHarness.ClusterName, peerServer, controller.StaticInitialClusterSpecProvider(initState))
@@ -133,7 +135,7 @@ func (n *TestHarnessNode) ListMembers(ctx context.Context) ([]*etcdclient.EtcdPr
 
 func (n *TestHarnessNode) Close() error {
 	if n.etcdServer != nil {
-		_, err := n.etcdServer.StopEtcdProcess()
+		_, err := n.etcdServer.StopEtcdProcessForTest()
 		if err != nil {
 			return err
 		}
