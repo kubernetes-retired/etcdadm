@@ -17,6 +17,7 @@ go_library(
         "//pkg/locking:go_default_library",
         "//pkg/privateapi:go_default_library",
         "//vendor/github.com/coreos/etcd/client:go_default_library",
+        "//vendor/github.com/coreos/etcd/version:go_default_library",
         "//vendor/github.com/golang/glog:go_default_library",
     ],
 )
