@@ -2,14 +2,22 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "go_default_library",
-    srcs = ["doc.go"],
+    srcs = [
+        "doc.go",
+        "util.go",
+    ],
     importpath = "github.com/coreos/etcd/clientv3/integration",
     visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/coreos/etcd/clientv3:go_default_library",
+        "//vendor/golang.org/x/net/context:go_default_library",
+    ],
 )
 
 go_test(
     name = "go_default_test",
     srcs = [
+        "black_hole_test.go",
         "cluster_test.go",
         "dial_test.go",
         "kv_test.go",
@@ -19,13 +27,15 @@ go_test(
         "metrics_test.go",
         "mirror_test.go",
         "namespace_test.go",
+        "network_partition_test.go",
         "role_test.go",
+        "server_shutdown_test.go",
         "txn_test.go",
         "user_test.go",
         "watch_test.go",
     ],
+    embed = [":go_default_library"],
     importpath = "github.com/coreos/etcd/clientv3/integration",
-    library = ":go_default_library",
     deps = [
         "//vendor/github.com/coreos/etcd/clientv3:go_default_library",
         "//vendor/github.com/coreos/etcd/clientv3/concurrency:go_default_library",
@@ -44,5 +54,8 @@ go_test(
         "//vendor/github.com/prometheus/client_golang/prometheus:go_default_library",
         "//vendor/golang.org/x/net/context:go_default_library",
         "//vendor/google.golang.org/grpc:go_default_library",
+        "//vendor/google.golang.org/grpc/codes:go_default_library",
+        "//vendor/google.golang.org/grpc/grpclog:go_default_library",
+        "//vendor/google.golang.org/grpc/metadata:go_default_library",
     ],
 )

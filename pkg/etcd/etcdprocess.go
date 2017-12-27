@@ -14,6 +14,7 @@ import (
 	"github.com/golang/glog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
+	"kope.io/etcd-manager/pkg/etcdclient"
 )
 
 // etcdProcess wraps a running etcd process
@@ -26,7 +27,14 @@ type etcdProcess struct {
 
 	CreateNewCluster bool
 
-	Cluster *protoetcd.EtcdCluster
+	// ForceNewCluster is used during a restore, and passes the --force-new-cluster argument
+	ForceNewCluster bool
+
+	Cluster    *protoetcd.EtcdCluster
+	MyNodeName string
+
+	// Quarantined indicates if this process should be quarantined - we will use the QuarantinedClientUrls if so
+	Quarantined bool
 
 	cmd *exec.Cmd
 
@@ -92,14 +100,31 @@ func bindirForEtcdVersion(etcdVersion string) (string, error) {
 
 func (p *etcdProcess) Start() error {
 	c := exec.Command(path.Join(p.BinDir, "etcd"))
+	if p.ForceNewCluster {
+		c.Args = append(c.Args, "--force-new-cluster")
+	}
 	glog.Infof("executing command %s %s", c.Path, c.Args)
 
+	var me *protoetcd.EtcdNode
+	for _, node := range p.Cluster.Nodes {
+		if node.Name == p.MyNodeName {
+			me = node
+		}
+	}
+	if me == nil {
+		return fmt.Errorf("unable to find self node %q in %v", p.MyNodeName, p.Cluster.Nodes)
+	}
+
+	clientUrls := me.ClientUrls
+	if p.Quarantined {
+		clientUrls = me.QuarantinedClientUrls
+	}
 	env := make(map[string]string)
 	env["ETCD_DATA_DIR"] = p.DataDir
-	env["ETCD_LISTEN_PEER_URLS"] = strings.Join(p.Cluster.Me.PeerUrls, ",")
-	env["ETCD_LISTEN_CLIENT_URLS"] = strings.Join(p.Cluster.Me.ClientUrls, ",")
-	env["ETCD_ADVERTISE_CLIENT_URLS"] = strings.Join(p.Cluster.Me.ClientUrls, ",")
-	env["ETCD_INITIAL_ADVERTISE_PEER_URLS"] = strings.Join(p.Cluster.Me.PeerUrls, ",")
+	env["ETCD_LISTEN_PEER_URLS"] = strings.Join(me.PeerUrls, ",")
+	env["ETCD_LISTEN_CLIENT_URLS"] = strings.Join(clientUrls, ",")
+	env["ETCD_ADVERTISE_CLIENT_URLS"] = strings.Join(clientUrls, ",")
+	env["ETCD_INITIAL_ADVERTISE_PEER_URLS"] = strings.Join(me.PeerUrls, ",")
 
 	if p.CreateNewCluster {
 		env["ETCD_INITIAL_CLUSTER_STATE"] = "new"
@@ -107,7 +132,7 @@ func (p *etcdProcess) Start() error {
 		env["ETCD_INITIAL_CLUSTER_STATE"] = "existing"
 	}
 
-	env["ETCD_NAME"] = p.Cluster.Me.Name
+	env["ETCD_NAME"] = p.MyNodeName
 	if p.Cluster.ClusterToken != "" {
 		env["ETCD_INITIAL_CLUSTER_TOKEN"] = p.Cluster.ClusterToken
 	}
@@ -143,7 +168,25 @@ func (p *etcdProcess) Start() error {
 	return nil
 }
 
-func (p *etcdProcess) DoBackup(store backup.Store, state *protoetcd.ClusterSpec) (*protoetcd.DoBackupResponse, error) {
+func (p *etcdProcess) Client() (etcdclient.EtcdClient, error) {
+	var me *protoetcd.EtcdNode
+	for _, node := range p.Cluster.Nodes {
+		if node.Name == p.MyNodeName {
+			me = node
+		}
+	}
+	if me == nil {
+		return nil, fmt.Errorf("unable to find self node %q in %v", p.MyNodeName, p.Cluster.Nodes)
+	}
+
+	clientUrls := me.ClientUrls
+	if p.Quarantined {
+		clientUrls = me.QuarantinedClientUrls
+	}
+
+	return etcdclient.NewClient(p.EtcdVersion, clientUrls)
+}
+func (p *etcdProcess) DoBackup(store backup.Store, info *protoetcd.BackupInfo) (*protoetcd.DoBackupResponse, error) {
 	response := &protoetcd.DoBackupResponse{}
 
 	timestamp := time.Now().UTC().Format(time.RFC3339)
@@ -188,7 +231,7 @@ func (p *etcdProcess) DoBackup(store backup.Store, state *protoetcd.ClusterSpec)
 
 	response.Name = timestamp
 
-	err = store.AddBackup(response.Name, tempDir, state)
+	err = store.AddBackup(response.Name, tempDir, info)
 	if err != nil {
 		return nil, fmt.Errorf("error copying backup to storage: %v", err)
 	}

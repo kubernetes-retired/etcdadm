@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"sort"
 
+	"io"
+
 	"github.com/golang/glog"
 	"kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/ioutils"
@@ -19,7 +21,7 @@ type Store interface {
 	Spec() string
 
 	CreateBackupTempDir(name string) (string, error)
-	AddBackup(name string, srcdir string, state *etcd.ClusterSpec) error
+	AddBackup(name string, srcdir string, info *etcd.BackupInfo) error
 
 	// ListBackups returns all the available backups, in chronological order
 	ListBackups() ([]string, error)
@@ -27,8 +29,11 @@ type Store interface {
 	// RemoveBackup deletes a backup (as returned by ListBackups)
 	RemoveBackup(backup string) error
 
-	// LoadClusterState loads the state information that should have been saved alongside a backup
-	LoadClusterState(backup string) (*etcd.ClusterSpec, error)
+	// LoadInfo loads the backup information that should have been saved alongside a backup
+	LoadInfo(backup string) (*etcd.BackupInfo, error)
+
+	// DownloadBackup downloads the backup to the specific location
+	DownloadBackup(name string, destdir string) error
 }
 
 func NewStore(storage string) (Store, error) {
@@ -85,12 +90,12 @@ func (s *filesystemStore) CreateBackupTempDir(name string) (string, error) {
 	return p, nil
 }
 
-func (s *filesystemStore) AddBackup(name string, srcdir string, state *etcd.ClusterSpec) error {
+func (s *filesystemStore) AddBackup(name string, srcdir string, info *etcd.BackupInfo) error {
 	// Save the meta file
 	{
 		p := filepath.Join(srcdir, MetaFilename)
 
-		data, err := etcd.ToJson(state)
+		data, err := etcd.ToJson(info)
 		if err != nil {
 			return fmt.Errorf("error marshalling state: %v", err)
 		}
@@ -151,7 +156,7 @@ func (s *filesystemStore) RemoveBackup(backup string) error {
 	return nil
 }
 
-func (s *filesystemStore) LoadClusterState(name string) (*etcd.ClusterSpec, error) {
+func (s *filesystemStore) LoadInfo(name string) (*etcd.BackupInfo, error) {
 	p := filepath.Join(s.backupsBase, name, MetaFilename)
 
 	data, err := ioutil.ReadFile(p)
@@ -159,7 +164,7 @@ func (s *filesystemStore) LoadClusterState(name string) (*etcd.ClusterSpec, erro
 		return nil, fmt.Errorf("error reading file %q: %v", p, err)
 	}
 
-	spec := &etcd.ClusterSpec{}
+	spec := &etcd.BackupInfo{}
 	if err = etcd.FromJson(string(data), spec); err != nil {
 		return nil, fmt.Errorf("error parsing file %q: %v", p, err)
 	}
@@ -169,4 +174,61 @@ func (s *filesystemStore) LoadClusterState(name string) (*etcd.ClusterSpec, erro
 
 func (s *filesystemStore) Spec() string {
 	return s.spec
+}
+
+func (s *filesystemStore) DownloadBackup(name string, destdir string) error {
+	p := filepath.Join(s.backupsBase, name)
+	return copyTree(p, destdir)
+}
+
+func copyTree(srcdir string, destdir string) error {
+	if err := os.MkdirAll(destdir, 0755); err != nil {
+		return fmt.Errorf("error creating directory %s: %v", destdir, err)
+	}
+
+	srcfiles, err := ioutil.ReadDir(srcdir)
+	if err != nil {
+		return fmt.Errorf("error reading directory %s: %v", srcdir, err)
+	}
+
+	for _, srcfile := range srcfiles {
+		if srcfile.IsDir() {
+			if err := copyTree(filepath.Join(srcdir, srcfile.Name()), filepath.Join(destdir, srcfile.Name())); err != nil {
+				return err
+			}
+		} else {
+			if err := copyFile(filepath.Join(srcdir, srcfile.Name()), filepath.Join(destdir, srcfile.Name())); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func copyFile(srcfile, destfile string) (err error) {
+	in, err := os.Open(srcfile)
+	if err != nil {
+		return
+	}
+	defer func() {
+		cerr := in.Close()
+		if err == nil {
+			err = cerr
+		}
+	}()
+	out, err := os.Create(destfile)
+	if err != nil {
+		return
+	}
+	defer func() {
+		cerr := out.Close()
+		if err == nil {
+			err = cerr
+		}
+	}()
+	if _, err = io.Copy(out, in); err != nil {
+		return
+	}
+	return
 }

@@ -24,8 +24,8 @@ go_library(
         "peers.go",
         "server.go",
     ],
+    embed = [":privateapi_go_proto"],
     importpath = "kope.io/etcd-manager/pkg/privateapi",
-    library = ":privateapi_go_proto",
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/contextutil:go_default_library",
