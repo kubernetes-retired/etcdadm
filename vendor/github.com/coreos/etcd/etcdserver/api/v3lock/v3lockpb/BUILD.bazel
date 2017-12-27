@@ -1,28 +1,4 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
-load("@io_bazel_rules_go//proto:def.bzl", "go_grpc_library")
-
-proto_library(
-    name = "v3lockpb_proto",
-    srcs = ["v3lock.proto"],
-    visibility = ["//visibility:public"],
-    deps = [
-        "//etcd/etcdserver/etcdserverpb:etcdserverpb_proto",
-        "//gogoproto:gogoproto_proto",
-        "//google/api:api_proto",
-    ],
-)
-
-go_grpc_library(
-    name = "v3lockpb_go_proto",
-    importpath = "github.com/coreos/etcd/etcdserver/api/v3lock/v3lockpb",
-    proto = ":v3lockpb_proto",
-    visibility = ["//visibility:public"],
-    deps = [
-        "//vendor/etcd/etcdserver/etcdserverpb:go_default_library",
-        "//vendor/gogoproto:go_default_library",
-        "//vendor/google/api:go_default_library",
-    ],
-)
 
 go_library(
     name = "go_default_library",
