@@ -24,21 +24,7 @@ type etcdProcess struct {
 	// EtcdVersion is the version of etcd we are running
 	EtcdVersion string
 
-	ClientURL string
-
 	CreateNewCluster bool
-	//Version          string
-
-	//ClusterName string
-	//NodeName string
-	//AdvertiseHostname string
-	//
-	//PeerPort int
-	//
-	//ClientListenHost string
-	//ClientPort int
-	//
-	//ClusterToken string
 
 	Cluster *protoetcd.EtcdCluster
 
@@ -107,19 +93,6 @@ func bindirForEtcdVersion(etcdVersion string) (string, error) {
 func (p *etcdProcess) Start() error {
 	c := exec.Command(path.Join(p.BinDir, "etcd"))
 	glog.Infof("executing command %s %s", c.Path, c.Args)
-
-	//clientPort := p.Cluster.ClientPort
-	//peerPort := p.Cluster.PeerPort
-	//
-	//clientListenHost := ""
-	//if clientListenHost == "" {
-	//	clientListenHost = "0.0.0.0"
-	//}
-
-	//advertiseHostname := p.Cluster.Me.InternalName
-	//if advertiseHostname == "" {
-	//	advertiseHostname = "0.0.0.0"
-	//}
 
 	env := make(map[string]string)
 	env["ETCD_DATA_DIR"] = p.DataDir
@@ -195,43 +168,7 @@ func (p *etcdProcess) DoBackup(store backup.Store, state *protoetcd.ClusterSpec)
 	c.Args = append(c.Args, "--backup-dir", tempDir)
 	glog.Infof("executing command %s %s", c.Path, c.Args)
 
-	//clientPort := p.Cluster.ClientPort
-	//peerPort := p.Cluster.PeerPort
-	//
-	//clientListenHost := ""
-	//if clientListenHost == "" {
-	//	clientListenHost = "0.0.0.0"
-	//}
-
-	//advertiseHostname := p.Cluster.Me.InternalName
-	//if advertiseHostname == "" {
-	//	advertiseHostname = "0.0.0.0"
-	//}
-
 	env := make(map[string]string)
-	//env["ETCD_DATA_DIR"] = p.DataDir
-	//env["ETCD_LISTEN_PEER_URLS"] = strings.Join(p.Cluster.Me.PeerUrls, ",")
-	//env["ETCD_LISTEN_CLIENT_URLS"] = strings.Join(p.Cluster.Me.ClientUrls, ",")
-	//env["ETCD_ADVERTISE_CLIENT_URLS"] = strings.Join(p.Cluster.Me.ClientUrls, ",")
-	//env["ETCD_INITIAL_ADVERTISE_PEER_URLS"] = strings.Join(p.Cluster.Me.PeerUrls, ",")
-	//
-	//if p.CreateNewCluster {
-	//	env["ETCD_INITIAL_CLUSTER_STATE"] = "new"
-	//} else {
-	//	env["ETCD_INITIAL_CLUSTER_STATE"] = "existing"
-	//}
-	//
-	//env["ETCD_NAME"] = p.Cluster.Me.Name
-	//if p.Cluster.ClusterToken != "" {
-	//	env["ETCD_INITIAL_CLUSTER_TOKEN"] = p.Cluster.ClusterToken
-	//}
-	//
-	//var initialCluster []string
-	//for _, node := range p.Cluster.Nodes {
-	//	initialCluster = append(initialCluster, node.Name+"="+strings.Join(node.PeerUrls, ","))
-	//}
-	//env["ETCD_INITIAL_CLUSTER"] = strings.Join(initialCluster, ",")
-
 	for k, v := range env {
 		c.Env = append(c.Env, k+"="+v)
 	}
