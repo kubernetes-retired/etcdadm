@@ -17,8 +17,8 @@ go_grpc_library(
 go_library(
     name = "go_default_library",
     srcs = ["json.go"],
+    embed = [":etcd_go_proto"],
     importpath = "kope.io/etcd-manager/pkg/apis/etcd",
-    library = ":etcd_go_proto",
     visibility = ["//visibility:public"],
     deps = [
         "//vendor/github.com/golang/protobuf/jsonpb:go_default_library",

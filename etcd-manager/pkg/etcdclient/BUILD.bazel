@@ -2,11 +2,17 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "go_default_library",
-    srcs = ["v2.go"],
+    srcs = [
+        "interfaces.go",
+        "member.go",
+        "v2.go",
+        "v3.go",
+    ],
     importpath = "kope.io/etcd-manager/pkg/etcdclient",
     visibility = ["//visibility:public"],
     deps = [
         "//vendor/github.com/coreos/etcd/client:go_default_library",
+        "//vendor/github.com/coreos/etcd/clientv3:go_default_library",
         "//vendor/github.com/golang/glog:go_default_library",
     ],
 )

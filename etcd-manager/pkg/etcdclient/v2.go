@@ -2,137 +2,134 @@ package etcdclient
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"time"
 
-	etcd_client "github.com/coreos/etcd/client"
+	etcd_client_v2 "github.com/coreos/etcd/client"
 	"github.com/golang/glog"
 )
 
-type Client interface {
-	ListMembers(ctx context.Context) ([]*EtcdProcessMember, error)
+type V2Client struct {
+	keys    etcd_client_v2.KeysAPI
+	members etcd_client_v2.MembersAPI
 }
 
-type etcdClient struct {
-	ClientURL string
-}
-
-var _ Client = &etcdClient{}
-
-type EtcdProcessMember struct {
-	Id         string   `json:"id,omitempty"`
-	Name       string   `json:"name,omitempty"`
-	PeerURLs   []string `json:"peerURLs,omitempty"`
-	ClientURLs []string `json:"clientURLs,omitempty"`
-}
-
-func (m *EtcdProcessMember) Client() (etcd_client.Client, error) {
-	cfg := etcd_client.Config{
-		Endpoints: m.ClientURLs,
-		Transport: etcd_client.DefaultTransport,
-		// set timeout per request to fail fast when the target endpoint is unavailable
-		HeaderTimeoutPerRequest: time.Second,
+func NewV2Client(clientUrls []string) (EtcdClient, error) {
+	cfg := etcd_client_v2.Config{
+		Endpoints:               []string{clientUrls[0]},
+		Transport:               etcd_client_v2.DefaultTransport,
+		HeaderTimeoutPerRequest: 10 * time.Second,
 	}
-	etcdClient, err := etcd_client.New(cfg)
+	etcdClient, err := etcd_client_v2.New(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("error building etcd client for %s: %v", m.Name, err)
+		return nil, fmt.Errorf("error building etcd client for %s: %v", clientUrls[0], err)
 	}
-	return etcdClient, nil
 
+	keysAPI := etcd_client_v2.NewKeysAPI(etcdClient)
+
+	return &V2Client{
+		keys:    keysAPI,
+		members: etcd_client_v2.NewMembersAPI(etcdClient),
+	}, nil
 }
-func (m *EtcdProcessMember) String() string {
-	s, err := json.Marshal(m)
+
+func (c *V2Client) Get(ctx context.Context, key string, quorum bool) ([]byte, error) {
+	r, err := c.keys.Get(ctx, key, &etcd_client_v2.GetOptions{Quorum: quorum})
 	if err != nil {
-		return fmt.Sprintf("<error marshallling: %v>", err)
+		return nil, err
 	}
-	return string(s)
+	return []byte(r.Node.Value), nil
 }
 
-type etcdProcessMemberList struct {
-	Members []*EtcdProcessMember `json:"members"`
-}
-
-func NewClient(clientURL string) Client {
-	return &etcdClient{
-		ClientURL: clientURL,
-	}
-}
-
-func (e *etcdClient) ListMembers(ctx context.Context) ([]*EtcdProcessMember, error) {
-	client := &http.Client{}
-	method := "GET"
-	url := fmt.Sprintf("%s/v2/members", e.ClientURL)
-	request, err := http.NewRequest(method, url, nil)
+func (c *V2Client) Create(ctx context.Context, key string, value []byte) error {
+	options := &etcd_client_v2.SetOptions{}
+	options.PrevExist = etcd_client_v2.PrevNoExist
+	_, err := c.keys.Set(ctx, key, string(value), options)
 	if err != nil {
-		return nil, fmt.Errorf("error building etcd request %s %s: %v", method, url, err)
+		return err
 	}
-	request = request.WithContext(ctx)
-	response, err := client.Do(request)
-	if err != nil {
-		return nil, fmt.Errorf("error performing etcd request %s %s: %v", method, url, err)
-	}
-	defer response.Body.Close()
-	if response.StatusCode != 200 {
-		return nil, fmt.Errorf("unexpected response querying etcd members %s %s: %s", method, url, response.Status)
-	}
-
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, fmt.Errorf("error reading etcd response %s %s: %v", method, url, err)
-	}
-	members := &etcdProcessMemberList{}
-	if err := json.Unmarshal(body, &members); err != nil {
-		glog.Infof("invalid etcd response: %q", string(body))
-		return nil, fmt.Errorf("error parsing etcd response %s %s: %v", method, url, err)
-	}
-	return members.Members, nil
+	return nil
 }
 
-//func (e *etcdClient) AddMember(ctx context.Context, name string, peerURLs []string) (*EtcdProcessMember, error) {
-//	if name == "" {
-//		glog.Fatalf("attempt to add member with no name")
-//	}
-//
-//	client := &http.Client{}
-//
-//	m := &EtcdProcessMember{
-//		Name:     name,
-//		PeerURLs: peerURLs,
-//	}
-//	postBody, err := json.Marshal(m)
-//	if err != nil {
-//		return nil, fmt.Errorf("error building payload for member-add: %v", err)
-//	}
-//	method := "POST"
-//	url := fmt.Sprintf("%s/v2/members", e.ClientURL)
-//	request, err := http.NewRequest("POST", url, bytes.NewReader(postBody))
-//	if err != nil {
-//		return nil, fmt.Errorf("error building etcd request %s %s: %v", method, url, err)
-//	}
-//	request.Header.Add("Content-Type", "application/json")
-//	request = request.WithContext(ctx)
-//	response, err := client.Do(request)
-//	if err != nil {
-//		return nil, fmt.Errorf("error performing etcd request %s %s: %v", method, url, err)
-//	}
-//	defer response.Body.Close()
-//	if response.StatusCode != 201 {
-//		glog.Infof("POSTed content was %q", string(postBody))
-//		return nil, fmt.Errorf("unexpected response adding etcd member %s %s: %s", method, url, response.Status)
-//	}
-//
-//	body, err := ioutil.ReadAll(response.Body)
-//	if err != nil {
-//		return nil, fmt.Errorf("error reading etcd response %s %s: %v", method, url, err)
-//	}
-//	member := &EtcdProcessMember{}
-//	if err := json.Unmarshal(body, &member); err != nil {
-//		glog.Infof("invalid etcd response: %q", string(body))
-//		return nil, fmt.Errorf("error parsing etcd response %s %s: %v", method, url, err)
-//	}
-//	glog.Infof("created etcd member: %v", member)
-//	return member, nil
-//}
+func (c *V2Client) Put(ctx context.Context, key string, value []byte) error {
+	options := &etcd_client_v2.SetOptions{}
+	_, err := c.keys.Set(ctx, key, string(value), options)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *V2Client) ListMembers(ctx context.Context) ([]*EtcdProcessMember, error) {
+	response, err := c.members.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var members []*EtcdProcessMember
+	for _, m := range response {
+		members = append(members, &EtcdProcessMember{
+			ClientURLs:  m.ClientURLs,
+			PeerURLs:    m.PeerURLs,
+			ID:          m.ID,
+			idv2:        m.ID,
+			Name:        m.Name,
+			etcdVersion: "2.x",
+		})
+	}
+	return members, nil
+}
+
+func (c *V2Client) AddMember(ctx context.Context, peerURLs []string) error {
+	if len(peerURLs) == 0 {
+		return fmt.Errorf("AddMember with empty peerURLs")
+	}
+	if len(peerURLs) != 1 {
+		return fmt.Errorf("etcd V2 API does not support add with multiple peer urls: %v", peerURLs)
+	}
+	_, err := c.members.Add(ctx, peerURLs[0])
+	return err
+}
+
+func (c *V2Client) RemoveMember(ctx context.Context, member *EtcdProcessMember) error {
+	err := c.members.Remove(ctx, member.idv2)
+	return err
+}
+
+func (c *V2Client) CopyTo(ctx context.Context, dest EtcdClient) error {
+	return c.copySubtree(ctx, "/", dest)
+}
+
+func (c *V2Client) copySubtree(ctx context.Context, p string, dest EtcdClient) error {
+	opts := &etcd_client_v2.GetOptions{
+		Quorum: false,
+		// We don't do Recursive: true, to avoid huge responses
+	}
+	glog.V(4).Infof("listing keys under %s", p)
+	response, err := c.keys.Get(ctx, p, opts)
+	if err != nil {
+		return fmt.Errorf("error reading %q: %v", p, err)
+	}
+
+	if err != nil {
+		return fmt.Errorf("error reading %q: %v", string(p), err)
+	}
+
+	if response.Node == nil {
+		return fmt.Errorf("node %q not found", p)
+	}
+
+	if !response.Node.Dir {
+		if err := dest.Put(ctx, response.Node.Key, []byte(response.Node.Value)); err != nil {
+			return fmt.Errorf("error writing node: %v", err)
+		}
+	}
+
+	for _, n := range response.Node.Nodes {
+		err := c.copySubtree(ctx, n.Key, dest)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

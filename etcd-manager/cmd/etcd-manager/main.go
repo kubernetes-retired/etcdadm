@@ -22,6 +22,9 @@ import (
 	"fmt"
 	"os"
 
+	"strings"
+	"time"
+
 	"github.com/golang/glog"
 	apis_etcd "kope.io/etcd-manager/pkg/apis/etcd"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
@@ -39,8 +42,12 @@ func main() {
 	flag.StringVar(&address, "address", address, "local address to use")
 	peerPort := 2380
 	flag.IntVar(&peerPort, "peer-port", peerPort, "peer-port to use")
-	clientPort := 4001
-	flag.IntVar(&clientPort, "client-port", clientPort, "client-port to use")
+	altPeerPort := 2381
+	flag.IntVar(&altPeerPort, "alt-peer-port", altPeerPort, "peer-port to use")
+	clientUrls := "http://127.0.0.1:4001"
+	flag.StringVar(&clientUrls, "client-urls", clientUrls, "client-urls to use for normal operation")
+	quarantineClientUrls := "http://127.0.0.1:8001"
+	flag.StringVar(&quarantineClientUrls, "quarantine-client-urls", quarantineClientUrls, "client-urls to use when etcd should be quarantined e.g. when offline")
 	memberCount := 1
 	flag.IntVar(&memberCount, "members", memberCount, "initial cluster size; cluster won't start until we have a quorum of this size")
 	clusterName := ""
@@ -99,16 +106,14 @@ func main() {
 		glog.Fatalf("error building server: %v", err)
 	}
 
-	var clientUrls []string
-	clientUrls = append(clientUrls, fmt.Sprintf("http://%s:%d", address, clientPort))
-
 	var peerUrls []string
 	peerUrls = append(peerUrls, fmt.Sprintf("http://%s:%d", address, peerPort))
 
 	etcdNodeInfo := &apis_etcd.EtcdNode{
-		Name:       string(uniqueID),
-		ClientUrls: clientUrls,
-		PeerUrls:   peerUrls,
+		Name:                  string(uniqueID),
+		ClientUrls:            strings.Split(clientUrls, ","),
+		QuarantinedClientUrls: strings.Split(quarantineClientUrls, ","),
+		PeerUrls:              peerUrls,
 	}
 
 	backupStore, err := backup.NewStore(backupStorePath)
@@ -130,7 +135,10 @@ func main() {
 	if err != nil {
 		glog.Fatalf("error building etcd controller: %v", err)
 	}
-	go c.Run(ctx)
+	go func() {
+		time.Sleep(2 * time.Second) // Gives a bit of time for discovery to run first
+		c.Run(ctx)
+	}()
 
 	if err := peerServer.ListenAndServe(ctx, grpcAddress); err != nil {
 		if ctx.Err() == nil {
