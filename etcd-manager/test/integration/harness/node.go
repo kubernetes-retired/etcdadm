@@ -76,14 +76,19 @@ func (n *TestHarnessNode) Run() {
 	clientPort := 4001
 	clientUrls = append(clientUrls, fmt.Sprintf("http://%s:%d", address, clientPort))
 
+	var quarantinedClientUrls []string
+	quarantinedClientPort := 4002
+	quarantinedClientUrls = append(quarantinedClientUrls, fmt.Sprintf("http://%s:%d", address, quarantinedClientPort))
+
 	var peerUrls []string
 	peerPort := 2380
 	peerUrls = append(peerUrls, fmt.Sprintf("http://%s:%d", address, peerPort))
 
 	me := &apis_etcd.EtcdNode{
-		Name:       string(uniqueID),
-		ClientUrls: clientUrls,
-		PeerUrls:   peerUrls,
+		Name:                  string(uniqueID),
+		ClientUrls:            clientUrls,
+		QuarantinedClientUrls: quarantinedClientUrls,
+		PeerUrls:              peerUrls,
 	}
 	//c.Me = me
 	//c.Nodes = append(c.Nodes, me)
@@ -124,12 +129,18 @@ func (n *TestHarnessNode) Run() {
 }
 
 func (n *TestHarnessNode) WaitForListMembers(timeout time.Duration) {
-	client := etcdclient.NewClient(n.ClientURL)
+	client, err := etcdclient.NewClient(n.EtcdVersion, []string{n.ClientURL})
+	if err != nil {
+		n.TestHarness.T.Fatalf("error building etcd client: %v", err)
+	}
 	waitForListMembers(n.TestHarness.T, client, timeout)
 }
 
 func (n *TestHarnessNode) ListMembers(ctx context.Context) ([]*etcdclient.EtcdProcessMember, error) {
-	client := etcdclient.NewClient(n.ClientURL)
+	client, err := etcdclient.NewClient(n.EtcdVersion, []string{n.ClientURL})
+	if err != nil {
+		n.TestHarness.T.Fatalf("error building etcd client: %v", err)
+	}
 	return client.ListMembers(ctx)
 }
 
