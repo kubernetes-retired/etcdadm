@@ -56,7 +56,7 @@ func BenchmarkClient(b *testing.B) {
 			tracing = "noTrace"
 		}
 
-		benchFeature := stats.Features{
+		benchFeature := Features{
 			EnableTrace:        enableTrace[featuresCurPos[0]],
 			Latency:            latency[featuresCurPos[1]],
 			Kbps:               kbps[featuresCurPos[2]],
