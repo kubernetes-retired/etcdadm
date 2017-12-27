@@ -15,14 +15,17 @@ type V2Client struct {
 }
 
 func NewV2Client(clientUrls []string) (EtcdClient, error) {
+	if len(clientUrls) == 0 {
+		return nil, fmt.Errorf("no clientURLs provided")
+	}
 	cfg := etcd_client_v2.Config{
-		Endpoints:               []string{clientUrls[0]},
+		Endpoints:               clientUrls,
 		Transport:               etcd_client_v2.DefaultTransport,
 		HeaderTimeoutPerRequest: 10 * time.Second,
 	}
 	etcdClient, err := etcd_client_v2.New(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("error building etcd client for %s: %v", clientUrls[0], err)
+		return nil, fmt.Errorf("error building etcd client for %s: %v", clientUrls, err)
 	}
 
 	keysAPI := etcd_client_v2.NewKeysAPI(etcdClient)
