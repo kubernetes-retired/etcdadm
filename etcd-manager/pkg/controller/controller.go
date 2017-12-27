@@ -15,6 +15,7 @@ import (
 	etcd_client "github.com/coreos/etcd/client"
 	"github.com/coreos/etcd/version"
 	"github.com/golang/glog"
+	"github.com/golang/protobuf/proto"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/contextutil"
@@ -731,7 +732,11 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterSpec *prot
 			nodes = append(nodes, node)
 		}
 
-		nodes = append(nodes, peer.info.NodeConfiguration)
+		{
+			node := proto.Clone(peer.info.NodeConfiguration).(*protoetcd.EtcdNode)
+			node.EtcdVersion = clusterSpec.EtcdVersion
+			nodes = append(nodes, node)
+		}
 
 		clusterToken := ""
 		for _, peer := range clusterState.peers {
