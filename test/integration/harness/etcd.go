@@ -78,7 +78,7 @@ func (n *TestHarnessNode) KeysAPI() (etcd_client.KeysAPI, error) {
 	return keysAPI, nil
 }
 
-func waitForListMembers(t *testing.T, client etcdclient.Client, timeout time.Duration) {
+func waitForListMembers(t *testing.T, client etcdclient.EtcdClient, timeout time.Duration) {
 	endAt := time.Now().Add(timeout)
 	for {
 		members, err := client.ListMembers(context.Background())
@@ -96,8 +96,10 @@ func waitForListMembers(t *testing.T, client etcdclient.Client, timeout time.Dur
 }
 
 func (n *TestHarnessNode) WaitForQuorumRead(ctx context.Context, timeout time.Duration) {
-	client := etcdclient.NewClient(n.ClientURL)
-
+	client, err := etcdclient.NewClient(n.EtcdVersion, []string{n.ClientURL})
+	if err != nil {
+		n.TestHarness.T.Fatalf("error building etcd client: %v", err)
+	}
 	endAt := time.Now().Add(timeout)
 	for {
 		_, err := n.GetQuorum(ctx, "/")
