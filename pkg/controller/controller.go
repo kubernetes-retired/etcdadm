@@ -13,6 +13,7 @@ import (
 	"time"
 
 	etcd_client "github.com/coreos/etcd/client"
+	"github.com/coreos/etcd/version"
 	"github.com/golang/glog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
@@ -70,6 +71,7 @@ type etcdClusterState struct {
 	members        map[EtcdMemberId]*etcdclient.EtcdProcessMember
 	peers          map[privateapi.PeerId]*etcdClusterPeerInfo
 	healthyMembers map[EtcdMemberId]*etcdclient.EtcdProcessMember
+	versions       map[EtcdMemberId]*version.Versions
 }
 
 func (s *etcdClusterState) String() string {
@@ -298,10 +300,62 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		return m.stepStartCluster(ctx, clusterSpec, clusterState)
 	}
 
+	// Check if the cluster is not of the desired version
+	{
+		var versionMismatch []*etcdclient.EtcdProcessMember
+		for memberId, versions := range clusterState.versions {
+			if versions.Server != clusterSpec.EtcdVersion {
+				glog.Infof("mismatched version for member %q: want %q, have %q", memberId, clusterSpec.EtcdVersion, versions.Server)
+				member := clusterState.members[memberId]
+				if member == nil {
+					return false, fmt.Errorf("unable to find member %q", memberId)
+				}
+				versionMismatch = append(versionMismatch, member)
+			}
+		}
+
+		if len(versionMismatch) != 0 {
+			// Force a backup
+			if _, err := m.doClusterBackup(ctx, clusterSpec, clusterState); err != nil {
+				return false, fmt.Errorf("error doing backup before upgrade/downgrade: %v", err)
+			}
+
+			var peer *peer
+			for _, p := range clusterState.peers {
+				if p.info == nil || p.info.NodeConfiguration == nil {
+					continue
+				}
+				if p.info.NodeConfiguration.Name == string(versionMismatch[0].Name) {
+					peer = p.peer
+				}
+			}
+			if peer == nil {
+				return false, fmt.Errorf("unable to find peer for %q", versionMismatch[0])
+			}
+
+			request := &protoetcd.ReconfigureRequest{
+				ClusterName:     m.clusterName,
+				LeadershipToken: m.leadership.token,
+				EtcdVersion:     clusterSpec.EtcdVersion,
+			}
+
+			// TODO: Enforce the upgrade sequence 2.2.1 2.3.7 3.0.17 3.1.11
+			// TODO: The 2 -> 3 upgrade is a dump anyway
+
+			response, err := peer.rpcReconfigure(ctx, request)
+			if err != nil {
+				return false, fmt.Errorf("error doing Reconfigure against peer %q: %v", peer.Id, err)
+			}
+
+			glog.Infof("reconfigured peer %q: %v", peer.Id, response)
+			return true, nil
+		}
+	}
+
 	if len(clusterState.members) < int(clusterSpec.MemberCount) {
 		// TODO: Still backup when we have an under-quorum cluster
 		glog.Infof("etcd has %d members registered, we want %d; will try to expand cluster", len(clusterState.members), clusterSpec.MemberCount)
-		return m.addNodeToCluster(ctx, clusterState)
+		return m.addNodeToCluster(ctx, clusterSpec, clusterState)
 	}
 
 	if len(clusterState.members) == 0 {
@@ -427,7 +481,8 @@ func randomToken() string {
 
 func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) (*etcdClusterState, error) {
 	clusterState := &etcdClusterState{
-		peers: make(map[privateapi.PeerId]*etcdClusterPeerInfo),
+		peers:    make(map[privateapi.PeerId]*etcdClusterPeerInfo),
+		versions: make(map[EtcdMemberId]*version.Versions),
 	}
 
 	// Collect info from each peer
@@ -507,6 +562,23 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 		// TODO: Cross-check members?
 
 		clusterState.healthyMembers[id] = member
+	}
+
+	// Query each cluster member to see if it is healthy
+	for id, member := range clusterState.members {
+		etcdClient, err := member.Client()
+		if err != nil {
+			glog.Warningf("health-check unable to reach member %s: %v", id, err)
+			continue
+		}
+
+		versions, err := etcdClient.GetVersion(ctx)
+		if err != nil {
+			glog.Warningf("unable to get versions for member %s: %v", id, err)
+			continue
+		}
+
+		clusterState.versions[id] = versions
 	}
 
 	// TODO: Query each cluster to try to find the members?  the leaders ?
@@ -624,7 +696,7 @@ func (s *etcdClusterState) etcdCreate(ctx context.Context, key string, value str
 	return fmt.Errorf("unable to reach any cluster member, when trying to write key %q", key)
 }
 
-func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterState *etcdClusterState) (bool, error) {
+func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState) (bool, error) {
 	var peersMissingFromEtcd []*etcdClusterPeerInfo
 	var idlePeers []*etcdClusterPeerInfo
 	for _, peer := range clusterState.peers {
@@ -651,9 +723,10 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterState *etc
 		var nodes []*protoetcd.EtcdNode
 		for _, member := range clusterState.members {
 			node := &protoetcd.EtcdNode{
-				Name:       member.Name,
-				ClientUrls: member.ClientURLs,
-				PeerUrls:   member.PeerURLs,
+				Name:        member.Name,
+				ClientUrls:  member.ClientURLs,
+				PeerUrls:    member.PeerURLs,
+				EtcdVersion: clusterSpec.EtcdVersion,
 			}
 			nodes = append(nodes, node)
 		}
@@ -846,6 +919,15 @@ func (p *peer) rpcGetInfo(ctx context.Context, request *protoetcd.GetInfoRequest
 	return peerClient.GetInfo(ctx, request)
 }
 
+func (p *peer) rpcReconfigure(ctx context.Context, request *protoetcd.ReconfigureRequest) (*protoetcd.ReconfigureResponse, error) {
+	peerGrpcClient, err := p.peers.GetPeerClient(p.Id)
+	if err != nil {
+		return nil, fmt.Errorf("error getting peer client %q: %v", p.Id, err)
+	}
+	peerClient := protoetcd.NewEtcdManagerServiceClient(peerGrpcClient)
+	return peerClient.Reconfigure(ctx, request)
+}
+
 func (m *EtcdController) removeNodeFromCluster(ctx context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState, removeHealthy bool) (bool, error) {
 	// TODO: Sanity checks that we aren't about to break the cluster
 
@@ -950,7 +1032,9 @@ func (m *EtcdController) stepStartCluster(ctx context.Context, clusterSpec *prot
 
 	var proposedNodes []*protoetcd.EtcdNode
 	for _, p := range proposal {
-		proposedNodes = append(proposedNodes, p.info.NodeConfiguration)
+		copy := *p.info.NodeConfiguration
+		copy.EtcdVersion = clusterSpec.EtcdVersion
+		proposedNodes = append(proposedNodes, &copy)
 	}
 
 	for _, p := range proposal {
