@@ -23,7 +23,7 @@
 
 [[constraint]]
   name = "github.com/coreos/etcd"
-  version = "3.2.9"
+  version = "3.2.12"
 
 [[constraint]]
   branch = "master"
@@ -43,4 +43,4 @@
 
 [[constraint]]
   name = "google.golang.org/grpc"
-  version = "1.7.2"
+  version = "1.6.0"
