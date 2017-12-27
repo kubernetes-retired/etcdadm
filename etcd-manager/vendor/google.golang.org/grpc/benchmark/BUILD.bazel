@@ -17,9 +17,12 @@ go_library(
 
 go_test(
     name = "go_default_test",
-    srcs = ["benchmark_test.go"],
+    srcs = [
+        "benchmark16_test.go",
+        "benchmark17_test.go",
+    ],
+    embed = [":go_default_library"],
     importpath = "google.golang.org/grpc/benchmark",
-    library = ":go_default_library",
     deps = [
         "//vendor/google.golang.org/grpc:go_default_library",
         "//vendor/google.golang.org/grpc/benchmark/stats:go_default_library",
