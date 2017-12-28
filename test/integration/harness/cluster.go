@@ -103,3 +103,8 @@ func (h *TestHarness) NewNode(address string) *TestHarnessNode {
 
 	return n
 }
+
+// SpecKey returns the etcd key that holds the cluster spec
+func (h *TestHarness) SpecKey() string {
+	return "/kope.io/etcd-manager/" + h.ClusterName + "/spec"
+}
