@@ -189,7 +189,7 @@ func (p *etcdProcess) Client() (etcdclient.EtcdClient, error) {
 func (p *etcdProcess) DoBackup(store backup.Store, info *protoetcd.BackupInfo) (*protoetcd.DoBackupResponse, error) {
 	response := &protoetcd.DoBackupResponse{}
 
-	timestamp := time.Now().UTC().Format(time.RFC3339)
+	timestamp := time.Now().UTC().Format(time.RFC3339Nano)
 
 	tempDir, err := store.CreateBackupTempDir(timestamp)
 	if err != nil {
