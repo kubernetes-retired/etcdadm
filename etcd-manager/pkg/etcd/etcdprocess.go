@@ -132,6 +132,12 @@ func (p *etcdProcess) Start() error {
 		env["ETCD_INITIAL_CLUSTER_STATE"] = "existing"
 	}
 
+	// For etcd3, we disable the etcd2 endpoint
+	// The etcd2 endpoint runs a weird "second copy" of etcd
+	if !strings.HasPrefix(p.EtcdVersion, "2.") {
+		env["ETCD_ENABLE_V2"] = "false"
+	}
+
 	env["ETCD_NAME"] = p.MyNodeName
 	if p.Cluster.ClusterToken != "" {
 		env["ETCD_INITIAL_CLUSTER_TOKEN"] = p.Cluster.ClusterToken
