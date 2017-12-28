@@ -64,6 +64,12 @@ func (m *EtcdController) restoreBackupAndLiftQuarantine(parentContext context.Co
 			changed = true
 		}
 		glog.V(2).Infof("DoRestoreResponse: %s", response)
+	} else {
+		// If we didn't restore a backup, we write the cluster spec to etcd
+		err := m.writeClusterSpec(ctx, clusterState, clusterSpec)
+		if err != nil {
+			return false, err
+		}
 	}
 
 	updated, err := m.updateQuarantine(ctx, clusterState, false)
