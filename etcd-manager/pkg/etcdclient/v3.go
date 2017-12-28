@@ -19,6 +19,9 @@ type V3Client struct {
 var _ EtcdClient = &V3Client{}
 
 func NewV3Client(clientUrls []string) (EtcdClient, error) {
+	if len(clientUrls) == 0 {
+		return nil, fmt.Errorf("no clientURLs provided")
+	}
 	cfg := etcd_client_v3.Config{
 		Endpoints:   clientUrls,
 		DialTimeout: 10 * time.Second,
