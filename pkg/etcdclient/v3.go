@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"time"
 
 	etcd_client_v3 "github.com/coreos/etcd/clientv3"
 	"github.com/golang/glog"
@@ -16,7 +17,8 @@ type V3Client struct {
 
 func NewV3Client(clientUrls []string) (EtcdClient, error) {
 	cfg := etcd_client_v3.Config{
-		Endpoints: []string{clientUrls[0]},
+		Endpoints:   clientUrls,
+		DialTimeout: 10 * time.Second,
 	}
 	etcdClient, err := etcd_client_v3.New(cfg)
 	if err != nil {
@@ -72,20 +74,34 @@ func (c *V3Client) Put(ctx context.Context, key string, value []byte) error {
 }
 
 func (c *V3Client) CopyTo(ctx context.Context, dest EtcdClient) error {
+	limit := etcd_client_v3.WithLimit(1000)
+	sort := etcd_client_v3.WithSort(etcd_client_v3.SortByKey, etcd_client_v3.SortAscend)
+
 	var lastKey string
 	for {
-		response, err := c.kv.Get(ctx, lastKey, etcd_client_v3.WithFromKey(), etcd_client_v3.WithLimit(1000))
+		etcdFrom := lastKey
+		if etcdFrom == "" {
+			etcdFrom = "\x00"
+		}
+		response, err := c.kv.Get(ctx, etcdFrom, etcd_client_v3.WithFromKey(), sort, limit)
 		if err != nil {
 			return err
 		}
+		gotMore := false
 		for _, kv := range response.Kvs {
-			if err := dest.Put(ctx, string(kv.Key), kv.Value); err != nil {
-				return fmt.Errorf("error writing key to destination: %v", err)
+			key := string(kv.Key)
+			if key == lastKey {
+				continue
 			}
-			lastKey = string(kv.Key)
+			gotMore = true
+			glog.Infof("copying key %q", key)
+			if err := dest.Put(ctx, key, kv.Value); err != nil {
+				return fmt.Errorf("error writing key %q to destination: %v", key, err)
+			}
+			lastKey = key
 		}
 
-		if len(response.Kvs) == 0 {
+		if !gotMore {
 			break
 		}
 	}
