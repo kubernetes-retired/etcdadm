@@ -29,7 +29,7 @@ func TestClusterDataPersists(t *testing.T) {
 
 	value := "world"
 
-	err := n1.Set(ctx, key, value)
+	err := n1.Put(ctx, key, value)
 	if err != nil {
 		t.Fatalf("error writing key %q: %v", key, err)
 	}
@@ -90,7 +90,7 @@ func TestHAReadWrite(t *testing.T) {
 	// Wait for cluster to achieve quorum
 	n1.WaitForQuorumRead(ctx, time.Second*30)
 
-	err := n1.Set(ctx, key, value)
+	err := n1.Put(ctx, key, value)
 	if err != nil {
 		t.Fatalf("error writing key %q: %v", key, err)
 	}
@@ -157,7 +157,7 @@ func TestHARecovery(t *testing.T) {
 	key := "/testing/harecovery-" + strconv.FormatInt(time.Now().Unix(), 10)
 	value := time.Now().String()
 
-	err := n1.Set(ctx, key, value)
+	err := n1.Put(ctx, key, value)
 	if err != nil {
 		t.Fatalf("error writing key %q: %v", key, err)
 	}
