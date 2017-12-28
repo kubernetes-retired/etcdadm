@@ -67,7 +67,7 @@ func (s *Server) updateFromPingRequest(request *PingRequest) {
 
 	existing := s.peers[id]
 	if existing == nil {
-		glog.Infof("discovery found new candidate peer: %s %v", id, request.Info)
+		glog.Infof("found new candidate peer from ping: %s %v", id, request.Info)
 		existing = &peer{
 			server: s,
 			id:     id,
@@ -89,7 +89,7 @@ func (s *Server) updateFromDiscovery(discoveryNode DiscoveryNode) {
 
 	existing := s.peers[id]
 	if existing == nil {
-		glog.Infof("discovery found new candidate peer: %s %v", id, discoveryNode.Addresses)
+		glog.Infof("found new candidate peer from discovery: %s %v", id, discoveryNode.Addresses)
 		existing = &peer{
 			server: s,
 			id:     id,
@@ -226,10 +226,25 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 	opts = append(opts, grpc.WithInsecure())
 	//}
 
-	for _, address := range p.discoveryNode.Addresses {
-		conn, err := grpc.Dial(address.IP, opts...)
+	addresses := make(map[string]bool)
+	{
+		p.mutex.Lock()
+		for _, address := range p.discoveryNode.Addresses {
+			addresses[address.Address] = true
+		}
+
+		if p.lastInfo != nil {
+			for _, address := range p.lastInfo.Addresses {
+				addresses[address] = true
+			}
+		}
+
+		p.mutex.Unlock()
+	}
+	for address := range addresses {
+		conn, err := grpc.Dial(address, opts...)
 		if err != nil {
-			glog.Warningf("unable to connect to discovered peer %s: %v", address.IP, err)
+			glog.Warningf("unable to connect to discovered peer %s: %v", address, err)
 			continue
 		}
 
@@ -240,7 +255,7 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 		}
 		response, err := client.Ping(context, request)
 		if err != nil {
-			glog.Warningf("unable to talk to discovered peer %s: %v", address.IP, err)
+			glog.Warningf("unable to talk to discovered peer %s: %v", address, err)
 			conn.Close()
 			continue
 		}
@@ -262,6 +277,7 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 		return conn, nil
 	}
 
+	glog.Infof("was not able to connect to peer %s: %v", p.discoveryNode.ID, addresses)
 	return nil, nil
 }
 
