@@ -3,10 +3,14 @@ package etcdclient
 import (
 	"context"
 	"fmt"
+	"io"
 	"strings"
 )
 
+// EtcdClient is an abstract client for V2 and V3
 type EtcdClient interface {
+	io.Closer
+
 	Put(ctx context.Context, key string, value []byte) error
 	Create(ctx context.Context, key string, value []byte) error
 	Get(ctx context.Context, key string, quorum bool) ([]byte, error)
