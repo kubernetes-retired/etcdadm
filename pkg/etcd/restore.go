@@ -137,7 +137,7 @@ func copyEtcd(source, dest *etcdProcess) error {
 	glog.Infof("copying etcd keys from backup-restore process to new cluster")
 	ctx := context.TODO()
 	if err := sourceClient.CopyTo(ctx, destClient); err != nil {
-		return fmt.Errorf("error dumping keys: %v", err)
+		return fmt.Errorf("error copying keys: %v", err)
 	}
 
 	return nil
