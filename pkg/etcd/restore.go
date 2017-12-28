@@ -141,14 +141,16 @@ func (s *EtcdServer) DoRestore(ctx context.Context, request *protoetcd.DoRestore
 }
 
 func copyEtcd(source, dest *etcdProcess) error {
-	sourceClient, err := source.Client()
+	sourceClient, err := source.NewClient()
 	if err != nil {
 		return fmt.Errorf("error building etcd client: %v", err)
 	}
-	destClient, err := dest.Client()
+	defer sourceClient.Close()
+	destClient, err := dest.NewClient()
 	if err != nil {
 		return fmt.Errorf("error building etcd client: %v", err)
 	}
+	defer destClient.Close()
 
 	for i := 0; i < 60; i++ {
 		ctx := context.TODO()
