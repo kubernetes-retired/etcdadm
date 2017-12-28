@@ -98,6 +98,16 @@ func bindirForEtcdVersion(etcdVersion string) (string, error) {
 	return binDir, nil
 }
 
+func (p *etcdProcess) findMyNode() *protoetcd.EtcdNode {
+	var me *protoetcd.EtcdNode
+	for _, node := range p.Cluster.Nodes {
+		if node.Name == p.MyNodeName {
+			me = node
+		}
+	}
+	return me
+}
+
 func (p *etcdProcess) Start() error {
 	c := exec.Command(path.Join(p.BinDir, "etcd"))
 	if p.ForceNewCluster {
@@ -105,12 +115,7 @@ func (p *etcdProcess) Start() error {
 	}
 	glog.Infof("executing command %s %s", c.Path, c.Args)
 
-	var me *protoetcd.EtcdNode
-	for _, node := range p.Cluster.Nodes {
-		if node.Name == p.MyNodeName {
-			me = node
-		}
-	}
+	me := p.findMyNode()
 	if me == nil {
 		return fmt.Errorf("unable to find self node %q in %v", p.MyNodeName, p.Cluster.Nodes)
 	}
@@ -192,7 +197,22 @@ func (p *etcdProcess) Client() (etcdclient.EtcdClient, error) {
 
 	return etcdclient.NewClient(p.EtcdVersion, clientUrls)
 }
+
+// isV2 checks if this is etcd v2
+func (p *etcdProcess) isV2() bool {
+	if p.EtcdVersion == "" {
+		glog.Fatalf("EtcdVersion not set")
+	}
+	return strings.HasPrefix(p.EtcdVersion, "2.")
+}
+
+// DoBackup performs a backup/snapshot of the data
 func (p *etcdProcess) DoBackup(store backup.Store, info *protoetcd.BackupInfo) (*protoetcd.DoBackupResponse, error) {
+	me := p.findMyNode()
+	if me == nil {
+		return nil, fmt.Errorf("unable to find self node %q in %v", p.MyNodeName, p.Cluster.Nodes)
+	}
+
 	response := &protoetcd.DoBackupResponse{}
 
 	timestamp := time.Now().UTC().Format(time.RFC3339Nano)
@@ -211,15 +231,34 @@ func (p *etcdProcess) DoBackup(store backup.Store, info *protoetcd.BackupInfo) (
 		}
 	}()
 
-	c := exec.Command(path.Join(p.BinDir, "etcdctl"))
-	c.Args = append(c.Args, "backup")
-	c.Args = append(c.Args, "--data-dir", p.DataDir)
-	c.Args = append(c.Args, "--backup-dir", tempDir)
-	glog.Infof("executing command %s %s", c.Path, c.Args)
+	clientUrls := me.ClientUrls
+	if p.Quarantined {
+		clientUrls = me.QuarantinedClientUrls
+	}
 
-	env := make(map[string]string)
-	for k, v := range env {
-		c.Env = append(c.Env, k+"="+v)
+	c := exec.Command(path.Join(p.BinDir, "etcdctl"))
+
+	if p.isV2() {
+		c.Args = append(c.Args, "backup")
+		c.Args = append(c.Args, "--data-dir", p.DataDir)
+		c.Args = append(c.Args, "--backup-dir", tempDir)
+		glog.Infof("executing command %s %s", c.Path, c.Args)
+
+		env := make(map[string]string)
+		for k, v := range env {
+			c.Env = append(c.Env, k+"="+v)
+		}
+	} else {
+		c.Args = append(c.Args, "--endpoints", strings.Join(clientUrls, ","))
+		c.Args = append(c.Args, "snapshot", "save", filepath.Join(tempDir, "snapshot.db"))
+		glog.Infof("executing command %s %s", c.Path, c.Args)
+
+		env := make(map[string]string)
+		env["ETCDCTL_API"] = "3"
+
+		for k, v := range env {
+			c.Env = append(c.Env, k+"="+v)
+		}
 	}
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
@@ -244,4 +283,52 @@ func (p *etcdProcess) DoBackup(store backup.Store, info *protoetcd.BackupInfo) (
 
 	glog.Infof("backup complete: %v", response)
 	return response, nil
+}
+
+// RestoreV3Snapshot calls etcdctl snapshot restore
+func (p *etcdProcess) RestoreV3Snapshot(downloadDir string) error {
+	if p.isV2() {
+		return fmt.Errorf("unexpected version when calling RestoreV2Snapshot: %q", p.EtcdVersion)
+	}
+
+	me := p.findMyNode()
+	if me == nil {
+		return fmt.Errorf("unable to find self node %q in %v", p.MyNodeName, p.Cluster.Nodes)
+	}
+
+	var initialCluster []string
+	for _, node := range p.Cluster.Nodes {
+		initialCluster = append(initialCluster, node.Name+"="+strings.Join(node.PeerUrls, ","))
+	}
+
+	c := exec.Command(path.Join(p.BinDir, "etcdctl"))
+	c.Args = append(c.Args, "snapshot", "restore", filepath.Join(downloadDir, "snapshot.db"))
+	c.Args = append(c.Args, "--name", me.Name)
+	c.Args = append(c.Args, "--initial-cluster", strings.Join(initialCluster, ","))
+	c.Args = append(c.Args, "--initial-cluster-token", p.Cluster.ClusterToken)
+	c.Args = append(c.Args, "--initial-advertise-peer-urls", strings.Join(me.PeerUrls, ","))
+	c.Args = append(c.Args, "--data-dir", p.DataDir)
+	glog.Infof("executing command %s %s", c.Path, c.Args)
+
+	env := make(map[string]string)
+	env["ETCDCTL_API"] = "3"
+	for k, v := range env {
+		c.Env = append(c.Env, k+"="+v)
+	}
+
+	c.Stdout = os.Stdout
+	c.Stderr = os.Stderr
+	if err := c.Start(); err != nil {
+		return fmt.Errorf("error running etcdctl snapshot restore: %v", err)
+	}
+	processState, err := c.Process.Wait()
+	if err != nil {
+		return fmt.Errorf("etcdctl snapshot restore returned an error: %v", err)
+	}
+	if !processState.Success() {
+		return fmt.Errorf("etcdctl snapshot restore returned a non-zero exit code")
+	}
+
+	glog.Infof("snapshot restore complete")
+	return nil
 }
