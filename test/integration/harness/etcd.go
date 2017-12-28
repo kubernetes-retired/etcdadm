@@ -100,6 +100,7 @@ func (n *TestHarnessNode) WaitForQuorumRead(ctx context.Context, timeout time.Du
 	if err != nil {
 		n.TestHarness.T.Fatalf("error building etcd client: %v", err)
 	}
+	defer client.Close()
 	endAt := time.Now().Add(timeout)
 	for {
 		_, err := n.GetQuorum(ctx, "/")

@@ -10,9 +10,12 @@ import (
 )
 
 type V3Client struct {
+	client  *etcd_client_v3.Client
 	kv      etcd_client_v3.KV
 	cluster etcd_client_v3.Cluster
 }
+
+var _ EtcdClient = &V3Client{}
 
 func NewV3Client(clientUrls []string) (EtcdClient, error) {
 	cfg := etcd_client_v3.Config{
@@ -24,11 +27,15 @@ func NewV3Client(clientUrls []string) (EtcdClient, error) {
 	}
 
 	kv := etcd_client_v3.NewKV(etcdClient)
-
 	return &V3Client{
+		client:  etcdClient,
 		kv:      kv,
 		cluster: etcd_client_v3.NewCluster(etcdClient),
 	}, nil
+}
+
+func (c *V3Client) Close() error {
+	return c.client.Close()
 }
 
 func (c *V3Client) Get(ctx context.Context, key string, quorum bool) ([]byte, error) {

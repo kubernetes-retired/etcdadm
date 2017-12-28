@@ -133,6 +133,7 @@ func (n *TestHarnessNode) WaitForListMembers(timeout time.Duration) {
 	if err != nil {
 		n.TestHarness.T.Fatalf("error building etcd client: %v", err)
 	}
+	defer client.Close()
 	waitForListMembers(n.TestHarness.T, client, timeout)
 }
 
@@ -141,6 +142,7 @@ func (n *TestHarnessNode) ListMembers(ctx context.Context) ([]*etcdclient.EtcdPr
 	if err != nil {
 		n.TestHarness.T.Fatalf("error building etcd client: %v", err)
 	}
+	defer client.Close()
 	return client.ListMembers(ctx)
 }
 
