@@ -85,7 +85,7 @@ func main() {
 		ID: uniqueID,
 	}
 	discoMe.Addresses = append(discoMe.Addresses, privateapi.DiscoveryAddress{
-		IP: fmt.Sprintf("%s:%d", address, grpcPort),
+		Address: fmt.Sprintf("%s:%d", address, grpcPort),
 	})
 	disco, err := privateapi.NewFilesystemDiscovery("/tmp/discovery", discoMe)
 	if err != nil {
@@ -97,7 +97,7 @@ func main() {
 	grpcAddress := fmt.Sprintf("%s:%d", address, grpcPort)
 	myInfo := privateapi.PeerInfo{
 		Id:        string(uniqueID),
-		Addresses: []string{address},
+		Addresses: []string{fmt.Sprintf("%s:%d", address, grpcPort)},
 	}
 	peerServer, err := privateapi.NewServer(ctx, myInfo, disco)
 	if err != nil {
