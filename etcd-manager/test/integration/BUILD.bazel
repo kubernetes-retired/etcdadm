@@ -13,3 +13,16 @@ go_test(
         "//vendor/github.com/golang/glog:go_default_library",
     ],
 )
+
+go_test(
+    name = "upgrade_downgrade",
+    size = "small",
+    srcs = [
+        "upgradedowngrade_test.go",
+    ],
+    importpath = "kope.io/etcd-manager/test/integration",
+    deps = [
+        "//test/integration/harness:go_default_library",
+        "//vendor/github.com/golang/glog:go_default_library",
+    ],
+)

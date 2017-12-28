@@ -45,4 +45,4 @@ push: push-etcd-manager push-etcd-dump
 gazelle:
 	bazel run //:gazelle
 	git checkout -- vendor
-	rm vendor/github.com/golang/protobuf/protoc-gen-go/testdata/multi/BUILD.bazel vendor/golang.org/x/net/lif/BUILD.bazel
+	rm vendor/github.com/golang/protobuf/protoc-gen-go/testdata/multi/BUILD.bazel
