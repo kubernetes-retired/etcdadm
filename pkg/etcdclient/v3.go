@@ -67,7 +67,7 @@ func (c *V3Client) Put(ctx context.Context, key string, value []byte) error {
 	if err != nil {
 		return err
 	}
-	glog.Infof("put %s response %v", key, response)
+	glog.V(4).Infof("put %s response %v", key, response)
 	return nil
 }
 
