@@ -199,6 +199,7 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 			validUntil:   time.Now().Add(PreparedValidity),
 			clusterToken: request.ClusterToken,
 		}
+		return response, nil
 
 	case protoetcd.Phase_PHASE_INITIAL_CLUSTER:
 		if s.process != nil {
@@ -236,6 +237,8 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 		if err := writeState(s.baseDir, s.state); err != nil {
 			return nil, err
 		}
+		s.prepared = nil
+		return response, nil
 
 	case protoetcd.Phase_PHASE_JOIN_EXISTING:
 		if s.process != nil {
@@ -268,12 +271,12 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 			return nil, err
 		}
 		// TODO: Wait for join?
+		s.prepared = nil
+		return response, nil
 
 	default:
 		return nil, fmt.Errorf("unknown status %s", request.Phase)
 	}
-
-	return response, nil
 }
 
 // Reconfigure requests that the node reconfigure itself, in particular for an etcd upgrade/downgrade
