@@ -6,50 +6,40 @@ import (
 	"testing"
 	"time"
 
-	etcd_client "github.com/coreos/etcd/client"
 	"github.com/golang/glog"
 	"kope.io/etcd-manager/pkg/etcdclient"
 )
 
 func (n *TestHarnessNode) GetQuorum(ctx context.Context, key string) (string, error) {
-	opts := &etcd_client.GetOptions{
-		Quorum: true,
-	}
-	return n.get(ctx, key, opts)
+	return n.get(ctx, key, true)
 }
 
 func (n *TestHarnessNode) GetLocal(ctx context.Context, key string) (string, error) {
-	opts := &etcd_client.GetOptions{
-		Quorum: false,
-	}
-	return n.get(ctx, key, opts)
+	return n.get(ctx, key, false)
 }
 
-func (n *TestHarnessNode) get(ctx context.Context, key string, opts *etcd_client.GetOptions) (string, error) {
-	keysAPI, err := n.KeysAPI()
+func (n *TestHarnessNode) get(ctx context.Context, key string, quorum bool) (string, error) {
+	client, err := n.NewClient()
 	if err != nil {
 		return "", err
 	}
 
-	response, err := keysAPI.Get(ctx, key, opts)
+	response, err := client.Get(ctx, key, quorum)
 	if err != nil {
 		return "", fmt.Errorf("error reading from member %s: %v", n.ClientURL, err)
 	}
-	if response.Node == nil {
-		return "", nil
-	}
-	glog.Infof("read from %q: %q", key, response.Node.Value)
-	return response.Node.Value, nil
+	glog.Infof("read from %q: %q", key, response)
+	return string(response), nil
 }
 
-func (n *TestHarnessNode) Set(ctx context.Context, key string, value string) error {
-	keysAPI, err := n.KeysAPI()
+func (n *TestHarnessNode) Put(ctx context.Context, key string, value string) error {
+	client, err := n.NewClient()
 	if err != nil {
 		return err
 	}
+	defer client.Close()
 
-	opts := &etcd_client.SetOptions{}
-	_, err = keysAPI.Set(ctx, key, value, opts)
+	err = client.Put(ctx, key, []byte(value))
 	if err != nil {
 		return fmt.Errorf("error writing to  %s: %v", n.ClientURL, err)
 	}
@@ -59,23 +49,11 @@ func (n *TestHarnessNode) Set(ctx context.Context, key string, value string) err
 	return nil
 }
 
-func (n *TestHarnessNode) KeysAPI() (etcd_client.KeysAPI, error) {
+func (n *TestHarnessNode) NewClient() (etcdclient.EtcdClient, error) {
 	clientUrls := []string{
 		n.ClientURL,
 	}
-	cfg := etcd_client.Config{
-		Endpoints: clientUrls,
-		Transport: etcd_client.DefaultTransport,
-		// set timeout per request to fail fast when the target endpoint is unavailable
-		HeaderTimeoutPerRequest: time.Second,
-	}
-	etcdClient, err := etcd_client.New(cfg)
-	if err != nil {
-		return nil, fmt.Errorf("error building etcd client for %s: %v", n.ClientURL, err)
-	}
-
-	keysAPI := etcd_client.NewKeysAPI(etcdClient)
-	return keysAPI, nil
+	return etcdclient.NewClient(n.EtcdVersion, clientUrls)
 }
 
 func waitForListMembers(t *testing.T, client etcdclient.EtcdClient, timeout time.Duration) {
