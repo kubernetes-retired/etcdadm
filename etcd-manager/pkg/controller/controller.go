@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"bytes"
 	"context"
 	crypto_rand "crypto/rand"
 	"encoding/base64"
@@ -12,7 +11,6 @@ import (
 	"sync"
 	"time"
 
-	etcd_client "github.com/coreos/etcd/client"
 	"github.com/golang/glog"
 	"github.com/golang/protobuf/proto"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
@@ -65,75 +63,6 @@ type leadershipState struct {
 	acked map[privateapi.PeerId]bool
 }
 
-type EtcdMemberId string
-
-type etcdClusterState struct {
-	members        map[EtcdMemberId]*etcdclient.EtcdProcessMember
-	peers          map[privateapi.PeerId]*etcdClusterPeerInfo
-	healthyMembers map[EtcdMemberId]*etcdclient.EtcdProcessMember
-}
-
-func (s *etcdClusterState) FindMember(peerId privateapi.PeerId) *etcdclient.EtcdProcessMember {
-	for _, member := range s.members {
-		if member.Name == string(peerId) {
-			return member
-		}
-	}
-	return nil
-}
-
-func (s *etcdClusterState) FindHealthyMember(peerId privateapi.PeerId) *etcdclient.EtcdProcessMember {
-	for _, member := range s.healthyMembers {
-		if member.Name == string(peerId) {
-			return member
-		}
-	}
-	return nil
-}
-
-func (s *etcdClusterState) String() string {
-	var b bytes.Buffer
-
-	fmt.Fprintf(&b, "etcdClusterState\n")
-	fmt.Fprintf(&b, "  members:\n")
-	for id, m := range s.members {
-		fmt.Fprintf(&b, "    %s\n", m)
-		if s.healthyMembers[id] == nil {
-			fmt.Fprintf(&b, "      NOT HEALTHY\n")
-		}
-	}
-	fmt.Fprintf(&b, "  peers:\n")
-	for _, m := range s.peers {
-		fmt.Fprintf(&b, "    %s\n", m)
-	}
-	return b.String()
-}
-
-type etcdClusterPeerInfo struct {
-	peer *peer
-	info *protoetcd.GetInfoResponse
-}
-
-func (p *etcdClusterPeerInfo) String() string {
-	return fmt.Sprintf("etcdClusterPeerInfo{peer=%s}", p.peer)
-}
-
-type etcdMember struct {
-	node *protoetcd.EtcdNode
-	peer *privateapi.PeerInfo
-}
-
-type peer struct {
-	Id    privateapi.PeerId
-	info  *privateapi.PeerInfo
-	peers privateapi.Peers
-}
-
-func (p *peer) String() string {
-	s := fmt.Sprintf("peer{%s}", p.info)
-	return s
-}
-
 func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, clusterName string, peers privateapi.Peers, initialClusterState InitialClusterSpecProvider) (*EtcdController, error) {
 	if clusterName == "" {
 		return nil, fmt.Errorf("ClusterName is required")
@@ -161,15 +90,6 @@ func (m *EtcdController) Run(ctx context.Context) {
 				contextutil.Sleep(ctx, m.CycleInterval)
 			}
 		})
-}
-
-func (m *EtcdController) newPeer(info *privateapi.PeerInfo) *peer {
-	p := &peer{
-		Id:    privateapi.PeerId(info.Id),
-		info:  info,
-		peers: m.peers,
-	}
-	return p
 }
 
 func (m *EtcdController) run(ctx context.Context) (bool, error) {
@@ -326,7 +246,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	}
 
 	if len(clusterState.members) != 0 {
-		if err := m.maybeBackup(ctx, clusterSpec, clusterState, commandQueue); err != nil {
+		if err := m.maybeBackup(ctx, clusterSpec, clusterState); err != nil {
 			glog.Warningf("error during backup: %v", err)
 		}
 	}
@@ -373,7 +293,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	return false, nil
 }
 
-func (m *EtcdController) maybeBackup(ctx context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState, commandQueue []*commands.Command) error {
+func (m *EtcdController) maybeBackup(ctx context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState) error {
 	now := time.Now()
 
 	backupInterval := time.Minute
@@ -578,96 +498,6 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 	// TODO: Query each cluster to try to find the members?  the leaders ?
 
 	return clusterState, nil
-}
-
-func (s *etcdClusterState) etcdAddMember(ctx context.Context, nodeInfo *protoetcd.EtcdNode) (*etcdclient.EtcdProcessMember, error) {
-	for _, member := range s.members {
-		etcdClient, err := member.Client()
-		if err != nil {
-			glog.Warningf("unable to build client for member %s: %v", member.Name, err)
-			continue
-		}
-
-		err = etcdClient.AddMember(ctx, nodeInfo.PeerUrls)
-		if err != nil {
-			glog.Warningf("unable to add member %s on peer %s: %v", nodeInfo.PeerUrls, member.Name, err)
-			continue
-		}
-
-		return member, nil
-	}
-	return nil, fmt.Errorf("unable to reach any cluster member, when trying to add new member %q", nodeInfo.PeerUrls)
-}
-
-func (s *etcdClusterState) etcdRemoveMember(ctx context.Context, member *etcdclient.EtcdProcessMember) error {
-	for id, member := range s.members {
-		etcdClient, err := member.Client()
-		if err != nil {
-			glog.Warningf("unable to build client for member %s: %v", member.Name, err)
-			continue
-		}
-
-		err = etcdClient.RemoveMember(ctx, member)
-		if err != nil {
-			glog.Warningf("Remove member call failed on %s: %v", id, err)
-			continue
-		}
-		return nil
-	}
-	return fmt.Errorf("unable to reach any cluster member, when trying to remove member %", member)
-}
-
-func (s *etcdClusterState) etcdGet(ctx context.Context, key string) ([]byte, error) {
-	for _, member := range s.members {
-		if len(member.ClientURLs) == 0 {
-			glog.Warningf("skipping member with no ClientURLs: %v", member)
-			continue
-		}
-
-		etcdClient, err := member.Client()
-		if err != nil {
-			glog.Warningf("unable to build client for member %s: %v", member, err)
-			continue
-		}
-
-		// TODO: Quorum?  Read from all nodes?
-		response, err := etcdClient.Get(ctx, key, true)
-		if err != nil {
-			if clusterError, ok := err.(*etcd_client.ClusterError); ok {
-				glog.Warningf("error reading from member %s: %v", member, clusterError)
-				continue
-			} else {
-				return nil, fmt.Errorf("error reading from member %s: %v", member, err)
-			}
-		}
-
-		return response, nil
-	}
-
-	return nil, fmt.Errorf("unable to reach any cluster member, when trying to read key %q", key)
-}
-
-func (s *etcdClusterState) etcdCreate(ctx context.Context, key string, value []byte) error {
-	for _, member := range s.members {
-		if len(member.ClientURLs) == 0 {
-			glog.Warningf("skipping member with no ClientURLs: %v", member)
-			continue
-		}
-
-		etcdClient, err := member.Client()
-		if err != nil {
-			glog.Warningf("unable to build client for member %s: %v", member.Name, err)
-			continue
-		}
-
-		if err := etcdClient.Put(ctx, key, value); err != nil {
-			return fmt.Errorf("error creating %q on member %s: %v", key, member, err)
-		}
-
-		return nil
-	}
-
-	return fmt.Errorf("unable to reach any cluster member, when trying to write key %q", key)
 }
 
 func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState) (bool, error) {
@@ -878,60 +708,6 @@ func (m *EtcdController) doBackupMaintenance(ctx context.Context, clusterSpec *p
 	}
 
 	return nil
-}
-
-func (p *peer) rpcDoBackup(ctx context.Context, doBackupRequest *protoetcd.DoBackupRequest) (*protoetcd.DoBackupResponse, error) {
-	peerGrpcClient, err := p.peers.GetPeerClient(p.Id)
-	if err != nil {
-		return nil, fmt.Errorf("error getting peer client %q: %v", p.Id, err)
-	}
-	peerClient := protoetcd.NewEtcdManagerServiceClient(peerGrpcClient)
-	return peerClient.DoBackup(ctx, doBackupRequest)
-}
-
-func (p *peer) rpcDoRestore(ctx context.Context, doRestoreRequest *protoetcd.DoRestoreRequest) (*protoetcd.DoRestoreResponse, error) {
-	peerGrpcClient, err := p.peers.GetPeerClient(p.Id)
-	if err != nil {
-		return nil, fmt.Errorf("error getting peer client %q: %v", p.Id, err)
-	}
-	peerClient := protoetcd.NewEtcdManagerServiceClient(peerGrpcClient)
-	return peerClient.DoRestore(ctx, doRestoreRequest)
-}
-
-func (p *peer) rpcJoinCluster(ctx context.Context, joinClusterRequest *protoetcd.JoinClusterRequest) (*protoetcd.JoinClusterResponse, error) {
-	peerGrpcClient, err := p.peers.GetPeerClient(p.Id)
-	if err != nil {
-		return nil, fmt.Errorf("error getting peer client %q: %v", p.Id, err)
-	}
-	peerClient := protoetcd.NewEtcdManagerServiceClient(peerGrpcClient)
-	return peerClient.JoinCluster(ctx, joinClusterRequest)
-}
-
-func (p *peer) rpcGetInfo(ctx context.Context, request *protoetcd.GetInfoRequest) (*protoetcd.GetInfoResponse, error) {
-	peerGrpcClient, err := p.peers.GetPeerClient(p.Id)
-	if err != nil {
-		return nil, fmt.Errorf("error getting peer client %q: %v", p.Id, err)
-	}
-	peerClient := protoetcd.NewEtcdManagerServiceClient(peerGrpcClient)
-	return peerClient.GetInfo(ctx, request)
-}
-
-func (p *peer) rpcReconfigure(ctx context.Context, request *protoetcd.ReconfigureRequest) (*protoetcd.ReconfigureResponse, error) {
-	peerGrpcClient, err := p.peers.GetPeerClient(p.Id)
-	if err != nil {
-		return nil, fmt.Errorf("error getting peer client %q: %v", p.Id, err)
-	}
-	peerClient := protoetcd.NewEtcdManagerServiceClient(peerGrpcClient)
-	return peerClient.Reconfigure(ctx, request)
-}
-
-func (p *peer) rpcStopEtcd(ctx context.Context, request *protoetcd.StopEtcdRequest) (*protoetcd.StopEtcdResponse, error) {
-	peerGrpcClient, err := p.peers.GetPeerClient(p.Id)
-	if err != nil {
-		return nil, fmt.Errorf("error getting peer client %q: %v", p.Id, err)
-	}
-	peerClient := protoetcd.NewEtcdManagerServiceClient(peerGrpcClient)
-	return peerClient.StopEtcd(ctx, request)
 }
 
 func (m *EtcdController) removeNodeFromCluster(ctx context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState, removeHealthy bool) (bool, error) {
