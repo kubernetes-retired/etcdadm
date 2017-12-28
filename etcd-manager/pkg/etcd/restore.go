@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/golang/glog"
@@ -50,24 +51,42 @@ func (s *EtcdServer) DoRestore(ctx context.Context, request *protoetcd.DoRestore
 		return nil, err
 	}
 
+	isV2 := false
+	if strings.HasPrefix(backupInfo.EtcdVersion, "2.") {
+		isV2 = true
+	}
+
 	binDir, err := bindirForEtcdVersion(backupInfo.EtcdVersion)
 	if err != nil {
 		return nil, err
 	}
 
 	clusterToken := "restore-etcd-" + strconv.FormatInt(time.Now().UnixNano(), 10)
-	dataDir := filepath.Join(os.TempDir(), clusterToken)
-	if err := os.Mkdir(dataDir, 0700); err != nil {
-		return nil, fmt.Errorf("error creating tempdir %q: %v", dataDir, err)
+	tempDir := filepath.Join(os.TempDir(), clusterToken)
+	dataDir := filepath.Join(tempDir, "data")
+	if err := os.MkdirAll(tempDir, 0700); err != nil {
+		return nil, fmt.Errorf("error creating tempdir %q: %v", tempDir, err)
 	}
 	defer func() {
-		if err := os.RemoveAll(dataDir); err != nil {
-			glog.Warningf("error cleaning up tempdir %q: %v", dataDir, err)
+		if err := os.RemoveAll(tempDir); err != nil {
+			glog.Warningf("error cleaning up tempdir %q: %v", tempDir, err)
 		}
 	}()
 
-	glog.Infof("Downloading backup %q to %s", request.BackupName, dataDir)
-	if err := backupStore.DownloadBackup(request.BackupName, dataDir); err != nil {
+	var downloadDir string
+	if isV2 {
+		downloadDir = dataDir
+
+		if err := os.MkdirAll(dataDir, 0700); err != nil {
+			return nil, fmt.Errorf("error creating datadir %q: %v", dataDir, err)
+		}
+	} else {
+		// V3 requires that data dir not exist
+		downloadDir = filepath.Join(tempDir, "download")
+	}
+
+	glog.Infof("Downloading backup %q to %s", request.BackupName, downloadDir)
+	if err := backupStore.DownloadBackup(request.BackupName, downloadDir); err != nil {
 		return nil, fmt.Errorf("error restoring backup: %v", err)
 	}
 
@@ -93,6 +112,13 @@ func (s *EtcdServer) DoRestore(ctx context.Context, request *protoetcd.DoRestore
 			Nodes:        []*protoetcd.EtcdNode{node},
 		},
 		MyNodeName: myNodeName,
+	}
+
+	if !isV2 {
+		glog.Infof("restoring snapshot")
+		if err := p.RestoreV3Snapshot(downloadDir); err != nil {
+			return nil, err
+		}
 	}
 
 	glog.Infof("starting etcd to read backup")
