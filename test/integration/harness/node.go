@@ -45,7 +45,7 @@ func (n *TestHarnessNode) Run() {
 		ID: uniqueID,
 	}
 	discoMe.Addresses = append(discoMe.Addresses, privateapi.DiscoveryAddress{
-		IP: fmt.Sprintf("%s:%d", n.Address, grpcPort),
+		Address: fmt.Sprintf("%s:%d", n.Address, grpcPort),
 	})
 	disco, err := privateapi.NewFilesystemDiscovery(n.TestHarness.DiscoveryStoreDir, discoMe)
 	if err != nil {
