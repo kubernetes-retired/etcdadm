@@ -42,8 +42,6 @@ func main() {
 	flag.StringVar(&address, "address", address, "local address to use")
 	peerPort := 2380
 	flag.IntVar(&peerPort, "peer-port", peerPort, "peer-port to use")
-	altPeerPort := 2381
-	flag.IntVar(&altPeerPort, "alt-peer-port", altPeerPort, "peer-port to use")
 	clientUrls := "http://127.0.0.1:4001"
 	flag.StringVar(&clientUrls, "client-urls", clientUrls, "client-urls to use for normal operation")
 	quarantineClientUrls := "http://127.0.0.1:8001"
