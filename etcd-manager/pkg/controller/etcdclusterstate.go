@@ -37,6 +37,16 @@ func (s *etcdClusterState) FindHealthyMember(peerId privateapi.PeerId) *etcdclie
 	return nil
 }
 
+
+func (s *etcdClusterState) FindPeer(member *etcdclient.EtcdProcessMember) *etcdClusterPeerInfo {
+	for peerId, peer := range s.peers {
+		if member.Name == string(peerId) {
+			return peer
+		}
+	}
+	return nil
+}
+
 func (s *etcdClusterState) String() string {
 	var b bytes.Buffer
 
@@ -61,7 +71,7 @@ type etcdClusterPeerInfo struct {
 }
 
 func (p *etcdClusterPeerInfo) String() string {
-	return fmt.Sprintf("etcdClusterPeerInfo{peer=%s}", p.peer)
+	return fmt.Sprintf("etcdClusterPeerInfo{peer=%s, etcState=%s}", p.peer, p.info)
 }
 
 func (s *etcdClusterState) etcdAddMember(ctx context.Context, nodeInfo *protoetcd.EtcdNode) (*etcdclient.EtcdProcessMember, error) {

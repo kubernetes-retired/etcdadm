@@ -324,7 +324,24 @@ func (m *EtcdController) maybeBackup(ctx context.Context, clusterSpec *protoetcd
 	return nil
 }
 
-// loadClusterState tries to load the desired cluster spec.
+// writeClusterSpec writes the cluster spec to etcd
+func (m *EtcdController) writeClusterSpec(ctx context.Context, etcdClusterState *etcdClusterState, clusterSpec *protoetcd.ClusterSpec) error {
+	key := "/kope.io/etcd-manager/" + m.clusterName + "/spec"
+	data, err := protoetcd.ToJson(clusterSpec)
+	if err != nil {
+		return fmt.Errorf("error serializing cluster spec: %v", err)
+	}
+
+	err = etcdClusterState.etcdCreate(ctx, key, []byte(data))
+	if err != nil {
+		// Concurrent leader wrote this?
+		return fmt.Errorf("error writing cluster spec back to etcd: %v", err)
+	}
+
+	return nil
+}
+
+// loadClusterSpec tries to load the desired cluster spec.
 // We try to load first from etcd, then from the most recent backup, and then from InitialClusterSpecProvider
 func (m *EtcdController) loadClusterSpec(ctx context.Context, etcdClusterState *etcdClusterState, etcdIsRunning bool) (*protoetcd.ClusterSpec, error) {
 	key := "/kope.io/etcd-manager/" + m.clusterName + "/spec"
@@ -365,16 +382,11 @@ func (m *EtcdController) loadClusterSpec(ctx context.Context, etcdClusterState *
 		}
 
 		if info != nil && info.ClusterSpec != nil {
-			data, err := protoetcd.ToJson(info.ClusterSpec)
-			if err != nil {
-				return nil, fmt.Errorf("error serializing cluster spec: %v", err)
-			}
-
 			if etcdIsRunning {
-				err = etcdClusterState.etcdCreate(ctx, key, []byte(data))
+				err = m.writeClusterSpec(ctx, etcdClusterState, info.ClusterSpec)
 				if err != nil {
 					// Concurrent leader wrote this?
-					return nil, fmt.Errorf("error writing cluster spec back to etcd: %v", err)
+					return nil, err
 				}
 			}
 
@@ -382,7 +394,8 @@ func (m *EtcdController) loadClusterSpec(ctx context.Context, etcdClusterState *
 		}
 	}
 
-	// TODO: Source from etcd / from state / from backup
+	// TODO: Source from etcd cluster state, if running
+	// TODO: Have initial cluster state always come from backup store
 	if m.InitialClusterSpecProvider == nil {
 		return nil, fmt.Errorf("no cluster spec found, and no InitialClusterSpecProvider provider")
 	}
@@ -608,8 +621,15 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterSpec *prot
 	return false, nil
 }
 
+// doClusterBackup triggers a backup of etcd, on any healthy cluster member
 func (m *EtcdController) doClusterBackup(ctx context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState) (*protoetcd.DoBackupResponse, error) {
-	for _, peer := range clusterState.peers {
+	for _, member := range clusterState.healthyMembers {
+		peer := clusterState.FindPeer(member)
+		if peer == nil {
+			glog.Warningf("unable to find peer for member %v", member)
+			continue
+		}
+
 		info := &protoetcd.BackupInfo{
 			ClusterSpec: clusterSpec,
 		}
@@ -841,6 +861,8 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterSpec *prot
 		proposedNodes = append(proposedNodes, node)
 	}
 
+	glog.Infof("starting new etcd cluster with %s", proposal)
+
 	for _, p := range proposal {
 		// Note the we may send the message to ourselves
 		joinClusterRequest := &protoetcd.JoinClusterRequest{
@@ -880,6 +902,9 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterSpec *prot
 		}
 		glog.V(2).Infof("JoinClusterResponse: %s", joinClusterResponse)
 	}
+
+	// We pause to allow etcd to start - avoids us incurring a backoff delay
+	time.Sleep(2 * time.Second)
 
 	return true, nil
 }
