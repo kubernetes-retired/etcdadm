@@ -9,10 +9,13 @@ import (
 	"github.com/golang/glog"
 )
 
+// V2Client is a client for the etcd v2 API, implementing EtcdClient
 type V2Client struct {
 	keys    etcd_client_v2.KeysAPI
 	members etcd_client_v2.MembersAPI
 }
+
+var _ EtcdClient = &V2Client{}
 
 func NewV2Client(clientUrls []string) (EtcdClient, error) {
 	if len(clientUrls) == 0 {
@@ -34,6 +37,11 @@ func NewV2Client(clientUrls []string) (EtcdClient, error) {
 		keys:    keysAPI,
 		members: etcd_client_v2.NewMembersAPI(etcdClient),
 	}, nil
+}
+
+func (c *V2Client) Close() error {
+	// Nothing to close
+	return nil
 }
 
 func (c *V2Client) Get(ctx context.Context, key string, quorum bool) ([]byte, error) {
