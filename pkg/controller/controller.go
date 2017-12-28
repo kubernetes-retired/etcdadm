@@ -318,7 +318,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	//}
 
 	if configuredMembers == 0 {
-		return m.stepStartCluster(ctx, clusterSpec, clusterState)
+		return m.createNewCluster(ctx, clusterSpec, clusterState)
 	}
 
 	if quarantinedMembers > 0 {
@@ -392,6 +392,8 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	return false, nil
 }
 
+// loadClusterState tries to load the desired cluster spec.
+// We try to load first from etcd, then from the most recent backup, and then from InitialClusterSpecProvider
 func (m *EtcdController) loadClusterSpec(ctx context.Context, etcdClusterState *etcdClusterState, etcdIsRunning bool) (*protoetcd.ClusterSpec, error) {
 	key := "/kope.io/etcd-manager/" + m.clusterName + "/spec"
 	b, err := etcdClusterState.etcdGet(ctx, key)
@@ -469,6 +471,7 @@ func randomToken() string {
 	return base64.RawURLEncoding.EncodeToString(b)
 }
 
+// updateClusterState queries each peer (including ourselves) for information about the desired state of the world
 func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) (*etcdClusterState, error) {
 	clusterState := &etcdClusterState{
 		peers: make(map[privateapi.PeerId]*etcdClusterPeerInfo),
@@ -990,11 +993,15 @@ func (m *EtcdController) removeNodeFromCluster(ctx context.Context, clusterSpec 
 	return true, nil
 }
 
+// quorumSize computes the number of nodes in a quorum, for a given cluster size.
+// quorumSize = (N / 2) + 1
 func quorumSize(desiredMemberCount int) int {
 	return (desiredMemberCount / 2) + 1
 }
 
-func (m *EtcdController) stepStartCluster(ctx context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState) (bool, error) {
+// createNewCluster starts a new etcd cluster.
+// It tries to identify a quorum of nodes, and if found will instruct each to join the cluster.
+func (m *EtcdController) createNewCluster(ctx context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState) (bool, error) {
 	desiredMemberCount := int(clusterSpec.MemberCount)
 	desiredQuorumSize := quorumSize(desiredMemberCount)
 
@@ -1021,7 +1028,7 @@ func (m *EtcdController) stepStartCluster(ctx context.Context, clusterSpec *prot
 	for _, peer := range clusterState.peers {
 		proposal = append(proposal, peer)
 		if len(proposal) == desiredMemberCount {
-			// We have our cluster
+			// We have identified enough members to form a cluster
 			break
 		}
 	}
@@ -1037,7 +1044,7 @@ func (m *EtcdController) stepStartCluster(ctx context.Context, clusterSpec *prot
 	}
 
 	for _, p := range proposal {
-		// Note the we send the message to ourselves
+		// Note the we may send the message to ourselves
 		joinClusterRequest := &protoetcd.JoinClusterRequest{
 			LeadershipToken: m.leadership.token,
 
@@ -1050,14 +1057,14 @@ func (m *EtcdController) stepStartCluster(ctx context.Context, clusterSpec *prot
 
 		joinClusterResponse, err := p.peer.rpcJoinCluster(ctx, joinClusterRequest)
 		if err != nil {
-			// TODO: Send a CANCEL message for anything PREPAREd?
+			// TODO: Send a CANCEL message for anything PREPAREd?  (currently we rely on a slow timeout)
 			return false, fmt.Errorf("error from JoinClusterRequest from peer %q: %v", p.peer, err)
 		}
 		glog.V(2).Infof("JoinClusterResponse: %s", joinClusterResponse)
 	}
 
 	for _, p := range proposal {
-		// Note the we send the message to ourselves
+		// Note the we may send the message to ourselves
 		joinClusterRequest := &protoetcd.JoinClusterRequest{
 			LeadershipToken: m.leadership.token,
 
@@ -1070,7 +1077,7 @@ func (m *EtcdController) stepStartCluster(ctx context.Context, clusterSpec *prot
 
 		joinClusterResponse, err := p.peer.rpcJoinCluster(ctx, joinClusterRequest)
 		if err != nil {
-			// TODO: Send a CANCEL message for anything PREPAREd?
+			// TODO: Send a CANCEL message for anything PREPAREd?  (currently we rely on a slow timeout)
 			return false, fmt.Errorf("error from JoinClusterRequest from peer %q: %v", p.peer, err)
 		}
 		glog.V(2).Infof("JoinClusterResponse: %s", joinClusterResponse)
