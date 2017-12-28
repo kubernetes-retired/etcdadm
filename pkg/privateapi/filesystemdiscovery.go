@@ -35,6 +35,8 @@ func (d *FilesystemDiscovery) publish() error {
 		return fmt.Errorf("DiscoveryNode does not have ID set")
 	}
 
+	glog.Infof("publishing discovery record: %v", d.me)
+
 	meJson, err := json.Marshal(d.me)
 	if err != nil {
 		return fmt.Errorf("error marshalling to JSON: %v", err)

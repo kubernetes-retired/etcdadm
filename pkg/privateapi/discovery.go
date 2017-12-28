@@ -10,5 +10,5 @@ type DiscoveryNode struct {
 }
 
 type DiscoveryAddress struct {
-	IP string `json:"ip"`
+	Address string `json:"address"`
 }
