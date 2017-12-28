@@ -174,7 +174,7 @@ func (p *etcdProcess) Start() error {
 	return nil
 }
 
-func (p *etcdProcess) Client() (etcdclient.EtcdClient, error) {
+func (p *etcdProcess) NewClient() (etcdclient.EtcdClient, error) {
 	var me *protoetcd.EtcdNode
 	for _, node := range p.Cluster.Nodes {
 		if node.Name == p.MyNodeName {

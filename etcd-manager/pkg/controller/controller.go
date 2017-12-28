@@ -460,8 +460,8 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 			glog.Warningf("unable to reach member %s: %v", p, err)
 			continue
 		}
-
 		members, err := etcdClient.ListMembers(ctx)
+		etcdClient.Close()
 		if err != nil {
 			glog.Warningf("unable to reach member %s: %v", p, err)
 			continue
@@ -483,21 +483,14 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 	clusterState.healthyMembers = make(map[EtcdMemberId]*etcdclient.EtcdProcessMember)
 	//clusterState.versions = make(map[EtcdMemberId]*version.Versions)
 	for id, member := range clusterState.members {
-		etcdClient, err := member.Client()
+		etcdClient, err := member.NewClient()
 		if err != nil {
 			glog.Warningf("health-check unable to reach member %s: %v", id, err)
 			continue
 		}
 
-		//// Get the version
-		//versions, err := etcdClient.GetVersion(ctx)
-		//if err != nil {
-		//	glog.Warningf("unable to get versions for member %s: %v", id, err)
-		//	continue
-		//}
-		//clusterState.versions[id] = versions
-
 		_, err = etcdClient.ListMembers(ctx)
+		etcdClient.Close()
 		if err != nil {
 			glog.Warningf("health-check unable to reach member %s: %v", id, err)
 			continue

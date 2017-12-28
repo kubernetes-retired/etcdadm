@@ -18,9 +18,8 @@ type EtcdProcessMember struct {
 	idv3 uint64
 }
 
-func (m *EtcdProcessMember) Client() (EtcdClient, error) {
+func (m *EtcdProcessMember) NewClient() (EtcdClient, error) {
 	return NewClient(m.etcdVersion, m.ClientURLs)
-
 }
 
 func (m *EtcdProcessMember) String() string {
