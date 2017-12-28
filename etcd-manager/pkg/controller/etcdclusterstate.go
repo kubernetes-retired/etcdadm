@@ -37,7 +37,6 @@ func (s *etcdClusterState) FindHealthyMember(peerId privateapi.PeerId) *etcdclie
 	return nil
 }
 
-
 func (s *etcdClusterState) FindPeer(member *etcdclient.EtcdProcessMember) *etcdClusterPeerInfo {
 	for peerId, peer := range s.peers {
 		if member.Name == string(peerId) {
