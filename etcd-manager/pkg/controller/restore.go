@@ -66,6 +66,18 @@ func (m *EtcdController) restoreBackupAndLiftQuarantine(parentContext context.Co
 		glog.V(2).Infof("DoRestoreResponse: %s", response)
 	}
 
+	updated, err := m.updateQuarantine(ctx, clusterState, false)
+	if err != nil {
+		return changed, err
+	}
+	if updated {
+		changed = true
+	}
+	return changed, nil
+}
+
+func (m *EtcdController) updateQuarantine(ctx context.Context, clusterState *etcdClusterState, quarantined bool) (bool, error) {
+	changed := false
 	for peerId, p := range clusterState.peers {
 		member := clusterState.FindMember(peerId)
 		if member == nil {
@@ -75,16 +87,15 @@ func (m *EtcdController) restoreBackupAndLiftQuarantine(parentContext context.Co
 		request := &protoetcd.ReconfigureRequest{
 			LeadershipToken: m.leadership.token,
 			ClusterName:     m.clusterName,
-			Quarantined:     false,
+			Quarantined:     quarantined,
 		}
 
 		response, err := p.peer.rpcReconfigure(ctx, request)
 		if err != nil {
-			return false, fmt.Errorf("error reconfiguring peer %v to not be quarantined: %v", p.peer, err)
+			return changed, fmt.Errorf("error reconfiguring peer %v to not be quarantined: %v", p.peer, err)
 		}
 		changed = true
 		glog.V(2).Infof("ReconfigureResponse: %s", response)
 	}
-
 	return changed, nil
 }
