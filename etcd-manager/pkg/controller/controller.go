@@ -325,10 +325,13 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		return m.restoreBackupAndLiftQuarantine(ctx, clusterSpec, clusterState)
 	}
 
-	// TODO: Backup here
+	if len(clusterState.members) != 0 {
+		if err := m.maybeBackup(ctx, clusterSpec, clusterState, commandQueue); err != nil {
+			glog.Warningf("error during backup: %v", err)
+		}
+	}
 
 	if len(clusterState.members) < int(clusterSpec.MemberCount) {
-		// TODO: Still backup when we have an under-quorum cluster
 		glog.Infof("etcd has %d members registered, we want %d; will try to expand cluster", len(clusterState.members), clusterSpec.MemberCount)
 		return m.addNodeToCluster(ctx, clusterSpec, clusterState)
 	}
@@ -339,7 +342,6 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	}
 
 	if configuredMembers > int(clusterSpec.MemberCount) {
-		// TODO: Still backup before mutating the cluster
 		return m.removeNodeFromCluster(ctx, clusterSpec, clusterState, true)
 	}
 
@@ -366,30 +368,40 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		}
 	}
 
-	backupInterval := time.Minute
-	backupCleanupInterval := 15 * time.Minute
-	if now.Sub(m.lastBackup) > backupInterval {
-		backup, err := m.doClusterBackup(ctx, clusterSpec, clusterState)
-		if err != nil {
-			glog.Warningf("error during backup: %v", err)
-		} else {
-			glog.Infof("took backup: %v", backup)
-			m.lastBackup = now
-
-			if now.Sub(m.lastBackupCleanup) > backupCleanupInterval {
-				if err := m.doBackupMaintenance(ctx, clusterSpec); err != nil {
-					glog.Warningf("error during backup cleanup: %v", err)
-				} else {
-					glog.Infof("cleaned up backups")
-					m.lastBackupCleanup = now
-				}
-			}
-		}
-	}
-
 	glog.Infof("controller loop complete")
 
 	return false, nil
+}
+
+func (m *EtcdController) maybeBackup(ctx context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState, commandQueue []*commands.Command) error {
+	now := time.Now()
+
+	backupInterval := time.Minute
+	backupCleanupInterval := 15 * time.Minute
+	shouldBackup := now.Sub(m.lastBackup) > backupInterval
+
+	if !shouldBackup {
+		return nil
+	}
+
+	backup, err := m.doClusterBackup(ctx, clusterSpec, clusterState)
+	if err != nil {
+		return err
+	}
+
+	glog.Infof("took backup: %v", backup)
+	m.lastBackup = now
+
+	if now.Sub(m.lastBackupCleanup) > backupCleanupInterval {
+		if err := m.doBackupMaintenance(ctx, clusterSpec); err != nil {
+			glog.Warningf("error during backup cleanup: %v", err)
+		} else {
+			glog.Infof("cleaned up backups")
+			m.lastBackupCleanup = now
+		}
+	}
+
+	return nil
 }
 
 // loadClusterState tries to load the desired cluster spec.
@@ -679,6 +691,11 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterSpec *prot
 
 	// We need to start etcd on a new node
 	if len(idlePeers) != 0 {
+		// Force a backup first
+		if _, err := m.doClusterBackup(ctx, clusterSpec, clusterState); err != nil {
+			return false, fmt.Errorf("failed to backup (before adding peer): %v", err)
+		}
+
 		peer := idlePeers[math_rand.Intn(len(idlePeers))]
 		glog.Infof("will try to start new peer: %v", peer)
 
@@ -978,6 +995,11 @@ func (m *EtcdController) removeNodeFromCluster(ctx context.Context, clusterSpec 
 	//if peer == nil {
 	//	return false, fmt.Errorf("unable to find peer for member %v", victim)
 	//}
+
+	// Force a backup first
+	if _, err := m.doClusterBackup(ctx, clusterSpec, clusterState); err != nil {
+		return false, fmt.Errorf("failed to backup (before adding peer): %v", err)
+	}
 
 	glog.Infof("removing node from etcd cluster: %v", victim)
 
