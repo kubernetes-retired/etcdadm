@@ -12,7 +12,7 @@ import (
 
 func TestUpgradeDowngrade(t *testing.T) {
 	ctx := context.TODO()
-	ctx, cancel := context.WithTimeout(ctx, time.Second*60)
+	ctx, cancel := context.WithTimeout(ctx, time.Second*90)
 
 	defer cancel()
 
@@ -27,19 +27,26 @@ func TestUpgradeDowngrade(t *testing.T) {
 	n3 := h.NewNode("127.0.0.3")
 	go n3.Run()
 
-	n1.WaitForListMembers(20 * time.Second)
-	members1, err := n1.ListMembers(ctx)
-	if err != nil {
-		t.Errorf("error doing etcd ListMembers: %v", err)
-	} else if len(members1) != 3 {
-		t.Errorf("members was not as expected: %v", err)
-	} else {
-		glog.Infof("got members from #1: %v", members1)
-	}
-
 	testKey := "/testkey"
-	if err := n1.Put(ctx, testKey, "worldv2"); err != nil {
-		t.Fatalf("unable to set test key: %v", err)
+
+	{
+		n1.WaitForListMembers(40 * time.Second)
+		members1, err := n1.ListMembers(ctx)
+		if err != nil {
+			t.Errorf("error doing etcd ListMembers: %v", err)
+		} else if len(members1) != 3 {
+			t.Errorf("members was not as expected: %v", err)
+		} else {
+			glog.Infof("got members from #1: %v", members1)
+		}
+
+		if err := n1.Put(ctx, testKey, "worldv2"); err != nil {
+			t.Fatalf("unable to set test key: %v", err)
+		}
+
+		n1.AssertVersion(t, "2.2.1")
+		n2.AssertVersion(t, "2.2.1")
+		n3.AssertVersion(t, "2.2.1")
 	}
 
 	// Upgrade to 3.2.12
@@ -68,7 +75,7 @@ func TestUpgradeDowngrade(t *testing.T) {
 
 	// Check cluster is stable (on the v3 api)
 	{
-		n1.WaitForListMembers(20 * time.Second)
+		n1.WaitForListMembers(40 * time.Second)
 		members1, err := n1.ListMembers(ctx)
 		if err != nil {
 			t.Errorf("error doing etcd ListMembers: %v", err)
@@ -92,6 +99,10 @@ func TestUpgradeDowngrade(t *testing.T) {
 		if err := n1.Put(ctx, testKey, "worldv3"); err != nil {
 			t.Fatalf("unable to set test key: %v", err)
 		}
+
+		n1.AssertVersion(t, "3.2.12")
+		n2.AssertVersion(t, "3.2.12")
+		n3.AssertVersion(t, "3.2.12")
 	}
 
 	// Downgrade to 2.2.1
@@ -120,7 +131,7 @@ func TestUpgradeDowngrade(t *testing.T) {
 
 	// Check cluster is stable (on the v2 api)
 	{
-		n1.WaitForListMembers(20 * time.Second)
+		n1.WaitForListMembers(40 * time.Second)
 		members1, err := n1.ListMembers(ctx)
 		if err != nil {
 			t.Errorf("error doing etcd ListMembers: %v", err)
@@ -140,6 +151,10 @@ func TestUpgradeDowngrade(t *testing.T) {
 		if v != "worldv3" {
 			t.Fatalf("unexpected test key value after upgrade: %q", v)
 		}
+
+		n1.AssertVersion(t, "2.2.1")
+		n2.AssertVersion(t, "2.2.1")
+		n3.AssertVersion(t, "2.2.1")
 	}
 
 	cancel()

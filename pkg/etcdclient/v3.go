@@ -2,45 +2,87 @@ package etcdclient
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	etcd_client_v3 "github.com/coreos/etcd/clientv3"
+	"github.com/coreos/etcd/version"
 	"github.com/golang/glog"
 )
 
 type V3Client struct {
-	client  *etcd_client_v3.Client
-	kv      etcd_client_v3.KV
-	cluster etcd_client_v3.Cluster
+	endpoints []string
+	client    *etcd_client_v3.Client
+	kv        etcd_client_v3.KV
+	cluster   etcd_client_v3.Cluster
 }
 
 var _ EtcdClient = &V3Client{}
 
-func NewV3Client(clientUrls []string) (EtcdClient, error) {
-	if len(clientUrls) == 0 {
-		return nil, fmt.Errorf("no clientURLs provided")
+func NewV3Client(endpoints []string) (EtcdClient, error) {
+	if len(endpoints) == 0 {
+		return nil, fmt.Errorf("no endpoints provided")
 	}
 	cfg := etcd_client_v3.Config{
-		Endpoints:   clientUrls,
+		Endpoints:   endpoints,
 		DialTimeout: 10 * time.Second,
 	}
 	etcdClient, err := etcd_client_v3.New(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("error building etcd client for %s: %v", clientUrls[0], err)
+		return nil, fmt.Errorf("error building etcd client for %s: %v", endpoints[0], err)
 	}
 
 	kv := etcd_client_v3.NewKV(etcdClient)
 	return &V3Client{
-		client:  etcdClient,
-		kv:      kv,
-		cluster: etcd_client_v3.NewCluster(etcdClient),
+		endpoints: endpoints,
+		client:    etcdClient,
+		kv:        kv,
+		cluster:   etcd_client_v3.NewCluster(etcdClient),
 	}, nil
 }
 
 func (c *V3Client) Close() error {
 	return c.client.Close()
+}
+
+func (c *V3Client) String() string {
+	return "V3Client:[" + strings.Join(c.endpoints, ",") + "]"
+}
+
+// ServerVersion returns the version of etcd running
+func (c *V3Client) ServerVersion(ctx context.Context) (string, error) {
+	for _, endpoint := range c.endpoints {
+		u := endpoint
+		if !strings.HasSuffix(u, "/") {
+			u += "/"
+		}
+		u += "version"
+		resp, err := http.Get(u)
+		if err != nil {
+			glog.Warningf("failed to fetch %s: %v", u, err)
+			continue
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		resp.Body.Close()
+		if err != nil {
+			glog.Warningf("failed to read %s: %v", u, err)
+			continue
+		}
+
+		v := &version.Versions{}
+		if err := json.Unmarshal(body, v); err != nil {
+			glog.Warningf("failed to parse %s %s: %v", u, string(body), err)
+			continue
+		}
+
+		return v.Server, nil
+	}
+	return "", fmt.Errorf("could not fetch server version")
 }
 
 func (c *V3Client) Get(ctx context.Context, key string, quorum bool) ([]byte, error) {

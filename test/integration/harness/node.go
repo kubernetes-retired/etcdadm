@@ -3,6 +3,7 @@ package harness
 import (
 	"context"
 	"fmt"
+	"testing"
 	"time"
 
 	"github.com/golang/glog"
@@ -154,4 +155,22 @@ func (n *TestHarnessNode) Close() error {
 		}
 	}
 	return nil
+}
+
+// CheckVersion asserts that the client reports the server version specified
+func (n *TestHarnessNode) AssertVersion(t *testing.T, version string) {
+	ctx := context.TODO()
+
+	client, err := etcdclient.NewClient(n.EtcdVersion, []string{n.ClientURL})
+	if err != nil {
+		n.TestHarness.T.Fatalf("error building etcd client: %v", err)
+	}
+	defer client.Close()
+	actual, err := client.ServerVersion(ctx)
+	if err != nil {
+		t.Fatalf("error getting version from node: %v", err)
+	}
+	if actual != version {
+		t.Fatalf("version was not as expected.  expected=%q, actual=%q", version, actual)
+	}
 }
