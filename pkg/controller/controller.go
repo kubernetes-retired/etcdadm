@@ -40,8 +40,6 @@ type EtcdController struct {
 	leadership *leadershipState
 	peerState  map[privateapi.PeerId]*peerState
 
-	InitialClusterSpecProvider InitialClusterSpecProvider
-
 	// CycleInterval is the time to wait in between iterations of the state synchronization loop, when no progress has been made previously
 	CycleInterval time.Duration
 
@@ -63,17 +61,16 @@ type leadershipState struct {
 	acked map[privateapi.PeerId]bool
 }
 
-func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, clusterName string, peers privateapi.Peers, initialClusterState InitialClusterSpecProvider) (*EtcdController, error) {
+func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, clusterName string, peers privateapi.Peers) (*EtcdController, error) {
 	if clusterName == "" {
 		return nil, fmt.Errorf("ClusterName is required")
 	}
 	m := &EtcdController{
-		clusterName:                clusterName,
-		backupStore:                backupStore,
-		peers:                      peers,
-		leaderLock:                 leaderLock,
-		InitialClusterSpecProvider: initialClusterState,
-		CycleInterval:              defaultCycleInterval,
+		clusterName:   clusterName,
+		backupStore:   backupStore,
+		peers:         peers,
+		leaderLock:    leaderLock,
+		CycleInterval: defaultCycleInterval,
 	}
 	return m, nil
 }
@@ -227,6 +224,10 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 
 	// Determine what our desired state is
 	clusterSpec, err := m.loadClusterSpec(ctx, clusterState, configuredMembers != 0)
+	if clusterSpec == nil {
+		glog.Infof("no cluster spec set - must seed new cluster")
+		return false, nil
+	}
 	if err != nil {
 		return false, fmt.Errorf("error fetching cluster spec: %v", err)
 	}
@@ -345,16 +346,27 @@ func (m *EtcdController) writeClusterSpec(ctx context.Context, etcdClusterState 
 // We try to load first from etcd, then from the most recent backup, and then from InitialClusterSpecProvider
 func (m *EtcdController) loadClusterSpec(ctx context.Context, etcdClusterState *etcdClusterState, etcdIsRunning bool) (*protoetcd.ClusterSpec, error) {
 	key := "/kope.io/etcd-manager/" + m.clusterName + "/spec"
-	b, err := etcdClusterState.etcdGet(ctx, key)
-	if err == nil && b != nil {
-		state := &protoetcd.ClusterSpec{}
-		err := protoetcd.FromJson(string(b), state)
+	if len(etcdClusterState.members) > 0 {
+		b, err := etcdClusterState.etcdGet(ctx, key)
 		if err != nil {
-			return nil, fmt.Errorf("error parsing cluster spec from etcd %q: %v", key, err)
+			return nil, fmt.Errorf("unable to load cluster spec from cluster - no members")
 		}
-		return state, nil
+
+		if b != nil {
+			state := &protoetcd.ClusterSpec{}
+			err := protoetcd.FromJson(string(b), state)
+			if err != nil {
+				return nil, fmt.Errorf("error parsing cluster spec from etcd %q: %v", key, err)
+			}
+			return state, nil
+		}
+
+		// This is the case for bootstrapping, but generally if the key isn't set we want to get it from the backup store
+		glog.Infof("spec key not set, will bootstrap from backup")
+	} else if etcdIsRunning {
+		return nil, fmt.Errorf("unable to load cluster spec from cluster - no members")
 	} else {
-		glog.Warningf("unable to read cluster spec from etcd: %v", err)
+		glog.Infof("no etcd cluster members - restoring from backup")
 	}
 
 	{
@@ -395,16 +407,7 @@ func (m *EtcdController) loadClusterSpec(ctx context.Context, etcdClusterState *
 	}
 
 	// TODO: Source from etcd cluster state, if running
-	// TODO: Have initial cluster state always come from backup store
-	if m.InitialClusterSpecProvider == nil {
-		return nil, fmt.Errorf("no cluster spec found, and no InitialClusterSpecProvider provider")
-	}
-	state, err := m.InitialClusterSpecProvider.GetInitialClusterSpec()
-	if err != nil {
-		return nil, fmt.Errorf("no cluster spec found, and error from InitialClusterSpecProvider provider: %v", err)
-	}
-	return state, nil
-
+	return nil, nil
 }
 
 func randomToken() string {

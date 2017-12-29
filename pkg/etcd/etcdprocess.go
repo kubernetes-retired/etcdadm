@@ -215,9 +215,7 @@ func (p *etcdProcess) DoBackup(store backup.Store, info *protoetcd.BackupInfo) (
 
 	response := &protoetcd.DoBackupResponse{}
 
-	timestamp := time.Now().UTC().Format(time.RFC3339Nano)
-
-	tempDir, err := store.CreateBackupTempDir(timestamp)
+	tempDir, err := store.CreateBackupTempDir()
 	if err != nil {
 		return nil, fmt.Errorf("error creating etcd backup temp directory: %v", err)
 	}
@@ -274,12 +272,11 @@ func (p *etcdProcess) DoBackup(store backup.Store, info *protoetcd.BackupInfo) (
 		return nil, fmt.Errorf("etcdctl backup returned a non-zero exit code")
 	}
 
-	response.Name = timestamp
-
-	err = store.AddBackup(response.Name, tempDir, info)
+	name, err := store.AddBackup(tempDir, info)
 	if err != nil {
 		return nil, fmt.Errorf("error copying backup to storage: %v", err)
 	}
+	response.Name = name
 
 	glog.Infof("backup complete: %v", response)
 	return response, nil

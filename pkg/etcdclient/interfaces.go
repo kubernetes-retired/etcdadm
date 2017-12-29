@@ -13,7 +13,10 @@ type EtcdClient interface {
 
 	Put(ctx context.Context, key string, value []byte) error
 	Create(ctx context.Context, key string, value []byte) error
+
+	// Get returns the value of the specified key, or (nil, nil) if not found
 	Get(ctx context.Context, key string, quorum bool) ([]byte, error)
+
 	CopyTo(ctx context.Context, dest EtcdClient) error
 	ListMembers(ctx context.Context) ([]*EtcdProcessMember, error)
 	AddMember(ctx context.Context, peerURLs []string) error

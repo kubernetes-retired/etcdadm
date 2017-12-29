@@ -65,6 +65,12 @@ func (c *V2Client) ServerVersion(ctx context.Context) (string, error) {
 func (c *V2Client) Get(ctx context.Context, key string, quorum bool) ([]byte, error) {
 	r, err := c.keys.Get(ctx, key, &etcd_client_v2.GetOptions{Quorum: quorum})
 	if err != nil {
+		if etcdError, ok := err.(etcd_client_v2.Error); ok {
+			if etcdError.Code == etcd_client_v2.ErrorCodeKeyNotFound {
+				return nil, nil
+			}
+		}
+
 		return nil, err
 	}
 	return []byte(r.Node.Value), nil

@@ -21,13 +21,11 @@ import (
 	"flag"
 	"fmt"
 	"os"
-
 	"strings"
 	"time"
 
 	"github.com/golang/glog"
 	apis_etcd "kope.io/etcd-manager/pkg/apis/etcd"
-	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/controller"
 	"kope.io/etcd-manager/pkg/etcd"
@@ -46,16 +44,12 @@ func main() {
 	flag.StringVar(&clientUrls, "client-urls", clientUrls, "client-urls to use for normal operation")
 	quarantineClientUrls := "http://127.0.0.1:8001"
 	flag.StringVar(&quarantineClientUrls, "quarantine-client-urls", quarantineClientUrls, "client-urls to use when etcd should be quarantined e.g. when offline")
-	memberCount := 1
-	flag.IntVar(&memberCount, "members", memberCount, "initial cluster size; cluster won't start until we have a quorum of this size")
 	clusterName := ""
 	flag.StringVar(&clusterName, "cluster-name", clusterName, "name of cluster")
 	backupStorePath := "/backups"
 	flag.StringVar(&backupStorePath, "backup-store", backupStorePath, "backup store location")
 	dataDir := "/data"
 	flag.StringVar(&dataDir, "data-dir", dataDir, "directory for storing etcd data")
-	etcdVersion := "3.2.12"
-	flag.StringVar(&etcdVersion, "etcd-version", etcdVersion, "etcd version")
 
 	flag.Parse()
 
@@ -122,14 +116,8 @@ func main() {
 	etcdServer := etcd.NewEtcdServer(dataDir, clusterName, etcdNodeInfo, peerServer)
 	go etcdServer.Run(ctx)
 
-	spec := &protoetcd.ClusterSpec{
-		MemberCount: int32(memberCount),
-		EtcdVersion: etcdVersion,
-	}
-	initialClusterState := controller.StaticInitialClusterSpecProvider(spec)
-
 	var leaderLock locking.Lock // nil
-	c, err := controller.NewEtcdController(leaderLock, backupStore, clusterName, peerServer, initialClusterState)
+	c, err := controller.NewEtcdController(leaderLock, backupStore, clusterName, peerServer)
 	if err != nil {
 		glog.Fatalf("error building etcd controller: %v", err)
 	}
