@@ -9,7 +9,7 @@ type EtcdProcessMember struct {
 	//Id         string   `json:"id,omitempty"`
 	Name       string   `json:"name,omitempty"`
 	PeerURLs   []string `json:"peerURLs,omitempty"`
-	ClientURLs []string `json:"clientURLs,omitempty"`
+	ClientURLs []string `json:"endpoints,omitempty"`
 
 	etcdVersion string
 
