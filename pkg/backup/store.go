@@ -2,16 +2,17 @@ package backup
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
-
-	"io"
+	"time"
 
 	"github.com/golang/glog"
 	"kope.io/etcd-manager/pkg/apis/etcd"
+	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/ioutils"
 )
 
@@ -20,8 +21,11 @@ const MetaFilename = "_kopeio_etcd_manager.meta"
 type Store interface {
 	Spec() string
 
-	CreateBackupTempDir(name string) (string, error)
-	AddBackup(name string, srcdir string, info *etcd.BackupInfo) error
+	// CreateBackupTempDir creates a local temporary directory for a backup
+	CreateBackupTempDir() (string, error)
+
+	// AddBackup adds a backup to the store, returning the name of the backup
+	AddBackup(srcdir string, info *etcd.BackupInfo) (string, error)
 
 	// ListBackups returns all the available backups, in chronological order
 	ListBackups() ([]string, error)
@@ -34,6 +38,9 @@ type Store interface {
 
 	// DownloadBackup downloads the backup to the specific location
 	DownloadBackup(name string, destdir string) error
+
+	// SeedNewCluster sets up the "create new cluster" marker, indicating that we should not restore a cluster, but create a new one
+	SeedNewCluster(spec *protoetcd.ClusterSpec) error
 }
 
 func NewStore(storage string) (Store, error) {
@@ -81,7 +88,9 @@ type filesystemStore struct {
 
 var _ Store = &filesystemStore{}
 
-func (s *filesystemStore) CreateBackupTempDir(name string) (string, error) {
+func (s *filesystemStore) CreateBackupTempDir() (string, error) {
+	name := time.Now().UTC().Format(time.RFC3339Nano)
+
 	p := filepath.Join(s.tempBase, name)
 	err := os.Mkdir(p, 0700)
 	if err != nil {
@@ -90,32 +99,40 @@ func (s *filesystemStore) CreateBackupTempDir(name string) (string, error) {
 	return p, nil
 }
 
-func (s *filesystemStore) AddBackup(name string, srcdir string, info *etcd.BackupInfo) error {
+func (s *filesystemStore) AddBackup(srcdir string, info *etcd.BackupInfo) (string, error) {
+	now := time.Now()
+
+	if info.Timestamp == 0 {
+		info.Timestamp = now.Unix()
+	}
+
 	// Save the meta file
 	{
 		p := filepath.Join(srcdir, MetaFilename)
 
 		data, err := etcd.ToJson(info)
 		if err != nil {
-			return fmt.Errorf("error marshalling state: %v", err)
+			return "", fmt.Errorf("error marshalling state: %v", err)
 		}
 
 		err = ioutils.CreateFile(p, []byte(data), 0700)
 		if err != nil {
-			return fmt.Errorf("error writing file %q: %v", p, err)
+			return "", fmt.Errorf("error writing file %q: %v", p, err)
 		}
 	}
+
+	name := now.UTC().Format(time.RFC3339Nano)
 
 	// Move the backup dir in place
 	{
 		p := filepath.Join(s.backupsBase, name)
 		err := os.Rename(srcdir, p)
 		if err != nil {
-			return fmt.Errorf("error renaming %q to %q: %v", srcdir, p, err)
+			return "", fmt.Errorf("error renaming %q to %q: %v", srcdir, p, err)
 		}
 	}
 
-	return nil
+	return name, nil
 }
 
 func (s *filesystemStore) ListBackups() ([]string, error) {
@@ -170,6 +187,32 @@ func (s *filesystemStore) LoadInfo(name string) (*etcd.BackupInfo, error) {
 	}
 
 	return spec, nil
+}
+
+func (s *filesystemStore) SeedNewCluster(spec *protoetcd.ClusterSpec) error {
+	backups, err := s.ListBackups()
+	if err != nil {
+		return fmt.Errorf("error listing backups: %v", err)
+	}
+	if len(backups) != 0 {
+		return fmt.Errorf("cannot seed new cluster - cluster backups already exists")
+	}
+
+	tmpdir, err := s.CreateBackupTempDir()
+	if err != nil {
+		return err
+	}
+
+	info := &etcd.BackupInfo{
+		ClusterSpec: spec,
+	}
+	name, err := s.AddBackup(tmpdir, info)
+	if err != nil {
+		return err
+	}
+	glog.Infof("created seed backup with name %q", name)
+
+	return nil
 }
 
 func (s *filesystemStore) Spec() string {
