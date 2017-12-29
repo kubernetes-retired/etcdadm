@@ -3,6 +3,7 @@ package etcdclient
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	etcd_client_v2 "github.com/coreos/etcd/client"
@@ -11,15 +12,17 @@ import (
 
 // V2Client is a client for the etcd v2 API, implementing EtcdClient
 type V2Client struct {
-	keys    etcd_client_v2.KeysAPI
-	members etcd_client_v2.MembersAPI
+	clientUrls []string
+	client     etcd_client_v2.Client
+	keys       etcd_client_v2.KeysAPI
+	members    etcd_client_v2.MembersAPI
 }
 
 var _ EtcdClient = &V2Client{}
 
 func NewV2Client(clientUrls []string) (EtcdClient, error) {
 	if len(clientUrls) == 0 {
-		return nil, fmt.Errorf("no clientURLs provided")
+		return nil, fmt.Errorf("no endpoints provided")
 	}
 	cfg := etcd_client_v2.Config{
 		Endpoints:               clientUrls,
@@ -34,14 +37,29 @@ func NewV2Client(clientUrls []string) (EtcdClient, error) {
 	keysAPI := etcd_client_v2.NewKeysAPI(etcdClient)
 
 	return &V2Client{
-		keys:    keysAPI,
-		members: etcd_client_v2.NewMembersAPI(etcdClient),
+		clientUrls: clientUrls,
+		client:     etcdClient,
+		keys:       keysAPI,
+		members:    etcd_client_v2.NewMembersAPI(etcdClient),
 	}, nil
+}
+
+func (c *V2Client) String() string {
+	return "V2Client:[" + strings.Join(c.clientUrls, ",") + "]"
 }
 
 func (c *V2Client) Close() error {
 	// Nothing to close
 	return nil
+}
+
+// ServerVersion returns the version of etcd running
+func (c *V2Client) ServerVersion(ctx context.Context) (string, error) {
+	v, err := c.client.GetVersion(ctx)
+	if err != nil {
+		return "", err
+	}
+	return v.Server, nil
 }
 
 func (c *V2Client) Get(ctx context.Context, key string, quorum bool) ([]byte, error) {

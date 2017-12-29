@@ -18,6 +18,9 @@ type EtcdClient interface {
 	ListMembers(ctx context.Context) ([]*EtcdProcessMember, error)
 	AddMember(ctx context.Context, peerURLs []string) error
 	RemoveMember(ctx context.Context, member *EtcdProcessMember) error
+
+	// ServerVersion returns the version of etcd running
+	ServerVersion(ctx context.Context) (string, error)
 }
 
 func NewClient(etcdVersion string, clientURLs []string) (EtcdClient, error) {
