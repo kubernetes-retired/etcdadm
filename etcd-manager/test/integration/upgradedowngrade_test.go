@@ -12,7 +12,7 @@ import (
 
 func TestUpgradeDowngrade(t *testing.T) {
 	ctx := context.TODO()
-	ctx, cancel := context.WithTimeout(ctx, time.Second*90)
+	ctx, cancel := context.WithTimeout(ctx, time.Second*180)
 
 	defer cancel()
 
@@ -30,12 +30,13 @@ func TestUpgradeDowngrade(t *testing.T) {
 	testKey := "/testkey"
 
 	{
-		n1.WaitForListMembers(40 * time.Second)
+		n1.WaitForListMembers(60 * time.Second)
+		h.WaitForHealthy(n1, n2, n3)
 		members1, err := n1.ListMembers(ctx)
 		if err != nil {
 			t.Errorf("error doing etcd ListMembers: %v", err)
 		} else if len(members1) != 3 {
-			t.Errorf("members was not as expected: %v", err)
+			t.Errorf("members was not as expected: %v", members1)
 		} else {
 			glog.Infof("got members from #1: %v", members1)
 		}
@@ -50,6 +51,7 @@ func TestUpgradeDowngrade(t *testing.T) {
 	}
 
 	// Upgrade to 3.2.12
+	glog.Infof("upgrading to 3.2.12")
 	{
 		specKey := h.SpecKey()
 		existing, err := n1.GetQuorum(ctx, specKey)
@@ -75,12 +77,13 @@ func TestUpgradeDowngrade(t *testing.T) {
 
 	// Check cluster is stable (on the v3 api)
 	{
-		n1.WaitForListMembers(40 * time.Second)
+		n1.WaitForListMembers(60 * time.Second)
+		h.WaitForHealthy(n1, n2, n3)
 		members1, err := n1.ListMembers(ctx)
 		if err != nil {
 			t.Errorf("error doing etcd ListMembers: %v", err)
 		} else if len(members1) != 3 {
-			t.Errorf("members was not as expected: %v", err)
+			t.Errorf("members was not as expected: %v", members1)
 		} else {
 			glog.Infof("got members from #1: %v", members1)
 		}
@@ -90,7 +93,7 @@ func TestUpgradeDowngrade(t *testing.T) {
 	{
 		v, err := n1.GetQuorum(ctx, testKey)
 		if err != nil {
-			t.Fatalf("error reading test key after upgrade")
+			t.Fatalf("error reading test key after upgrade: %v", err)
 		}
 		if v != "worldv2" {
 			t.Fatalf("unexpected test key value after upgrade: %q", v)
@@ -106,6 +109,7 @@ func TestUpgradeDowngrade(t *testing.T) {
 	}
 
 	// Downgrade to 2.2.1
+	glog.Infof("downgrading to 2.2.1")
 	{
 		specKey := h.SpecKey()
 		existing, err := n1.GetQuorum(ctx, specKey)
@@ -131,12 +135,13 @@ func TestUpgradeDowngrade(t *testing.T) {
 
 	// Check cluster is stable (on the v2 api)
 	{
-		n1.WaitForListMembers(40 * time.Second)
+		n1.WaitForListMembers(60 * time.Second)
+		h.WaitForHealthy(n1, n2, n3)
 		members1, err := n1.ListMembers(ctx)
 		if err != nil {
 			t.Errorf("error doing etcd ListMembers: %v", err)
 		} else if len(members1) != 3 {
-			t.Errorf("members was not as expected: %v", err)
+			t.Errorf("members was not as expected: %v", members1)
 		} else {
 			glog.Infof("got members from #1: %v", members1)
 		}
@@ -146,7 +151,7 @@ func TestUpgradeDowngrade(t *testing.T) {
 	{
 		v, err := n1.GetQuorum(ctx, testKey)
 		if err != nil {
-			t.Fatalf("error reading test key after upgrade")
+			t.Fatalf("error reading test key after downgrade: %v", err)
 		}
 		if v != "worldv3" {
 			t.Fatalf("unexpected test key value after upgrade: %q", v)
