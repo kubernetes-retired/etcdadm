@@ -92,7 +92,7 @@ func TestClusterExpansion(t *testing.T) {
 	if err != nil {
 		t.Errorf("error doing etcd ListMembers: %v", err)
 	} else if len(members1) != 2 {
-		t.Errorf("members was not as expected: %v", err)
+		t.Errorf("members was not as expected: %v", members1)
 	} else {
 		glog.Infof("got members from #1: %v", members1)
 	}
@@ -101,7 +101,7 @@ func TestClusterExpansion(t *testing.T) {
 	if err != nil {
 		t.Errorf("error doing etcd ListMembers: %v", err)
 	} else if len(members2) != 2 {
-		t.Errorf("members was not as expected: %v", err)
+		t.Errorf("members was not as expected: %v", members2)
 	} else {
 		glog.Infof("got members from #2: %v", members2)
 	}
@@ -114,7 +114,7 @@ func TestClusterExpansion(t *testing.T) {
 	if err != nil {
 		t.Errorf("error doing etcd ListMembers: %v", err)
 	} else if len(members3) != 3 {
-		t.Errorf("members was not as expected: %v", err)
+		t.Errorf("members was not as expected: %v", members3)
 	} else {
 		glog.Infof("got members from #3: %v", members3)
 	}
@@ -141,7 +141,7 @@ func TestWeOnlyFormASingleCluster(t *testing.T) {
 	if err != nil {
 		t.Errorf("error doing etcd ListMembers: %v", err)
 	} else if len(members1) != 1 {
-		t.Errorf("members was not as expected: %v", err)
+		t.Errorf("members was not as expected: %v", members1)
 	} else {
 		glog.Infof("got members from #1: %v", members1)
 	}

@@ -174,3 +174,28 @@ func (n *TestHarnessNode) AssertVersion(t *testing.T, version string) {
 		t.Fatalf("version was not as expected.  expected=%q, actual=%q", version, actual)
 	}
 }
+
+
+func (n *TestHarnessNode) WaitForHealthy(timeout  time.Duration) {
+	t := n.TestHarness.T
+
+	endAt := time.Now().Add(timeout)
+	for {
+		client, err := etcdclient.NewClient(n.EtcdVersion, []string{n.ClientURL})
+		if err != nil {
+			n.TestHarness.T.Fatalf("error building etcd client: %v", err)
+		}
+
+		_, err = client.ListMembers(context.Background())
+		client.Close()
+		if err == nil {
+			return
+		}
+
+		if time.Now().After(endAt) {
+			t.Fatalf("wait-for-healthy did not succeed within %v", timeout)
+			return
+		}
+		time.Sleep(time.Second)
+	}
+}
