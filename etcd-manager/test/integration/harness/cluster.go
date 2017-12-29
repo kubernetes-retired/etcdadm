@@ -108,3 +108,9 @@ func (h *TestHarness) NewNode(address string) *TestHarnessNode {
 func (h *TestHarness) SpecKey() string {
 	return "/kope.io/etcd-manager/" + h.ClusterName + "/spec"
 }
+
+func (h *TestHarness) WaitForHealthy(nodes ...*TestHarnessNode) {
+	for _, node := range nodes {
+		node.WaitForHealthy(10 * time.Second)
+	}
+}

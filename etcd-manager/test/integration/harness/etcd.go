@@ -64,7 +64,7 @@ func waitForListMembers(t *testing.T, client etcdclient.EtcdClient, timeout time
 			glog.Infof("Got members from %s: (%v)", client, members)
 			return
 		}
-		glog.Infof("Got error reading members from %s: (%v)", client, err)
+		glog.Infof("test waiting for members from %s: (%v)", client, err)
 		if time.Now().After(endAt) {
 			t.Fatalf("list-members did not succeed within %v", timeout)
 			return
