@@ -14,12 +14,17 @@ a packaged docker container, but this walkthrough lets you see what's going on h
 etcd must be installed in `/opt/etcd-v2.2.1-linux-amd64/etcd`, etcdctl in `/opt/etcd-v2.2.1-linux-amd64/etcdctl`.  Each version of etcd you want to run must be installed in the same pattern.  Make sure you've downloaded `/opt/etcd-v3.2.12-linux-amd64` for this demo. (Typically this will be done in a docker image)
 
 ```
-bazel build //cmd/etcd-manager
+bazel build //cmd/etcd-manager //cmd/etcd-manager-ctl
+ln -s bazel-bin/cmd/etcd-manager-ctl/linux_amd64_stripped/etcd-manager-ctl
 ln -s bazel-bin/cmd/etcd-manager/linux_amd64_stripped/etcd-manager
-./etcd-manager --address 127.0.0.1 --members=1 --cluster-name=test --backup-store=file:///tmp/etcd-manager/backups/test --data-dir=/tmp/etcd-manager/data/test/1 --etcd-version=2.2.1 --client-urls=http://127.0.0.1:4001 --quarantine-client-urls=http://127.0.0.1:8001
+./etcd-manager --address 127.0.0.1 --cluster-name=test --backup-store=file:///tmp/etcd-manager/backups/test --data-dir=/tmp/etcd-manager/data/test/1 --client-urls=http://127.0.0.1:4001 --quarantine-client-urls=http://127.0.0.1:8001
+./etcd-manager-ctl --members=1 --backup-store=file:///tmp/etcd-manager/backups/test --etcd-version=2.2.1
 ```
 
-That should start a single node cluster of etcd (`--members=1`), running etcd version 2.2.1 (`--etcd-version=2.2.1`).
+`etcd-manager` will start a node ready to start running etcd, and `etcd-manager-ctl` will provide the initial settings
+for the cluster.  Those settings are written to the backup store, so the backup store acts as a source of truth when
+etcd is not running.  So this will start a single node cluster of etcd (`--members=1`),
+running etcd version 2.2.1 (`--etcd-version=2.2.1`).
 
 You should be able to set and list keys using the etcdctl tool:
 

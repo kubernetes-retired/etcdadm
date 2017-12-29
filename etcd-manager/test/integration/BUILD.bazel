@@ -2,26 +2,15 @@ load("@io_bazel_rules_go//go:def.bzl", "go_test")
 
 go_test(
     name = "go_default_test",
-    size = "small",
+    size = "medium",
     srcs = [
         "clusterformation_test.go",
         "datapersists_test.go",
-    ],
-    importpath = "kope.io/etcd-manager/test/integration",
-    deps = [
-        "//test/integration/harness:go_default_library",
-        "//vendor/github.com/golang/glog:go_default_library",
-    ],
-)
-
-go_test(
-    name = "upgrade_downgrade",
-    size = "small",
-    srcs = [
         "upgradedowngrade_test.go",
     ],
     importpath = "kope.io/etcd-manager/test/integration",
     deps = [
+        "//pkg/apis/etcd:go_default_library",
         "//test/integration/harness:go_default_library",
         "//vendor/github.com/golang/glog:go_default_library",
     ],

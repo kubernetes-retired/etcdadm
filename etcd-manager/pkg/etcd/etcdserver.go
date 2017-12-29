@@ -415,7 +415,6 @@ func (s *EtcdServer) DoBackup(ctx context.Context, request *protoetcd.DoBackupRe
 	}
 
 	info := request.Info
-	info.Timestamp = time.Now().Unix()
 	info.EtcdVersion = s.process.EtcdVersion
 
 	response, err := s.process.DoBackup(backupStore, info)
