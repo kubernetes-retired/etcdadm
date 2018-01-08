@@ -8,7 +8,6 @@ import (
 
 	"github.com/golang/glog"
 	apis_etcd "kope.io/etcd-manager/pkg/apis/etcd"
-	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/controller"
 	"kope.io/etcd-manager/pkg/etcd"
@@ -109,12 +108,7 @@ func (n *TestHarnessNode) Run() {
 	n.etcdServer = etcdServer
 	go etcdServer.Run(ctx)
 
-	initState := &protoetcd.ClusterSpec{
-		MemberCount: int32(n.TestHarness.MemberCount),
-		EtcdVersion: n.EtcdVersion,
-	}
-
-	c, err := controller.NewEtcdController(leaderLock, backupStore, n.TestHarness.ClusterName, peerServer, controller.StaticInitialClusterSpecProvider(initState))
+	c, err := controller.NewEtcdController(leaderLock, backupStore, n.TestHarness.ClusterName, peerServer)
 	c.CycleInterval = testCycleInterval
 	if err != nil {
 		t.Fatalf("error building etcd controller: %v", err)
@@ -175,8 +169,7 @@ func (n *TestHarnessNode) AssertVersion(t *testing.T, version string) {
 	}
 }
 
-
-func (n *TestHarnessNode) WaitForHealthy(timeout  time.Duration) {
+func (n *TestHarnessNode) WaitForHealthy(timeout time.Duration) {
 	t := n.TestHarness.T
 
 	endAt := time.Now().Add(timeout)

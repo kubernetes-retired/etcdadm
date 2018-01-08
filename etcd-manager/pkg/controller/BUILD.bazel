@@ -5,7 +5,6 @@ go_library(
     srcs = [
         "controller.go",
         "etcdclusterstate.go",
-        "initspec.go",
         "peer.go",
         "restore.go",
         "upgrade.go",
