@@ -17,7 +17,7 @@ type EtcdClient interface {
 	// Get returns the value of the specified key, or (nil, nil) if not found
 	Get(ctx context.Context, key string, quorum bool) ([]byte, error)
 
-	CopyTo(ctx context.Context, dest EtcdClient) error
+	CopyTo(ctx context.Context, dest EtcdClient) (int, error)
 	ListMembers(ctx context.Context) ([]*EtcdProcessMember, error)
 	AddMember(ctx context.Context, peerURLs []string) error
 	RemoveMember(ctx context.Context, member *EtcdProcessMember) error
