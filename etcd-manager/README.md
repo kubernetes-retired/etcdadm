@@ -6,17 +6,21 @@ It borrows from the ideas of the etcd-operator, but avoids the circular dependen
 
 The key insight is that we aim to "pivot to etcd" as soon as possible.  So while we use a gossip-like mechanism to discover the initial cluster membership and to elect a coordinator, we then have etcd start a cluster.  Cluster membership changes take place through raft.
 
+We maintain a backup store, to which we back up etcd periodically.  Backups are automatically triggered before cluster-modification operations.
+
+Cluster changes that are not normally supported can be done safely through etcd backups & restore.
+
 ## Walkthough
 
 We'll now do a walkthrough to get going with local development.  In production you likely would run this using
 a packaged docker container, but this walkthrough lets you see what's going on here.
 
-etcd must be installed in `/opt/etcd-v2.2.1-linux-amd64/etcd`, etcdctl in `/opt/etcd-v2.2.1-linux-amd64/etcdctl`.  Each version of etcd you want to run must be installed in the same pattern.  Make sure you've downloaded `/opt/etcd-v3.2.12-linux-amd64` for this demo. (Typically this will be done in a docker image)
+etcd must be installed in `/opt/etcd-v2.2.1-linux-amd64/etcd`, etcdctl in `/opt/etcd-v2.2.1-linux-amd64/etcdctl`.  Each version of etcd you want to run must be installed in the same pattern.  Make sure you've downloaded `/opt/etcd-v3.2.12-linux-amd64` for this demo. (Typically you'll run etcd-manager in a docker image)
 
 ```
 bazel build //cmd/etcd-manager //cmd/etcd-manager-ctl
-ln -s bazel-bin/cmd/etcd-manager-ctl/linux_amd64_stripped/etcd-manager-ctl
-ln -s bazel-bin/cmd/etcd-manager/linux_amd64_stripped/etcd-manager
+ln -sf bazel-bin/cmd/etcd-manager-ctl/linux_amd64_stripped/etcd-manager-ctl
+ln -sf bazel-bin/cmd/etcd-manager/linux_amd64_stripped/etcd-manager
 ./etcd-manager --address 127.0.0.1 --cluster-name=test --backup-store=file:///tmp/etcd-manager/backups/test --data-dir=/tmp/etcd-manager/data/test/1 --client-urls=http://127.0.0.1:4001 --quarantine-client-urls=http://127.0.0.1:8001
 ./etcd-manager-ctl --members=1 --backup-store=file:///tmp/etcd-manager/backups/test --etcd-version=2.2.1
 ```
@@ -38,8 +42,8 @@ You should be able to set and list keys using the etcdctl tool:
 Now if we want to expand the cluster (it's probably easiest to run each of these commands in different windows / tabs / tmux windows / screen windows):
 
 ```
-./etcd-manager --address 127.0.0.2 --members=1 --cluster-name=test --backup-store=file:///tmp/etcd-manager/backups/test --data-dir=/tmp/etcd-manager/data/test/2 --client-urls=http://127.0.0.2:4001 --quarantine-client-urls=http://127.0.0.2:8001
-./etcd-manager --address 127.0.0.3 --members=1 --cluster-name=test --backup-store=file:///tmp/etcd-manager/backups/test --data-dir=/tmp/etcd-manager/data/test/3 --client-urls=http://127.0.0.3:4001 --quarantine-client-urls=http://127.0.0.3:8001
+./etcd-manager --address 127.0.0.2 --cluster-name=test --backup-store=file:///tmp/etcd-manager/backups/test --data-dir=/tmp/etcd-manager/data/test/2 --client-urls=http://127.0.0.2:4001 --quarantine-client-urls=http://127.0.0.2:8001
+./etcd-manager --address 127.0.0.3 --cluster-name=test --backup-store=file:///tmp/etcd-manager/backups/test --data-dir=/tmp/etcd-manager/data/test/3 --client-urls=http://127.0.0.3:4001 --quarantine-client-urls=http://127.0.0.3:8001
 ```
 
 Within a few seconds, the two other nodes will join the gossip cluster, but will not yet be part of etcd.  The leader controller will be logging something like this:
