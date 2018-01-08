@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/golang/glog"
+	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/test/integration/harness"
 )
 
@@ -23,7 +24,7 @@ func TestClusterWithOneMember(t *testing.T) {
 	defer cancel()
 
 	h := harness.NewTestHarness(t, ctx)
-	h.MemberCount = 1
+	h.SeedNewCluster(&protoetcd.ClusterSpec{MemberCount: 1, EtcdVersion: "2.2.1"})
 	defer h.Close()
 
 	n1 := h.NewNode("127.0.0.1")
@@ -49,7 +50,7 @@ func TestClusterWithThreeMembers(t *testing.T) {
 	defer cancel()
 
 	h := harness.NewTestHarness(t, ctx)
-	h.MemberCount = 3
+	h.SeedNewCluster(&protoetcd.ClusterSpec{MemberCount: 3, EtcdVersion: "2.2.1"})
 	defer h.Close()
 
 	n1 := h.NewNode("127.0.0.1")
@@ -79,7 +80,7 @@ func TestClusterExpansion(t *testing.T) {
 	defer cancel()
 
 	h := harness.NewTestHarness(t, ctx)
-	h.MemberCount = 3
+	h.SeedNewCluster(&protoetcd.ClusterSpec{MemberCount: 3, EtcdVersion: "2.2.1"})
 	defer h.Close()
 
 	n1 := h.NewNode("127.0.0.1")
@@ -130,7 +131,7 @@ func TestWeOnlyFormASingleCluster(t *testing.T) {
 	defer cancel()
 
 	h := harness.NewTestHarness(t, ctx)
-	h.MemberCount = 1
+	h.SeedNewCluster(&protoetcd.ClusterSpec{MemberCount: 1, EtcdVersion: "2.2.1"})
 	defer h.Close()
 
 	n1 := h.NewNode("127.0.0.1")

@@ -125,7 +125,6 @@ func (s *etcdClusterState) etcdGet(ctx context.Context, key string) ([]byte, err
 			continue
 		}
 
-		// TODO: Quorum?  Read from all nodes?
 		response, err := etcdClient.Get(ctx, key, true)
 		etcdClient.Close()
 		if err != nil {
