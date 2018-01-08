@@ -178,7 +178,7 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 		s.prepared = nil
 	}
 
-	_, err := bindirForEtcdVersion(request.EtcdVersion)
+	_, err := BindirForEtcdVersion(request.EtcdVersion)
 	if err != nil {
 		return nil, fmt.Errorf("etcd version %q not supported", request.EtcdVersion)
 	}
@@ -318,7 +318,7 @@ func (s *EtcdServer) Reconfigure(ctx context.Context, request *protoetcd.Reconfi
 	//}
 
 	if request.EtcdVersion != "" {
-		_, err := bindirForEtcdVersion(request.EtcdVersion)
+		_, err := BindirForEtcdVersion(request.EtcdVersion)
 		if err != nil {
 			return nil, fmt.Errorf("etcd version %q not supported", request.EtcdVersion)
 		}
@@ -473,7 +473,7 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 		MyNodeName:  s.etcdNodeConfiguration.Name,
 	}
 
-	binDir, err := bindirForEtcdVersion(state.EtcdVersion)
+	binDir, err := BindirForEtcdVersion(state.EtcdVersion)
 	if err != nil {
 		return err
 	}
@@ -514,16 +514,4 @@ func (s *EtcdServer) stopEtcdProcess() (bool, error) {
 	}
 	s.process = nil
 	return true, nil
-}
-
-func stringSlicesEqual(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i, s := range a {
-		if b[i] != s {
-			return false
-		}
-	}
-	return true
 }

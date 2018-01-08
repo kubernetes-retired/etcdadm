@@ -16,6 +16,7 @@ import (
 
 // DoRestore restores a backup from the backup store
 func (s *EtcdServer) DoRestore(ctx context.Context, request *protoetcd.DoRestoreRequest) (*protoetcd.DoRestoreResponse, error) {
+	// TODO: Don't restore without a signal that it's OK
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -56,7 +57,7 @@ func (s *EtcdServer) DoRestore(ctx context.Context, request *protoetcd.DoRestore
 		isV2 = true
 	}
 
-	binDir, err := bindirForEtcdVersion(backupInfo.EtcdVersion)
+	binDir, err := BindirForEtcdVersion(backupInfo.EtcdVersion)
 	if err != nil {
 		return nil, err
 	}
@@ -114,6 +115,13 @@ func (s *EtcdServer) DoRestore(ctx context.Context, request *protoetcd.DoRestore
 		MyNodeName: myNodeName,
 	}
 
+	if isV2 {
+		// Not all backup stores store directories, but etcd2 requires a particular directory structure
+		// Create the directories even if there are no files
+		if err := os.MkdirAll(filepath.Join(p.DataDir, "member", "snap"), 0755); err != nil {
+			return nil, fmt.Errorf("error creating member/snap directory: %v", err)
+		}
+	}
 	if !isV2 {
 		glog.Infof("restoring snapshot")
 		if err := p.RestoreV3Snapshot(downloadDir); err != nil {
@@ -164,8 +172,10 @@ func copyEtcd(source, dest *etcdProcess) error {
 
 	glog.Infof("copying etcd keys from backup-restore process to new cluster")
 	ctx := context.TODO()
-	if err := sourceClient.CopyTo(ctx, destClient); err != nil {
+	if n, err := sourceClient.CopyTo(ctx, destClient); err != nil {
 		return fmt.Errorf("error copying keys: %v", err)
+	} else {
+		glog.Infof("restored %d keys", n)
 	}
 
 	return nil

@@ -50,7 +50,16 @@ func NewTestHarness(t *testing.T, ctx context.Context) *TestHarness {
 		Context:     ctx,
 	}
 
-	h.BackupStorePath = "file://" + filepath.Join(h.WorkDir, "backupstore")
+	// To test with S3:
+	// TEST_VFS_BASE_DIR=s3://bucket/etcd-manager/testing/ go test ./test/... -args --v=2 -logtostderr
+
+	baseDir := os.Getenv("TEST_VFS_BASE_DIR")
+	if baseDir == "" {
+		h.BackupStorePath = "file://" + filepath.Join(h.WorkDir, "backupstore")
+	} else {
+		tmp := time.Now().Format(time.RFC3339)
+		h.BackupStorePath = baseDir + "/" + tmp + "/backupstore"
+	}
 	h.DiscoveryStoreDir = filepath.Join(h.WorkDir, "discovery")
 
 	h.LockPath = filepath.Join(h.WorkDir, "lock")

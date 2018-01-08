@@ -2,6 +2,7 @@ package etcd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
@@ -79,9 +80,9 @@ func (p *etcdProcess) Stop() error {
 	}
 }
 
-// bindirForEtcdVersion returns the directory in which the etcd binary is located, for the specified version
+// BindirForEtcdVersion returns the directory in which the etcd binary is located, for the specified version
 // It returns an error if the specified version cannot be found
-func bindirForEtcdVersion(etcdVersion string) (string, error) {
+func BindirForEtcdVersion(etcdVersion string) (string, error) {
 	if !strings.HasPrefix(etcdVersion, "v") {
 		etcdVersion = "v" + etcdVersion
 	}
@@ -215,17 +216,15 @@ func (p *etcdProcess) DoBackup(store backup.Store, info *protoetcd.BackupInfo) (
 
 	response := &protoetcd.DoBackupResponse{}
 
-	tempDir, err := store.CreateBackupTempDir()
+	tempDir, err := ioutil.TempDir("", "")
 	if err != nil {
 		return nil, fmt.Errorf("error creating etcd backup temp directory: %v", err)
 	}
 
 	defer func() {
-		if tempDir != "" {
-			err := os.RemoveAll(tempDir)
-			if err != nil {
-				glog.Warningf("error deleting backup temp directory %q: %v", tempDir, err)
-			}
+		err := os.RemoveAll(tempDir)
+		if err != nil {
+			glog.Warningf("error deleting backup temp directory %q: %v", tempDir, err)
 		}
 	}()
 

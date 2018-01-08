@@ -125,7 +125,9 @@ func (c *V3Client) Put(ctx context.Context, key string, value []byte) error {
 	return nil
 }
 
-func (c *V3Client) CopyTo(ctx context.Context, dest EtcdClient) error {
+func (c *V3Client) CopyTo(ctx context.Context, dest EtcdClient) (int, error) {
+	count := 0
+
 	limit := etcd_client_v3.WithLimit(1000)
 	sort := etcd_client_v3.WithSort(etcd_client_v3.SortByKey, etcd_client_v3.SortAscend)
 
@@ -137,7 +139,7 @@ func (c *V3Client) CopyTo(ctx context.Context, dest EtcdClient) error {
 		}
 		response, err := c.kv.Get(ctx, etcdFrom, etcd_client_v3.WithFromKey(), sort, limit)
 		if err != nil {
-			return err
+			return count, err
 		}
 		gotMore := false
 		for _, kv := range response.Kvs {
@@ -148,8 +150,9 @@ func (c *V3Client) CopyTo(ctx context.Context, dest EtcdClient) error {
 			gotMore = true
 			glog.Infof("copying key %q", key)
 			if err := dest.Put(ctx, key, kv.Value); err != nil {
-				return fmt.Errorf("error writing key %q to destination: %v", key, err)
+				return count, fmt.Errorf("error writing key %q to destination: %v", key, err)
 			}
+			count++
 			lastKey = key
 		}
 
@@ -157,7 +160,7 @@ func (c *V3Client) CopyTo(ctx context.Context, dest EtcdClient) error {
 			break
 		}
 	}
-	return nil
+	return count, nil
 }
 
 func (c *V3Client) ListMembers(ctx context.Context) ([]*EtcdProcessMember, error) {

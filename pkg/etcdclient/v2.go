@@ -130,11 +130,12 @@ func (c *V2Client) RemoveMember(ctx context.Context, member *EtcdProcessMember) 
 	return err
 }
 
-func (c *V2Client) CopyTo(ctx context.Context, dest EtcdClient) error {
+func (c *V2Client) CopyTo(ctx context.Context, dest EtcdClient) (int, error) {
 	return c.copySubtree(ctx, "/", dest)
 }
 
-func (c *V2Client) copySubtree(ctx context.Context, p string, dest EtcdClient) error {
+func (c *V2Client) copySubtree(ctx context.Context, p string, dest EtcdClient) (int, error) {
+	count := 0
 	opts := &etcd_client_v2.GetOptions{
 		Quorum: false,
 		// We don't do Recursive: true, to avoid huge responses
@@ -142,29 +143,31 @@ func (c *V2Client) copySubtree(ctx context.Context, p string, dest EtcdClient) e
 	glog.V(4).Infof("listing keys under %s", p)
 	response, err := c.keys.Get(ctx, p, opts)
 	if err != nil {
-		return fmt.Errorf("error reading %q: %v", p, err)
+		return count, fmt.Errorf("error reading %q: %v", p, err)
 	}
 
 	if err != nil {
-		return fmt.Errorf("error reading %q: %v", string(p), err)
+		return count, fmt.Errorf("error reading %q: %v", string(p), err)
 	}
 
 	if response.Node == nil {
-		return fmt.Errorf("node %q not found", p)
+		return count, fmt.Errorf("node %q not found", p)
 	}
 
 	if !response.Node.Dir {
 		if err := dest.Put(ctx, response.Node.Key, []byte(response.Node.Value)); err != nil {
-			return fmt.Errorf("error writing node: %v", err)
+			return count, fmt.Errorf("error writing node: %v", err)
 		}
+		count++
 	}
 
 	for _, n := range response.Node.Nodes {
-		err := c.copySubtree(ctx, n.Key, dest)
+		subCount, err := c.copySubtree(ctx, n.Key, dest)
 		if err != nil {
-			return err
+			return count, err
 		}
+		count += subCount
 	}
 
-	return nil
+	return count, nil
 }
