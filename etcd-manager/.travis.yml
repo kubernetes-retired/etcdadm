@@ -9,6 +9,7 @@ os:
 
 env:
   - BAZEL_VERSION=0.8.1
+  - BAZEL_VERSION=0.9.0
 
 before_install:
   - pwd
@@ -27,7 +28,6 @@ before_install:
   - chmod +x install.sh
   - ./install.sh --user
   - rm -f install.sh
-  - sudo pip install grpcio==1.6.0
   # Install etcd versions
   - cd /tmp; wget https://github.com/coreos/etcd/releases/download/v2.2.1/etcd-v2.2.1-linux-amd64.tar.gz
   - cd /opt; tar zxf /tmp/etcd-v2.2.1-linux-amd64.tar.gz
