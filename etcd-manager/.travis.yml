@@ -36,6 +36,7 @@ before_install:
 
 script:
   - cd ${TRAVIS_BUILD_DIR}
+  - bazel build //cmd/...
   - bazel test //test/... --test_output=streamed --local_test_jobs=1
 
 notifications:
