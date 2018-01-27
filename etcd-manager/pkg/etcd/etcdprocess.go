@@ -5,11 +5,11 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
-
-	"path/filepath"
 
 	"github.com/golang/glog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
@@ -85,7 +85,7 @@ func bindirForEtcdVersion(etcdVersion string) (string, error) {
 	if !strings.HasPrefix(etcdVersion, "v") {
 		etcdVersion = "v" + etcdVersion
 	}
-	binDir := "/opt/etcd-" + etcdVersion + "-linux-amd64/"
+	binDir := filepath.Join("/opt", "etcd-"+etcdVersion+"-"+runtime.GOOS+"-"+runtime.GOARCH)
 	etcdBinary := filepath.Join(binDir, "etcd")
 	_, err := os.Stat(etcdBinary)
 	if err != nil {
