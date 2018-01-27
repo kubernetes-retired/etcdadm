@@ -6,11 +6,13 @@ go_test(
     srcs = [
         "clusterformation_test.go",
         "datapersists_test.go",
+        "etcdinstalled_test.go",
         "upgradedowngrade_test.go",
     ],
     importpath = "kope.io/etcd-manager/test/integration",
     deps = [
         "//pkg/apis/etcd:go_default_library",
+        "//pkg/etcd:go_default_library",
         "//test/integration/harness:go_default_library",
         "//vendor/github.com/golang/glog:go_default_library",
     ],
