@@ -46,3 +46,10 @@ gazelle:
 	bazel run //:gazelle
 	git checkout -- vendor
 	rm vendor/github.com/golang/protobuf/protoc-gen-go/testdata/multi/BUILD.bazel
+
+.PHONY: dep-ensure
+dep-ensure:
+	dep ensure -v
+	find vendor/ -name "BUILD" -delete
+	find vendor/ -name "BUILD.bazel" -delete
+	bazel run //:gazelle -- -proto disable
