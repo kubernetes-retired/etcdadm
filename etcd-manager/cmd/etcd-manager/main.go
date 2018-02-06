@@ -31,6 +31,8 @@ import (
 	"kope.io/etcd-manager/pkg/etcd"
 	"kope.io/etcd-manager/pkg/locking"
 	"kope.io/etcd-manager/pkg/privateapi"
+	"kope.io/etcd-manager/pkg/privateapi/discovery"
+	fsdiscovery "kope.io/etcd-manager/pkg/privateapi/discovery/fs"
 )
 
 func main() {
@@ -75,13 +77,13 @@ func main() {
 	}
 
 	grpcPort := 8000
-	discoMe := privateapi.DiscoveryNode{
-		ID: uniqueID,
+	discoMe := discovery.Node{
+		ID: string(uniqueID),
 	}
-	discoMe.Addresses = append(discoMe.Addresses, privateapi.DiscoveryAddress{
+	discoMe.Addresses = append(discoMe.Addresses, discovery.NodeAddress{
 		Address: fmt.Sprintf("%s:%d", address, grpcPort),
 	})
-	disco, err := privateapi.NewFilesystemDiscovery("/tmp/discovery", discoMe)
+	disco, err := fsdiscovery.NewFilesystemDiscovery("/tmp/discovery", discoMe)
 	if err != nil {
 		glog.Fatalf("error building discovery: %v", err)
 	}

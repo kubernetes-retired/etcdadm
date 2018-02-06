@@ -8,7 +8,9 @@ import (
 
 	"github.com/golang/glog"
 	"google.golang.org/grpc"
+
 	"kope.io/etcd-manager/pkg/contextutil"
+	"kope.io/etcd-manager/pkg/privateapi/discovery"
 )
 
 const defaultPingInterval = time.Second * 5
@@ -34,7 +36,7 @@ type peer struct {
 	mutex sync.Mutex
 
 	// Information from discovery.  Should not be considered authoritative
-	discoveryNode DiscoveryNode
+	discoveryNode discovery.Node
 
 	// Addresses from GRPC
 	lastInfo     *PeerInfo
@@ -81,7 +83,7 @@ func (s *Server) updateFromPingRequest(request *PingRequest) {
 
 }
 
-func (s *Server) updateFromDiscovery(discoveryNode DiscoveryNode) {
+func (s *Server) updateFromDiscovery(discoveryNode discovery.Node) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -115,7 +117,7 @@ func (s *Server) runDiscoveryOnce() error {
 	return nil
 }
 
-func (p *peer) updateFromDiscovery(discoveryNode DiscoveryNode) {
+func (p *peer) updateFromDiscovery(discoveryNode discovery.Node) {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 

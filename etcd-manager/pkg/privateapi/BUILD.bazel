@@ -17,8 +17,6 @@ go_grpc_library(
 go_library(
     name = "go_default_library",
     srcs = [
-        "discovery.go",
-        "filesystemdiscovery.go",
         "id.go",
         "leadership.go",
         "peers.go",
@@ -30,6 +28,7 @@ go_library(
     deps = [
         "//pkg/contextutil:go_default_library",
         "//pkg/ioutils:go_default_library",
+        "//pkg/privateapi/discovery:go_default_library",
         "//vendor/github.com/golang/glog:go_default_library",
         "//vendor/golang.org/x/net/context:go_default_library",
         "//vendor/google.golang.org/grpc:go_default_library",

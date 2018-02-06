@@ -14,6 +14,8 @@ import (
 	"kope.io/etcd-manager/pkg/etcdclient"
 	"kope.io/etcd-manager/pkg/locking"
 	"kope.io/etcd-manager/pkg/privateapi"
+	"kope.io/etcd-manager/pkg/privateapi/discovery"
+	fsdiscovery "kope.io/etcd-manager/pkg/privateapi/discovery/fs"
 )
 
 type TestHarnessNode struct {
@@ -41,13 +43,13 @@ func (n *TestHarnessNode) Run() {
 	}
 
 	grpcPort := 8000
-	discoMe := privateapi.DiscoveryNode{
-		ID: uniqueID,
+	discoMe := discovery.Node{
+		ID: string(uniqueID),
 	}
-	discoMe.Addresses = append(discoMe.Addresses, privateapi.DiscoveryAddress{
+	discoMe.Addresses = append(discoMe.Addresses, discovery.NodeAddress{
 		Address: fmt.Sprintf("%s:%d", n.Address, grpcPort),
 	})
-	disco, err := privateapi.NewFilesystemDiscovery(n.TestHarness.DiscoveryStoreDir, discoMe)
+	disco, err := fsdiscovery.NewFilesystemDiscovery(n.TestHarness.DiscoveryStoreDir, discoMe)
 	if err != nil {
 		glog.Fatalf("error building discovery: %v", err)
 	}
