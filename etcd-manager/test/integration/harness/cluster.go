@@ -56,11 +56,12 @@ func NewTestHarness(t *testing.T, ctx context.Context) *TestHarness {
 	baseDir := os.Getenv("TEST_VFS_BASE_DIR")
 	if baseDir == "" {
 		h.BackupStorePath = "file://" + filepath.Join(h.WorkDir, "backupstore")
+		h.DiscoveryStoreDir = filepath.Join(h.WorkDir, "discovery")
 	} else {
 		tmp := time.Now().Format(time.RFC3339)
 		h.BackupStorePath = baseDir + "/" + tmp + "/backupstore"
+		h.DiscoveryStoreDir = baseDir + "/" + tmp + "/discovery"
 	}
-	h.DiscoveryStoreDir = filepath.Join(h.WorkDir, "discovery")
 
 	h.LockPath = filepath.Join(h.WorkDir, "lock")
 	if err := os.MkdirAll(h.WorkDir, 0755); err != nil {

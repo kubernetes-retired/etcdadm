@@ -184,7 +184,7 @@ Help gratefully received:
   two nodes that both believe themselves to be the leader.  If the number of machines is `>= 2 * quorum` then we could
   form two etcd clusters (etcd itself should stop overlapping clusters).  A pluggable locking implementation is one
   solution in progress; GCS has good consistency guarantees.
-* Discovery mechanisms are currently mostly fake - they work on a local filesystem.  We need one backed by VFS,
+* Discovery mechanisms are currently mostly fake - they work on a local filesystem.  We have an early one backed by VFS,
   but discovery via the EC2/GCE APIs would be great, as would network scanning or multicast discovery.
 * All cluster version changes currently are performed via the "full dump and restore" mechanism.  We should learn
   that some version changes are in fact safe, and perform them as a rolling-update (after a backup!)
