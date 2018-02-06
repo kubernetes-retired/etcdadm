@@ -165,3 +165,23 @@ Once a leader has been determined, it performs this basic loop:
 * If there is an etcd cluster but it has unhealthy members, the leader will try to remove an unhealthy etcd cluster member.
 * Periodically a backup of etcd is performed.
 
+## Current shortcomings
+
+Help gratefully received:
+
+* We should better integrate settting the `/kope.io/etcd-manager/test/spec` into kubernetes.  A controller could sync it
+  with a CRD or apimachinery type.
+* We use the VFS library from kops (that is the only dependency on kops, and it's not a big one).  We should look at making VFS
+  into a true kubernetes shared library.
+* We should probably not recover automatically from a backup in the event of total cluster loss, because backups are periodic
+  and thus we know some data loss is likely.  Idea: drop a marker file into the backup store.
+* The controller leader election currently considers itself the leader when it has consensus amongst all reachable peers,
+  and will create a cluster when there are sufficient peers to form a quorum. But with partitions, it's possible to have
+  two nodes that both believe themselves to be the leader.  If the number of machines is `>= 2 * quorum` then we could
+  form two etcd clusters (etcd itself should stop overlapping clusters).  A pluggable locking implementation is one
+  solution in progress; GCS has good consistency guarantees.
+* Discovery mechanisms are currently mostly fake - they work on a local filesystem.  We need one backed by VFS,
+  but discovery via the EC2/GCE APIs would be great, as would network scanning or multicast discovery.
+* All cluster version changes currently are performed via the "full dump and restore" mechanism.  We should learn
+  that some version changes are in fact safe, and perform them as a rolling-update (after a backup!)
+* There should be a way to trigger a backup via a convenient mechanism.  Idea: drop a marker key into etcd.
