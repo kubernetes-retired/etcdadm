@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/golang/glog"
+	"k8s.io/kops/util/pkg/vfs"
+
 	apis_etcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/controller"
@@ -15,7 +17,7 @@ import (
 	"kope.io/etcd-manager/pkg/locking"
 	"kope.io/etcd-manager/pkg/privateapi"
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
-	fsdiscovery "kope.io/etcd-manager/pkg/privateapi/discovery/fs"
+	vfsdiscovery "kope.io/etcd-manager/pkg/privateapi/discovery/vfs"
 )
 
 type TestHarnessNode struct {
@@ -49,7 +51,11 @@ func (n *TestHarnessNode) Run() {
 	discoMe.Addresses = append(discoMe.Addresses, discovery.NodeAddress{
 		Address: fmt.Sprintf("%s:%d", n.Address, grpcPort),
 	})
-	disco, err := fsdiscovery.NewFilesystemDiscovery(n.TestHarness.DiscoveryStoreDir, discoMe)
+	p, err := vfs.Context.BuildVfsPath(n.TestHarness.DiscoveryStoreDir)
+	if err != nil {
+		glog.Fatalf("error parsing discovery path %q: %v", n.TestHarness.DiscoveryStoreDir, err)
+	}
+	disco, err := vfsdiscovery.NewVFSDiscovery(p, discoMe)
 	if err != nil {
 		glog.Fatalf("error building discovery: %v", err)
 	}

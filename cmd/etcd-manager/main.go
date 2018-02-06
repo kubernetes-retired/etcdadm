@@ -25,6 +25,8 @@ import (
 	"time"
 
 	"github.com/golang/glog"
+	"k8s.io/kops/util/pkg/vfs"
+
 	apis_etcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/controller"
@@ -32,7 +34,7 @@ import (
 	"kope.io/etcd-manager/pkg/locking"
 	"kope.io/etcd-manager/pkg/privateapi"
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
-	fsdiscovery "kope.io/etcd-manager/pkg/privateapi/discovery/fs"
+	vfsdiscovery "kope.io/etcd-manager/pkg/privateapi/discovery/vfs"
 )
 
 func main() {
@@ -83,7 +85,13 @@ func main() {
 	discoMe.Addresses = append(discoMe.Addresses, discovery.NodeAddress{
 		Address: fmt.Sprintf("%s:%d", address, grpcPort),
 	})
-	disco, err := fsdiscovery.NewFilesystemDiscovery("/tmp/discovery", discoMe)
+
+	//disco, err := fsdiscovery.NewFilesystemDiscovery("/tmp/discovery", discoMe)
+	p, err := vfs.Context.BuildVfsPath("file:///tmp/discovery")
+	if err != nil {
+		glog.Fatalf("error parsing vfs path: %v", err)
+	}
+	disco, err := vfsdiscovery.NewVFSDiscovery(p, discoMe)
 	if err != nil {
 		glog.Fatalf("error building discovery: %v", err)
 	}

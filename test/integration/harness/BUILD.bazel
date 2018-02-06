@@ -18,7 +18,8 @@ go_library(
         "//pkg/locking:go_default_library",
         "//pkg/privateapi:go_default_library",
         "//pkg/privateapi/discovery:go_default_library",
-        "//pkg/privateapi/discovery/fs:go_default_library",
+        "//pkg/privateapi/discovery/vfs:go_default_library",
         "//vendor/github.com/golang/glog:go_default_library",
+        "//vendor/k8s.io/kops/util/pkg/vfs:go_default_library",
     ],
 )
