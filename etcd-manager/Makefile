@@ -45,7 +45,8 @@ push: push-etcd-manager push-etcd-dump
 gazelle:
 	bazel run //:gazelle
 	git checkout -- vendor
-	rm vendor/github.com/golang/protobuf/protoc-gen-go/testdata/multi/BUILD.bazel
+	rm -f vendor/github.com/coreos/etcd/cmd/etcd
+	#rm vendor/github.com/golang/protobuf/protoc-gen-go/testdata/multi/BUILD.bazel
 
 .PHONY: dep-ensure
 dep-ensure:
@@ -53,3 +54,4 @@ dep-ensure:
 	find vendor/ -name "BUILD" -delete
 	find vendor/ -name "BUILD.bazel" -delete
 	bazel run //:gazelle -- -proto disable
+	rm -f vendor/github.com/coreos/etcd/cmd/etcd
