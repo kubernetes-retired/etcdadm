@@ -17,11 +17,22 @@ a packaged docker container, but this walkthrough lets you see what's going on h
 
 etcd must be installed in `/opt/etcd-v2.2.1-linux-amd64/etcd`, etcdctl in `/opt/etcd-v2.2.1-linux-amd64/etcdctl`.  Each version of etcd you want to run must be installed in the same pattern.  Make sure you've downloaded `/opt/etcd-v3.2.12-linux-amd64` for this demo. (Typically you'll run etcd-manager in a docker image)
 
+NOTE: If you're running on OSX, CoreOS does not ship a version of etcd2 that runs correctly on recent versions os OSX.  Running inside Docker avoids this problem.
+
 ```
+# Clean up from previous runs
+rm -rf /tmp/discovery/*
+rm -rf /tmp/etcd-manager/*
+
+# Build code
 bazel build //cmd/etcd-manager //cmd/etcd-manager-ctl
 ln -sf bazel-bin/cmd/etcd-manager-ctl/linux_amd64_stripped/etcd-manager-ctl
 ln -sf bazel-bin/cmd/etcd-manager/linux_amd64_stripped/etcd-manager
+
+# Start etcd manager
 ./etcd-manager --address 127.0.0.1 --cluster-name=test --backup-store=file:///tmp/etcd-manager/backups/test --data-dir=/tmp/etcd-manager/data/test/1 --client-urls=http://127.0.0.1:4001 --quarantine-client-urls=http://127.0.0.1:8001
+
+# Seed cluster creation
 ./etcd-manager-ctl --members=1 --backup-store=file:///tmp/etcd-manager/backups/test --etcd-version=2.2.1
 ```
 
@@ -62,6 +73,14 @@ Maintaining this state is essentially the core controller loop.  The leader ping
 asking if it is configured to run etcd, and also queries the state of etcd and the desired spec.
 Where there are differences, the controller attempts to converge the state by adding/removing members,
 doing backups/restores and changing versions.
+
+
+If you do look around the directories:
+
+* `ls /tmp/discovery` will show how the VFS-backed discovery mechanism works
+* `ls -R /tmp/etcd-manager/backups/` shows the structure of the backup store
+* `ls -R /tmp/etcd-manager/data` has the backup itself
+
 
 We can reconfigure the cluster:
 
@@ -173,6 +192,8 @@ Once a leader has been determined, it performs this basic loop:
 
 Help gratefully received:
 
+* We need to split out the backup logic, so that we can run it as a simple coprocess
+  alongside existing etcd implementations.
 * We should better integrate settting the `/kope.io/etcd-manager/test/spec` into kubernetes.  A controller could sync it
   with a CRD or apimachinery type.
 * We use the VFS library from kops (that is the only dependency on kops, and it's not a big one).  We should look at making VFS
