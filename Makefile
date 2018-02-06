@@ -8,6 +8,10 @@ all: test
 test:
 	bazel test //test/... --test_output=streamed
 
+.PHONY: stress-test
+stress-test:
+	bazel test //test/... --test_output=streamed --runs_per_test=10
+
 .PHONY: gofmt
 gofmt:
 	gofmt -w -s cmd/ pkg/
