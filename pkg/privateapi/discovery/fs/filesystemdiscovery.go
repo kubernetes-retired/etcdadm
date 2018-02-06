@@ -1,4 +1,4 @@
-package privateapi
+package fs
 
 import (
 	"encoding/json"
@@ -8,16 +8,20 @@ import (
 	"path/filepath"
 
 	"github.com/golang/glog"
+
+	"kope.io/etcd-manager/pkg/privateapi/discovery"
 )
 
-// FilesystemDiscovery implements discovery using a shared directory.
+// FilesystemDiscovery implements discovery.Interface using a shared directory.
 // This is primarily for testing.
 type FilesystemDiscovery struct {
 	baseDir string
-	me      DiscoveryNode
+	me      discovery.Node
 }
 
-func NewFilesystemDiscovery(baseDir string, me DiscoveryNode) (*FilesystemDiscovery, error) {
+var _ discovery.Interface = &FilesystemDiscovery{}
+
+func NewFilesystemDiscovery(baseDir string, me discovery.Node) (*FilesystemDiscovery, error) {
 	d := &FilesystemDiscovery{
 		baseDir: baseDir,
 		me:      me,
@@ -54,9 +58,9 @@ func (d *FilesystemDiscovery) publish() error {
 	return nil
 }
 
-func (d *FilesystemDiscovery) Poll() (map[string]DiscoveryNode, error) {
+func (d *FilesystemDiscovery) Poll() (map[string]discovery.Node, error) {
 	glog.V(2).Infof("polling discovery directory: %s", d.baseDir)
-	nodes := make(map[string]DiscoveryNode)
+	nodes := make(map[string]discovery.Node)
 
 	files, err := ioutil.ReadDir(d.baseDir)
 	if err != nil {
@@ -73,7 +77,7 @@ func (d *FilesystemDiscovery) Poll() (map[string]DiscoveryNode, error) {
 			continue
 		}
 
-		node := DiscoveryNode{}
+		node := discovery.Node{}
 		if err := json.Unmarshal(data, &node); err != nil {
 			glog.Warningf("error parsing node discovery file %s: %v", p, err)
 			continue

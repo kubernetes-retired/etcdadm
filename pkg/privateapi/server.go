@@ -9,13 +9,14 @@ import (
 	"github.com/golang/glog"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"kope.io/etcd-manager/pkg/privateapi/discovery"
 )
 
 type Server struct {
 	myInfo     PeerInfo
 	grpcServer *grpc.Server
 
-	discovery Discovery
+	discovery discovery.Interface
 
 	mutex      sync.Mutex
 	peers      map[PeerId]*peer
@@ -35,7 +36,7 @@ type Server struct {
 	HealthyTimeout time.Duration
 }
 
-func NewServer(ctx context.Context, myInfo PeerInfo, discovery Discovery) (*Server, error) {
+func NewServer(ctx context.Context, myInfo PeerInfo, discovery discovery.Interface) (*Server, error) {
 	s := &Server{
 		discovery: discovery,
 		myInfo:    myInfo,
