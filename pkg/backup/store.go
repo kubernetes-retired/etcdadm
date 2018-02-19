@@ -6,13 +6,14 @@ import (
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 )
 
-const MetaFilename = "_kopeio_etcd_manager.meta"
+const MetaFilename = "_etcd_backup.meta"
+const DataFilename = "etcd.backup.tgz"
 
 type Store interface {
 	Spec() string
 
 	// AddBackup adds a backup to the store, returning the name of the backup
-	AddBackup(srcdir string, info *etcd.BackupInfo) (string, error)
+	AddBackup(backupFile string, sequence string, info *etcd.BackupInfo) (string, error)
 
 	// ListBackups returns all the available backups, in chronological order
 	ListBackups() ([]string, error)
@@ -23,8 +24,8 @@ type Store interface {
 	// LoadInfo loads the backup information that should have been saved alongside a backup
 	LoadInfo(backup string) (*etcd.BackupInfo, error)
 
-	// DownloadBackup downloads the backup to the specific location
-	DownloadBackup(name string, destdir string) error
+	// DownloadBackup downloads the backup to the specific file
+	DownloadBackup(name string, destFile string) error
 
 	// SeedNewCluster sets up the "create new cluster" marker, indicating that we should not restore a cluster, but create a new one
 	SeedNewCluster(spec *protoetcd.ClusterSpec) error

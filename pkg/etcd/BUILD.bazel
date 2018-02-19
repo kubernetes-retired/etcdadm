@@ -7,6 +7,7 @@ go_library(
         "etcdprocess.go",
         "etcdserver.go",
         "restore.go",
+        "tar.go",
     ],
     importpath = "kope.io/etcd-manager/pkg/etcd",
     visibility = ["//visibility:public"],

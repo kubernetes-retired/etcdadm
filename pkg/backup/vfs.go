@@ -29,18 +29,21 @@ type vfsStore struct {
 
 var _ Store = &vfsStore{}
 
-func (s *vfsStore) AddBackup(srcdir string, info *etcd.BackupInfo) (string, error) {
+func (s *vfsStore) AddBackup(srcFile string, sequence string, info *etcd.BackupInfo) (string, error) {
 	now := time.Now()
-	name := now.UTC().Format(time.RFC3339Nano)
 
-	// Copy the backup dir in place
-	{
-		srcPath := vfs.NewFSPath(srcdir)
+	if info.Timestamp == 0 {
+		info.Timestamp = now.Unix()
+	}
 
-		p := s.backupsBase.Join(name)
-		err := vfs.CopyTree(srcPath, p, nilACLOracle)
-		if err != nil {
-			return "", fmt.Errorf("error copying %q to %q: %v", srcdir, p, err)
+	name := now.UTC().Format(time.RFC3339) + "-" + sequence
+
+	// Copy the backup file
+	if srcFile != "" {
+		srcPath := vfs.NewFSPath(srcFile)
+		destPath := s.backupsBase.Join(name).Join(DataFilename)
+		if err := vfsCopyFile(srcPath, destPath, nilACLOracle); err != nil {
+			return "", fmt.Errorf("error copying %q to %q: %v", srcPath, destPath, err)
 		}
 	}
 
@@ -156,7 +159,8 @@ func (s *vfsStore) SeedNewCluster(spec *protoetcd.ClusterSpec) error {
 	info := &etcd.BackupInfo{
 		ClusterSpec: spec,
 	}
-	name, err := s.AddBackup(tmpdir, info)
+	sequence := "000000"
+	name, err := s.AddBackup("", sequence, info)
 	if err != nil {
 		return err
 	}
@@ -169,13 +173,34 @@ func (s *vfsStore) Spec() string {
 	return s.spec
 }
 
-func (s *vfsStore) DownloadBackup(name string, destdir string) error {
-	glog.Infof("Downloading backup %q -> %s", name, destdir)
+func (s *vfsStore) DownloadBackup(name string, destFile string) error {
+	glog.Infof("Downloading backup %q -> %s", name, destFile)
 
-	p := s.backupsBase.Join(name)
-	destPath := vfs.NewFSPath(destdir)
-	return vfs.CopyTree(p, destPath, nilACLOracle)
+	srcPath := s.backupsBase.Join(name).Join(DataFilename)
+	destPath := vfs.NewFSPath(destFile)
+	return vfsCopyFile(srcPath, destPath, nilACLOracle)
 }
 
 // TODO: Move to vfs
 var nilACLOracle = func(vfs.Path) (vfs.ACL, error) { return nil, nil }
+
+// vfsCopyFile copies the file from src to dest.
+func vfsCopyFile(srcFile vfs.Path, destFile vfs.Path, aclOracle vfs.ACLOracle) error {
+	srcData, err := srcFile.ReadFile()
+	if err != nil {
+		return fmt.Errorf("error reading source file %q: %v", srcFile, err)
+	}
+
+	acl, err := aclOracle(destFile)
+	if err != nil {
+		return err
+	}
+
+	// TODO: Don't buffer in memory
+	glog.V(2).Infof("Copying data (size = %d) from %s to %s", len(srcData), srcFile, destFile)
+	if err := destFile.WriteFile(srcData, acl); err != nil {
+		return fmt.Errorf("error writing dest file %q: %v", destFile, err)
+	}
+
+	return nil
+}
