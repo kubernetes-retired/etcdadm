@@ -1,10 +1,15 @@
+# Common IDEs
 .idea/
 *.iml
+.vscode/
 
+# Bazel stuff
 bazel-bin
 bazel-etcd-manager
 bazel-genfiles
 bazel-out
 bazel-testlogs
 
-
+# Symlinks that make IDEs behave better (usually)
+pkg/apis/etcd/etcdapi.pb.go
+pkg/privateapi/cluster.pb.go
