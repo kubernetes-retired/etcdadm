@@ -178,7 +178,7 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 		s.prepared = nil
 	}
 
-	_, err := BindirForEtcdVersion(request.EtcdVersion)
+	_, err := BindirForEtcdVersion(request.EtcdVersion, "etcd")
 	if err != nil {
 		return nil, fmt.Errorf("etcd version %q not supported", request.EtcdVersion)
 	}
@@ -318,7 +318,7 @@ func (s *EtcdServer) Reconfigure(ctx context.Context, request *protoetcd.Reconfi
 	//}
 
 	if request.EtcdVersion != "" {
-		_, err := BindirForEtcdVersion(request.EtcdVersion)
+		_, err := BindirForEtcdVersion(request.EtcdVersion, "etcd")
 		if err != nil {
 			return nil, fmt.Errorf("etcd version %q not supported", request.EtcdVersion)
 		}
@@ -473,7 +473,7 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 		MyNodeName:  s.etcdNodeConfiguration.Name,
 	}
 
-	binDir, err := BindirForEtcdVersion(state.EtcdVersion)
+	binDir, err := BindirForEtcdVersion(state.EtcdVersion, "etcd")
 	if err != nil {
 		return err
 	}
