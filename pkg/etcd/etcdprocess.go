@@ -82,18 +82,18 @@ func (p *etcdProcess) Stop() error {
 
 // BindirForEtcdVersion returns the directory in which the etcd binary is located, for the specified version
 // It returns an error if the specified version cannot be found
-func BindirForEtcdVersion(etcdVersion string) (string, error) {
+func BindirForEtcdVersion(etcdVersion string, cmd string) (string, error) {
 	if !strings.HasPrefix(etcdVersion, "v") {
 		etcdVersion = "v" + etcdVersion
 	}
 	binDir := filepath.Join("/opt", "etcd-"+etcdVersion+"-"+runtime.GOOS+"-"+runtime.GOARCH)
-	etcdBinary := filepath.Join(binDir, "etcd")
+	etcdBinary := filepath.Join(binDir, cmd)
 	_, err := os.Stat(etcdBinary)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return "", fmt.Errorf("unknown etcd version (etcd not found at %s)", etcdBinary)
+			return "", fmt.Errorf("unknown etcd version (%s not found at %s)", cmd, etcdBinary)
 		} else {
-			return "", fmt.Errorf("error checking for etcd at %s: %v", etcdBinary, err)
+			return "", fmt.Errorf("error checking for %s at %s: %v", cmd, etcdBinary, err)
 		}
 	}
 	return binDir, nil
@@ -204,7 +204,7 @@ func (p *etcdProcess) isV2() bool {
 	if p.EtcdVersion == "" {
 		glog.Fatalf("EtcdVersion not set")
 	}
-	return strings.HasPrefix(p.EtcdVersion, "2.")
+	return etcdclient.IsV2(p.EtcdVersion)
 }
 
 // DoBackup performs a backup/snapshot of the data

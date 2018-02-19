@@ -31,3 +31,12 @@ container_image(
         "//cmd/etcd-dump",
     ],
 )
+
+container_image(
+    name = "etcd-backup",
+    base = "etcd-manager-base",
+    entrypoint = ["/etcd-backup"],
+    files = [
+        "//cmd/etcd-backup",
+    ],
+)
