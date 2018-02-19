@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -190,4 +192,28 @@ func (c *V3Client) AddMember(ctx context.Context, peerURLs []string) error {
 func (c *V3Client) RemoveMember(ctx context.Context, member *EtcdProcessMember) error {
 	_, err := c.cluster.MemberRemove(ctx, member.idv3)
 	return err
+}
+
+func (c *V3Client) SnapshotSave(ctx context.Context, path string) error {
+	out, err := os.Create(path)
+	if err != nil {
+		return fmt.Errorf("error creating snapshot file: %v", err)
+	}
+	defer out.Close()
+
+	in, err := c.client.Snapshot(ctx)
+	if err != nil {
+		return fmt.Errorf("error making snapshot: %v", err)
+	}
+	defer in.Close()
+
+	if _, err := io.Copy(out, in); err != nil {
+		return fmt.Errorf("error copying snapshot: %v", err)
+	}
+
+	return nil
+}
+
+func (c *V3Client) SupportsSnapshot() bool {
+	return true
 }

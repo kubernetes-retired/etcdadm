@@ -9,7 +9,7 @@ import (
 func TestEtcdInstalled(t *testing.T) {
 	versions := []string{"2.2.1", "3.2.12"}
 	for _, version := range versions {
-		bindir, err := etcd.BindirForEtcdVersion(version)
+		bindir, err := etcd.BindirForEtcdVersion(version, "etcd")
 		if err != nil {
 			t.Errorf("etcd %q not installed in /opt: %v", version, err)
 		}
