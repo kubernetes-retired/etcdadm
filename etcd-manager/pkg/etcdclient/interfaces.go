@@ -27,6 +27,12 @@ type EtcdClient interface {
 
 	// LocalNodeInfo returns information about the etcd member node we are connected to
 	LocalNodeInfo(ctx context.Context) (*LocalNodeInfo, error)
+
+	// SnapshotSave makes a snapshot (backup) of the data in path.  Only supported in V3.
+	SnapshotSave(ctx context.Context, path string) error
+
+	// SupportsSnapshot checks if the Snapshot method is supported (i.e. if we are V3)
+	SupportsSnapshot() bool
 }
 
 // LocalNodeInfo has information about the etcd member node we are connected to

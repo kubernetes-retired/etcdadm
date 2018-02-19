@@ -2,7 +2,6 @@ package etcd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
@@ -214,71 +213,12 @@ func (p *etcdProcess) DoBackup(store backup.Store, info *protoetcd.BackupInfo) (
 		return nil, fmt.Errorf("unable to find self node %q in %v", p.MyNodeName, p.Cluster.Nodes)
 	}
 
-	response := &protoetcd.DoBackupResponse{}
-
-	tempDir, err := ioutil.TempDir("", "")
-	if err != nil {
-		return nil, fmt.Errorf("error creating etcd backup temp directory: %v", err)
-	}
-
-	defer func() {
-		err := os.RemoveAll(tempDir)
-		if err != nil {
-			glog.Warningf("error deleting backup temp directory %q: %v", tempDir, err)
-		}
-	}()
-
 	clientUrls := me.ClientUrls
 	if p.Quarantined {
 		clientUrls = me.QuarantinedClientUrls
 	}
 
-	c := exec.Command(path.Join(p.BinDir, "etcdctl"))
-
-	if p.isV2() {
-		c.Args = append(c.Args, "backup")
-		c.Args = append(c.Args, "--data-dir", p.DataDir)
-		c.Args = append(c.Args, "--backup-dir", tempDir)
-		glog.Infof("executing command %s %s", c.Path, c.Args)
-
-		env := make(map[string]string)
-		for k, v := range env {
-			c.Env = append(c.Env, k+"="+v)
-		}
-	} else {
-		c.Args = append(c.Args, "--endpoints", strings.Join(clientUrls, ","))
-		c.Args = append(c.Args, "snapshot", "save", filepath.Join(tempDir, "snapshot.db"))
-		glog.Infof("executing command %s %s", c.Path, c.Args)
-
-		env := make(map[string]string)
-		env["ETCDCTL_API"] = "3"
-
-		for k, v := range env {
-			c.Env = append(c.Env, k+"="+v)
-		}
-	}
-	c.Stdout = os.Stdout
-	c.Stderr = os.Stderr
-	if err := c.Start(); err != nil {
-		return nil, fmt.Errorf("error running etcdctl backup: %v", err)
-	}
-	processState, err := c.Process.Wait()
-	if err != nil {
-		return nil, fmt.Errorf("etcdctl backup returned an error: %v", err)
-	}
-
-	if !processState.Success() {
-		return nil, fmt.Errorf("etcdctl backup returned a non-zero exit code")
-	}
-
-	name, err := store.AddBackup(tempDir, info)
-	if err != nil {
-		return nil, fmt.Errorf("error copying backup to storage: %v", err)
-	}
-	response.Name = name
-
-	glog.Infof("backup complete: %v", response)
-	return response, nil
+	return DoBackup(store, info, p.DataDir, clientUrls)
 }
 
 // RestoreV3Snapshot calls etcdctl snapshot restore

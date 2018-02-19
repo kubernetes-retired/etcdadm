@@ -3,11 +3,6 @@ package backupcontroller
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
-	"os"
-	"os/exec"
-	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/golang/glog"
@@ -126,73 +121,8 @@ func (m *BackupController) doClusterBackup(ctx context.Context, members []*etcdc
 			MemberCount: int32(len(members)),
 			EtcdVersion: m.etcdVersion,
 		},
+		EtcdVersion: m.etcdVersion,
 	}
 
-	info.EtcdVersion = m.etcdVersion
-
-	tempDir, err := ioutil.TempDir("", "")
-	if err != nil {
-		return nil, fmt.Errorf("error creating etcd backup temp directory: %v", err)
-	}
-
-	defer func() {
-		err := os.RemoveAll(tempDir)
-		if err != nil {
-			glog.Warningf("error deleting backup temp directory %q: %v", tempDir, err)
-		}
-	}()
-
-	binDir, err := etcd.BindirForEtcdVersion(m.etcdVersion, "etcdctl")
-	if err != nil {
-		return nil, fmt.Errorf("etdctl not available for version %q", m.etcdVersion)
-	}
-
-	c := exec.Command(filepath.Join(binDir, "etcdctl"))
-
-	if etcdclient.IsV2(m.etcdVersion) {
-		c.Args = append(c.Args, "backup")
-		c.Args = append(c.Args, "--data-dir", m.dataDir)
-		c.Args = append(c.Args, "--backup-dir", tempDir)
-		glog.Infof("executing command %s %s", c.Path, c.Args)
-
-		env := make(map[string]string)
-		for k, v := range env {
-			c.Env = append(c.Env, k+"="+v)
-		}
-	} else {
-		c.Args = append(c.Args, "--endpoints", strings.Join(m.clientUrls, ","))
-		c.Args = append(c.Args, "snapshot", "save", filepath.Join(tempDir, "snapshot.db"))
-		glog.Infof("executing command %s %s", c.Path, c.Args)
-
-		env := make(map[string]string)
-		env["ETCDCTL_API"] = "3"
-
-		for k, v := range env {
-			c.Env = append(c.Env, k+"="+v)
-		}
-	}
-	c.Stdout = os.Stdout
-	c.Stderr = os.Stderr
-	if err := c.Start(); err != nil {
-		return nil, fmt.Errorf("error running etcdctl backup: %v", err)
-	}
-	processState, err := c.Process.Wait()
-	if err != nil {
-		return nil, fmt.Errorf("etcdctl backup returned an error: %v", err)
-	}
-
-	if !processState.Success() {
-		return nil, fmt.Errorf("etcdctl backup returned a non-zero exit code")
-	}
-
-	name, err := m.backupStore.AddBackup(tempDir, info)
-	if err != nil {
-		return nil, fmt.Errorf("error copying backup to storage: %v", err)
-	}
-
-	response := &protoetcd.DoBackupResponse{
-		Name: name,
-	}
-	glog.Infof("backup complete: %v", response)
-	return response, nil
+	return etcd.DoBackup(m.backupStore, info, m.dataDir, m.clientUrls)
 }
