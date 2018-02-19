@@ -171,3 +171,11 @@ func (c *V2Client) copySubtree(ctx context.Context, p string, dest EtcdClient) (
 
 	return count, nil
 }
+
+func (c *V2Client) SnapshotSave(ctx context.Context, path string) error {
+	return fmt.Errorf("SnapshotSave is not supported in V2")
+}
+
+func (c *V2Client) SupportsSnapshot() bool {
+	return false
+}
