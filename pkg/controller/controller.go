@@ -13,8 +13,10 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/golang/protobuf/proto"
+
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
+	"kope.io/etcd-manager/pkg/backupcontroller"
 	"kope.io/etcd-manager/pkg/contextutil"
 	"kope.io/etcd-manager/pkg/etcdclient"
 	"kope.io/etcd-manager/pkg/locking"
@@ -46,8 +48,8 @@ type EtcdController struct {
 	// lastBackup is the time at which we last performed a backup (as leader)
 	lastBackup time.Time
 
-	// lastBackupCleanup is the time at which we last performed a backup store cleanup (as leader)
-	lastBackupCleanup time.Time
+	// backupCleanup manages cleaning up old backups from the backupStore
+	backupCleanup *backupcontroller.BackupCleanup
 }
 
 // peerState holds persistent information about a peer
@@ -71,6 +73,7 @@ func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, cluste
 		peers:         peers,
 		leaderLock:    leaderLock,
 		CycleInterval: defaultCycleInterval,
+		backupCleanup: backupcontroller.NewBackupCleanup(backupStore),
 	}
 	return m, nil
 }
@@ -297,8 +300,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 func (m *EtcdController) maybeBackup(ctx context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState) error {
 	now := time.Now()
 
-	backupInterval := time.Minute
-	backupCleanupInterval := 15 * time.Minute
+	backupInterval := 5 * time.Minute
 	shouldBackup := now.Sub(m.lastBackup) > backupInterval
 
 	if !shouldBackup {
@@ -313,13 +315,8 @@ func (m *EtcdController) maybeBackup(ctx context.Context, clusterSpec *protoetcd
 	glog.Infof("took backup: %v", backup)
 	m.lastBackup = now
 
-	if now.Sub(m.lastBackupCleanup) > backupCleanupInterval {
-		if err := m.doBackupMaintenance(ctx, clusterSpec); err != nil {
-			glog.Warningf("error during backup cleanup: %v", err)
-		} else {
-			glog.Infof("cleaned up backups")
-			m.lastBackupCleanup = now
-		}
+	if err := m.backupCleanup.MaybeDoBackupMaintenance(ctx); err != nil {
+		glog.Warningf("error during backup cleanup: %v", err)
 	}
 
 	return nil
@@ -646,84 +643,6 @@ func (m *EtcdController) doClusterBackup(ctx context.Context, clusterSpec *proto
 	}
 
 	return nil, fmt.Errorf("no peer was able to perform a backup")
-}
-
-func (m *EtcdController) doBackupMaintenance(ctx context.Context, clusterSpec *protoetcd.ClusterSpec) error {
-	backupNames, err := m.backupStore.ListBackups()
-	if err != nil {
-		return fmt.Errorf("error listing backups: %v", err)
-	}
-
-	minRetention := time.Hour
-	hourly := time.Hour * 24 * 7
-	daily := time.Hour * 24 * 7 * 365
-
-	backups := make(map[time.Time]string)
-	retain := make(map[string]bool)
-	buckets := make(map[time.Time]time.Time)
-
-	now := time.Now()
-
-	for _, backup := range backupNames {
-		// Time parsing uses the same layout values as `Format`.
-		t, err := time.Parse(time.RFC3339, backup)
-		if err != nil {
-			glog.Warningf("ignoring unparseable backup %q", backup)
-			continue
-		}
-
-		backups[t] = backup
-
-		age := now.Sub(t)
-
-		if age < minRetention {
-			retain[backup] = true
-			continue
-		}
-
-		if age < hourly {
-			bucketed := t.Truncate(time.Hour)
-			existing := buckets[bucketed]
-			if existing.IsZero() || existing.After(t) {
-				buckets[bucketed] = t
-			}
-			continue
-		}
-
-		if age < daily {
-			bucketed := t.Truncate(time.Hour * 24)
-			existing := buckets[bucketed]
-			if existing.IsZero() || existing.After(t) {
-				buckets[bucketed] = t
-			}
-			continue
-		}
-	}
-
-	for _, t := range buckets {
-		retain[backups[t]] = true
-	}
-
-	removedCount := 0
-	for _, backup := range backupNames {
-		if retain[backup] {
-			glog.V(4).Infof("retaining backup %q", backup)
-			continue
-		}
-		glog.V(4).Infof("removing backup %q", backup)
-		if err := m.backupStore.RemoveBackup(backup); err != nil {
-			glog.Warningf("failed to remove backup %q: %v", backup, err)
-		} else {
-			glog.V(2).Infof("removed backup %q", backup)
-			removedCount++
-		}
-	}
-
-	if removedCount != 0 {
-		glog.Infof("Removed %d old backups", removedCount)
-	}
-
-	return nil
 }
 
 func (m *EtcdController) removeNodeFromCluster(ctx context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState, removeHealthy bool) (bool, error) {

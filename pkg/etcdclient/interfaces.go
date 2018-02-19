@@ -24,14 +24,32 @@ type EtcdClient interface {
 
 	// ServerVersion returns the version of etcd running
 	ServerVersion(ctx context.Context) (string, error)
+
+	// LocalNodeInfo returns information about the etcd member node we are connected to
+	LocalNodeInfo(ctx context.Context) (*LocalNodeInfo, error)
+}
+
+// LocalNodeInfo has information about the etcd member node we are connected to
+type LocalNodeInfo struct {
+	IsLeader bool
 }
 
 func NewClient(etcdVersion string, clientURLs []string) (EtcdClient, error) {
-	if strings.HasPrefix(etcdVersion, "2.") {
+	if IsV2(etcdVersion) {
 		return NewV2Client(clientURLs)
 	}
-	if strings.HasPrefix(etcdVersion, "3.") {
+	if IsV3(etcdVersion) {
 		return NewV3Client(clientURLs)
 	}
 	return nil, fmt.Errorf("unhandled etcd version %q", etcdVersion)
+}
+
+// IsV2 returns true if the specified etcdVersion is a 2.x version
+func IsV2(etcdVersion string) bool {
+	return strings.HasPrefix(etcdVersion, "2.")
+}
+
+// IsV3 returns true if the specified etcdVersion is a 3.x version
+func IsV3(etcdVersion string) bool {
+	return strings.HasPrefix(etcdVersion, "3.")
 }
