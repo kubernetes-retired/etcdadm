@@ -74,20 +74,16 @@ func (s *EtcdServer) DoRestore(ctx context.Context, request *protoetcd.DoRestore
 		}
 	}()
 
-	var downloadDir string
+	var downloadFile string
 	if isV2 {
-		downloadDir = dataDir
-
-		if err := os.MkdirAll(dataDir, 0700); err != nil {
-			return nil, fmt.Errorf("error creating datadir %q: %v", dataDir, err)
-		}
+		downloadFile = filepath.Join(tempDir, "download", "backup.tar.gz")
 	} else {
 		// V3 requires that data dir not exist
-		downloadDir = filepath.Join(tempDir, "download")
+		downloadFile = filepath.Join(tempDir, "download", "snapshot.db.gz")
 	}
 
-	glog.Infof("Downloading backup %q to %s", request.BackupName, downloadDir)
-	if err := backupStore.DownloadBackup(request.BackupName, downloadDir); err != nil {
+	glog.Infof("Downloading backup %q to %s", request.BackupName, downloadFile)
+	if err := backupStore.DownloadBackup(request.BackupName, downloadFile); err != nil {
 		return nil, fmt.Errorf("error restoring backup: %v", err)
 	}
 
@@ -116,6 +112,15 @@ func (s *EtcdServer) DoRestore(ctx context.Context, request *protoetcd.DoRestore
 	}
 
 	if isV2 {
+		if err := os.MkdirAll(dataDir, 0700); err != nil {
+			return nil, fmt.Errorf("error creating datadir %q: %v", dataDir, err)
+		}
+
+		archive := tgzArchive{File: downloadFile}
+		if err := archive.Extract(dataDir); err != nil {
+			return nil, fmt.Errorf("error expanding backup: %v", err)
+		}
+
 		// Not all backup stores store directories, but etcd2 requires a particular directory structure
 		// Create the directories even if there are no files
 		if err := os.MkdirAll(filepath.Join(p.DataDir, "member", "snap"), 0755); err != nil {
@@ -124,7 +129,14 @@ func (s *EtcdServer) DoRestore(ctx context.Context, request *protoetcd.DoRestore
 	}
 	if !isV2 {
 		glog.Infof("restoring snapshot")
-		if err := p.RestoreV3Snapshot(downloadDir); err != nil {
+
+		snapshotFile := filepath.Join(tempDir, "download", "snapshot.db")
+		archive := &gzFile{File: downloadFile}
+		if err := archive.expand(snapshotFile); err != nil {
+			return nil, fmt.Errorf("error expanding snapshot: %v", err)
+		}
+
+		if err := p.RestoreV3Snapshot(snapshotFile); err != nil {
 			return nil, err
 		}
 	}

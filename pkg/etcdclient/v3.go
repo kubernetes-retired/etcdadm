@@ -1,6 +1,7 @@
 package etcdclient
 
 import (
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -207,7 +208,12 @@ func (c *V3Client) SnapshotSave(ctx context.Context, path string) error {
 	}
 	defer in.Close()
 
-	if _, err := io.Copy(out, in); err != nil {
+	gz := gzip.NewWriter(out)
+	if _, err := io.Copy(gz, in); err != nil {
+		return fmt.Errorf("error copying snapshot: %v", err)
+	}
+
+	if err := gz.Close(); err != nil {
 		return fmt.Errorf("error copying snapshot: %v", err)
 	}
 
