@@ -46,21 +46,21 @@ type filesystemStore struct {
 
 var _ Store = &filesystemStore{}
 
-func (s *filesystemStore) AddBackup(srcdir string, info *etcd.BackupInfo) (string, error) {
+func (s *filesystemStore) AddBackup(srcFile string, sequence string, info *etcd.BackupInfo) (string, error) {
 	now := time.Now()
 
 	if info.Timestamp == 0 {
 		info.Timestamp = now.Unix()
 	}
 
-	name := now.UTC().Format(time.RFC3339Nano)
+	name := now.UTC().Format(time.RFC3339) + "-" + sequence
 
-	// Copy the backup dir to the destination
-	{
-		destdir := filepath.Join(s.backupsBase, name)
-		err := copyTree(srcdir, destdir)
+	// Copy the backup file to the destination
+	if srcFile != "" {
+		destFile := filepath.Join(s.backupsBase, name, DataFilename)
+		err := copyFile(srcFile, destFile)
 		if err != nil {
-			return "", fmt.Errorf("error copying %q to %q: %v", srcdir, destdir, err)
+			return "", fmt.Errorf("error copying %q to %q: %v", srcFile, destFile, err)
 		}
 	}
 
@@ -160,7 +160,8 @@ func (s *filesystemStore) SeedNewCluster(spec *protoetcd.ClusterSpec) error {
 	info := &etcd.BackupInfo{
 		ClusterSpec: spec,
 	}
-	name, err := s.AddBackup(tmpdir, info)
+	sequence := "000000"
+	name, err := s.AddBackup("", sequence, info)
 	if err != nil {
 		return err
 	}
@@ -173,34 +174,9 @@ func (s *filesystemStore) Spec() string {
 	return s.spec
 }
 
-func (s *filesystemStore) DownloadBackup(name string, destdir string) error {
-	p := filepath.Join(s.backupsBase, name)
-	return copyTree(p, destdir)
-}
-
-func copyTree(srcdir string, destdir string) error {
-	if err := os.MkdirAll(destdir, 0755); err != nil {
-		return fmt.Errorf("error creating directory %s: %v", destdir, err)
-	}
-
-	srcfiles, err := ioutil.ReadDir(srcdir)
-	if err != nil {
-		return fmt.Errorf("error reading directory %s: %v", srcdir, err)
-	}
-
-	for _, srcfile := range srcfiles {
-		if srcfile.IsDir() {
-			if err := copyTree(filepath.Join(srcdir, srcfile.Name()), filepath.Join(destdir, srcfile.Name())); err != nil {
-				return err
-			}
-		} else {
-			if err := copyFile(filepath.Join(srcdir, srcfile.Name()), filepath.Join(destdir, srcfile.Name())); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
+func (s *filesystemStore) DownloadBackup(name string, destFile string) error {
+	srcFile := filepath.Join(s.backupsBase, name, DataFilename)
+	return copyFile(srcFile, destFile)
 }
 
 func copyFile(srcfile, destfile string) (err error) {
