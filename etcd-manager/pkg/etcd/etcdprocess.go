@@ -2,7 +2,6 @@ package etcd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
@@ -82,18 +81,18 @@ func (p *etcdProcess) Stop() error {
 
 // BindirForEtcdVersion returns the directory in which the etcd binary is located, for the specified version
 // It returns an error if the specified version cannot be found
-func BindirForEtcdVersion(etcdVersion string) (string, error) {
+func BindirForEtcdVersion(etcdVersion string, cmd string) (string, error) {
 	if !strings.HasPrefix(etcdVersion, "v") {
 		etcdVersion = "v" + etcdVersion
 	}
 	binDir := filepath.Join("/opt", "etcd-"+etcdVersion+"-"+runtime.GOOS+"-"+runtime.GOARCH)
-	etcdBinary := filepath.Join(binDir, "etcd")
+	etcdBinary := filepath.Join(binDir, cmd)
 	_, err := os.Stat(etcdBinary)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return "", fmt.Errorf("unknown etcd version (etcd not found at %s)", etcdBinary)
+			return "", fmt.Errorf("unknown etcd version (%s not found at %s)", cmd, etcdBinary)
 		} else {
-			return "", fmt.Errorf("error checking for etcd at %s: %v", etcdBinary, err)
+			return "", fmt.Errorf("error checking for %s at %s: %v", cmd, etcdBinary, err)
 		}
 	}
 	return binDir, nil
@@ -204,7 +203,7 @@ func (p *etcdProcess) isV2() bool {
 	if p.EtcdVersion == "" {
 		glog.Fatalf("EtcdVersion not set")
 	}
-	return strings.HasPrefix(p.EtcdVersion, "2.")
+	return etcdclient.IsV2(p.EtcdVersion)
 }
 
 // DoBackup performs a backup/snapshot of the data
@@ -214,71 +213,12 @@ func (p *etcdProcess) DoBackup(store backup.Store, info *protoetcd.BackupInfo) (
 		return nil, fmt.Errorf("unable to find self node %q in %v", p.MyNodeName, p.Cluster.Nodes)
 	}
 
-	response := &protoetcd.DoBackupResponse{}
-
-	tempDir, err := ioutil.TempDir("", "")
-	if err != nil {
-		return nil, fmt.Errorf("error creating etcd backup temp directory: %v", err)
-	}
-
-	defer func() {
-		err := os.RemoveAll(tempDir)
-		if err != nil {
-			glog.Warningf("error deleting backup temp directory %q: %v", tempDir, err)
-		}
-	}()
-
 	clientUrls := me.ClientUrls
 	if p.Quarantined {
 		clientUrls = me.QuarantinedClientUrls
 	}
 
-	c := exec.Command(path.Join(p.BinDir, "etcdctl"))
-
-	if p.isV2() {
-		c.Args = append(c.Args, "backup")
-		c.Args = append(c.Args, "--data-dir", p.DataDir)
-		c.Args = append(c.Args, "--backup-dir", tempDir)
-		glog.Infof("executing command %s %s", c.Path, c.Args)
-
-		env := make(map[string]string)
-		for k, v := range env {
-			c.Env = append(c.Env, k+"="+v)
-		}
-	} else {
-		c.Args = append(c.Args, "--endpoints", strings.Join(clientUrls, ","))
-		c.Args = append(c.Args, "snapshot", "save", filepath.Join(tempDir, "snapshot.db"))
-		glog.Infof("executing command %s %s", c.Path, c.Args)
-
-		env := make(map[string]string)
-		env["ETCDCTL_API"] = "3"
-
-		for k, v := range env {
-			c.Env = append(c.Env, k+"="+v)
-		}
-	}
-	c.Stdout = os.Stdout
-	c.Stderr = os.Stderr
-	if err := c.Start(); err != nil {
-		return nil, fmt.Errorf("error running etcdctl backup: %v", err)
-	}
-	processState, err := c.Process.Wait()
-	if err != nil {
-		return nil, fmt.Errorf("etcdctl backup returned an error: %v", err)
-	}
-
-	if !processState.Success() {
-		return nil, fmt.Errorf("etcdctl backup returned a non-zero exit code")
-	}
-
-	name, err := store.AddBackup(tempDir, info)
-	if err != nil {
-		return nil, fmt.Errorf("error copying backup to storage: %v", err)
-	}
-	response.Name = name
-
-	glog.Infof("backup complete: %v", response)
-	return response, nil
+	return DoBackup(store, info, p.DataDir, clientUrls)
 }
 
 // RestoreV3Snapshot calls etcdctl snapshot restore

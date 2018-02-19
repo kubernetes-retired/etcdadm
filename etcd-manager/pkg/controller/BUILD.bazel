@@ -14,6 +14,7 @@ go_library(
     deps = [
         "//pkg/apis/etcd:go_default_library",
         "//pkg/backup:go_default_library",
+        "//pkg/backupcontroller:go_default_library",
         "//pkg/contextutil:go_default_library",
         "//pkg/etcdclient:go_default_library",
         "//pkg/locking:go_default_library",

@@ -57,7 +57,7 @@ func (s *EtcdServer) DoRestore(ctx context.Context, request *protoetcd.DoRestore
 		isV2 = true
 	}
 
-	binDir, err := BindirForEtcdVersion(backupInfo.EtcdVersion)
+	binDir, err := BindirForEtcdVersion(backupInfo.EtcdVersion, "etcd")
 	if err != nil {
 		return nil, err
 	}

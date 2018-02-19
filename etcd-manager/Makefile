@@ -41,6 +41,17 @@ image-etcd-dump:
 push-etcd-dump: image-etcd-dump
 	docker push ${DOCKER_REGISTRY}/etcd-dump:${DOCKER_TAG}
 
+
+.PHONY: image-etcd-backup
+image-etcd-backup:
+	bazel build //images:*
+	bazel run //images:etcd-backup
+	docker tag bazel/images:etcd-backup ${DOCKER_REGISTRY}/etcd-backup:${DOCKER_TAG}
+
+.PHONY: push-etcd-backup
+push-etcd-backup: image-etcd-backup
+	docker push ${DOCKER_REGISTRY}/etcd-backup:${DOCKER_TAG}
+
 .PHONY: push
 push: push-etcd-manager push-etcd-dump
 	echo "pushed images"
