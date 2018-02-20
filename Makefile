@@ -53,7 +53,7 @@ push-etcd-backup: image-etcd-backup
 	docker push ${DOCKER_REGISTRY}/etcd-backup:${DOCKER_TAG}
 
 .PHONY: push
-push: push-etcd-manager push-etcd-dump
+push: push-etcd-manager push-etcd-dump push-etcd-backup
 	echo "pushed images"
 
 .PHONY: gazelle
