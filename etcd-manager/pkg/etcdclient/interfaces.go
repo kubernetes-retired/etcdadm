@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
+
+	etcd_client_v2 "github.com/coreos/etcd/client"
 )
 
 // EtcdClient is an abstract client for V2 and V3
@@ -58,4 +61,26 @@ func IsV2(etcdVersion string) bool {
 // IsV3 returns true if the specified etcdVersion is a 3.x version
 func IsV3(etcdVersion string) bool {
 	return strings.HasPrefix(etcdVersion, "3.")
+}
+
+// ServerVersion attempts to find the version of etcd
+// If you already have a client, prefer calling ServerVersion on that
+func ServerVersion(ctx context.Context, endpoints []string) (string, error) {
+	if len(endpoints) == 0 {
+		return "", fmt.Errorf("no endpoints provided")
+	}
+	cfg := etcd_client_v2.Config{
+		Endpoints:               endpoints,
+		Transport:               etcd_client_v2.DefaultTransport,
+		HeaderTimeoutPerRequest: 10 * time.Second,
+	}
+	etcdClient, err := etcd_client_v2.New(cfg)
+	if err != nil {
+		return "", fmt.Errorf("error building etcd client for %s: %v", endpoints, err)
+	}
+	v, err := etcdClient.GetVersion(ctx)
+	if err != nil {
+		return "", err
+	}
+	return v.Server, nil
 }

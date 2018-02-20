@@ -39,8 +39,6 @@ func main() {
 	flag.StringVar(&dataDir, "data-dir", dataDir, "directory for storing etcd data")
 	clientURL := "http://127.0.0.1:4001"
 	flag.StringVar(&clientURL, "client-url", clientURL, "URL on which to connect to etcd")
-	etcdVersion := "2.2.1"
-	flag.StringVar(&etcdVersion, "etcd-version", etcdVersion, "etcd version in use")
 
 	flag.Parse()
 
@@ -63,7 +61,7 @@ func main() {
 		glog.Fatalf("error initializing backup store: %v", err)
 	}
 	clientURLs := []string{clientURL}
-	c, err := backupcontroller.NewBackupController(backupStore, clusterName, clientURLs, etcdVersion, dataDir)
+	c, err := backupcontroller.NewBackupController(backupStore, clusterName, clientURLs, dataDir)
 	if err != nil {
 		glog.Fatalf("error building backup controller: %v", err)
 	}

@@ -22,8 +22,7 @@ type BackupController struct {
 
 	dataDir string
 
-	clientUrls  []string
-	etcdVersion string
+	clientUrls []string
 
 	// lastBackup is the time at which we last performed a backup (as leader)
 	lastBackup time.Time
@@ -33,13 +32,9 @@ type BackupController struct {
 	backupCleanup *BackupCleanup
 }
 
-func NewBackupController(backupStore backup.Store, clusterName string, clientUrls []string, etcdVersion string, dataDir string) (*BackupController, error) {
+func NewBackupController(backupStore backup.Store, clusterName string, clientUrls []string, dataDir string) (*BackupController, error) {
 	if clusterName == "" {
 		return nil, fmt.Errorf("ClusterName is required")
-	}
-
-	if etcdclient.IsV2(etcdVersion) && dataDir == "" {
-		return nil, fmt.Errorf("DataDir is required for etcd v2")
 	}
 
 	m := &BackupController{
@@ -47,7 +42,6 @@ func NewBackupController(backupStore backup.Store, clusterName string, clientUrl
 		backupStore:    backupStore,
 		dataDir:        dataDir,
 		clientUrls:     clientUrls,
-		etcdVersion:    etcdVersion,
 		backupInterval: 5 * time.Minute,
 		backupCleanup:  NewBackupCleanup(backupStore),
 	}
@@ -68,7 +62,16 @@ func (m *BackupController) Run(ctx context.Context) {
 func (m *BackupController) run(ctx context.Context) error {
 	glog.V(2).Infof("starting backup controller iteration")
 
-	etcdClient, err := etcdclient.NewClient(m.etcdVersion, m.clientUrls)
+	etcdVersion, err := etcdclient.ServerVersion(ctx, m.clientUrls)
+	if err != nil {
+		return fmt.Errorf("unable to find server version of etcd on %s: %v", m.clientUrls, err)
+	}
+
+	if etcdclient.IsV2(etcdVersion) && m.dataDir == "" {
+		return fmt.Errorf("DataDir is required for etcd v2")
+	}
+
+	etcdClient, err := etcdclient.NewClient(etcdVersion, m.clientUrls)
 	if err != nil {
 		return fmt.Errorf("unable to reach etcd on %s: %v", m.clientUrls, err)
 	}
@@ -89,10 +92,10 @@ func (m *BackupController) run(ctx context.Context) error {
 		return nil
 	}
 
-	return m.maybeBackup(ctx, members)
+	return m.maybeBackup(ctx, etcdVersion, members)
 }
 
-func (m *BackupController) maybeBackup(ctx context.Context, members []*etcdclient.EtcdProcessMember) error {
+func (m *BackupController) maybeBackup(ctx context.Context, etcdVersion string, members []*etcdclient.EtcdProcessMember) error {
 	now := time.Now()
 
 	shouldBackup := now.Sub(m.lastBackup) > m.backupInterval
@@ -100,7 +103,7 @@ func (m *BackupController) maybeBackup(ctx context.Context, members []*etcdclien
 		return nil
 	}
 
-	backup, err := m.doClusterBackup(ctx, members)
+	backup, err := m.doClusterBackup(ctx, etcdVersion, members)
 	if err != nil {
 		return err
 	}
@@ -115,13 +118,13 @@ func (m *BackupController) maybeBackup(ctx context.Context, members []*etcdclien
 	return nil
 }
 
-func (m *BackupController) doClusterBackup(ctx context.Context, members []*etcdclient.EtcdProcessMember) (*protoetcd.DoBackupResponse, error) {
+func (m *BackupController) doClusterBackup(ctx context.Context, etcdVersion string, members []*etcdclient.EtcdProcessMember) (*protoetcd.DoBackupResponse, error) {
 	info := &protoetcd.BackupInfo{
 		ClusterSpec: &protoetcd.ClusterSpec{
 			MemberCount: int32(len(members)),
-			EtcdVersion: m.etcdVersion,
+			EtcdVersion: etcdVersion,
 		},
-		EtcdVersion: m.etcdVersion,
+		EtcdVersion: etcdVersion,
 	}
 
 	return etcd.DoBackup(m.backupStore, info, m.dataDir, m.clientUrls)
