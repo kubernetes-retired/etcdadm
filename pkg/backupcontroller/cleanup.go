@@ -48,6 +48,7 @@ func (m *BackupCleanup) MaybeDoBackupMaintenance(ctx context.Context) error {
 
 	backups := make(map[time.Time]string)
 	retain := make(map[string]bool)
+	ignore := make(map[string]bool)
 	buckets := make(map[time.Time]time.Time)
 
 	for _, backup := range backupNames {
@@ -55,6 +56,7 @@ func (m *BackupCleanup) MaybeDoBackupMaintenance(ctx context.Context) error {
 		t, err := time.Parse(time.RFC3339, backup)
 		if err != nil {
 			glog.Warningf("ignoring unparseable backup %q", backup)
+			ignore[backup] = true
 			continue
 		}
 
@@ -94,6 +96,10 @@ func (m *BackupCleanup) MaybeDoBackupMaintenance(ctx context.Context) error {
 	for _, backup := range backupNames {
 		if retain[backup] {
 			glog.V(4).Infof("retaining backup %q", backup)
+			continue
+		}
+		if ignore[backup] {
+			glog.V(4).Infof("ignoring backup %q", backup)
 			continue
 		}
 		glog.V(4).Infof("removing backup %q", backup)
