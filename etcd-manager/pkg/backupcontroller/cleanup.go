@@ -53,13 +53,14 @@ func (m *BackupCleanup) MaybeDoBackupMaintenance(ctx context.Context) error {
 
 	for _, backup := range backupNames {
 		// Time parsing uses the same layout values as `Format`.
-		t, err := time.Parse(time.RFC3339, backup)
-		if err != nil {
+		i := parseBackupNameInfo(backup)
+		if i == nil {
 			glog.Warningf("ignoring unparseable backup %q", backup)
 			ignore[backup] = true
 			continue
 		}
 
+		t := i.Timestamp
 		backups[t] = backup
 
 		age := now.Sub(t)
