@@ -56,11 +56,13 @@ func DoBackupV2(backupStore backup.Store, info *protoetcd.BackupInfo, dataDir st
 		return nil, fmt.Errorf("etdctl not available for version %q", etcdVersion)
 	}
 
+	backupDir := filepath.Join(tempDir, "data")
+
 	c := exec.Command(filepath.Join(binDir, "etcdctl"))
 
 	c.Args = append(c.Args, "backup")
 	c.Args = append(c.Args, "--data-dir", dataDir)
-	c.Args = append(c.Args, "--backup-dir", tempDir)
+	c.Args = append(c.Args, "--backup-dir", backupDir)
 	glog.Infof("executing command %s %s", c.Path, c.Args)
 
 	env := make(map[string]string)
@@ -81,7 +83,12 @@ func DoBackupV2(backupStore backup.Store, info *protoetcd.BackupInfo, dataDir st
 	if !processState.Success() {
 		return nil, fmt.Errorf("etcdctl backup returned a non-zero exit code")
 	}
-	return uploadBackup(backupStore, info, tempDir)
+
+	tgzFile := filepath.Join(tempDir, "backup.tgz")
+	if err := createTgz(tgzFile, backupDir); err != nil {
+		return nil, err
+	}
+	return uploadBackup(backupStore, info, tgzFile)
 }
 
 // DoBackupV3 performs a backup of etcd v3; using the etcd v3 API
@@ -105,18 +112,25 @@ func DoBackupV3(backupStore backup.Store, info *protoetcd.BackupInfo, clientUrls
 		return nil, fmt.Errorf("error building etcd client to etcd: %v", err)
 	}
 
-	snapshotFile := filepath.Join(tempDir, "snapshot.db")
+	snapshotFile := filepath.Join(tempDir, "snapshot.db.gz")
 	glog.Infof("performing snapshot save to %s", snapshotFile)
 	if err := client.SnapshotSave(context.TODO(), snapshotFile); err != nil {
 		return nil, fmt.Errorf("error performing snapshot save: %v", err)
 	}
 
-	return uploadBackup(backupStore, info, tempDir)
+	return uploadBackup(backupStore, info, snapshotFile)
 }
 
+// sequence is used to provide a tie-breaker for backups that happen in less than one second, primarily.
+var sequence = 0
+
 // uploadBackup uploads a backup directory to a backup.Store
-func uploadBackup(backupStore backup.Store, info *protoetcd.BackupInfo, dir string) (*protoetcd.DoBackupResponse, error) {
-	name, err := backupStore.AddBackup(dir, info)
+func uploadBackup(backupStore backup.Store, info *protoetcd.BackupInfo, srcFile string) (*protoetcd.DoBackupResponse, error) {
+	sequence++
+	if sequence > 999999 {
+		sequence = 0
+	}
+	name, err := backupStore.AddBackup(srcFile, fmt.Sprintf("%.6d", sequence), info)
 	if err != nil {
 		return nil, fmt.Errorf("error copying backup to storage: %v", err)
 	}

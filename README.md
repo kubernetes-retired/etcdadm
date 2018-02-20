@@ -10,6 +10,8 @@ We maintain a backup store, to which we back up etcd periodically.  Backups are 
 
 Cluster changes that are not normally supported can be done safely through etcd backups & restore.
 
+The format of the backup store, which is intended to be project-neutral is [here](docs/backupstructure.md).
+
 ## Walkthough
 
 We'll now do a walkthrough to get going with local development.  In production you likely would run this using

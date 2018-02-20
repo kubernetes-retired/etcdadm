@@ -222,7 +222,7 @@ func (p *etcdProcess) DoBackup(store backup.Store, info *protoetcd.BackupInfo) (
 }
 
 // RestoreV3Snapshot calls etcdctl snapshot restore
-func (p *etcdProcess) RestoreV3Snapshot(downloadDir string) error {
+func (p *etcdProcess) RestoreV3Snapshot(snapshotFile string) error {
 	if p.isV2() {
 		return fmt.Errorf("unexpected version when calling RestoreV2Snapshot: %q", p.EtcdVersion)
 	}
@@ -238,7 +238,7 @@ func (p *etcdProcess) RestoreV3Snapshot(downloadDir string) error {
 	}
 
 	c := exec.Command(path.Join(p.BinDir, "etcdctl"))
-	c.Args = append(c.Args, "snapshot", "restore", filepath.Join(downloadDir, "snapshot.db"))
+	c.Args = append(c.Args, "snapshot", "restore", snapshotFile)
 	c.Args = append(c.Args, "--name", me.Name)
 	c.Args = append(c.Args, "--initial-cluster", strings.Join(initialCluster, ","))
 	c.Args = append(c.Args, "--initial-cluster-token", p.Cluster.ClusterToken)
