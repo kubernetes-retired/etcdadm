@@ -9,7 +9,6 @@ go_test(
         "etcdinstalled_test.go",
         "upgradedowngrade_test.go",
     ],
-    importpath = "kope.io/etcd-manager/test/integration",
     deps = [
         "//pkg/apis/etcd:go_default_library",
         "//pkg/etcd:go_default_library",
