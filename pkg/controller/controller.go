@@ -374,6 +374,7 @@ func (m *EtcdController) loadClusterSpec(ctx context.Context, etcdClusterState *
 		if err != nil {
 			return nil, fmt.Errorf("error listing backups: %v", err)
 		}
+		glog.Infof("found %d backups", len(backups))
 
 		for i := len(backups) - 1; i >= 0; i-- {
 			backup := backups[i]
