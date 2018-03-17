@@ -22,6 +22,5 @@ go_library(
 go_binary(
     name = "etcd-manager",
     embed = [":go_default_library"],
-    importpath = "kope.io/etcd-manager/cmd/etcd-manager",
     visibility = ["//visibility:public"],
 )
