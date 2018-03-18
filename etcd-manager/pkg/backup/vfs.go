@@ -92,7 +92,7 @@ func (s *vfsStore) ListBackups() ([]string, error) {
 
 	sort.Strings(backups)
 
-	glog.Infof("listed backups: %v", backups)
+	glog.Infof("listed backups in %s: %v", s.backupsBase, backups)
 
 	return backups, nil
 }
