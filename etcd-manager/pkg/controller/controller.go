@@ -350,12 +350,13 @@ func (m *EtcdController) loadClusterSpec(ctx context.Context, etcdClusterState *
 		}
 
 		if b != nil {
-			state := &protoetcd.ClusterSpec{}
-			err := protoetcd.FromJson(string(b), state)
+			spec := &protoetcd.ClusterSpec{}
+			err := protoetcd.FromJson(string(b), spec)
 			if err != nil {
 				return nil, fmt.Errorf("error parsing cluster spec from etcd %q: %v", key, err)
 			}
-			return state, nil
+			glog.Infof("Loaded cluster spec from etcd: %v", spec)
+			return spec, nil
 		}
 
 		// This is the case for bootstrapping, but generally if the key isn't set we want to get it from the backup store
@@ -392,6 +393,7 @@ func (m *EtcdController) loadClusterSpec(ctx context.Context, etcdClusterState *
 
 		if info != nil && info.ClusterSpec != nil {
 			if etcdIsRunning {
+				glog.Infof("copying cluster spec into etcd: %v", info.ClusterSpec)
 				err = m.writeClusterSpec(ctx, etcdClusterState, info.ClusterSpec)
 				if err != nil {
 					// Concurrent leader wrote this?
@@ -399,6 +401,7 @@ func (m *EtcdController) loadClusterSpec(ctx context.Context, etcdClusterState *
 				}
 			}
 
+			glog.Infof("read cluster spec from backup: %v", info.ClusterSpec)
 			return info.ClusterSpec, nil
 		}
 	}
