@@ -66,9 +66,9 @@ etcd cluster state: etcdClusterState
   members:
     {"name":"GEyIUF0s9J07setaePSQ3Q","peerURLs":["http://127.0.0.1:2380"],"clientURLs":["http://127.0.0.1:4001"],"ID":"4be33a4562894143"}
   peers:
-    etcdClusterPeerInfo{peer=peer{id:"yFQlUrhyV2P0i14oXydBbw" addresses:"127.0.0.3:8000" }, etcState=cluster_name:"test" node_configuration:<name:"yFQlUrhyV2P0i14oXydBbw" peer_urls:"http://127.0.0.3:2380" client_urls:"http://127.0.0.3:4001" quarantined_client_urls:"http://127.0.0.3:8001" > }
-    etcdClusterPeerInfo{peer=peer{id:"GEyIUF0s9J07setaePSQ3Q" addresses:"127.0.0.1:8000" }, etcState=cluster_name:"test" node_configuration:<name:"GEyIUF0s9J07setaePSQ3Q" peer_urls:"http://127.0.0.1:2380" client_urls:"http://127.0.0.1:4001" quarantined_client_urls:"http://127.0.0.1:8001" > etcd_state:<cluster:<cluster_token:"XypoARu3zvWjVHHmWSGr_Q" nodes:<name:"GEyIUF0s9J07setaePSQ3Q" peer_urls:"http://127.0.0.1:2380" client_urls:"http://127.0.0.1:4001" quarantined_client_urls:"http://127.0.0.1:8001" > > etcd_version:"2.2.1" > }
-    etcdClusterPeerInfo{peer=peer{id:"mW4JV4NzL-hO39BEU8gnhA" addresses:"127.0.0.2:8000" }, etcState=cluster_name:"test" node_configuration:<name:"mW4JV4NzL-hO39BEU8gnhA" peer_urls:"http://127.0.0.2:2380" client_urls:"http://127.0.0.2:4001" quarantined_client_urls:"http://127.0.0.2:8001" > }
+    etcdClusterPeerInfo{peer=peer{id:"yFQlUrhyV2P0i14oXydBbw" addresses:"127.0.0.3:8000" }, info=cluster_name:"test" node_configuration:<name:"yFQlUrhyV2P0i14oXydBbw" peer_urls:"http://127.0.0.3:2380" client_urls:"http://127.0.0.3:4001" quarantined_client_urls:"http://127.0.0.3:8001" > }
+    etcdClusterPeerInfo{peer=peer{id:"GEyIUF0s9J07setaePSQ3Q" addresses:"127.0.0.1:8000" }, info=cluster_name:"test" node_configuration:<name:"GEyIUF0s9J07setaePSQ3Q" peer_urls:"http://127.0.0.1:2380" client_urls:"http://127.0.0.1:4001" quarantined_client_urls:"http://127.0.0.1:8001" > etcd_state:<cluster:<cluster_token:"XypoARu3zvWjVHHmWSGr_Q" nodes:<name:"GEyIUF0s9J07setaePSQ3Q" peer_urls:"http://127.0.0.1:2380" client_urls:"http://127.0.0.1:4001" quarantined_client_urls:"http://127.0.0.1:8001" > > etcd_version:"2.2.1" > }
+    etcdClusterPeerInfo{peer=peer{id:"mW4JV4NzL-hO39BEU8gnhA" addresses:"127.0.0.2:8000" }, info=cluster_name:"test" node_configuration:<name:"mW4JV4NzL-hO39BEU8gnhA" peer_urls:"http://127.0.0.2:2380" client_urls:"http://127.0.0.2:4001" quarantined_client_urls:"http://127.0.0.2:8001" > }
 ```
 
 Maintaining this state is essentially the core controller loop.  The leader pings each peer,
