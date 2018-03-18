@@ -70,7 +70,7 @@ type etcdClusterPeerInfo struct {
 }
 
 func (p *etcdClusterPeerInfo) String() string {
-	return fmt.Sprintf("etcdClusterPeerInfo{peer=%s, etcState=%s}", p.peer, p.info)
+	return fmt.Sprintf("etcdClusterPeerInfo{peer=%s, info=%s}", p.peer, p.info)
 }
 
 func (s *etcdClusterState) etcdAddMember(ctx context.Context, nodeInfo *protoetcd.EtcdNode) (*etcdclient.EtcdProcessMember, error) {
