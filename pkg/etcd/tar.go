@@ -75,10 +75,16 @@ func (t *tgzArchive) Extract(destDir string) error {
 		}
 
 		destFile := filepath.Join(destDir, h.Name)
+		if h.FileInfo().IsDir() {
+			if err := os.MkdirAll(destFile, 0755); err != nil {
+				return fmt.Errorf("error creating directories for %q: %v", destFile, err)
+			}
+			continue
+		}
+
 		if err := os.MkdirAll(filepath.Dir(destFile), 0755); err != nil {
 			return fmt.Errorf("error creating directories for %q: %v", destFile, err)
 		}
-
 		if err := createFile(destFile, r, h.Size); err != nil {
 			return err
 		}
