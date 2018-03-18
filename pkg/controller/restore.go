@@ -83,6 +83,7 @@ func (m *EtcdController) restoreBackupAndLiftQuarantine(parentContext context.Co
 }
 
 func (m *EtcdController) updateQuarantine(ctx context.Context, clusterState *etcdClusterState, quarantined bool) (bool, error) {
+	glog.Infof("Setting quarantined state to %b", quarantined)
 	changed := false
 	for peerId, p := range clusterState.peers {
 		member := clusterState.FindMember(peerId)
