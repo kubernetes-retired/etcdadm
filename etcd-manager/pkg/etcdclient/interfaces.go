@@ -20,7 +20,9 @@ type EtcdClient interface {
 	// Get returns the value of the specified key, or (nil, nil) if not found
 	Get(ctx context.Context, key string, quorum bool) ([]byte, error)
 
-	CopyTo(ctx context.Context, dest EtcdClient) (int, error)
+	// CopyTo traverses every key and writes it to dest
+	CopyTo(ctx context.Context, dest NodeSink) (int, error)
+
 	ListMembers(ctx context.Context) ([]*EtcdProcessMember, error)
 	AddMember(ctx context.Context, peerURLs []string) error
 	RemoveMember(ctx context.Context, member *EtcdProcessMember) error
@@ -36,6 +38,13 @@ type EtcdClient interface {
 
 	// SupportsSnapshot checks if the Snapshot method is supported (i.e. if we are V3)
 	SupportsSnapshot() bool
+}
+
+// NodeSink is implemented by a target for CopyTo
+type NodeSink interface {
+	io.Closer
+
+	Put(ctx context.Context, key string, value []byte) error
 }
 
 // LocalNodeInfo has information about the etcd member node we are connected to
