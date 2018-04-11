@@ -130,13 +130,13 @@ func uploadBackup(backupStore backup.Store, info *protoetcd.BackupInfo, srcFile 
 	if sequence > 999999 {
 		sequence = 0
 	}
-	name, err := backupStore.AddBackup(srcFile, fmt.Sprintf("%.6d", sequence), info)
+	backupName, err := backupStore.AddBackup(srcFile, fmt.Sprintf("%.6d", sequence), info)
 	if err != nil {
 		return nil, fmt.Errorf("error copying backup to storage: %v", err)
 	}
 
 	response := &protoetcd.DoBackupResponse{
-		Name: name,
+		Name: backupName,
 	}
 	glog.Infof("backup complete: %v", response)
 	return response, nil
