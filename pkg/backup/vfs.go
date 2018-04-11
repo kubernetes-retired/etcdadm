@@ -17,7 +17,7 @@ import (
 func NewVFSStore(p vfs.Path) (Store, error) {
 	s := &vfsStore{
 		spec:        p.Path(),
-		backupsBase: p.Join("backups"),
+		backupsBase: p,
 	}
 	return s, nil
 }

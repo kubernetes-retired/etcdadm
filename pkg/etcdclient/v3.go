@@ -128,7 +128,7 @@ func (c *V3Client) Put(ctx context.Context, key string, value []byte) error {
 	return nil
 }
 
-func (c *V3Client) CopyTo(ctx context.Context, dest EtcdClient) (int, error) {
+func (c *V3Client) CopyTo(ctx context.Context, dest NodeSink) (int, error) {
 	count := 0
 
 	limit := etcd_client_v3.WithLimit(1000)
@@ -163,6 +163,7 @@ func (c *V3Client) CopyTo(ctx context.Context, dest EtcdClient) (int, error) {
 			break
 		}
 	}
+
 	return count, nil
 }
 
