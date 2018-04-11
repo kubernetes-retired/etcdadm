@@ -3,6 +3,7 @@ package(default_visibility = ["//visibility:public"])
 load(
     "@io_bazel_rules_docker//container:container.bzl",
     "container_image",
+    "container_push",
 )
 
 container_image(
@@ -23,6 +24,16 @@ container_image(
     ],
 )
 
+container_push(
+   name = "push-etcd-manager",
+   image = ":etcd-manager",
+   format = "Docker",
+   registry = "index.docker.io",
+   repository = "{DOCKER_REGISTRY}/etcd-manager",
+   tag = "{DOCKER_TAG}",
+   stamp = True,
+)
+
 container_image(
     name = "etcd-dump",
     base = "etcd-manager-base",
@@ -32,6 +43,16 @@ container_image(
     ],
 )
 
+container_push(
+   name = "push-etcd-dump",
+   image = ":etcd-dump",
+   format = "Docker",
+   registry = "index.docker.io",
+   repository = "{DOCKER_REGISTRY}/etcd-dump",
+   tag = "{DOCKER_TAG}",
+   stamp = True,
+)
+
 container_image(
     name = "etcd-backup",
     base = "etcd-manager-base",
@@ -39,4 +60,14 @@ container_image(
     files = [
         "//cmd/etcd-backup",
     ],
+)
+
+container_push(
+   name = "push-etcd-backup",
+   image = ":etcd-backup",
+   format = "Docker",
+   registry = "index.docker.io",
+   repository = "{DOCKER_REGISTRY}/etcd-backup",
+   tag = "{DOCKER_TAG}",
+   stamp = True,
 )
