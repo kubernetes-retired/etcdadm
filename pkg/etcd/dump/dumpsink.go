@@ -3,91 +3,119 @@ package dump
 import (
 	"archive/tar"
 	"compress/gzip"
+	"context"
 	"fmt"
-	"io"
 	"os"
+	"path"
 	"strings"
 
-	etcd_client "github.com/coreos/etcd/client"
+	etcdclient "kope.io/etcd-manager/pkg/etcdclient"
 )
-
-type DumpSink interface {
-	io.Closer
-
-	Write(node *etcd_client.Node) error
-}
 
 type TarDumpSink struct {
 	tw  *tar.Writer
 	gzw *gzip.Writer
 	f   *os.File
+
+	// doneDirs helps us synthesize directories
+	doneDirs map[string]bool
 }
 
-var _ DumpSink = &TarDumpSink{}
+var _ etcdclient.NodeSink = &TarDumpSink{}
 
 func NewTarDumpSink(p string) (*TarDumpSink, error) {
 	f, err := os.Create(p)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create file %q: %v", p, err)
 	}
-	defer f.Close()
+	s := &TarDumpSink{
+		doneDirs: make(map[string]bool),
+		f:        f,
+	}
 
-	gzw := gzip.NewWriter(f)
-	defer gzw.Close()
+	s.gzw = gzip.NewWriter(f)
 
-	tw := tar.NewWriter(gzw)
-	defer tw.Close()
+	s.tw = tar.NewWriter(s.gzw)
 
-	return &TarDumpSink{
-		tw:  tw,
-		gzw: gzw,
-		f:   f,
-	}, nil
+	return s, nil
 }
 
-func (s *TarDumpSink) Write(node *etcd_client.Node) error {
+func (s *TarDumpSink) Put(ctx context.Context, key string, value []byte) error {
+	name := key
+
+	if err := s.ensureDirs(path.Dir(name)); err != nil {
+		return err
+	}
+
 	hdr := &tar.Header{
-		Name: node.Key,
-	}
-	if node.Dir {
-		hdr.Mode = 0755
-		hdr.Name += "/"
-		hdr.Typeflag = tar.TypeDir
-	} else {
-		hdr.Mode = 0644
-		hdr.Typeflag = tar.TypeReg
-		hdr.Size = int64(len(node.Value))
+		Name:     strings.TrimPrefix(name, "/"),
+		Mode:     0644,
+		Typeflag: tar.TypeReg,
+		Size:     int64(len(value)),
 	}
 
-	if hdr.Name != "/" {
-		hdr.Name = strings.TrimPrefix(hdr.Name, "/")
+	// write the header
+	if err := s.tw.WriteHeader(hdr); err != nil {
+		return fmt.Errorf("error writing tar header: %v", err)
+	}
 
-		// write the header
-		if err := s.tw.WriteHeader(hdr); err != nil {
-			return fmt.Errorf("error writing tar header: %v", err)
-		}
-
-		if !node.Dir && node.Value != "" {
-			_, err := s.tw.Write([]byte(node.Value))
-			if err != nil {
-				return fmt.Errorf("error writing tar data: %v", err)
-			}
+	if len(value) != 0 {
+		_, err := s.tw.Write(value)
+		if err != nil {
+			return fmt.Errorf("error writing tar data: %v", err)
 		}
 	}
 
 	return nil
 }
 
-func (s *TarDumpSink) Close() error {
-	var err error
-	errC := s.gzw.Close()
-	if errC != nil {
-		err = fmt.Errorf("error closing gzip: %v", errC)
+func (s *TarDumpSink) ensureDirs(p string) error {
+	if p == "" || p == "/" {
+		return nil
 	}
 
-	errC = s.tw.Close()
+	if s.doneDirs[p] {
+		return nil
+	}
+
+	if err := s.ensureDirs(path.Dir(p)); err != nil {
+		return err
+	}
+
+	name := p
+	if !strings.HasSuffix(p, "/") {
+		name += "/"
+	}
+
+	hdr := &tar.Header{
+		Name:     name,
+		Mode:     0755,
+		Typeflag: tar.TypeDir,
+	}
+
+	hdr.Name = strings.TrimPrefix(hdr.Name, "/")
+
+	// write the header
+	if err := s.tw.WriteHeader(hdr); err != nil {
+		return fmt.Errorf("error writing tar header: %v", err)
+	}
+
+	s.doneDirs[p] = true
+
+	return nil
+}
+
+func (s *TarDumpSink) Close() error {
+	var err error
+
+	errC := s.tw.Close()
 	if errC != nil {
 		err = fmt.Errorf("error closing tar: %v", errC)
+	}
+
+	errC = s.gzw.Close()
+	if errC != nil {
+		err = fmt.Errorf("error closing gzip: %v", errC)
 	}
 
 	errC = s.f.Close()

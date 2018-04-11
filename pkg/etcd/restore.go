@@ -12,6 +12,7 @@ import (
 	"github.com/golang/glog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
+	"kope.io/etcd-manager/pkg/etcdclient"
 )
 
 // DoRestore restores a backup from the backup store
@@ -47,7 +48,49 @@ func (s *EtcdServer) DoRestore(ctx context.Context, request *protoetcd.DoRestore
 		return nil, err
 	}
 
-	backupInfo, err := backupStore.LoadInfo(request.BackupName)
+	clusterToken := "restore-etcd-" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	tempDir := filepath.Join(os.TempDir(), clusterToken)
+	if err := os.MkdirAll(tempDir, 0700); err != nil {
+		return nil, fmt.Errorf("error creating tempdir %q: %v", tempDir, err)
+	}
+
+	defer func() {
+		if err := os.RemoveAll(tempDir); err != nil {
+			glog.Warningf("error cleaning up tempdir %q: %v", tempDir, err)
+		}
+	}()
+
+	p, err := RunEtcdFromBackup(backupStore, request.BackupName, tempDir)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		glog.Infof("stopping etcd that was reading backup")
+		err := p.Stop()
+		if err != nil {
+			glog.Warningf("unable to stop etcd process that was started for restore: %v", err)
+		}
+	}()
+
+	destClient, err := s.process.NewClient()
+	if err != nil {
+		return nil, fmt.Errorf("error building etcd client for target: %v", err)
+	}
+	defer destClient.Close()
+
+	if err := copyEtcd(p, destClient); err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir string) (*etcdProcess, error) {
+	dataDir := filepath.Join(basedir, "data")
+	clusterToken := filepath.Base(dataDir)
+
+	backupInfo, err := backupStore.LoadInfo(backupName)
 	if err != nil {
 		return nil, err
 	}
@@ -57,34 +100,22 @@ func (s *EtcdServer) DoRestore(ctx context.Context, request *protoetcd.DoRestore
 		isV2 = true
 	}
 
+	var downloadFile string
+	if isV2 {
+		downloadFile = filepath.Join(basedir, "download", "backup.tar.gz")
+	} else {
+		// V3 requires that data dir not exist
+		downloadFile = filepath.Join(basedir, "download", "snapshot.db.gz")
+	}
+
+	glog.Infof("Downloading backup %q to %s", backupName, downloadFile)
+	if err := backupStore.DownloadBackup(backupName, downloadFile); err != nil {
+		return nil, fmt.Errorf("error restoring backup: %v", err)
+	}
+
 	binDir, err := BindirForEtcdVersion(backupInfo.EtcdVersion, "etcd")
 	if err != nil {
 		return nil, err
-	}
-
-	clusterToken := "restore-etcd-" + strconv.FormatInt(time.Now().UnixNano(), 10)
-	tempDir := filepath.Join(os.TempDir(), clusterToken)
-	dataDir := filepath.Join(tempDir, "data")
-	if err := os.MkdirAll(tempDir, 0700); err != nil {
-		return nil, fmt.Errorf("error creating tempdir %q: %v", tempDir, err)
-	}
-	defer func() {
-		if err := os.RemoveAll(tempDir); err != nil {
-			glog.Warningf("error cleaning up tempdir %q: %v", tempDir, err)
-		}
-	}()
-
-	var downloadFile string
-	if isV2 {
-		downloadFile = filepath.Join(tempDir, "download", "backup.tar.gz")
-	} else {
-		// V3 requires that data dir not exist
-		downloadFile = filepath.Join(tempDir, "download", "snapshot.db.gz")
-	}
-
-	glog.Infof("Downloading backup %q to %s", request.BackupName, downloadFile)
-	if err := backupStore.DownloadBackup(request.BackupName, downloadFile); err != nil {
-		return nil, fmt.Errorf("error restoring backup: %v", err)
 	}
 
 	// TODO: randomize port
@@ -130,7 +161,7 @@ func (s *EtcdServer) DoRestore(ctx context.Context, request *protoetcd.DoRestore
 	if !isV2 {
 		glog.Infof("restoring snapshot")
 
-		snapshotFile := filepath.Join(tempDir, "download", "snapshot.db")
+		snapshotFile := filepath.Join(basedir, "download", "snapshot.db")
 		archive := &gzFile{File: downloadFile}
 		if err := archive.expand(snapshotFile); err != nil {
 			return nil, fmt.Errorf("error expanding snapshot: %v", err)
@@ -145,32 +176,16 @@ func (s *EtcdServer) DoRestore(ctx context.Context, request *protoetcd.DoRestore
 	if err := p.Start(); err != nil {
 		return nil, fmt.Errorf("error starting etcd: %v", err)
 	}
-	defer func() {
-		glog.Infof("stopping etcd that was reading backup")
-		err := p.Stop()
-		if err != nil {
-			glog.Warningf("unable to stop etcd process that was started for restore: %v", err)
-		}
-	}()
 
-	if err := copyEtcd(p, s.process); err != nil {
-		return nil, err
-	}
-
-	return response, nil
+	return p, nil
 }
 
-func copyEtcd(source, dest *etcdProcess) error {
+func copyEtcd(source *etcdProcess, dest etcdclient.NodeSink) error {
 	sourceClient, err := source.NewClient()
 	if err != nil {
 		return fmt.Errorf("error building etcd client: %v", err)
 	}
 	defer sourceClient.Close()
-	destClient, err := dest.NewClient()
-	if err != nil {
-		return fmt.Errorf("error building etcd client: %v", err)
-	}
-	defer destClient.Close()
 
 	for i := 0; i < 60; i++ {
 		ctx := context.TODO()
@@ -184,7 +199,7 @@ func copyEtcd(source, dest *etcdProcess) error {
 
 	glog.Infof("copying etcd keys from backup-restore process to new cluster")
 	ctx := context.TODO()
-	if n, err := sourceClient.CopyTo(ctx, destClient); err != nil {
+	if n, err := sourceClient.CopyTo(ctx, dest); err != nil {
 		return fmt.Errorf("error copying keys: %v", err)
 	} else {
 		glog.Infof("restored %d keys", n)
