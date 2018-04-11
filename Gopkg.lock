@@ -65,6 +65,16 @@
   version = "v0.2.0"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/denverdino/aliyungo"
+  packages = [
+    "common",
+    "oss",
+    "util"
+  ]
+  revision = "ed76a3738861ab34fc2964fa33fe27b78a26d3ae"
+
+[[projects]]
   name = "github.com/go-ini/ini"
   packages = ["."]
   revision = "32e4c1e6bc4e7d0d8451aa6b75200d19e37a536a"
@@ -77,7 +87,6 @@
   revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
 
 [[projects]]
-  branch = "master"
   name = "github.com/golang/protobuf"
   packages = [
     "jsonpb",
@@ -89,7 +98,7 @@
     "ptypes/struct",
     "ptypes/timestamp"
   ]
-  revision = "1643683e1b54a9e88ad26d98f81400c8c9d9f4f9"
+  revision = "925541529c1fa6821df4e44ce2723319eb2be768"
 
 [[projects]]
   branch = "master"
@@ -150,7 +159,6 @@
   revision = "1875d0a70c90e57f11972aefd42276df65e895b9"
 
 [[projects]]
-  branch = "master"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -162,7 +170,7 @@
     "lex/httplex",
     "trace"
   ]
-  revision = "01c190206fbdffa42f334f4b2bf2220f50e64920"
+  revision = "136a25c244d3019482a795d728110278d6ba09a4"
 
 [[projects]]
   branch = "master"
@@ -238,9 +246,14 @@
   name = "google.golang.org/grpc"
   packages = [
     ".",
+    "balancer",
+    "balancer/base",
+    "balancer/roundrobin",
     "codes",
     "connectivity",
     "credentials",
+    "encoding",
+    "encoding/proto",
     "grpclb/grpc_lb_v1/messages",
     "grpclog",
     "health/grpc_health_v1",
@@ -249,13 +262,15 @@
     "metadata",
     "naming",
     "peer",
+    "resolver",
+    "resolver/dns",
+    "resolver/passthrough",
     "stats",
     "status",
     "tap",
     "transport"
   ]
-  revision = "f92cdcd7dcdc69e81b2d7b338479a19a8723cfa3"
-  version = "v1.6.0"
+  revision = "8e4536a86ab602859c20df5ebfd0bd4228d08655"
 
 [[projects]]
   branch = "master"
@@ -272,11 +287,11 @@
     "util/pkg/hashing",
     "util/pkg/vfs"
   ]
-  revision = "b48ed40551bf71a602754773d89c4bc5dbb3ef8d"
+  revision = "7cf75298d2d097caccfcae93bca01829545a184e"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d43173da585ce73b8252adb7be58f4267d9ed64d44f7337e68b2c45fc640e5ca"
+  inputs-digest = "28705548c7ee47b6148aa21bb2191bf46d09c0e2ed65de9a7b8948b322af1703"
   solver-name = "gps-cdcl"
   solver-version = 1
