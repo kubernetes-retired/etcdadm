@@ -2,6 +2,8 @@
 go-tests = true
 unused-packages = true
 
+# These should generally be synced with https://github.com/bazelbuild/rules_go/blob/master/go/private/repositories.bzl
+
 [[constraint]]
   name = "github.com/coreos/etcd"
   version = "3.2.12"
@@ -11,21 +13,17 @@ unused-packages = true
   name = "github.com/golang/glog"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/golang/protobuf"
-
-[[override]]
-  name = "github.com/ugorji/go"
-  revision = "ded73eae5db7e7a0ef6f55aace87a2873c5d2b74"
+  revision = "925541529c1fa6821df4e44ce2723319eb2be768" # v1.0.0, as of 2018-02-16
 
 [[constraint]]
-  branch = "master"
   name = "golang.org/x/net"
+  revision = "136a25c244d3019482a795d728110278d6ba09a4"  # master as of 2018-02-16
 
 [[constraint]]
   name = "google.golang.org/grpc"
-  version = "1.6.0"
+  revision = "8e4536a86ab602859c20df5ebfd0bd4228d08655"  # v1.10.0, latest as of 2018-02-16
 
 [[constraint]]
   name = "k8s.io/kops"
-  revision = "b48ed40551bf71a602754773d89c4bc5dbb3ef8d"
+  revision = "7cf75298d2d097caccfcae93bca01829545a184e" # 1.9.0-beta.2
