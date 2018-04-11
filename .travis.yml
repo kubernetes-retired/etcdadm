@@ -8,8 +8,8 @@ os:
 #  - osx
 
 env:
-  - BAZEL_VERSION=0.8.1
-  - BAZEL_VERSION=0.9.0
+  - BAZEL_VERSION=0.10.0
+  - BAZEL_VERSION=0.11.1
 
 before_install:
   - pwd
