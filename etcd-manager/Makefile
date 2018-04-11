@@ -20,37 +20,17 @@ gofmt:
 goimports:
 	goimports -w cmd/ pkg/ test/
 
-
-.PHONY: image-etcd-manager
-image-etcd-manager:
-	bazel build //images:*
-	bazel run //images:etcd-manager
-	docker tag bazel/images:etcd-manager ${DOCKER_REGISTRY}/etcd-manager:${DOCKER_TAG}
-
 .PHONY: push-etcd-manager
-push-etcd-manager: image-etcd-manager
-	docker push ${DOCKER_REGISTRY}/etcd-manager:${DOCKER_TAG}
-
-.PHONY: image-etcd-dump
-image-etcd-dump:
-	bazel build //images:*
-	bazel run //images:etcd-dump
-	docker tag bazel/images:etcd-dump ${DOCKER_REGISTRY}/etcd-dump:${DOCKER_TAG}
+push-etcd-manager:
+	DOCKER_REGISTRY=${DOCKER_REGISTRY} DOCKER_TAG=${DOCKER_TAG} bazel run //images:push-etcd-manager
 
 .PHONY: push-etcd-dump
-push-etcd-dump: image-etcd-dump
-	docker push ${DOCKER_REGISTRY}/etcd-dump:${DOCKER_TAG}
-
-
-.PHONY: image-etcd-backup
-image-etcd-backup:
-	bazel build //images:*
-	bazel run //images:etcd-backup
-	docker tag bazel/images:etcd-backup ${DOCKER_REGISTRY}/etcd-backup:${DOCKER_TAG}
+push-etcd-dump:
+	DOCKER_REGISTRY=${DOCKER_REGISTRY} DOCKER_TAG=${DOCKER_TAG} bazel run //images:push-etcd-dump
 
 .PHONY: push-etcd-backup
-push-etcd-backup: image-etcd-backup
-	docker push ${DOCKER_REGISTRY}/etcd-backup:${DOCKER_TAG}
+push-etcd-backup:
+	DOCKER_REGISTRY=${DOCKER_REGISTRY} DOCKER_TAG=${DOCKER_TAG} bazel run //images:push-etcd-backup
 
 .PHONY: push
 push: push-etcd-manager push-etcd-dump push-etcd-backup
