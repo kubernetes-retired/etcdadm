@@ -1,6 +1,7 @@
 package backup
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -42,7 +43,7 @@ func (s *vfsStore) AddBackup(srcFile string, sequence string, info *etcd.BackupI
 	if srcFile != "" {
 		srcPath := vfs.NewFSPath(srcFile)
 		destPath := s.backupsBase.Join(name).Join(DataFilename)
-		if err := vfsCopyFile(srcPath, destPath, nilACLOracle); err != nil {
+		if err := vfs.CopyFile(srcPath, destPath, nil); err != nil {
 			return "", fmt.Errorf("error copying %q to %q: %v", srcPath, destPath, err)
 		}
 	}
@@ -56,7 +57,7 @@ func (s *vfsStore) AddBackup(srcFile string, sequence string, info *etcd.BackupI
 			return "", fmt.Errorf("error marshalling state: %v", err)
 		}
 
-		err = p.WriteFile([]byte(data), nil)
+		err = p.WriteFile(bytes.NewReader([]byte(data)), nil)
 		if err != nil {
 			return "", fmt.Errorf("error writing file %q: %v", p, err)
 		}
@@ -178,29 +179,5 @@ func (s *vfsStore) DownloadBackup(name string, destFile string) error {
 
 	srcPath := s.backupsBase.Join(name).Join(DataFilename)
 	destPath := vfs.NewFSPath(destFile)
-	return vfsCopyFile(srcPath, destPath, nilACLOracle)
-}
-
-// TODO: Move to vfs
-var nilACLOracle = func(vfs.Path) (vfs.ACL, error) { return nil, nil }
-
-// vfsCopyFile copies the file from src to dest.
-func vfsCopyFile(srcFile vfs.Path, destFile vfs.Path, aclOracle vfs.ACLOracle) error {
-	srcData, err := srcFile.ReadFile()
-	if err != nil {
-		return fmt.Errorf("error reading source file %q: %v", srcFile, err)
-	}
-
-	acl, err := aclOracle(destFile)
-	if err != nil {
-		return err
-	}
-
-	// TODO: Don't buffer in memory
-	glog.V(2).Infof("Copying data (size = %d) from %s to %s", len(srcData), srcFile, destFile)
-	if err := destFile.WriteFile(srcData, acl); err != nil {
-		return fmt.Errorf("error writing dest file %q: %v", destFile, err)
-	}
-
-	return nil
+	return vfs.CopyFile(srcPath, destPath, nil)
 }
