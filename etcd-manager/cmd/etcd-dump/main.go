@@ -17,15 +17,20 @@ limitations under the License.
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/golang/glog"
+	"kope.io/etcd-manager/pkg/backup"
+	"kope.io/etcd-manager/pkg/etcd"
 	"kope.io/etcd-manager/pkg/etcd/dump"
+	"kope.io/etcd-manager/pkg/etcdclient"
 )
 
 func main() {
@@ -41,102 +46,95 @@ func main() {
 	fmt.Printf("etcd-dump\n")
 
 	if datadir == "" {
-		fmt.Printf("data-dir is required\n")
+		fmt.Fprintf(os.Stderr, "data-dir is required\n")
 		os.Exit(1)
 	}
 
-	_, err := os.Stat(datadir)
+	err := runDump(datadir, out)
 	if err != nil {
-		if os.IsNotExist(err) {
-			fmt.Printf("data-dir %q not found", datadir)
-			os.Exit(1)
-		} else {
-			fmt.Printf("error checking for data-dir %q: %v", datadir, err)
-			os.Exit(1)
-		}
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(1)
+	}
+}
+
+func runDump(backupFile string, out string) error {
+	backupFile = strings.TrimSuffix(backupFile, "/")
+	lastSlash := strings.LastIndex(backupFile, "/")
+	if lastSlash == -1 {
+		return fmt.Errorf("expected slash in %q", backupFile)
+	}
+	backupStoreBase := backupFile[:lastSlash]
+	backupName := backupFile[lastSlash+1:]
+
+	backupStore, err := backup.NewStore(backupStoreBase)
+	if err != nil {
+		return err
 	}
 
-	tmpdir, err := ioutil.TempDir("", "")
-	if err != nil {
-		fmt.Printf("error creating temp dir: %v", err)
-		os.Exit(1)
+	clusterToken := "restore-etcd-" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	tempDir := filepath.Join(os.TempDir(), clusterToken)
+	if err := os.MkdirAll(tempDir, 0700); err != nil {
+		return fmt.Errorf("error creating tempdir %q: %v", tempDir, err)
 	}
 
 	defer func() {
-		if err := os.RemoveAll(tmpdir); err != nil {
-			glog.Warningf("error removing tmpdir %q: %v", tmpdir, err)
+		if err := os.RemoveAll(tempDir); err != nil {
+			glog.Warningf("error cleaning up tempdir %q: %v", tempDir, err)
 		}
 	}()
 
-	if err := copyTree(datadir, tmpdir); err != nil {
-		fmt.Printf("error copying to temp dir: %v", err)
-		os.Exit(1)
+	process, err := etcd.RunEtcdFromBackup(backupStore, backupName, tempDir)
+	if err != nil {
+		return err
 	}
 
-	var listener dump.DumpSink
-	if out == "" {
-		listener, err = dump.NewStreamDumpSink(os.Stdout)
+	defer func() {
+		glog.Infof("stopping etcd that was reading backup")
+		err := process.Stop()
 		if err != nil {
-			fmt.Printf("unable to create stream: %v\n", err)
-			os.Exit(1)
+			glog.Warningf("unable to stop etcd process that was started for dump: %v", err)
+		}
+	}()
+
+	var nodeSink etcdclient.NodeSink
+	if out == "" {
+		nodeSink, err = dump.NewStreamDumpSink(os.Stdout)
+		if err != nil {
+			return fmt.Errorf("unable to create stream: %v", err)
 		}
 	} else {
-		listener, err = dump.NewTarDumpSink(out)
+		nodeSink, err = dump.NewTarDumpSink(out)
 		if err != nil {
-			fmt.Printf("unable to create file %q: %v\n", out, err)
-			os.Exit(1)
+			return fmt.Errorf("unable to create file %q: %v", out, err)
 		}
 	}
 
-	if err := dump.DumpBackup(tmpdir, listener); err != nil {
-		fmt.Printf("error during dump: %v\n", err)
-		os.Exit(1)
-	}
-}
-
-func copyTree(srcdir string, destdir string) error {
-	files, err := ioutil.ReadDir(srcdir)
+	sourceClient, err := process.NewClient()
 	if err != nil {
-		return fmt.Errorf("error reading dir %q: %v", srcdir, err)
+		return fmt.Errorf("error building etcd client: %v", err)
+	}
+	defer sourceClient.Close()
+
+	for i := 0; i < 60; i++ {
+		ctx := context.TODO()
+		_, err := sourceClient.Get(ctx, "/", true)
+		if err == nil {
+			break
+		}
+		glog.Infof("Waiting for etcd to start (%v)", err)
+		time.Sleep(time.Second)
 	}
 
-	for _, f := range files {
-		src := filepath.Join(srcdir, f.Name())
-		dest := filepath.Join(destdir, f.Name())
+	ctx := context.TODO()
+	if n, err := sourceClient.CopyTo(ctx, nodeSink); err != nil {
+		return fmt.Errorf("error copying keys to sink: %v", err)
+	} else {
+		glog.Infof("read %d keys", n)
+	}
 
-		if f.IsDir() {
-			if err := os.Mkdir(dest, 0755); err != nil {
-				return fmt.Errorf("error creating dir %q: %v", dest, err)
-			}
-			if err := copyTree(src, dest); err != nil {
-				return err
-			}
-		} else {
-			if err := copyFile(src, dest); err != nil {
-				return err
-			}
-		}
+	if err := nodeSink.Close(); err != nil {
+		return err
 	}
 
 	return nil
-}
-
-func copyFile(src, dst string) error {
-	in, err := os.Open(src)
-	if err != nil {
-		return err
-	}
-	defer in.Close()
-
-	out, err := os.Create(dst)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	_, err = io.Copy(out, in)
-	if err != nil {
-		return err
-	}
-	return out.Close()
 }

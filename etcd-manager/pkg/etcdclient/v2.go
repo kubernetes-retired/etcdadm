@@ -130,11 +130,11 @@ func (c *V2Client) RemoveMember(ctx context.Context, member *EtcdProcessMember) 
 	return err
 }
 
-func (c *V2Client) CopyTo(ctx context.Context, dest EtcdClient) (int, error) {
+func (c *V2Client) CopyTo(ctx context.Context, dest NodeSink) (int, error) {
 	return c.copySubtree(ctx, "/", dest)
 }
 
-func (c *V2Client) copySubtree(ctx context.Context, p string, dest EtcdClient) (int, error) {
+func (c *V2Client) copySubtree(ctx context.Context, p string, dest NodeSink) (int, error) {
 	count := 0
 	opts := &etcd_client_v2.GetOptions{
 		Quorum: false,
