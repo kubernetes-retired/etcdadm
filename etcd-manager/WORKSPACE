@@ -30,10 +30,10 @@ container_repositories()
 # Some potential here: https://github.com/GoogleCloudPlatform/base-images-docker
 container_pull(
     name = "debian_base_amd64",
-    digest = "sha256:1a05a58432254268c31ef5c8d9c21f3d01a40611b14707de6ac2772c0793bd13",
+    digest = "sha256:cc782ed16599000ca4c85d47ec6264753747ae1e77520894dca84b104a7621e2",
     registry = "gcr.io",
     repository = "google-containers/debian-hyperkube-base-amd64",
-    tag = "0.7",
+    tag = "0.10",
 )
 
 
