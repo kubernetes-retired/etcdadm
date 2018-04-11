@@ -1,6 +1,7 @@
 package fs
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 
@@ -45,7 +46,7 @@ func (d *VFSDiscovery) publish() error {
 	}
 
 	p := d.base.Join(string(d.me.ID))
-	if err := p.WriteFile(meJson, nil); err != nil {
+	if err := p.WriteFile(bytes.NewReader(meJson), nil); err != nil {
 		return fmt.Errorf("error writing file %s: %v", p, err)
 	}
 
