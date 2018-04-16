@@ -1,6 +1,3 @@
-DOCKER_REGISTRY?=$(shell whoami)
-DOCKER_TAG?=latest
-
 .PHONY: all
 all: test
 
@@ -22,15 +19,15 @@ goimports:
 
 .PHONY: push-etcd-manager
 push-etcd-manager:
-	DOCKER_REGISTRY=${DOCKER_REGISTRY} DOCKER_TAG=${DOCKER_TAG} bazel run //images:push-etcd-manager
+	bazel run //images:push-etcd-manager
 
 .PHONY: push-etcd-dump
 push-etcd-dump:
-	DOCKER_REGISTRY=${DOCKER_REGISTRY} DOCKER_TAG=${DOCKER_TAG} bazel run //images:push-etcd-dump
+	bazel run //images:push-etcd-dump
 
 .PHONY: push-etcd-backup
 push-etcd-backup:
-	DOCKER_REGISTRY=${DOCKER_REGISTRY} DOCKER_TAG=${DOCKER_TAG} bazel run //images:push-etcd-backup
+	bazel run //images:push-etcd-backup
 
 .PHONY: push
 push: push-etcd-manager push-etcd-dump push-etcd-backup
