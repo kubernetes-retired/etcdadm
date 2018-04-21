@@ -7,7 +7,7 @@ import (
 )
 
 const MetaFilename = "_etcd_backup.meta"
-const DataFilename = "etcd.backup.tgz"
+const DataFilename = "etcd.backup.gz"
 
 type Store interface {
 	Spec() string
