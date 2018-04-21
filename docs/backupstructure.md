@@ -8,7 +8,7 @@ As such, the format is intended to be minimal and hopefully "unsuprising"
 ## Overview
 
 Backups are stored in a filesystem like structure.  The etcd data itself is backed up using the appropriate etcd backup tool,
-a snapshot for v3, and a backup directory tree for v2.  Then a single file `etcd.backup.tgz` is created for the backup data.
+a snapshot for v3, and a backup directory tree for v2.  Then a single file `etcd.backup.gz` is created for the backup data.
 For V2 this is a tarfile of the backup directory, and for V3 this simply a gzip compressed version of the snapshot.
 
 Alongside the data file, a backup program _should_ write a JSON file `_etcd_backup.meta`, containing
