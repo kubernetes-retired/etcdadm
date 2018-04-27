@@ -34,10 +34,9 @@ func (m *EtcdController) restoreBackupAndLiftQuarantine(parentContext context.Co
 				continue
 			} else {
 				restoreRequest = &protoetcd.DoRestoreRequest{
-					LeadershipToken: m.leadership.token,
-					ClusterName:     m.clusterName,
-					Storage:         m.backupStore.Spec(),
-					BackupName:      backup,
+					Header:     m.buildHeader(),
+					Storage:    m.backupStore.Spec(),
+					BackupName: backup,
 				}
 				break
 			}
@@ -92,9 +91,8 @@ func (m *EtcdController) updateQuarantine(ctx context.Context, clusterState *etc
 		}
 
 		request := &protoetcd.ReconfigureRequest{
-			LeadershipToken: m.leadership.token,
-			ClusterName:     m.clusterName,
-			Quarantined:     quarantined,
+			Header:      m.buildHeader(),
+			Quarantined: quarantined,
 		}
 
 		response, err := p.peer.rpcReconfigure(ctx, request)

@@ -23,13 +23,8 @@ func (s *EtcdServer) DoRestore(ctx context.Context, request *protoetcd.DoRestore
 
 	response := &protoetcd.DoRestoreResponse{}
 
-	if s.clusterName != request.ClusterName {
-		glog.Infof("request had incorrect ClusterName.  ClusterName=%q but request=%q", s.clusterName, request)
-		return nil, fmt.Errorf("ClusterName mismatch")
-	}
-
-	if !s.peerServer.IsLeader(request.LeadershipToken) {
-		return nil, fmt.Errorf("LeadershipToken in request %q is not current leader", request.LeadershipToken)
+	if err := s.validateHeader(request.Header); err != nil {
+		return nil, err
 	}
 
 	if s.process == nil {
