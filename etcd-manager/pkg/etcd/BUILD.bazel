@@ -12,9 +12,11 @@ go_library(
     importpath = "kope.io/etcd-manager/pkg/etcd",
     visibility = ["//visibility:public"],
     deps = [
+        "//pkg/apis/etcd:go_default_library",
         "//pkg/backup:go_default_library",
         "//pkg/contextutil:go_default_library",
         "//pkg/etcdclient:go_default_library",
+        "//pkg/privateapi:go_default_library",
         "//vendor/github.com/golang/glog:go_default_library",
         "//vendor/github.com/golang/protobuf/proto:go_default_library",
         "//vendor/golang.org/x/net/context:go_default_library",
