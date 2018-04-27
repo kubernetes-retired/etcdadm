@@ -66,8 +66,7 @@ func (m *EtcdController) stopForUpgrade(parentContext context.Context, clusterSp
 		}
 
 		request := &protoetcd.StopEtcdRequest{
-			ClusterName:     m.clusterName,
-			LeadershipToken: m.leadership.token,
+			Header: m.buildHeader(),
 		}
 		response, err := peer.rpcStopEtcd(ctx, request)
 		if err != nil {
