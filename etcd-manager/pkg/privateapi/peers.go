@@ -91,7 +91,7 @@ func (s *Server) updateFromDiscovery(discoveryNode discovery.Node) {
 
 	existing := s.peers[id]
 	if existing == nil {
-		glog.Infof("found new candidate peer from discovery: %s %v", id, discoveryNode.Addresses)
+		glog.Infof("found new candidate peer from discovery: %s %v", id, discoveryNode.Endpoints)
 		existing = &peer{
 			server: s,
 			id:     id,
@@ -228,25 +228,25 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 	opts = append(opts, grpc.WithInsecure())
 	//}
 
-	addresses := make(map[string]bool)
+	endpoints := make(map[string]bool)
 	{
 		p.mutex.Lock()
-		for _, address := range p.discoveryNode.Addresses {
-			addresses[address.Address] = true
+		for _, endpoint := range p.discoveryNode.Endpoints {
+			endpoints[endpoint.Endpoint] = true
 		}
 
 		if p.lastInfo != nil {
-			for _, address := range p.lastInfo.Addresses {
-				addresses[address] = true
+			for _, endpoint := range p.lastInfo.Endpoints {
+				endpoints[endpoint] = true
 			}
 		}
 
 		p.mutex.Unlock()
 	}
-	for address := range addresses {
-		conn, err := grpc.Dial(address, opts...)
+	for endpoint := range endpoints {
+		conn, err := grpc.Dial(endpoint, opts...)
 		if err != nil {
-			glog.Warningf("unable to connect to discovered peer %s: %v", address, err)
+			glog.Warningf("unable to connect to discovered peer %s: %v", endpoint, err)
 			continue
 		}
 
@@ -257,7 +257,7 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 		}
 		response, err := client.Ping(context, request)
 		if err != nil {
-			glog.Warningf("unable to talk to discovered peer %s: %v", address, err)
+			glog.Warningf("unable to talk to discovered peer %s: %v", endpoint, err)
 			conn.Close()
 			continue
 		}
@@ -279,7 +279,7 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 		return conn, nil
 	}
 
-	glog.Infof("was not able to connect to peer %s: %v", p.discoveryNode.ID, addresses)
+	glog.Infof("was not able to connect to peer %s: %v", p.discoveryNode.ID, endpoints)
 	return nil, nil
 }
 
