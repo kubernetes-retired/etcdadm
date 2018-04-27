@@ -55,12 +55,15 @@ message BackupInfo {
     ClusterSpec cluster_spec = 3;
 }
 
-message DoBackupRequest {
+message CommonRequestHeader {
     string leadership_token = 1;
+    string cluster_name = 2;
+}
+
+message DoBackupRequest {
+    CommonRequestHeader header = 1;
 
     string storage = 2;
-
-    string cluster_name = 3;
 
     // If allow_offline_backup is true, backup will be permitted even if etcd is not running on the node
     bool allow_offline_backup = 4;
@@ -74,11 +77,9 @@ message DoBackupResponse {
 
 
 message DoRestoreRequest {
-    string leadership_token = 1;
+    CommonRequestHeader header = 1;
 
     string storage = 2;
-
-    string cluster_name = 3;
 
     string backup_name = 4;
 }
@@ -88,19 +89,16 @@ message DoRestoreResponse {
 
 
 message StopEtcdRequest {
-    string leadership_token = 1;
-    string cluster_name = 2;
+    CommonRequestHeader header = 1;
 }
 
 message StopEtcdResponse {
 }
 
 message JoinClusterRequest {
-//    EtcdCluster cluster = 1;
-    string leadership_token = 1;
+    CommonRequestHeader header = 1;
 
     Phase phase = 2;
-    string cluster_name = 3;
     string cluster_token = 4;
     repeated EtcdNode nodes = 5;
 
@@ -121,9 +119,7 @@ message JoinClusterResponse {
 
 
 message ReconfigureRequest {
-    string leadership_token = 1;
-
-    string cluster_name = 3;
+    CommonRequestHeader header = 1;
 
     string etcd_version = 10;
 
