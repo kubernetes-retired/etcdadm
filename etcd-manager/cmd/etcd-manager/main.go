@@ -79,11 +79,12 @@ func main() {
 	}
 
 	grpcPort := 8000
+	grpcEndpoint := fmt.Sprintf("%s:%d", address, grpcPort)
 	discoMe := discovery.Node{
 		ID: string(uniqueID),
 	}
-	discoMe.Addresses = append(discoMe.Addresses, discovery.NodeAddress{
-		Address: fmt.Sprintf("%s:%d", address, grpcPort),
+	discoMe.Endpoints = append(discoMe.Endpoints, discovery.NodeEndpoint{
+		Endpoint: grpcEndpoint,
 	})
 
 	//disco, err := fsdiscovery.NewFilesystemDiscovery("/tmp/discovery", discoMe)
@@ -98,10 +99,9 @@ func main() {
 
 	ctx := context.TODO()
 
-	grpcAddress := fmt.Sprintf("%s:%d", address, grpcPort)
 	myInfo := privateapi.PeerInfo{
 		Id:        string(uniqueID),
-		Addresses: []string{fmt.Sprintf("%s:%d", address, grpcPort)},
+		Endpoints: []string{grpcEndpoint},
 	}
 	peerServer, err := privateapi.NewServer(ctx, myInfo, disco)
 	if err != nil {
@@ -136,7 +136,7 @@ func main() {
 		c.Run(ctx)
 	}()
 
-	if err := peerServer.ListenAndServe(ctx, grpcAddress); err != nil {
+	if err := peerServer.ListenAndServe(ctx, grpcEndpoint); err != nil {
 		if ctx.Err() == nil {
 			glog.Fatalf("error creating private API server: %v", err)
 		}
