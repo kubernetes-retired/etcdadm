@@ -77,12 +77,12 @@ func (m *BackupController) run(ctx context.Context) error {
 	}
 	members, err := etcdClient.ListMembers(ctx)
 	if err != nil {
-		etcdClient.Close()
+		etcdclient.LoggedClose(etcdClient)
 		return fmt.Errorf("unable to list members on %s: %v", m.clientUrls, err)
 	}
 
 	self, err := etcdClient.LocalNodeInfo(ctx)
-	etcdClient.Close()
+	etcdclient.LoggedClose(etcdClient)
 	if err != nil {
 		return fmt.Errorf("unable to get node state on %s: %v", m.clientUrls, err)
 	}

@@ -82,7 +82,7 @@ func (s *etcdClusterState) etcdAddMember(ctx context.Context, nodeInfo *protoetc
 		}
 
 		err = etcdClient.AddMember(ctx, nodeInfo.PeerUrls)
-		etcdClient.Close()
+		etcdclient.LoggedClose(etcdClient)
 		if err != nil {
 			glog.Warningf("unable to add member %s on peer %s: %v", nodeInfo.PeerUrls, member.Name, err)
 			continue
@@ -102,7 +102,7 @@ func (s *etcdClusterState) etcdRemoveMember(ctx context.Context, member *etcdcli
 		}
 
 		err = etcdClient.RemoveMember(ctx, member)
-		etcdClient.Close()
+		etcdclient.LoggedClose(etcdClient)
 		if err != nil {
 			glog.Warningf("Remove member call failed on %s: %v", id, err)
 			continue
@@ -126,7 +126,7 @@ func (s *etcdClusterState) etcdGet(ctx context.Context, key string) ([]byte, err
 		}
 
 		response, err := etcdClient.Get(ctx, key, true)
-		etcdClient.Close()
+		etcdclient.LoggedClose(etcdClient)
 		if err != nil {
 			glog.Warningf("error reading from member %s: %v", member, err)
 			continue
@@ -152,7 +152,7 @@ func (s *etcdClusterState) etcdCreate(ctx context.Context, key string, value []b
 		}
 
 		err = etcdClient.Put(ctx, key, value)
-		etcdClient.Close()
+		etcdclient.LoggedClose(etcdClient)
 		if err != nil {
 			return fmt.Errorf("error creating %q on member %s: %v", key, member, err)
 		}
