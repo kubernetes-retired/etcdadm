@@ -37,99 +37,201 @@ import (
 	vfsdiscovery "kope.io/etcd-manager/pkg/privateapi/discovery/vfs"
 )
 
+type stringSliceFlag []string
+
+func (v *stringSliceFlag) String() string {
+	return fmt.Sprintf("%v", *v)
+}
+
+func (v *stringSliceFlag) Set(value string) error {
+	*v = append(*v, value)
+	return nil
+}
+
 func main() {
 	flag.Set("logtostderr", "true")
 
-	address := "127.0.0.1"
-	flag.StringVar(&address, "address", address, "local address to use")
-	peerPort := 2380
-	flag.IntVar(&peerPort, "peer-port", peerPort, "peer-port to use")
-	clientUrls := "http://127.0.0.1:4001"
-	flag.StringVar(&clientUrls, "client-urls", clientUrls, "client-urls to use for normal operation")
-	quarantineClientUrls := "http://127.0.0.1:8001"
-	flag.StringVar(&quarantineClientUrls, "quarantine-client-urls", quarantineClientUrls, "client-urls to use when etcd should be quarantined e.g. when offline")
-	clusterName := ""
-	flag.StringVar(&clusterName, "cluster-name", clusterName, "name of cluster")
-	backupStorePath := "/backups"
-	flag.StringVar(&backupStorePath, "backup-store", backupStorePath, "backup store location")
-	dataDir := "/data"
-	flag.StringVar(&dataDir, "data-dir", dataDir, "directory for storing etcd data")
+	//flag.BoolVar(&volumes.Containerized, "containerized", volumes.Containerized, "set if we are running containerized")
+
+	var o EtcdManagerOptions
+	o.InitDefaults()
+
+	flag.StringVar(&o.Address, "address", o.Address, "local address to use")
+	flag.IntVar(&o.PeerPort, "peer-port", o.PeerPort, "peer-port to use")
+	flag.IntVar(&o.GrpcPort, "grpc-port", o.GrpcPort, "grpc-port to use")
+	flag.StringVar(&o.ClientUrls, "client-urls", o.ClientUrls, "client-urls to use for normal operation")
+	flag.StringVar(&o.QuarantineClientUrls, "quarantine-client-urls", o.QuarantineClientUrls, "client-urls to use when etcd should be quarantined e.g. when offline")
+	flag.StringVar(&o.ClusterName, "cluster-name", o.ClusterName, "name of cluster")
+	flag.StringVar(&o.BackupStorePath, "backup-store", o.BackupStorePath, "backup store location")
+	flag.StringVar(&o.DataDir, "data-dir", o.DataDir, "directory for storing etcd data")
+
+	flag.StringVar(&o.VolumeProviderID, "volume-provider", o.VolumeProviderID, "provider for volumes")
+
+	var volumeTags stringSliceFlag
+	flag.Var(&volumeTags, "volume-tag", "tag which volume is required to have")
 
 	flag.Parse()
 
+	o.VolumeTags = volumeTags
+
 	fmt.Printf("etcd-manager\n")
 
-	if clusterName == "" {
-		fmt.Fprintf(os.Stderr, "cluster-name is required\n")
+	err := RunEtcdManager(&o)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v", err)
 		os.Exit(1)
+	} else {
+		os.Exit(0)
+	}
+}
+
+// EtcdManagerOptions holds the flag options for running etcd-manager
+type EtcdManagerOptions struct {
+	Address              string
+	VolumeProviderID     string
+	PeerPort             int
+	GrpcPort             int
+	ClientUrls           string
+	QuarantineClientUrls string
+	ClusterName          string
+	BackupStorePath      string
+	DataDir              string
+	VolumeTags           []string
+}
+
+// InitDefaults populates the default flag values
+func (o *EtcdManagerOptions) InitDefaults() {
+	o.Address = "127.0.0.1"
+	o.PeerPort = 2380
+	o.ClientUrls = "http://127.0.0.1:4001"
+	o.QuarantineClientUrls = "http://127.0.0.1:8001"
+	o.GrpcPort = 8000
+	// o.BackupStorePath = "/backups"
+	// o.DataDir = "/data"
+}
+
+// RunEtcdManager runs the etcd-manager, returning only we should exit.
+func RunEtcdManager(o *EtcdManagerOptions) error {
+	if o.ClusterName == "" {
+		return fmt.Errorf("cluster-name is required")
 	}
 
-	if backupStorePath == "" {
-		fmt.Fprintf(os.Stderr, "backup-store is required\n")
-		os.Exit(1)
+	if o.BackupStorePath == "" {
+		return fmt.Errorf("backup-store is required")
 	}
 
-	if err := os.MkdirAll(dataDir, 0755); err != nil {
-		glog.Fatalf("error doing mkdirs on base directory %s: %v", dataDir, err)
+	var discoveryProvider discovery.Interface
+	var myPeerId privateapi.PeerId
+
+	if o.VolumeProviderID != "" {
+		// var volumeProvider volumes.Volumes
+
+		switch o.VolumeProviderID {
+		case "aws":
+			// awsVolumeProvider, err := aws.NewAWSVolumes(o.VolumeTags, "%s:"+strconv.Itoa(o.GrpcPort))
+			// if err != nil {
+			// 	fmt.Fprintf(os.Stderr, "%v\n", err)
+			// 	os.Exit(1)
+			// }
+
+			// volumeProvider = awsVolumeProvider
+			// discoveryProvider = awsVolumeProvider
+
+		default:
+			fmt.Fprintf(os.Stderr, "unknown volume-provider %q\n", o.VolumeProviderID)
+			os.Exit(1)
+		}
+
+		// boot := &volumes.Boot{}
+		// boot.Init(volumeProvider)
+
+		// glog.Infof("Mounting available etcd volumes matching tags %v", o.VolumeTags)
+		// volumes := boot.WaitForVolumes()
+		// if len(volumes) == 0 {
+		// 	return fmt.Errorf("no volumes were mounted")
+		// }
+
+		// if len(volumes) != 1 {
+		// 	return fmt.Errorf("multiple volumes were mounted: %v", volumes)
+		// }
+
+		// o.DataDir = volumes[0].Mountpoint
+		// myPeerId = privateapi.PeerId(volumes[0].ID)
+
+		// glog.Infof("Setting data dir to %s", o.DataDir)
 	}
 
-	uniqueID, err := privateapi.PersistentPeerId(dataDir)
-	if err != nil {
-		glog.Fatalf("error getting persistent peer id: %v", err)
+	if err := os.MkdirAll(o.DataDir, 0755); err != nil {
+		return fmt.Errorf("error doing mkdirs on base directory %s: %v", o.DataDir, err)
 	}
 
-	grpcPort := 8000
-	grpcEndpoint := fmt.Sprintf("%s:%d", address, grpcPort)
-	discoMe := discovery.Node{
-		ID: string(uniqueID),
+	if myPeerId == "" {
+		uniqueID, err := privateapi.PersistentPeerId(o.DataDir)
+		if err != nil {
+			return fmt.Errorf("error getting persistent peer id: %v", err)
+		}
+		myPeerId = uniqueID
 	}
-	discoMe.Endpoints = append(discoMe.Endpoints, discovery.NodeEndpoint{
-		Endpoint: grpcEndpoint,
-	})
 
-	//disco, err := fsdiscovery.NewFilesystemDiscovery("/tmp/discovery", discoMe)
-	p, err := vfs.Context.BuildVfsPath("file:///tmp/discovery")
-	if err != nil {
-		glog.Fatalf("error parsing vfs path: %v", err)
-	}
-	disco, err := vfsdiscovery.NewVFSDiscovery(p, discoMe)
-	if err != nil {
-		glog.Fatalf("error building discovery: %v", err)
+	grpcEndpoint := fmt.Sprintf("%s:%d", o.Address, o.GrpcPort)
+
+	if discoveryProvider == nil {
+		discoMe := discovery.Node{
+			ID: string(myPeerId),
+		}
+
+		discoMe.Endpoints = append(discoMe.Endpoints, discovery.NodeEndpoint{
+			Endpoint: grpcEndpoint,
+		})
+
+		glog.Warningf("Using fake discovery manager")
+		p, err := vfs.Context.BuildVfsPath("file:///tmp/discovery")
+		if err != nil {
+			return fmt.Errorf("error parsing vfs path: %v", err)
+		}
+		vfsDiscovery, err := vfsdiscovery.NewVFSDiscovery(p, discoMe)
+		if err != nil {
+			return fmt.Errorf("error building discovery: %v", err)
+		}
+		discoveryProvider = vfsDiscovery
 	}
 
 	ctx := context.TODO()
 
 	myInfo := privateapi.PeerInfo{
-		Id:        string(uniqueID),
+		Id:        string(myPeerId),
 		Endpoints: []string{grpcEndpoint},
 	}
-	peerServer, err := privateapi.NewServer(ctx, myInfo, disco)
+	peerServer, err := privateapi.NewServer(ctx, myInfo, discoveryProvider)
 	if err != nil {
-		glog.Fatalf("error building server: %v", err)
+		return fmt.Errorf("error building server: %v", err)
 	}
 
 	var peerUrls []string
-	peerUrls = append(peerUrls, fmt.Sprintf("http://%s:%d", address, peerPort))
+	peerUrls = append(peerUrls, fmt.Sprintf("http://%s:%d", o.Address, o.PeerPort))
 
 	etcdNodeInfo := &apis_etcd.EtcdNode{
-		Name:                  string(uniqueID),
-		ClientUrls:            strings.Split(clientUrls, ","),
-		QuarantinedClientUrls: strings.Split(quarantineClientUrls, ","),
+		Name:                  string(myPeerId),
+		ClientUrls:            strings.Split(o.ClientUrls, ","),
+		QuarantinedClientUrls: strings.Split(o.QuarantineClientUrls, ","),
 		PeerUrls:              peerUrls,
 	}
 
-	backupStore, err := backup.NewStore(backupStorePath)
+	backupStore, err := backup.NewStore(o.BackupStorePath)
 	if err != nil {
-		glog.Fatalf("error initializing backup store: %v", err)
+		return fmt.Errorf("error initializing backup store: %v", err)
 	}
 
-	etcdServer := etcd.NewEtcdServer(dataDir, clusterName, etcdNodeInfo, peerServer)
+	etcdServer, err := etcd.NewEtcdServer(o.DataDir, o.ClusterName, etcdNodeInfo, peerServer)
+	if err != nil {
+		return fmt.Errorf("error initializing etcd server: %v", err)
+	}
 	go etcdServer.Run(ctx)
 
 	var leaderLock locking.Lock // nil
-	c, err := controller.NewEtcdController(leaderLock, backupStore, clusterName, peerServer)
+	c, err := controller.NewEtcdController(leaderLock, backupStore, o.ClusterName, peerServer)
 	if err != nil {
-		glog.Fatalf("error building etcd controller: %v", err)
+		return fmt.Errorf("error building etcd controller: %v", err)
 	}
 	go func() {
 		time.Sleep(2 * time.Second) // Gives a bit of time for discovery to run first
@@ -138,9 +240,9 @@ func main() {
 
 	if err := peerServer.ListenAndServe(ctx, grpcEndpoint); err != nil {
 		if ctx.Err() == nil {
-			glog.Fatalf("error creating private API server: %v", err)
+			return fmt.Errorf("error creating private API server: %v", err)
 		}
 	}
 
-	os.Exit(0)
+	return nil
 }
