@@ -465,7 +465,7 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 			continue
 		}
 		members, err := etcdClient.ListMembers(ctx)
-		etcdClient.Close()
+		etcdclient.LoggedClose(etcdClient)
 		if err != nil {
 			glog.Warningf("unable to reach member %s: %v", p, err)
 			continue
@@ -494,7 +494,7 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 		}
 
 		_, err = etcdClient.ListMembers(ctx)
-		etcdClient.Close()
+		etcdclient.LoggedClose(etcdClient)
 		if err != nil {
 			glog.Warningf("health-check unable to reach member %s: %v", id, err)
 			continue
