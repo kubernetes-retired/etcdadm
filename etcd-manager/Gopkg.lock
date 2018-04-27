@@ -186,6 +186,12 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/sys"
+  packages = ["unix"]
+  revision = "cbbc999da32df943dac6cd71eb3ee39e1d7838b9"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/text"
   packages = [
     "collate",
@@ -277,6 +283,7 @@
   name = "k8s.io/apimachinery"
   packages = [
     "pkg/util/runtime",
+    "pkg/util/sets",
     "pkg/util/wait"
   ]
   revision = "91d8586aac31d9086939d077ba556d2c7fb157b4"
@@ -287,11 +294,27 @@
     "util/pkg/hashing",
     "util/pkg/vfs"
   ]
-  revision = "7cf75298d2d097caccfcae93bca01829545a184e"
+  revision = "cccd71e67e681754759c5cf7f66850d8908613b6"
+
+[[projects]]
+  name = "k8s.io/kubernetes"
+  packages = [
+    "pkg/util/io",
+    "pkg/util/mount",
+    "pkg/util/nsenter"
+  ]
+  revision = "81753b10df112992bf51bbc2c2f85208aad78335"
+  version = "v1.10.2"
+
+[[projects]]
+  branch = "master"
+  name = "k8s.io/utils"
+  packages = ["exec"]
+  revision = "258e2a2fa64568210fbd6267cf1d8fd87c3cb86e"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "28705548c7ee47b6148aa21bb2191bf46d09c0e2ed65de9a7b8948b322af1703"
+  inputs-digest = "f617b54c939752e301205e7d199cf77b5dde715a1181e7d0ada9f767beec289d"
   solver-name = "gps-cdcl"
   solver-version = 1
