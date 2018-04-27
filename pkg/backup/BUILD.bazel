@@ -10,6 +10,7 @@ go_library(
     importpath = "kope.io/etcd-manager/pkg/backup",
     visibility = ["//visibility:public"],
     deps = [
+        "//pkg/apis/etcd:go_default_library",
         "//pkg/ioutils:go_default_library",
         "//vendor/github.com/golang/glog:go_default_library",
         "//vendor/k8s.io/kops/util/pkg/vfs:go_default_library",
