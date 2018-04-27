@@ -26,4 +26,4 @@ unused-packages = true
 
 [[constraint]]
   name = "k8s.io/kops"
-  revision = "7cf75298d2d097caccfcae93bca01829545a184e" # 1.9.0-beta.2
+  revision = "cccd71e67e681754759c5cf7f66850d8908613b6" # 1.9.0
