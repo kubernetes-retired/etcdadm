@@ -5,10 +5,10 @@ type Interface interface {
 }
 
 type Node struct {
-	ID        string        `json:"id"`
-	Addresses []NodeAddress `json:"addresses"`
+	ID        string         `json:"id"`
+	Endpoints []NodeEndpoint `json:"endpoints"`
 }
 
-type NodeAddress struct {
-	Address string `json:"address"`
+type NodeEndpoint struct {
+	Endpoint string `json:"endpoint"`
 }
