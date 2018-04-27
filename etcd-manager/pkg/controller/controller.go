@@ -28,6 +28,7 @@ const removeUnhealthyDeadline = time.Minute // TODO: increase
 // defaultCycleInterval is the default value of EtcdController::CycleInterval
 const defaultCycleInterval = 10 * time.Second
 
+// EtcdController is the controller that runs the etcd cluster - adding & removing members, backups/restores etcd
 type EtcdController struct {
 	clusterName string
 	backupStore backup.Store
@@ -63,6 +64,7 @@ type leadershipState struct {
 	acked map[privateapi.PeerId]bool
 }
 
+// NewEtcdController is the constructor for an EtcdController
 func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, clusterName string, peers privateapi.Peers) (*EtcdController, error) {
 	if clusterName == "" {
 		return nil, fmt.Errorf("ClusterName is required")
@@ -78,6 +80,7 @@ func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, cluste
 	return m, nil
 }
 
+// Run starts an EtcdController.  It runs indefinitely - until ctx is no longer valid.
 func (m *EtcdController) Run(ctx context.Context) {
 	contextutil.Forever(ctx,
 		time.Millisecond, // We do our own sleeping
@@ -474,11 +477,11 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 		clusterState.members = make(map[EtcdMemberId]*etcdclient.EtcdProcessMember)
 		for _, m := range members {
 			// Note that members don't necessarily have names, when they are added but not yet merged
-			memberId := EtcdMemberId(m.ID)
-			if memberId == "" {
+			memberID := EtcdMemberId(m.ID)
+			if memberID == "" {
 				glog.Fatalf("etcd member did not have ID: %v", m)
 			}
-			clusterState.members[memberId] = m
+			clusterState.members[memberID] = m
 		}
 		break
 	}
@@ -569,12 +572,11 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterSpec *prot
 
 		{
 			joinClusterRequest := &protoetcd.JoinClusterRequest{
-				LeadershipToken: m.leadership.token,
-				Phase:           protoetcd.Phase_PHASE_PREPARE,
-				ClusterName:     m.clusterName,
-				ClusterToken:    clusterToken,
-				EtcdVersion:     etcdVersion,
-				Nodes:           nodes,
+				Header:       m.buildHeader(),
+				Phase:        protoetcd.Phase_PHASE_PREPARE,
+				ClusterToken: clusterToken,
+				EtcdVersion:  etcdVersion,
+				Nodes:        nodes,
 			}
 
 			joinClusterResponse, err := peer.peer.rpcJoinCluster(ctx, joinClusterRequest)
@@ -595,12 +597,11 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterSpec *prot
 
 		{
 			joinClusterRequest := &protoetcd.JoinClusterRequest{
-				LeadershipToken: m.leadership.token,
-				Phase:           protoetcd.Phase_PHASE_JOIN_EXISTING,
-				ClusterName:     m.clusterName,
-				ClusterToken:    clusterToken,
-				EtcdVersion:     etcdVersion,
-				Nodes:           nodes,
+				Header:       m.buildHeader(),
+				Phase:        protoetcd.Phase_PHASE_JOIN_EXISTING,
+				ClusterToken: clusterToken,
+				EtcdVersion:  etcdVersion,
+				Nodes:        nodes,
 			}
 
 			joinClusterResponse, err := peer.peer.rpcJoinCluster(ctx, joinClusterRequest)
@@ -631,10 +632,9 @@ func (m *EtcdController) doClusterBackup(ctx context.Context, clusterSpec *proto
 			ClusterSpec: clusterSpec,
 		}
 		doBackupRequest := &protoetcd.DoBackupRequest{
-			LeadershipToken: m.leadership.token,
-			ClusterName:     m.clusterName,
-			Storage:         m.backupStore.Spec(),
-			Info:            info,
+			Header:  m.buildHeader(),
+			Storage: m.backupStore.Spec(),
+			Info:    info,
 		}
 
 		doBackupResponse, err := peer.peer.rpcDoBackup(ctx, doBackupRequest)
@@ -785,10 +785,8 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterSpec *prot
 	for _, p := range proposal {
 		// Note the we may send the message to ourselves
 		joinClusterRequest := &protoetcd.JoinClusterRequest{
-			LeadershipToken: m.leadership.token,
-
+			Header:       m.buildHeader(),
 			Phase:        protoetcd.Phase_PHASE_PREPARE,
-			ClusterName:  m.clusterName,
 			ClusterToken: clusterToken,
 			EtcdVersion:  clusterSpec.EtcdVersion,
 			Nodes:        proposedNodes,
@@ -805,10 +803,8 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterSpec *prot
 	for _, p := range proposal {
 		// Note the we may send the message to ourselves
 		joinClusterRequest := &protoetcd.JoinClusterRequest{
-			LeadershipToken: m.leadership.token,
-
+			Header:       m.buildHeader(),
 			Phase:        protoetcd.Phase_PHASE_INITIAL_CLUSTER,
-			ClusterName:  m.clusterName,
 			ClusterToken: clusterToken,
 			EtcdVersion:  clusterSpec.EtcdVersion,
 			Nodes:        proposedNodes,
@@ -826,4 +822,11 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterSpec *prot
 	time.Sleep(2 * time.Second)
 
 	return true, nil
+}
+
+func (m *EtcdController) buildHeader() *protoetcd.CommonRequestHeader {
+	return &protoetcd.CommonRequestHeader{
+		LeadershipToken: m.leadership.token,
+		ClusterName:     m.clusterName,
+	}
 }
