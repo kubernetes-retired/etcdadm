@@ -10,6 +10,7 @@ go_library(
     importpath = "kope.io/etcd-manager/pkg/backupcontroller",
     visibility = ["//visibility:public"],
     deps = [
+        "//pkg/apis/etcd:go_default_library",
         "//pkg/backup:go_default_library",
         "//pkg/contextutil:go_default_library",
         "//pkg/etcd:go_default_library",
