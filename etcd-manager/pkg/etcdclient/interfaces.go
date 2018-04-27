@@ -8,6 +8,7 @@ import (
 	"time"
 
 	etcd_client_v2 "github.com/coreos/etcd/client"
+	"github.com/golang/glog"
 )
 
 // EtcdClient is an abstract client for V2 and V3
@@ -92,4 +93,11 @@ func ServerVersion(ctx context.Context, endpoints []string) (string, error) {
 		return "", err
 	}
 	return v.Server, nil
+}
+
+// LoggedClose closes the etcdclient, warning on error
+func LoggedClose(etcdClient EtcdClient) {
+	if err := etcdClient.Close(); err != nil {
+		glog.Warningf("error closing etcd client: %v", err)
+	}
 }
