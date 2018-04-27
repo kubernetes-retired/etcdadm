@@ -162,15 +162,8 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	if request.ClusterName != s.clusterName {
-		glog.Infof("request had incorrect ClusterName.  ClusterName=%q but request=%q", s.clusterName, request)
-		return nil, fmt.Errorf("ClusterName mismatch")
-	}
-
-	// TODO: Validate (our) peer id?
-
-	if !s.peerServer.IsLeader(request.LeadershipToken) {
-		return nil, fmt.Errorf("LeadershipToken in request %q is not current leader", request.LeadershipToken)
+	if err := s.validateHeader(request.Header); err != nil {
+		return nil, err
 	}
 
 	if s.prepared != nil && time.Now().After(s.prepared.validUntil) {
@@ -286,15 +279,8 @@ func (s *EtcdServer) Reconfigure(ctx context.Context, request *protoetcd.Reconfi
 
 	glog.Infof("Reconfigure request: %v", request)
 
-	if request.ClusterName != s.clusterName {
-		glog.Infof("request had incorrect ClusterName.  ClusterName=%q but request=%q", s.clusterName, request)
-		return nil, fmt.Errorf("ClusterName mismatch")
-	}
-
-	// TODO: Validate (our) peer id?
-
-	if !s.peerServer.IsLeader(request.LeadershipToken) {
-		return nil, fmt.Errorf("LeadershipToken in request %q is not current leader", request.LeadershipToken)
+	if err := s.validateHeader(request.Header); err != nil {
+		return nil, err
 	}
 
 	if s.state == nil {
@@ -354,15 +340,8 @@ func (s *EtcdServer) StopEtcd(ctx context.Context, request *protoetcd.StopEtcdRe
 
 	glog.Infof("StopEtcd request: %v", request)
 
-	if request.ClusterName != s.clusterName {
-		glog.Infof("request had incorrect ClusterName.  ClusterName=%q but request=%q", s.clusterName, request)
-		return nil, fmt.Errorf("ClusterName mismatch")
-	}
-
-	// TODO: Validate (our) peer id?
-
-	if !s.peerServer.IsLeader(request.LeadershipToken) {
-		return nil, fmt.Errorf("LeadershipToken in request %q is not current leader", request.LeadershipToken)
+	if err := s.validateHeader(request.Header); err != nil {
+		return nil, err
 	}
 
 	if s.state == nil {
@@ -390,13 +369,8 @@ func (s *EtcdServer) DoBackup(ctx context.Context, request *protoetcd.DoBackupRe
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	if s.clusterName != request.ClusterName {
-		glog.Infof("request had incorrect ClusterName.  ClusterName=%q but request=%q", s.clusterName, request)
-		return nil, fmt.Errorf("ClusterName mismatch")
-	}
-
-	if !s.peerServer.IsLeader(request.LeadershipToken) {
-		return nil, fmt.Errorf("LeadershipToken in request %q is not current leader", request.LeadershipToken)
+	if err := s.validateHeader(request.Header); err != nil {
+		return nil, err
 	}
 
 	if s.process == nil {
@@ -493,7 +467,7 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 	return nil
 }
 
-// StopEtcdProcess terminates etcd if it is running; primarily used for testing
+// StopEtcdProcessForTest terminates etcd if it is running; primarily used for testing
 func (s *EtcdServer) StopEtcdProcessForTest() (bool, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
@@ -514,4 +488,20 @@ func (s *EtcdServer) stopEtcdProcess() (bool, error) {
 	}
 	s.process = nil
 	return true, nil
+}
+
+// validateHeader checks the values in the CommonRequestHeader
+func (s *EtcdServer) validateHeader(header *protoetcd.CommonRequestHeader) error {
+	if header.ClusterName != s.clusterName {
+		glog.Infof("request had incorrect ClusterName.  ClusterName=%q but header=%q", s.clusterName, header)
+		return fmt.Errorf("ClusterName mismatch")
+	}
+
+	// TODO: Validate (our) peer id?
+
+	if !s.peerServer.IsLeader(header.LeadershipToken) {
+		return fmt.Errorf("LeadershipToken in request %q is not current leader", header.LeadershipToken)
+	}
+
+	return nil
 }
