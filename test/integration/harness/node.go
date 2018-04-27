@@ -45,11 +45,13 @@ func (n *TestHarnessNode) Run() {
 	}
 
 	grpcPort := 8000
+	grpcEndpoint := fmt.Sprintf("%s:%d", address, grpcPort)
+
 	discoMe := discovery.Node{
 		ID: string(uniqueID),
 	}
-	discoMe.Addresses = append(discoMe.Addresses, discovery.NodeAddress{
-		Address: fmt.Sprintf("%s:%d", n.Address, grpcPort),
+	discoMe.Endpoints = append(discoMe.Endpoints, discovery.NodeEndpoint{
+		Endpoint: grpcEndpoint,
 	})
 	p, err := vfs.Context.BuildVfsPath(n.TestHarness.DiscoveryStoreDir)
 	if err != nil {
@@ -60,10 +62,9 @@ func (n *TestHarnessNode) Run() {
 		glog.Fatalf("error building discovery: %v", err)
 	}
 
-	grpcAddress := fmt.Sprintf("%s:%d", address, grpcPort)
 	myInfo := privateapi.PeerInfo{
 		Id:        string(uniqueID),
-		Addresses: []string{address},
+		Endpoints: []string{grpcEndpoint},
 	}
 	peerServer, err := privateapi.NewServer(ctx, myInfo, disco)
 	peerServer.PingInterval = time.Second
@@ -124,7 +125,7 @@ func (n *TestHarnessNode) Run() {
 	n.etcdController = c
 	go c.Run(ctx)
 
-	if err := peerServer.ListenAndServe(ctx, grpcAddress); err != nil {
+	if err := peerServer.ListenAndServe(ctx, grpcEndpoint); err != nil {
 		if ctx.Done() == nil {
 			t.Fatalf("error creating private API server: %v", err)
 		}
