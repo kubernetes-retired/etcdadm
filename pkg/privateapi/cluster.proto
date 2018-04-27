@@ -24,7 +24,7 @@ message PingResponse {
 
 message PeerInfo {
     string id = 1;
-    repeated string addresses = 2;
+    repeated string endpoints = 2;
 }
 
 //message ViewExchangeRequest {
