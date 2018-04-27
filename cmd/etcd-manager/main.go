@@ -21,6 +21,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -35,6 +36,8 @@ import (
 	"kope.io/etcd-manager/pkg/privateapi"
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 	vfsdiscovery "kope.io/etcd-manager/pkg/privateapi/discovery/vfs"
+	"kope.io/etcd-manager/pkg/volumes"
+	"kope.io/etcd-manager/pkg/volumes/aws"
 )
 
 type stringSliceFlag []string
@@ -51,7 +54,7 @@ func (v *stringSliceFlag) Set(value string) error {
 func main() {
 	flag.Set("logtostderr", "true")
 
-	//flag.BoolVar(&volumes.Containerized, "containerized", volumes.Containerized, "set if we are running containerized")
+	flag.BoolVar(&volumes.Containerized, "containerized", volumes.Containerized, "set if we are running containerized")
 
 	var o EtcdManagerOptions
 	o.InitDefaults()
@@ -124,41 +127,41 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 	var myPeerId privateapi.PeerId
 
 	if o.VolumeProviderID != "" {
-		// var volumeProvider volumes.Volumes
+		var volumeProvider volumes.Volumes
 
 		switch o.VolumeProviderID {
 		case "aws":
-			// awsVolumeProvider, err := aws.NewAWSVolumes(o.VolumeTags, "%s:"+strconv.Itoa(o.GrpcPort))
-			// if err != nil {
-			// 	fmt.Fprintf(os.Stderr, "%v\n", err)
-			// 	os.Exit(1)
-			// }
+			awsVolumeProvider, err := aws.NewAWSVolumes(o.VolumeTags, "%s:"+strconv.Itoa(o.GrpcPort))
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%v\n", err)
+				os.Exit(1)
+			}
 
-			// volumeProvider = awsVolumeProvider
-			// discoveryProvider = awsVolumeProvider
+			volumeProvider = awsVolumeProvider
+			discoveryProvider = awsVolumeProvider
 
 		default:
 			fmt.Fprintf(os.Stderr, "unknown volume-provider %q\n", o.VolumeProviderID)
 			os.Exit(1)
 		}
 
-		// boot := &volumes.Boot{}
-		// boot.Init(volumeProvider)
+		boot := &volumes.Boot{}
+		boot.Init(volumeProvider)
 
-		// glog.Infof("Mounting available etcd volumes matching tags %v", o.VolumeTags)
-		// volumes := boot.WaitForVolumes()
-		// if len(volumes) == 0 {
-		// 	return fmt.Errorf("no volumes were mounted")
-		// }
+		glog.Infof("Mounting available etcd volumes matching tags %v", o.VolumeTags)
+		volumes := boot.WaitForVolumes()
+		if len(volumes) == 0 {
+			return fmt.Errorf("no volumes were mounted")
+		}
 
-		// if len(volumes) != 1 {
-		// 	return fmt.Errorf("multiple volumes were mounted: %v", volumes)
-		// }
+		if len(volumes) != 1 {
+			return fmt.Errorf("multiple volumes were mounted: %v", volumes)
+		}
 
-		// o.DataDir = volumes[0].Mountpoint
-		// myPeerId = privateapi.PeerId(volumes[0].ID)
+		o.DataDir = volumes[0].Mountpoint
+		myPeerId = privateapi.PeerId(volumes[0].ID)
 
-		// glog.Infof("Setting data dir to %s", o.DataDir)
+		glog.Infof("Setting data dir to %s", o.DataDir)
 	}
 
 	if err := os.MkdirAll(o.DataDir, 0755); err != nil {
