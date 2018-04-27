@@ -39,7 +39,7 @@ type preparedState struct {
 	clusterToken string
 }
 
-func NewEtcdServer(baseDir string, clusterName string, etcdNodeConfiguration *protoetcd.EtcdNode, peerServer *privateapi.Server) *EtcdServer {
+func NewEtcdServer(baseDir string, clusterName string, etcdNodeConfiguration *protoetcd.EtcdNode, peerServer *privateapi.Server) (*EtcdServer, error) {
 	s := &EtcdServer{
 		baseDir:               baseDir,
 		clusterName:           clusterName,
@@ -48,7 +48,7 @@ func NewEtcdServer(baseDir string, clusterName string, etcdNodeConfiguration *pr
 	}
 
 	protoetcd.RegisterEtcdManagerServiceServer(peerServer.GrpcServer(), s)
-	return s
+	return s, nil
 }
 
 var _ protoetcd.EtcdManagerServiceServer = &EtcdServer{}
