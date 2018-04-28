@@ -41,16 +41,19 @@ func (m *EtcdController) stopForUpgrade(parentContext context.Context, clusterSp
 	}
 
 	// Force a backup, even before we start to do anything
+	glog.Infof("backing up cluster before quarantine")
 	if _, err := m.doClusterBackup(ctx, clusterSpec, clusterState); err != nil {
 		return false, fmt.Errorf("error doing backup before upgrade/downgrade: %v", err)
 	}
 
 	// We quarantine first, so that we don't have to get down to a single node before it is safe to do a backup
+	glog.Infof("quaranting cluster for upgrade")
 	if _, err := m.updateQuarantine(ctx, clusterState, true); err != nil {
 		return false, err
 	}
 
 	// We do a backup
+	glog.Infof("backing up cluster after quarantine")
 	backupResponse, err := m.doClusterBackup(ctx, clusterSpec, clusterState)
 	if err != nil {
 		return false, err
