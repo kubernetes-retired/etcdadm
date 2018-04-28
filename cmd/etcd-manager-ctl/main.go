@@ -23,7 +23,7 @@ import (
 
 	"github.com/golang/glog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
-	"kope.io/etcd-manager/pkg/backup"
+	"kope.io/etcd-manager/pkg/commands"
 )
 
 func main() {
@@ -45,7 +45,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	backupStore, err := backup.NewStore(backupStorePath)
+	commandsStore, err := commands.NewStore(backupStorePath)
 	if err != nil {
 		glog.Fatalf("error initializing backup store: %v", err)
 	}
@@ -57,7 +57,7 @@ func main() {
 	cmd := &protoetcd.Command{
 		CreateNewCluster: &protoetcd.CreateNewClusterCommand{ClusterSpec: spec},
 	}
-	if err := backupStore.AddCommand(cmd); err != nil {
+	if err := commandsStore.AddCommand(cmd); err != nil {
 		glog.Fatalf("error building etcd controller: %v", err)
 	}
 
