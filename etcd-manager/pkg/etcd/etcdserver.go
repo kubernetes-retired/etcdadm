@@ -47,6 +47,11 @@ func NewEtcdServer(baseDir string, clusterName string, etcdNodeConfiguration *pr
 		etcdNodeConfiguration: etcdNodeConfiguration,
 	}
 
+	// Make sure we have read state from disk before serving
+	if err := s.initState(); err != nil {
+		return nil, err
+	}
+
 	protoetcd.RegisterEtcdManagerServiceServer(peerServer.GrpcServer(), s)
 	return s, nil
 }
@@ -95,7 +100,7 @@ func writeState(baseDir string, state *protoetcd.EtcdState) error {
 	return nil
 }
 
-func (s *EtcdServer) runOnce() error {
+func (s *EtcdServer) initState() error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -109,6 +114,17 @@ func (s *EtcdServer) runOnce() error {
 			s.state = state
 		}
 	}
+
+	return nil
+}
+
+func (s *EtcdServer) runOnce() error {
+	if err := s.initState(); err != nil {
+		return err
+	}
+
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 
 	// Check that etcd process is still running
 	if s.process != nil {
