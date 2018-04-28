@@ -17,6 +17,7 @@ import (
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/backupcontroller"
+	"kope.io/etcd-manager/pkg/commands"
 	"kope.io/etcd-manager/pkg/contextutil"
 	"kope.io/etcd-manager/pkg/etcdclient"
 	"kope.io/etcd-manager/pkg/locking"
@@ -52,8 +53,11 @@ type EtcdController struct {
 	// backupCleanup manages cleaning up old backups from the backupStore
 	backupCleanup *backupcontroller.BackupCleanup
 
+	// commandStore is the store / source of commands
+	commandStore commands.Store
+
 	// commands is the list of commands in the queue
-	commands []*backup.Command
+	commands []commands.Command
 }
 
 // peerState holds persistent information about a peer
@@ -68,7 +72,7 @@ type leadershipState struct {
 }
 
 // NewEtcdController is the constructor for an EtcdController
-func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, clusterName string, peers privateapi.Peers) (*EtcdController, error) {
+func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, commandStore commands.Store, clusterName string, peers privateapi.Peers) (*EtcdController, error) {
 	if clusterName == "" {
 		return nil, fmt.Errorf("ClusterName is required")
 	}
@@ -79,7 +83,9 @@ func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, cluste
 		leaderLock:    leaderLock,
 		CycleInterval: defaultCycleInterval,
 		backupCleanup: backupcontroller.NewBackupCleanup(backupStore),
+		commandStore:  commandStore,
 	}
+
 	return m, nil
 }
 
@@ -244,12 +250,12 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		if createNewClusterCommand != nil {
 			glog.Infof("got create-cluster command: %v", createNewClusterCommand.Data)
 
-			if createNewClusterCommand.Data.CreateNewCluster == nil || createNewClusterCommand.Data.CreateNewCluster.ClusterSpec == nil {
+			if createNewClusterCommand.Data().CreateNewCluster == nil || createNewClusterCommand.Data().CreateNewCluster.ClusterSpec == nil {
 				// Should be unreachable
 				return false, fmt.Errorf("CreateNewCluster was not set: %v", createNewClusterCommand)
 			}
 
-			clusterSpec = createNewClusterCommand.Data.CreateNewCluster.ClusterSpec
+			clusterSpec = createNewClusterCommand.Data().CreateNewCluster.ClusterSpec
 			created, err := m.createNewCluster(ctx, clusterState, clusterSpec)
 			if err != nil {
 				return created, err
@@ -266,12 +272,12 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		if restoreBackupCommand != nil {
 			glog.Infof("got restore-backup command: %v", restoreBackupCommand.Data)
 
-			if restoreBackupCommand.Data.RestoreBackup == nil || restoreBackupCommand.Data.RestoreBackup.ClusterSpec == nil {
+			if restoreBackupCommand.Data().RestoreBackup == nil || restoreBackupCommand.Data().RestoreBackup.ClusterSpec == nil {
 				// Should be unreachable
 				return false, fmt.Errorf("RestoreBackup was not set: %v", restoreBackupCommand)
 			}
 
-			clusterSpec = restoreBackupCommand.Data.RestoreBackup.ClusterSpec
+			clusterSpec = restoreBackupCommand.Data().RestoreBackup.ClusterSpec
 			return m.createNewCluster(ctx, clusterState, clusterSpec)
 			// We don't remove the command until the backup has been restored
 			// (but we break it into separate steps to try to ease recovery)
