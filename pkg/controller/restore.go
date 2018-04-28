@@ -3,86 +3,122 @@ package controller
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/golang/glog"
+	"github.com/golang/protobuf/proto"
+
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
+	"kope.io/etcd-manager/pkg/backup"
 )
 
-func (m *EtcdController) restoreBackupAndLiftQuarantine(parentContext context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState) (bool, error) {
-	changed := false
-
+func (m *EtcdController) restoreBackupAndLiftQuarantine(parentContext context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState, cmd *backup.Command) (bool, error) {
 	// We start a new context - this is pretty critical-path
 	ctx := context.Background()
 
-	var restoreRequest *protoetcd.DoRestoreRequest
-	{
-		backups, err := m.backupStore.ListBackups()
-		if err != nil {
-			return false, fmt.Errorf("error listing backups: %v", err)
-		}
-
-		for i := len(backups) - 1; i >= 0; i-- {
-			backup := backups[i]
-
-			info, err := m.backupStore.LoadInfo(backup)
-			if err != nil {
-				glog.Warningf("error reading backup info in %q: %v", backup, err)
-				continue
-			}
-			if info == nil || info.EtcdVersion == "" {
-				glog.Warningf("etcd version not found in %q", backup)
-				continue
-			} else {
-				restoreRequest = &protoetcd.DoRestoreRequest{
-					Header:     m.buildHeader(),
-					Storage:    m.backupStore.Spec(),
-					BackupName: backup,
-				}
-				break
-			}
-		}
+	if cmd.Data.RestoreBackup == nil || cmd.Data.RestoreBackup.Backup == "" {
+		// Should be unreachable
+		return false, fmt.Errorf("RestoreBackup not set in %v", cmd)
 	}
 
-	if restoreRequest != nil {
-		var peer *etcdClusterPeerInfo
-		for peerId, p := range clusterState.peers {
-			member := clusterState.FindHealthyMember(peerId)
-			if member == nil {
-				continue
-			}
-			peer = p
-		}
-		if peer == nil {
-			return false, fmt.Errorf("unable to find peer on which to run restore operation")
-		}
+	backup := cmd.Data.RestoreBackup.Backup
 
-		response, err := peer.peer.rpcDoRestore(ctx, restoreRequest)
-		if err != nil {
-			return false, fmt.Errorf("error restoring backup on peer %v: %v", peer.peer, err)
-		} else {
-			changed = true
+	info, err := m.backupStore.LoadInfo(backup)
+	if err != nil {
+		return false, fmt.Errorf("error reading backup info in %q: %v", backup, err)
+	}
+	if info == nil || info.EtcdVersion == "" {
+		return false, fmt.Errorf("etcd version not found in %q", backup)
+	}
+	restoreRequest := &protoetcd.DoRestoreRequest{
+		Header:     m.buildHeader(),
+		Storage:    m.backupStore.Spec(),
+		BackupName: backup,
+	}
+
+	var peer *etcdClusterPeerInfo
+	for peerId, p := range clusterState.peers {
+		member := clusterState.FindHealthyMember(peerId)
+		if member == nil {
+			continue
 		}
-		glog.V(2).Infof("DoRestoreResponse: %s", response)
-	} else {
-		// If we didn't restore a backup, we write the cluster spec to etcd
-		err := m.writeClusterSpec(ctx, clusterState, clusterSpec)
-		if err != nil {
+		peer = p
+	}
+	if peer == nil {
+		return false, fmt.Errorf("unable to find peer on which to run restore operation")
+	}
+
+	response, err := peer.peer.rpcDoRestore(ctx, restoreRequest)
+	if err != nil {
+		return false, fmt.Errorf("error restoring backup on peer %v: %v", peer.peer, err)
+	}
+	glog.V(2).Infof("DoRestoreResponse: %s", response)
+
+	// Write cluster spec to etcd - we may have written over it with the restore
+	{
+		newClusterSpec := proto.Clone(clusterSpec).(*protoetcd.ClusterSpec)
+
+		if err := m.writeClusterSpecAfterRestart(ctx, clusterState, newClusterSpec); err != nil {
 			return false, err
 		}
 	}
 
-	updated, err := m.updateQuarantine(ctx, clusterState, false)
-	if err != nil {
-		return changed, err
+	// Remove command so we won't restore again
+	if err := m.removeCommand(ctx, cmd); err != nil {
+		return false, err
 	}
-	if updated {
-		changed = true
+
+	return true, nil
+}
+
+// writeClusterSpecAfterRestart waits for the cluster to be ready, and writes the updated cluster spec to it
+func (m *EtcdController) writeClusterSpecAfterRestart(ctx context.Context, clusterState *etcdClusterState, newClusterSpec *protoetcd.ClusterSpec) error {
+	deadline := time.Now().Add(time.Minute)
+
+	var lastErr error
+
+	for {
+		if time.Now().After(deadline) {
+			return fmt.Errorf("error getting cluster state after cluster start: %v", lastErr)
+		} else {
+			glog.Warningf("waiting to get cluster state after cluster restart: %v", lastErr)
+		}
+
+		time.Sleep(2 * time.Second)
+
+		var peerList []*peer
+		for _, p := range clusterState.peers {
+			peerList = append(peerList, p.peer)
+		}
+		newClusterState, err := m.updateClusterState(ctx, peerList)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+
+		// readyCount := 0
+		// for _, member := range newClusterState.members {
+		// 	if len(member.ClientURLs) > 0 {
+		// 		readyCount++
+		// 	}
+		// }
+
+		// if readyCount == 0 {
+		// 	lastErr = fmt.Errorf("cluster members were not ready")
+		// 	continue
+		// }
+
+		if err := m.writeClusterSpec(ctx, newClusterState, newClusterSpec); err != nil {
+			lastErr = err
+			continue
+		}
+
+		return nil
 	}
-	return changed, nil
 }
 
 func (m *EtcdController) updateQuarantine(ctx context.Context, clusterState *etcdClusterState, quarantined bool) (bool, error) {
-	glog.Infof("Setting quarantined state to %b", quarantined)
+	glog.Infof("Setting quarantined state to %t", quarantined)
 	changed := false
 	for peerId, p := range clusterState.peers {
 		member := clusterState.FindMember(peerId)

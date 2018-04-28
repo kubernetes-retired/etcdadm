@@ -131,7 +131,11 @@ func (h *TestHarness) SeedNewCluster(spec *protoetcd.ClusterSpec) {
 		t.Fatalf("error initializing backup store: %v", err)
 	}
 
-	if err := backupStore.SeedNewCluster(spec); err != nil {
+	cmd := &protoetcd.Command{
+		CreateNewCluster: &protoetcd.CreateNewClusterCommand{ClusterSpec: spec},
+	}
+
+	if err := backupStore.AddCommand(cmd); err != nil {
 		t.Fatalf("error seeding cluster: %v", err)
 	}
 }
