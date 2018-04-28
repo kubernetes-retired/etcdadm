@@ -27,9 +27,9 @@ import (
 
 	"github.com/golang/glog"
 	"k8s.io/kops/util/pkg/vfs"
-
 	apis_etcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
+	"kope.io/etcd-manager/pkg/commands"
 	"kope.io/etcd-manager/pkg/controller"
 	"kope.io/etcd-manager/pkg/etcd"
 	"kope.io/etcd-manager/pkg/locking"
@@ -225,6 +225,11 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 		return fmt.Errorf("error initializing backup store: %v", err)
 	}
 
+	commandStore, err := commands.NewStore(o.BackupStorePath)
+	if err != nil {
+		glog.Fatalf("error initializing command store: %v", err)
+	}
+
 	etcdServer, err := etcd.NewEtcdServer(o.DataDir, o.ClusterName, etcdNodeInfo, peerServer)
 	if err != nil {
 		return fmt.Errorf("error initializing etcd server: %v", err)
@@ -232,7 +237,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 	go etcdServer.Run(ctx)
 
 	var leaderLock locking.Lock // nil
-	c, err := controller.NewEtcdController(leaderLock, backupStore, o.ClusterName, peerServer)
+	c, err := controller.NewEtcdController(leaderLock, backupStore, commandStore, o.ClusterName, peerServer)
 	if err != nil {
 		return fmt.Errorf("error building etcd controller: %v", err)
 	}

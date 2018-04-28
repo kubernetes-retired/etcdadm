@@ -11,7 +11,7 @@ import (
 
 	"github.com/golang/glog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
-	"kope.io/etcd-manager/pkg/backup"
+	"kope.io/etcd-manager/pkg/commands"
 )
 
 // testCycleInterval is the cycle interval to use for tests.
@@ -126,16 +126,16 @@ func (h *TestHarness) WaitForHealthy(nodes ...*TestHarnessNode) {
 
 func (h *TestHarness) SeedNewCluster(spec *protoetcd.ClusterSpec) {
 	t := h.T
-	backupStore, err := backup.NewStore(h.BackupStorePath)
+	commandStore, err := commands.NewStore(h.BackupStorePath)
 	if err != nil {
-		t.Fatalf("error initializing backup store: %v", err)
+		t.Fatalf("error initializing command store: %v", err)
 	}
 
 	cmd := &protoetcd.Command{
 		CreateNewCluster: &protoetcd.CreateNewClusterCommand{ClusterSpec: spec},
 	}
 
-	if err := backupStore.AddCommand(cmd); err != nil {
+	if err := commandStore.AddCommand(cmd); err != nil {
 		t.Fatalf("error seeding cluster: %v", err)
 	}
 }
