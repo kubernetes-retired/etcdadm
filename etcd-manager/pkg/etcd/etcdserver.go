@@ -139,7 +139,7 @@ func (s *EtcdServer) GetInfo(context.Context, *protoetcd.GetInfoRequest) (*proto
 	response.ClusterName = s.clusterName
 	response.NodeConfiguration = s.etcdNodeConfiguration
 
-	if s.state != nil {
+	if s.state != nil && s.state.Cluster != nil {
 		response.EtcdState = s.state
 	}
 

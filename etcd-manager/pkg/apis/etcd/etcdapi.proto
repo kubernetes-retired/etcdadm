@@ -8,6 +8,32 @@ message ClusterSpec {
     string etcd_version = 2;
 }
 
+message Command {
+    int64 timestamp = 1;
+
+    // If restore backup is set, this indicates a request to restore the specified backup
+    // This is not normally safe (potential for data loss if the backup is out of date),
+    // but either the administrator can set this in a DR scenario,
+    // or we set it ourselves immediately after having performed a quarantined backup
+    RestoreBackupCommand restore_backup = 10;
+
+    // If set, indicates we should create a new (empty) cluster
+    // This is not normally safe, but the administrator can set this in a DR scenario,
+    // and tooling sets it for new clusters
+    CreateNewClusterCommand create_new_cluster = 11;
+}
+
+message RestoreBackupCommand {
+    // The new cluster spec we should restore into
+    ClusterSpec cluster_spec = 1;
+
+    string backup = 3;
+}
+
+message CreateNewClusterCommand {
+    ClusterSpec cluster_spec = 1;
+}
+
 service EtcdManagerService {
     // GetInfo gets info about the node
     rpc GetInfo (GetInfoRequest) returns (GetInfoResponse);
