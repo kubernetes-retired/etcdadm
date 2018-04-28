@@ -16,7 +16,7 @@ import (
 	"kope.io/etcd-manager/pkg/ioutils"
 )
 
-func NewFilesystemStore(u *url.URL) (Store, error) {
+func NewFilesystemStore(u *url.URL) (*filesystemStore, error) {
 	if u.Scheme != "file" {
 		return nil, fmt.Errorf("unexpected scheme for file store %q", u.String())
 	}
@@ -44,7 +44,8 @@ type filesystemStore struct {
 	backupsBase string
 }
 
-var _ Store = &filesystemStore{}
+// We haven't implemented the commands methods, moving to vfs..
+// var _ Store = &filesystemStore{}
 
 func (s *filesystemStore) AddBackup(srcFile string, sequence string, info *etcd.BackupInfo) (string, error) {
 	now := time.Now()

@@ -9,6 +9,8 @@ import (
 const MetaFilename = "_etcd_backup.meta"
 const DataFilename = "etcd.backup.gz"
 
+const CommandFilename = "_command.json"
+
 type Store interface {
 	Spec() string
 
@@ -27,8 +29,19 @@ type Store interface {
 	// DownloadBackup downloads the backup to the specific file
 	DownloadBackup(name string, destFile string) error
 
-	// SeedNewCluster sets up the "create new cluster" marker, indicating that we should not restore a cluster, but create a new one
-	SeedNewCluster(spec *protoetcd.ClusterSpec) error
+	// AddCommand adds a command to the back of the queue
+	AddCommand(cmd *protoetcd.Command) error
+
+	// ListCommands returns all the external commands that have not been removed
+	ListCommands() ([]*Command, error)
+
+	// RemoveCommand marks a command as complete
+	RemoveCommand(command *Command) error
+}
+
+type Command struct {
+	p    vfs.Path
+	Data protoetcd.Command
 }
 
 func NewStore(storage string) (Store, error) {

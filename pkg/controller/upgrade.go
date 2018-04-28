@@ -57,6 +57,20 @@ func (m *EtcdController) stopForUpgrade(parentContext context.Context, clusterSp
 	}
 	glog.Infof("backed up cluster as %v", backupResponse)
 
+	// Schedule a restore of the backup onto the new cluster
+	{
+		cmd := &protoetcd.Command{
+			RestoreBackup: &protoetcd.RestoreBackupCommand{
+				Backup:      backupResponse.Name,
+				ClusterSpec: clusterSpec,
+			},
+		}
+
+		if err := m.backupStore.AddCommand(cmd); err != nil {
+			return false, fmt.Errorf("error adding restore command: %v", err)
+		}
+	}
+
 	// Stop the whole cluster
 	for memberId := range clusterState.members {
 		peer := memberToPeer[memberId]
