@@ -108,16 +108,6 @@ func TestHAReadWrite(t *testing.T) {
 		t.Fatalf("failed to stop node 1: %v", err)
 	}
 
-	{
-		actual, err := n3.GetLocal(ctx, key)
-		if err != nil {
-			t.Fatalf("error rereading key (local) %q: %v", key, err)
-		}
-		if actual != value {
-			t.Fatalf("could not reread key %q: %q vs %q", key, actual, value)
-		}
-	}
-
 	// After a leader loss, quorum reads fail until etcd recovers
 	n3.WaitForQuorumRead(ctx, time.Second*30)
 
@@ -127,7 +117,18 @@ func TestHAReadWrite(t *testing.T) {
 			t.Fatalf("error rereading key (quorum) %q: %v", key, err)
 		}
 		if actual != value {
-			t.Fatalf("could not reread key %q: %q vs %q", key, actual, value)
+			t.Fatalf("could not reread key (quorum) %q: %q vs %q", key, actual, value)
+		}
+	}
+
+	// Once we've done a quorum read, we should be able to do a local read
+	{
+		actual, err := n3.GetLocal(ctx, key)
+		if err != nil {
+			t.Fatalf("error rereading key (local) %q: %v", key, err)
+		}
+		if actual != value {
+			t.Fatalf("could not reread key (local) %q: %q vs %q", key, actual, value)
 		}
 	}
 
