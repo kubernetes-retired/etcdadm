@@ -172,7 +172,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		m.peerState = make(map[privateapi.PeerId]*peerState)
 
 		// Wait one cycle after a new leader election
-		return true, nil
+		return false, nil
 	}
 
 	// Check that all peers have acked the leader
@@ -183,7 +183,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 				m.leadership = nil
 
 				// Wait one cycle after leadership changes
-				return true, nil
+				return false, nil
 			}
 		}
 	}
@@ -202,7 +202,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		ps := m.peerState[privateapi.PeerId(id)]
 		if ps == nil {
 			ps = &peerState{
-				lastEtcdHealthy: now, // We mark it as healthy, so we always wait before removing it
+				lastEtcdHealthy: now, // We start it as healthy, so we always wait before removing it
 			}
 			m.peerState[privateapi.PeerId(id)] = ps
 		}
@@ -242,6 +242,8 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	if clusterSpec == nil {
 		createNewClusterCommand := m.getCreateNewClusterCommand()
 		if createNewClusterCommand != nil {
+			glog.Infof("got create-cluster command: %v", createNewClusterCommand.Data)
+
 			if createNewClusterCommand.Data.CreateNewCluster == nil || createNewClusterCommand.Data.CreateNewCluster.ClusterSpec == nil {
 				// Should be unreachable
 				return false, fmt.Errorf("CreateNewCluster was not set: %v", createNewClusterCommand)
@@ -262,6 +264,8 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		}
 
 		if restoreBackupCommand != nil {
+			glog.Infof("got restore-backup command: %v", restoreBackupCommand.Data)
+
 			if restoreBackupCommand.Data.RestoreBackup == nil || restoreBackupCommand.Data.RestoreBackup.ClusterSpec == nil {
 				// Should be unreachable
 				return false, fmt.Errorf("RestoreBackup was not set: %v", restoreBackupCommand)
