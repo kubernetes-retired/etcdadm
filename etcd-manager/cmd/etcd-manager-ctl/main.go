@@ -54,10 +54,7 @@ func main() {
 		MemberCount: int32(memberCount),
 		EtcdVersion: etcdVersion,
 	}
-	cmd := &protoetcd.Command{
-		CreateNewCluster: &protoetcd.CreateNewClusterCommand{ClusterSpec: spec},
-	}
-	if err := commandsStore.AddCommand(cmd); err != nil {
+	if err := commandsStore.SetExpectedClusterSpec(spec); err != nil {
 		glog.Fatalf("error building etcd controller: %v", err)
 	}
 
