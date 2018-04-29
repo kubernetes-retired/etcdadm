@@ -252,24 +252,26 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 			return false, err
 		}
 		if isNewCluster {
-			glog.Infof("new cluster detected")
+			glog.Infof("detected that there is no existing cluster")
 
 			clusterSpec, err = m.commandStore.GetExpectedClusterSpec()
 			if err != nil {
 				return false, fmt.Errorf("error reading expected cluster spec: %v", err)
 			}
 
-			created, err := m.createNewCluster(ctx, clusterState, clusterSpec)
-			if err != nil {
-				return created, err
-			}
-			if created {
-				// Mark cluster created so we won't create it again
-				if err := m.commandStore.MarkClusterCreated(); err != nil {
-					return false, err
+			if clusterSpec != nil {
+				created, err := m.createNewCluster(ctx, clusterState, clusterSpec)
+				if err != nil {
+					return created, err
 				}
+				if created {
+					// Mark cluster created so we won't create it again
+					if err := m.commandStore.MarkClusterCreated(); err != nil {
+						return false, err
+					}
+				}
+				return true, nil
 			}
-			return true, nil
 		}
 
 		if restoreBackupCommand != nil {
