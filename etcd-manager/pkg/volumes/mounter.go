@@ -82,7 +82,7 @@ func (k *VolumeMountController) mountMasterVolumes() ([]*Volume, error) {
 
 		glog.Infof("mounted master volume %q on %s", v.ID, mountpoint)
 
-		v.Mountpoint = mountpoint
+		v.Mountpoint = PathFor(mountpoint)
 		k.mounted[v.ID] = v
 	}
 
