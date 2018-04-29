@@ -19,7 +19,7 @@ const EtcdClusterSpec = "etcd-cluster-spec"
 
 func NewVFSStore(p vfs.Path) (Store, error) {
 	s := &vfsStore{
-		commandsBase: p.Join("commands"),
+		commandsBase: p.Join("control"),
 	}
 	return s, nil
 }
