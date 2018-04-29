@@ -8,6 +8,17 @@ import (
 const CommandFilename = "_command.json"
 
 type Store interface {
+	// IsNewCluster indicates if it is safe to create a new cluster
+	IsNewCluster() (bool, error)
+
+	// MarkClusterCreated marks the cluster as having been created, so IsNewCluster will return false
+	MarkClusterCreated() error
+
+	// GetExpectedClusterSpec gets the expected cluster spec
+	GetExpectedClusterSpec() (*protoetcd.ClusterSpec, error)
+	// SetExpectedClusterSpec updates the expected cluster spec
+	SetExpectedClusterSpec(spec *protoetcd.ClusterSpec) error
+
 	// AddCommand adds a command to the back of the queue
 	AddCommand(cmd *protoetcd.Command) error
 
