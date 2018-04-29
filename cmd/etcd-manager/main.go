@@ -100,6 +100,10 @@ type EtcdManagerOptions struct {
 	BackupStorePath      string
 	DataDir              string
 	VolumeTags           []string
+
+	// ControlRefreshInterval is the interval with which we refresh the control store
+	// (we also refresh on leadership changes and on boot)
+	ControlRefreshInterval time.Duration
 }
 
 // InitDefaults populates the default flag values
@@ -109,6 +113,10 @@ func (o *EtcdManagerOptions) InitDefaults() {
 	o.ClientUrls = "http://127.0.0.1:4001"
 	o.QuarantineClientUrls = "http://127.0.0.1:8001"
 	o.GrpcPort = 8000
+
+	// We effectively only refresh on leadership changes
+	o.ControlRefreshInterval = 10 * 365 * 24 * time.Hour
+
 	// o.BackupStorePath = "/backups"
 	// o.DataDir = "/data"
 }
@@ -237,7 +245,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 	go etcdServer.Run(ctx)
 
 	var leaderLock locking.Lock // nil
-	c, err := controller.NewEtcdController(leaderLock, backupStore, commandStore, o.ClusterName, peerServer)
+	c, err := controller.NewEtcdController(leaderLock, backupStore, commandStore, o.ControlRefreshInterval, o.ClusterName, peerServer)
 	if err != nil {
 		return fmt.Errorf("error building etcd controller: %v", err)
 	}

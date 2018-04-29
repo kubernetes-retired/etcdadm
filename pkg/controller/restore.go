@@ -3,7 +3,6 @@ package controller
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/golang/glog"
 	"github.com/golang/protobuf/proto"
@@ -58,7 +57,7 @@ func (m *EtcdController) restoreBackupAndLiftQuarantine(parentContext context.Co
 	{
 		newClusterSpec := proto.Clone(clusterSpec).(*protoetcd.ClusterSpec)
 
-		if err := m.writeClusterSpecAfterRestart(ctx, clusterState, newClusterSpec); err != nil {
+		if err := m.writeClusterSpec(ctx, clusterState, newClusterSpec); err != nil {
 			return false, err
 		}
 	}
@@ -71,50 +70,12 @@ func (m *EtcdController) restoreBackupAndLiftQuarantine(parentContext context.Co
 	return true, nil
 }
 
-// writeClusterSpecAfterRestart waits for the cluster to be ready, and writes the updated cluster spec to it
-func (m *EtcdController) writeClusterSpecAfterRestart(ctx context.Context, clusterState *etcdClusterState, newClusterSpec *protoetcd.ClusterSpec) error {
-	deadline := time.Now().Add(time.Minute)
-
-	var lastErr error
-
-	for {
-		if time.Now().After(deadline) {
-			return fmt.Errorf("error getting cluster state after cluster start: %v", lastErr)
-		} else {
-			glog.Warningf("waiting to get cluster state after cluster restart: %v", lastErr)
-		}
-
-		time.Sleep(2 * time.Second)
-
-		var peerList []*peer
-		for _, p := range clusterState.peers {
-			peerList = append(peerList, p.peer)
-		}
-		newClusterState, err := m.updateClusterState(ctx, peerList)
-		if err != nil {
-			lastErr = err
-			continue
-		}
-
-		// readyCount := 0
-		// for _, member := range newClusterState.members {
-		// 	if len(member.ClientURLs) > 0 {
-		// 		readyCount++
-		// 	}
-		// }
-
-		// if readyCount == 0 {
-		// 	lastErr = fmt.Errorf("cluster members were not ready")
-		// 	continue
-		// }
-
-		if err := m.writeClusterSpec(ctx, newClusterState, newClusterSpec); err != nil {
-			lastErr = err
-			continue
-		}
-
-		return nil
+// writeClusterSpec writes the cluster spec into the control store
+func (m *EtcdController) writeClusterSpec(ctx context.Context, clusterState *etcdClusterState, newClusterSpec *protoetcd.ClusterSpec) error {
+	if err := m.controlStore.SetExpectedClusterSpec(newClusterSpec); err != nil {
+		return err
 	}
+	return nil
 }
 
 func (m *EtcdController) updateQuarantine(ctx context.Context, clusterState *etcdClusterState, quarantined bool) (bool, error) {
