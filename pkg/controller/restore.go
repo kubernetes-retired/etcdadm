@@ -9,19 +9,19 @@ import (
 	"github.com/golang/protobuf/proto"
 
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
-	"kope.io/etcd-manager/pkg/backup"
+	"kope.io/etcd-manager/pkg/commands"
 )
 
-func (m *EtcdController) restoreBackupAndLiftQuarantine(parentContext context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState, cmd *backup.Command) (bool, error) {
+func (m *EtcdController) restoreBackupAndLiftQuarantine(parentContext context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState, cmd commands.Command) (bool, error) {
 	// We start a new context - this is pretty critical-path
 	ctx := context.Background()
 
-	if cmd.Data.RestoreBackup == nil || cmd.Data.RestoreBackup.Backup == "" {
+	if cmd.Data().RestoreBackup == nil || cmd.Data().RestoreBackup.Backup == "" {
 		// Should be unreachable
 		return false, fmt.Errorf("RestoreBackup not set in %v", cmd)
 	}
 
-	backup := cmd.Data.RestoreBackup.Backup
+	backup := cmd.Data().RestoreBackup.Backup
 
 	info, err := m.backupStore.LoadInfo(backup)
 	if err != nil {

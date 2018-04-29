@@ -11,6 +11,7 @@ import (
 
 	apis_etcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
+	"kope.io/etcd-manager/pkg/commands"
 	"kope.io/etcd-manager/pkg/controller"
 	"kope.io/etcd-manager/pkg/etcd"
 	"kope.io/etcd-manager/pkg/etcdclient"
@@ -108,6 +109,11 @@ func (n *TestHarnessNode) Run() {
 		t.Fatalf("error initializing backup store: %v", err)
 	}
 
+	commandStore, err := commands.NewStore(n.TestHarness.BackupStorePath)
+	if err != nil {
+		t.Fatalf("error initializing commands store: %v", err)
+	}
+
 	leaderLock, err := locking.NewFSContentLock(n.TestHarness.LockPath)
 	if err != nil {
 		t.Fatalf("error initializing lock: %v", err)
@@ -120,7 +126,7 @@ func (n *TestHarnessNode) Run() {
 	n.etcdServer = etcdServer
 	go etcdServer.Run(ctx)
 
-	c, err := controller.NewEtcdController(leaderLock, backupStore, n.TestHarness.ClusterName, peerServer)
+	c, err := controller.NewEtcdController(leaderLock, backupStore, commandStore, n.TestHarness.ClusterName, peerServer)
 	c.CycleInterval = testCycleInterval
 	if err != nil {
 		t.Fatalf("error building etcd controller: %v", err)
