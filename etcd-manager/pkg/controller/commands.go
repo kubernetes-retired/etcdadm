@@ -5,27 +5,52 @@ import (
 	"time"
 
 	"github.com/golang/glog"
+	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/commands"
 )
 
-func (m *EtcdController) refreshCommands(ttl time.Duration) error {
+func (m *EtcdController) InvalidateControlStore() error {
+	return m.refreshControlStore(time.Duration(0))
+}
+
+func (m *EtcdController) refreshControlStore(ttl time.Duration) error {
+	m.controlMutex.Lock()
+	defer m.controlMutex.Unlock()
+
 	now := time.Now()
-	if now.Before(m.commandsLastRead.Add(ttl)) {
+	if ttl != time.Duration(0) && now.Before(m.controlLastRead.Add(ttl)) {
 		glog.V(4).Infof("not refreshing commands - TTL not hit")
 		return nil
 	}
 	glog.Infof("refreshing commands")
-	commands, err := m.commandStore.ListCommands()
+	controlCommands, err := m.controlStore.ListCommands()
 	if err != nil {
 		return err
 	}
-	m.commands = commands
-	m.commandsLastRead = now
+	controlClusterSpec, err := m.controlStore.GetExpectedClusterSpec()
+	if err != nil {
+		return err
+	}
+
+	m.controlCommands = controlCommands
+	m.controlLastRead = now
+	m.controlClusterSpec = controlClusterSpec
+
 	return nil
 }
 
+func (m *EtcdController) getControlClusterSpec() *protoetcd.ClusterSpec {
+	m.controlMutex.Lock()
+	defer m.controlMutex.Unlock()
+
+	return m.controlClusterSpec
+}
+
 func (m *EtcdController) getRestoreBackupCommand() commands.Command {
-	for _, c := range m.commands {
+	m.controlMutex.Lock()
+	defer m.controlMutex.Unlock()
+
+	for _, c := range m.controlCommands {
 		if c.Data().RestoreBackup != nil {
 			return c
 		}
@@ -34,10 +59,13 @@ func (m *EtcdController) getRestoreBackupCommand() commands.Command {
 }
 
 func (m *EtcdController) removeCommand(ctx context.Context, cmd commands.Command) error {
-	err := m.commandStore.RemoveCommand(cmd)
+	m.controlMutex.Lock()
+	defer m.controlMutex.Unlock()
 
-	m.commands = nil
-	m.commandsLastRead = time.Time{}
+	err := m.controlStore.RemoveCommand(cmd)
+
+	m.controlCommands = nil
+	m.controlLastRead = time.Time{}
 
 	return err
 }
