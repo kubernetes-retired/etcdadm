@@ -16,11 +16,6 @@ message Command {
     // but either the administrator can set this in a DR scenario,
     // or we set it ourselves immediately after having performed a quarantined backup
     RestoreBackupCommand restore_backup = 10;
-
-    // If set, indicates we should create a new (empty) cluster
-    // This is not normally safe, but the administrator can set this in a DR scenario,
-    // and tooling sets it for new clusters
-    CreateNewClusterCommand create_new_cluster = 11;
 }
 
 message RestoreBackupCommand {
