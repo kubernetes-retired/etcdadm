@@ -70,12 +70,12 @@ func (m *EtcdController) stopForUpgrade(parentContext context.Context, clusterSp
 			},
 		}
 
-		if err := m.commandStore.AddCommand(cmd); err != nil {
+		if err := m.controlStore.AddCommand(cmd); err != nil {
 			return false, fmt.Errorf("error adding restore command: %v", err)
 		}
 
 		for {
-			if err := m.refreshCommands(time.Duration(0)); err != nil {
+			if err := m.refreshControlStore(time.Duration(0)); err != nil {
 				return false, fmt.Errorf("error refreshing commands: %v", err)
 			}
 			if m.getRestoreBackupCommand() != nil {
