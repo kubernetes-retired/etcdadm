@@ -57,7 +57,8 @@ type EtcdController struct {
 	commandStore commands.Store
 
 	// commands is the list of commands in the queue
-	commands []commands.Command
+	commands         []commands.Command
+	commandsLastRead time.Time
 }
 
 // peerState holds persistent information about a peer
@@ -237,7 +238,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		}
 	}
 
-	if err := m.refreshCommands(); err != nil {
+	if err := m.refreshCommands(5 * time.Minute); err != nil {
 		return false, fmt.Errorf("error refreshing commands: %v", err)
 	}
 
@@ -246,23 +247,25 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	// Determine what our desired state is
 	clusterSpec, err := m.loadClusterSpec(ctx, clusterState, configuredMembers != 0)
 	if clusterSpec == nil {
-		createNewClusterCommand := m.getCreateNewClusterCommand()
-		if createNewClusterCommand != nil {
-			glog.Infof("got create-cluster command: %v", createNewClusterCommand.Data)
+		isNewCluster, err := m.commandStore.IsNewCluster()
+		if err != nil {
+			return false, err
+		}
+		if isNewCluster {
+			glog.Infof("new cluster detected")
 
-			if createNewClusterCommand.Data().CreateNewCluster == nil || createNewClusterCommand.Data().CreateNewCluster.ClusterSpec == nil {
-				// Should be unreachable
-				return false, fmt.Errorf("CreateNewCluster was not set: %v", createNewClusterCommand)
+			clusterSpec, err = m.commandStore.GetExpectedClusterSpec()
+			if err != nil {
+				return false, fmt.Errorf("error reading expected cluster spec: %v", err)
 			}
 
-			clusterSpec = createNewClusterCommand.Data().CreateNewCluster.ClusterSpec
 			created, err := m.createNewCluster(ctx, clusterState, clusterSpec)
 			if err != nil {
 				return created, err
 			}
 			if created {
-				// Remove command
-				if err := m.removeCommand(ctx, createNewClusterCommand); err != nil {
+				// Mark cluster created so we won't create it again
+				if err := m.commandStore.MarkClusterCreated(); err != nil {
 					return false, err
 				}
 			}
