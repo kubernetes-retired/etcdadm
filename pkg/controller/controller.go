@@ -258,7 +258,6 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		return false, fmt.Errorf("error refreshing commands: %v", err)
 	}
 
-
 	isNewCluster, err := m.controlStore.IsNewCluster()
 	if err != nil {
 		return false, fmt.Errorf("error checking control store: %v", err)
