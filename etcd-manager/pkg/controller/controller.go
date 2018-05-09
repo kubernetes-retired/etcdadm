@@ -32,6 +32,11 @@ const defaultCycleInterval = 10 * time.Second
 // EtcdController is the controller that runs the etcd cluster - adding & removing members, backups/restores etcd
 type EtcdController struct {
 	clusterName string
+
+	// controlRefreshInterval determines how often we live-reload from the control store
+	// We also refresh when we become leader, so a rolling update will force a reload
+	controlRefreshInterval time.Duration
+
 	backupStore backup.Store
 
 	mutex sync.Mutex
@@ -53,12 +58,18 @@ type EtcdController struct {
 	// backupCleanup manages cleaning up old backups from the backupStore
 	backupCleanup *backupcontroller.BackupCleanup
 
-	// commandStore is the store / source of commands
-	commandStore commands.Store
+	// controlStore is the store / source of commands
+	controlStore commands.Store
 
-	// commands is the list of commands in the queue
-	commands         []commands.Command
-	commandsLastRead time.Time
+	// controlMutex guards the control variables beloe
+	controlMutex sync.Mutex
+
+	// controlCommands is the list of commands in the queue
+	controlCommands []commands.Command
+	controlLastRead time.Time
+
+	// controlClusterSpec is the expected cluster spec, as read from the control store
+	controlClusterSpec *protoetcd.ClusterSpec
 }
 
 // peerState holds persistent information about a peer
@@ -73,18 +84,19 @@ type leadershipState struct {
 }
 
 // NewEtcdController is the constructor for an EtcdController
-func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, commandStore commands.Store, clusterName string, peers privateapi.Peers) (*EtcdController, error) {
+func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, controlStore commands.Store, controlRefreshInterval time.Duration, clusterName string, peers privateapi.Peers) (*EtcdController, error) {
 	if clusterName == "" {
 		return nil, fmt.Errorf("ClusterName is required")
 	}
 	m := &EtcdController{
-		clusterName:   clusterName,
-		backupStore:   backupStore,
-		peers:         peers,
-		leaderLock:    leaderLock,
-		CycleInterval: defaultCycleInterval,
-		backupCleanup: backupcontroller.NewBackupCleanup(backupStore),
-		commandStore:  commandStore,
+		clusterName:            clusterName,
+		backupStore:            backupStore,
+		peers:                  peers,
+		leaderLock:             leaderLock,
+		CycleInterval:          defaultCycleInterval,
+		backupCleanup:          backupcontroller.NewBackupCleanup(backupStore),
+		controlStore:           controlStore,
+		controlRefreshInterval: controlRefreshInterval,
 	}
 
 	return m, nil
@@ -165,6 +177,10 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 			return false, fmt.Errorf("error during LeaderNotification: %v", err)
 		}
 
+		if err := m.refreshControlStore(time.Duration(0)); err != nil {
+			return false, fmt.Errorf("error refreshing control store after leadership change: %v", err)
+		}
+
 		ackedMap := make(map[privateapi.PeerId]bool)
 		for _, peer := range acked {
 			ackedMap[peer] = true
@@ -238,73 +254,62 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		}
 	}
 
-	if err := m.refreshCommands(5 * time.Minute); err != nil {
+	if err := m.refreshControlStore(m.controlRefreshInterval); err != nil {
 		return false, fmt.Errorf("error refreshing commands: %v", err)
 	}
 
-	restoreBackupCommand := m.getRestoreBackupCommand()
 
-	// Determine what our desired state is
-	clusterSpec, err := m.loadClusterSpec(ctx, clusterState, configuredMembers != 0)
-	if clusterSpec == nil {
-		isNewCluster, err := m.commandStore.IsNewCluster()
-		if err != nil {
-			return false, err
+	isNewCluster, err := m.controlStore.IsNewCluster()
+	if err != nil {
+		return false, fmt.Errorf("error checking control store: %v", err)
+	}
+	if isNewCluster {
+		glog.Infof("detected that there is no existing cluster")
+
+		if err := m.refreshControlStore(time.Duration(0)); err != nil {
+			return false, fmt.Errorf("error refreshing control store: %v", err)
 		}
-		if isNewCluster {
-			glog.Infof("detected that there is no existing cluster")
 
-			clusterSpec, err = m.commandStore.GetExpectedClusterSpec()
+		clusterSpec := m.getControlClusterSpec()
+		if clusterSpec != nil {
+			created, err := m.createNewCluster(ctx, clusterState, clusterSpec)
 			if err != nil {
-				return false, fmt.Errorf("error reading expected cluster spec: %v", err)
+				return created, err
 			}
-
-			if clusterSpec != nil {
-				created, err := m.createNewCluster(ctx, clusterState, clusterSpec)
-				if err != nil {
-					return created, err
+			if created {
+				// Mark cluster created so we won't create it again
+				if err := m.controlStore.MarkClusterCreated(); err != nil {
+					return false, err
 				}
-				if created {
-					// Mark cluster created so we won't create it again
-					if err := m.commandStore.MarkClusterCreated(); err != nil {
-						return false, err
-					}
-				}
-				return true, nil
 			}
+			return true, nil
 		}
+	}
 
-		if restoreBackupCommand != nil {
-			glog.Infof("got restore-backup command: %v", restoreBackupCommand.Data)
-
-			if restoreBackupCommand.Data().RestoreBackup == nil || restoreBackupCommand.Data().RestoreBackup.ClusterSpec == nil {
-				// Should be unreachable
-				return false, fmt.Errorf("RestoreBackup was not set: %v", restoreBackupCommand)
-			}
-
-			clusterSpec = restoreBackupCommand.Data().RestoreBackup.ClusterSpec
-			return m.createNewCluster(ctx, clusterState, clusterSpec)
-			// We don't remove the command until the backup has been restored
-			// (but we break it into separate steps to try to ease recovery)
-		}
-
+	clusterSpec := m.getControlClusterSpec()
+	if clusterSpec == nil {
 		glog.Infof("no cluster spec set - must seed new cluster")
 		return false, nil
-	}
-	if err != nil {
-		return false, fmt.Errorf("error fetching cluster spec: %v", err)
 	}
 	glog.Infof("spec %v", clusterSpec)
 
 	desiredQuorumSize := quorumSize(int(clusterSpec.MemberCount))
 
+	restoreBackupCommand := m.getRestoreBackupCommand()
 	if restoreBackupCommand != nil {
-		if quarantinedMembers > 0 {
-			return m.restoreBackupAndLiftQuarantine(ctx, clusterSpec, clusterState, restoreBackupCommand)
-		} else {
-			// Quarantine in preparation for restore
-			return m.updateQuarantine(ctx, clusterState, true)
+		glog.Infof("got restore-backup command: %v", restoreBackupCommand.Data)
+
+		if restoreBackupCommand.Data().RestoreBackup == nil || restoreBackupCommand.Data().RestoreBackup.ClusterSpec == nil {
+			// Should be unreachable
+			return false, fmt.Errorf("RestoreBackup was not set: %v", restoreBackupCommand)
 		}
+
+		clusterSpec := restoreBackupCommand.Data().RestoreBackup.ClusterSpec
+		if _, err := m.createNewCluster(ctx, clusterState, clusterSpec); err != nil {
+			return false, err
+		}
+
+		return m.restoreBackupAndLiftQuarantine(ctx, clusterSpec, clusterState, restoreBackupCommand)
 	}
 
 	if len(clusterState.members) != 0 {
@@ -314,8 +319,8 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	}
 
 	// Check if the cluster is not of the desired version
+	var versionMismatch []*etcdClusterPeerInfo
 	{
-		var versionMismatch []*etcdClusterPeerInfo
 		for _, peer := range clusterState.peers {
 			if peer.info != nil && peer.info.EtcdState != nil && peer.info.EtcdState.EtcdVersion != clusterSpec.EtcdVersion {
 				glog.Infof("mismatched version for peer %v: want %q, have %q", peer.peer, clusterSpec.EtcdVersion, peer.info.EtcdState.EtcdVersion)
@@ -323,13 +328,10 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 			}
 		}
 
-		if len(versionMismatch) != 0 {
-			return m.stopForUpgrade(ctx, clusterSpec, clusterState)
-		}
 	}
 
 	if quarantinedMembers > 0 {
-		if len(clusterState.healthyMembers) >= desiredQuorumSize {
+		if len(clusterState.healthyMembers) >= desiredQuorumSize && len(versionMismatch) == 0 {
 			// We're ready - lift quarantine
 			return m.updateQuarantine(ctx, clusterState, false)
 		}
@@ -355,6 +357,12 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		// TODO: Wait longer in case of a flake
 		// TODO: Still backup before mutating the cluster
 		return m.removeNodeFromCluster(ctx, clusterSpec, clusterState, false)
+	}
+
+	if len(versionMismatch) != 0 {
+		glog.Infof("detected that we need to upgrade/downgrade etcd")
+
+		return m.stopForUpgrade(ctx, clusterSpec, clusterState)
 	}
 
 	glog.Infof("controller loop complete")
@@ -385,54 +393,6 @@ func (m *EtcdController) maybeBackup(ctx context.Context, clusterSpec *protoetcd
 	}
 
 	return nil
-}
-
-// writeClusterSpec writes the cluster spec to etcd
-func (m *EtcdController) writeClusterSpec(ctx context.Context, etcdClusterState *etcdClusterState, clusterSpec *protoetcd.ClusterSpec) error {
-	glog.Infof("updating cluster spec in etcd: %v", clusterSpec)
-
-	key := "/kope.io/etcd-manager/" + m.clusterName + "/spec"
-	data, err := protoetcd.ToJson(clusterSpec)
-	if err != nil {
-		return fmt.Errorf("error serializing cluster spec: %v", err)
-	}
-
-	err = etcdClusterState.etcdCreate(ctx, key, []byte(data))
-	if err != nil {
-		// Concurrent leader wrote this?
-		return fmt.Errorf("error writing cluster spec back to etcd: %v", err)
-	}
-
-	return nil
-}
-
-// loadClusterSpec tries to load the desired cluster spec from etcd.
-func (m *EtcdController) loadClusterSpec(ctx context.Context, etcdClusterState *etcdClusterState, etcdIsRunning bool) (*protoetcd.ClusterSpec, error) {
-	key := "/kope.io/etcd-manager/" + m.clusterName + "/spec"
-	if len(etcdClusterState.members) > 0 {
-		b, err := etcdClusterState.etcdGet(ctx, key)
-		if err != nil {
-			return nil, fmt.Errorf("unable to load cluster spec from cluster - no members")
-		}
-
-		if b != nil {
-			spec := &protoetcd.ClusterSpec{}
-			err := protoetcd.FromJson(string(b), spec)
-			if err != nil {
-				return nil, fmt.Errorf("error parsing cluster spec from etcd %q: %v", key, err)
-			}
-			glog.Infof("Loaded cluster spec from etcd: %v", spec)
-			return spec, nil
-		} else {
-			glog.Infof("cluster spec key not set in etcd")
-			return nil, nil
-		}
-	} else if etcdIsRunning {
-		return nil, fmt.Errorf("unable to load cluster spec from cluster - cluster has no members")
-	} else {
-		glog.Warningf("etcd is not running; cannot load cluster spec")
-		return nil, nil
-	}
 }
 
 func randomToken() string {
@@ -856,7 +816,7 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterState *etc
 	}
 
 	// Write cluster spec to etcd
-	if err := m.writeClusterSpecAfterRestart(ctx, clusterState, clusterSpec); err != nil {
+	if err := m.writeClusterSpec(ctx, clusterState, clusterSpec); err != nil {
 		return false, err
 	}
 
