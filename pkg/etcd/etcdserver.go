@@ -364,6 +364,8 @@ func (s *EtcdServer) StopEtcd(ctx context.Context, request *protoetcd.StopEtcdRe
 		return nil, fmt.Errorf("cluster not running")
 	}
 
+	clusterToken := s.state.Cluster.ClusterToken
+
 	response := &protoetcd.StopEtcdResponse{}
 
 	glog.Infof("Stopping etcd for stop request: %v", request)
@@ -375,6 +377,19 @@ func (s *EtcdServer) StopEtcd(ctx context.Context, request *protoetcd.StopEtcdRe
 	s.state = state
 	if err := writeState(s.baseDir, s.state); err != nil {
 		return nil, err
+	}
+
+	oldDataDir := filepath.Join(s.baseDir, "data", clusterToken)
+	trashcanDir := filepath.Join(s.baseDir, "data-trashcan")
+	if err := os.MkdirAll(trashcanDir, 0755); err != nil {
+		glog.Warningf("error creating trashcan directory %s: %v", trashcanDir, err)
+	}
+
+	newDataDir := filepath.Join(trashcanDir, clusterToken)
+	glog.Infof("archiving etcd data directory %s -> %s", oldDataDir, newDataDir)
+
+	if err := os.Rename(oldDataDir, newDataDir); err != nil {
+		glog.Warningf("error renaming directory %s -> %s: %v", oldDataDir, newDataDir, err)
 	}
 
 	return response, nil
