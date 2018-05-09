@@ -113,11 +113,6 @@ func (h *TestHarness) NewNode(address string) *TestHarnessNode {
 	return n
 }
 
-// SpecKey returns the etcd key that holds the cluster spec
-func (h *TestHarness) SpecKey() string {
-	return "/kope.io/etcd-manager/" + h.ClusterName + "/spec"
-}
-
 func (h *TestHarness) WaitForHealthy(nodes ...*TestHarnessNode) {
 	for _, node := range nodes {
 		node.WaitForHealthy(10 * time.Second)
@@ -126,11 +121,41 @@ func (h *TestHarness) WaitForHealthy(nodes ...*TestHarnessNode) {
 
 func (h *TestHarness) SeedNewCluster(spec *protoetcd.ClusterSpec) {
 	t := h.T
-	commandStore, err := commands.NewStore(h.BackupStorePath)
+	controlStore, err := commands.NewStore(h.BackupStorePath)
 	if err != nil {
-		t.Fatalf("error initializing command store: %v", err)
+		t.Fatalf("error initializing control store: %v", err)
 	}
-	if err := commandStore.SetExpectedClusterSpec(spec); err != nil {
-		t.Fatalf("error seeding cluster: %v", err)
+	if err := controlStore.SetExpectedClusterSpec(spec); err != nil {
+		t.Fatalf("error setting cluster spec: %v", err)
+	}
+}
+
+func (h *TestHarness) SetClusterSpec(spec *protoetcd.ClusterSpec) {
+	t := h.T
+	controlStore, err := commands.NewStore(h.BackupStorePath)
+	if err != nil {
+		t.Fatalf("error initializing control store: %v", err)
+	}
+	if err := controlStore.SetExpectedClusterSpec(spec); err != nil {
+		t.Fatalf("error setting cluster spec: %v", err)
+	}
+}
+
+func (h *TestHarness) InvalidateControlStore(nodes ...*TestHarnessNode) {
+	t := h.T
+
+	for _, node := range nodes {
+		for {
+			// Wait for goroutines to start
+			if node.etcdController != nil {
+				break
+			}
+			time.Sleep(time.Second)
+		}
+
+		err := node.etcdController.InvalidateControlStore()
+		if err != nil {
+			t.Fatalf("error invaliding control store: %v", err)
+		}
 	}
 }

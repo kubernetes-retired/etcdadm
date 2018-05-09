@@ -27,6 +27,9 @@ type TestHarnessNode struct {
 	NodeDir     string
 	EtcdVersion string
 
+	ctx       context.Context
+	ctxCancel context.CancelFunc
+
 	ClientURL      string
 	etcdServer     *etcd.EtcdServer
 	etcdController *controller.EtcdController
@@ -34,7 +37,8 @@ type TestHarnessNode struct {
 
 func (n *TestHarnessNode) Run() {
 	t := n.TestHarness.T
-	ctx := n.TestHarness.Context
+
+	n.ctx, n.ctxCancel = context.WithCancel(n.TestHarness.Context)
 
 	address := n.Address
 
@@ -67,7 +71,7 @@ func (n *TestHarnessNode) Run() {
 		Id:        string(uniqueID),
 		Endpoints: []string{grpcEndpoint},
 	}
-	peerServer, err := privateapi.NewServer(ctx, myInfo, disco)
+	peerServer, err := privateapi.NewServer(n.ctx, myInfo, disco)
 	peerServer.PingInterval = time.Second
 	peerServer.HealthyTimeout = time.Second * 5
 	peerServer.DiscoveryPollInterval = time.Second * 5
@@ -124,18 +128,21 @@ func (n *TestHarnessNode) Run() {
 		t.Fatalf("error building EtcdServer: %v", err)
 	}
 	n.etcdServer = etcdServer
-	go etcdServer.Run(ctx)
+	go etcdServer.Run(n.ctx)
 
-	c, err := controller.NewEtcdController(leaderLock, backupStore, commandStore, n.TestHarness.ClusterName, peerServer)
+	// No automatic refreshes
+	controlRefreshInterval := 10 * 365 * 24 * time.Hour
+
+	c, err := controller.NewEtcdController(leaderLock, backupStore, commandStore, controlRefreshInterval, n.TestHarness.ClusterName, peerServer)
 	c.CycleInterval = testCycleInterval
 	if err != nil {
 		t.Fatalf("error building etcd controller: %v", err)
 	}
 	n.etcdController = c
-	go c.Run(ctx)
+	go c.Run(n.ctx)
 
-	if err := peerServer.ListenAndServe(ctx, grpcEndpoint); err != nil {
-		if ctx.Done() == nil {
+	if err := peerServer.ListenAndServe(n.ctx, grpcEndpoint); err != nil {
+		if n.ctx.Done() == nil {
 			t.Fatalf("error creating private API server: %v", err)
 		}
 	}
@@ -166,10 +173,14 @@ func (n *TestHarnessNode) Close() error {
 			return err
 		}
 	}
+	if n.ctxCancel != nil {
+		n.ctxCancel()
+		n.ctxCancel = nil
+	}
 	return nil
 }
 
-// CheckVersion asserts that the client reports the server version specified
+// AssertVersion asserts that the client reports the server version specified
 func (n *TestHarnessNode) AssertVersion(t *testing.T, version string) {
 	ctx := context.TODO()
 
