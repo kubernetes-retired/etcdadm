@@ -21,6 +21,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/golang/glog"
 
@@ -39,6 +40,8 @@ func main() {
 	flag.StringVar(&dataDir, "data-dir", dataDir, "directory for storing etcd data")
 	clientURL := "http://127.0.0.1:4001"
 	flag.StringVar(&clientURL, "client-url", clientURL, "URL on which to connect to etcd")
+	interval := "15m"
+	flag.StringVar(&interval, "interval", interval, "backup frequency")
 
 	flag.Parse()
 
@@ -54,6 +57,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	backupInterval, err := time.ParseDuration(interval)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "cannot parse interval %q", interval)
+		os.Exit(1)
+	}
+
 	ctx := context.TODO()
 
 	backupStore, err := backup.NewStore(backupStorePath)
@@ -61,7 +70,7 @@ func main() {
 		glog.Fatalf("error initializing backup store: %v", err)
 	}
 	clientURLs := []string{clientURL}
-	c, err := backupcontroller.NewBackupController(backupStore, clusterName, clientURLs, dataDir)
+	c, err := backupcontroller.NewBackupController(backupStore, clusterName, clientURLs, dataDir, backupInterval)
 	if err != nil {
 		glog.Fatalf("error building backup controller: %v", err)
 	}
