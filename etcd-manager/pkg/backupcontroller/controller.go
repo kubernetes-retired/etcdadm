@@ -32,7 +32,7 @@ type BackupController struct {
 	backupCleanup *BackupCleanup
 }
 
-func NewBackupController(backupStore backup.Store, clusterName string, clientUrls []string, dataDir string) (*BackupController, error) {
+func NewBackupController(backupStore backup.Store, clusterName string, clientUrls []string, dataDir string, backupInterval time.Duration) (*BackupController, error) {
 	if clusterName == "" {
 		return nil, fmt.Errorf("ClusterName is required")
 	}
@@ -42,7 +42,7 @@ func NewBackupController(backupStore backup.Store, clusterName string, clientUrl
 		backupStore:    backupStore,
 		dataDir:        dataDir,
 		clientUrls:     clientUrls,
-		backupInterval: 5 * time.Minute,
+		backupInterval: backupInterval,
 		backupCleanup:  NewBackupCleanup(backupStore),
 	}
 	return m, nil
