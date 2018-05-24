@@ -32,6 +32,7 @@ import (
 	"kope.io/etcd-manager/pkg/commands"
 	"kope.io/etcd-manager/pkg/controller"
 	"kope.io/etcd-manager/pkg/etcd"
+	"kope.io/etcd-manager/pkg/legacy"
 	"kope.io/etcd-manager/pkg/locking"
 	"kope.io/etcd-manager/pkg/privateapi"
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
@@ -273,6 +274,10 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 	commandStore, err := commands.NewStore(o.BackupStorePath)
 	if err != nil {
 		glog.Fatalf("error initializing command store: %v", err)
+	}
+
+	if _, err := legacy.ScanForExisting(o.DataDir, commandStore); err != nil {
+		glog.Fatalf("error performing scan for legacy data: %v", err)
 	}
 
 	etcdServer, err := etcd.NewEtcdServer(o.DataDir, o.ClusterName, etcdNodeInfo, peerServer)
