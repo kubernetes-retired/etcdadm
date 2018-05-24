@@ -24,11 +24,17 @@ type Volumes interface {
 	// If not found, it returns "", nil
 	// On error, it returns "", err
 	FindMountedVolume(volume *Volume) (device string, err error)
+
+	// MyIP returns the current node's IP address
+	MyIP() (string, error)
 }
 
 type Volume struct {
-	// ID is the cloud-provider identifier for the volume
-	ID string
+	// ProviderID is the cloud-provider identifier for the volume
+	ProviderID string
+
+	// EtcdName is the name for etcd
+	EtcdName string
 
 	// LocalDevice is set if the volume is attached to the local machine
 	LocalDevice string
