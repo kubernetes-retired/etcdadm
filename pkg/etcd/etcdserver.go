@@ -14,6 +14,7 @@ import (
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/contextutil"
+	"kope.io/etcd-manager/pkg/hosts"
 	"kope.io/etcd-manager/pkg/privateapi"
 )
 
@@ -169,6 +170,36 @@ func (s *EtcdServer) GetInfo(context.Context, *protoetcd.GetInfoRequest) (*proto
 	//	}
 	//	//response.ClusterConfiguration = pb
 	//}
+
+	return response, nil
+}
+
+// UpdateEndpoints updates /etc/hosts with the other cluster members
+func (s *EtcdServer) UpdateEndpoints(ctx context.Context, request *protoetcd.UpdateEndpointsRequest) (*protoetcd.UpdateEndpointsResponse, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	response := &protoetcd.UpdateEndpointsResponse{}
+
+	if request.MemberMap != nil {
+		addressToHosts := make(map[string][]string)
+
+		for _, m := range request.MemberMap.Members {
+			if m.Dns != "" {
+				for _, a := range m.Addresses {
+					addressToHosts[a] = append(addressToHosts[a], m.Dns)
+				}
+			}
+		}
+
+		if len(addressToHosts) != 0 {
+			glog.Infof("updating hosts: %v", addressToHosts)
+			if err := hosts.UpdateHostsFileWithRecords("/etc/hosts", "etcd-manager["+s.clusterName+"]", addressToHosts); err != nil {
+				glog.Warningf("error updating hosts: %v", err)
+				return nil, err
+			}
+		}
+	}
 
 	return response, nil
 }
