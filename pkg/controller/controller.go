@@ -199,6 +199,12 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	}
 
 	// Check that all peers have acked the leader
+	// Even if we are the leader, we check we have sufficient peers acking us as leader before performing some operations,
+	// This helps avoid multiple leaders when we're partitioned
+	// This does mean we can't make progress if we don't have quorum,
+	// but part of the design is that unsafe operations require a command.
+	// (unsafe = potential for data loss)
+	ackedPeerCount := 0
 	{
 		for _, peer := range peers {
 			if !m.leadership.acked[peer.Id] {
@@ -208,6 +214,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 				// Wait one cycle after leadership changes
 				return false, nil
 			}
+			ackedPeerCount++
 		}
 	}
 
@@ -271,6 +278,11 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 
 		clusterSpec := m.getControlClusterSpec()
 		if clusterSpec != nil {
+			if ackedPeerCount < quorumSize(int(clusterSpec.MemberCount)) {
+				glog.Infof("insufficient peers in our gossip group to build a cluster of size %d", clusterSpec.MemberCount)
+				return false, nil
+			}
+
 			created, err := m.createNewCluster(ctx, clusterState, clusterSpec)
 			if err != nil {
 				return created, err
@@ -303,6 +315,11 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 			return false, fmt.Errorf("RestoreBackup was not set: %v", restoreBackupCommand)
 		}
 
+		if ackedPeerCount < quorumSize(int(clusterSpec.MemberCount)) {
+			glog.Infof("insufficient peers in our gossip group to build a cluster of size %d", clusterSpec.MemberCount)
+			return false, nil
+		}
+
 		clusterSpec := restoreBackupCommand.Data().RestoreBackup.ClusterSpec
 		if _, err := m.createNewCluster(ctx, clusterState, clusterSpec); err != nil {
 			return false, err
@@ -331,14 +348,24 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 
 	if quarantinedMembers > 0 {
 		if len(clusterState.healthyMembers) >= desiredQuorumSize && len(versionMismatch) == 0 {
-			// We're ready - lift quarantine
-			return m.updateQuarantine(ctx, clusterState, false)
+			if ackedPeerCount >= quorumSize(int(clusterSpec.MemberCount)) {
+				// We're ready - lift quarantine
+				return m.updateQuarantine(ctx, clusterState, false)
+			} else {
+				glog.Infof("insufficient peers to lift quarantine")
+				return false, nil
+			}
 		}
 	}
 
 	if len(clusterState.members) < int(clusterSpec.MemberCount) {
 		glog.Infof("etcd has %d members registered, we want %d; will try to expand cluster", len(clusterState.members), clusterSpec.MemberCount)
-		return m.addNodeToCluster(ctx, clusterSpec, clusterState)
+		if ackedPeerCount >= quorumSize(len(clusterState.members)) {
+			return m.addNodeToCluster(ctx, clusterSpec, clusterState)
+		} else {
+			glog.Infof("insufficient peers to expand cluster")
+			return false, nil
+		}
 	}
 
 	if len(clusterState.members) == 0 {
@@ -347,21 +374,46 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	}
 
 	if configuredMembers > int(clusterSpec.MemberCount) {
-		return m.removeNodeFromCluster(ctx, clusterSpec, clusterState, true)
+		if ackedPeerCount >= quorumSize(configuredMembers) {
+			return m.removeNodeFromCluster(ctx, clusterSpec, clusterState, true)
+		} else {
+			glog.Infof("insufficient peers to remove nodes from cluster")
+			return false, nil
+		}
 	}
 
-	// healthy members
+	// remove unhealthy members if we need a slot to add an idle peer
 	if len(clusterState.healthyMembers) < int(len(clusterState.members)) {
-		glog.Infof("etcd has unhealthy members")
-		// TODO: Wait longer in case of a flake
-		// TODO: Still backup before mutating the cluster
-		return m.removeNodeFromCluster(ctx, clusterSpec, clusterState, false)
+		// We only want to remove members to make room to add another
+		// So we will only remove one member when we're at full size,
+		// We also only remove a member when there's a idle peer
+		idlePeers := clusterState.idlePeers()
+		if len(idlePeers) == 0 {
+			glog.Infof("etcd has unhealthy members, but no idle peers ready to join, so won't remove unhealthy members")
+		} else if len(clusterState.members) <= 2 {
+			glog.Infof("etcd has unhealthy members, but cluster size is not large enough to support safe removal")
+		} else if len(clusterState.members) <= int(clusterSpec.MemberCount) {
+			// TODO: Is this the right check?  What if we can't add because we can't get quorum?
+			glog.Infof("etcd has unhealthy members, but we already have a slot where we could add another member")
+		} else if ackedPeerCount < quorumSize(int(clusterSpec.MemberCount)) {
+			glog.Infof("etcd has unhealthy members, but we don't have sufficient peers to remove members")
+		} else {
+			glog.Infof("etcd has unhealthy members, an idle peer ready to join, and is at full cluster size; removing a member")
+			// TODO: Remove and readd bad member to repair it
+			// TODO: Wait longer in case of a flake
+			// TODO: Still backup before mutating the cluster
+			return m.removeNodeFromCluster(ctx, clusterSpec, clusterState, false)
+		}
 	}
 
 	if len(versionMismatch) != 0 {
 		glog.Infof("detected that we need to upgrade/downgrade etcd")
 
-		return m.stopForUpgrade(ctx, clusterSpec, clusterState)
+		if ackedPeerCount >= quorumSize(int(clusterSpec.MemberCount)) {
+			return m.stopForUpgrade(ctx, clusterSpec, clusterState)
+		} else {
+			glog.Infof("upgrade/downgrade needed, but we don't have sufficient peers")
+		}
 	}
 
 	glog.Infof("controller loop complete")
@@ -493,6 +545,18 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 	return clusterState, nil
 }
 
+func (e *etcdClusterState) idlePeers() []*etcdClusterPeerInfo {
+	var idlePeers []*etcdClusterPeerInfo
+	for _, peer := range e.peers {
+		if peer.info != nil && peer.info.EtcdState != nil && peer.info.EtcdState.Cluster != nil {
+			// not idle
+		} else {
+			idlePeers = append(idlePeers, peer)
+		}
+	}
+	return idlePeers
+}
+
 func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState) (bool, error) {
 	var peersMissingFromEtcd []*etcdClusterPeerInfo
 	var idlePeers []*etcdClusterPeerInfo
@@ -514,13 +578,17 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterSpec *prot
 
 	// We need to start etcd on a new node
 	if len(idlePeers) != 0 {
-		// Force a backup first
-		if _, err := m.doClusterBackup(ctx, clusterSpec, clusterState); err != nil {
-			return false, fmt.Errorf("failed to backup (before adding peer): %v", err)
+		if len(clusterState.members) != 0 {
+			// Force a backup first
+			if _, err := m.doClusterBackup(ctx, clusterSpec, clusterState); err != nil {
+				return false, fmt.Errorf("failed to backup (before adding peer): %v", err)
+			}
+		} else {
+			glog.Warningf("unable to do backup before adding peer - no members")
 		}
 
 		peer := idlePeers[math_rand.Intn(len(idlePeers))]
-		glog.Infof("will try to start new peer: %v", peer)
+		glog.Infof("will try to start etcd on new peer: %v", peer)
 
 		clusterToken := ""
 		etcdVersion := ""
