@@ -8,7 +8,7 @@ import (
 
 	"github.com/golang/glog"
 	"google.golang.org/grpc"
-
+	"google.golang.org/grpc/connectivity"
 	"kope.io/etcd-manager/pkg/contextutil"
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 )
@@ -199,12 +199,23 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 
 	{
 		p.mutex.Lock()
-		conn = p.conn
+		if p.conn != nil {
+			state := p.conn.GetState()
+			switch state {
+			case connectivity.TransientFailure, connectivity.Shutdown:
+				glog.Warningf("closing grpc connection to peer %s in state %s", p, state)
+				p.conn.Close()
+				p.conn = nil
+			default:
+				conn = p.conn
+			}
+		}
 		p.mutex.Unlock()
 
 		if conn != nil {
 			return conn, nil
 		}
+
 	}
 
 	var opts []grpc.DialOption
