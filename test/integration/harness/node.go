@@ -123,7 +123,7 @@ func (n *TestHarnessNode) Run() {
 		t.Fatalf("error initializing lock: %v", err)
 	}
 
-	etcdServer, err := etcd.NewEtcdServer(n.NodeDir, n.TestHarness.ClusterName, me, peerServer)
+	etcdServer, err := etcd.NewEtcdServer(n.NodeDir, n.TestHarness.ClusterName, n.Address, me, peerServer)
 	if err != nil {
 		t.Fatalf("error building EtcdServer: %v", err)
 	}

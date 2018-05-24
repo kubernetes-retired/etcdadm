@@ -2,6 +2,7 @@ package etcd
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"os/exec"
 	"path"
@@ -41,6 +42,9 @@ type etcdProcess struct {
 	mutex     sync.Mutex
 	exitError error
 	exitState *os.ProcessState
+
+	// ListenAddress is the address we bind to
+	ListenAddress string
 }
 
 func (p *etcdProcess) ExitState() (error, *os.ProcessState) {
@@ -126,8 +130,10 @@ func (p *etcdProcess) Start() error {
 	}
 	env := make(map[string]string)
 	env["ETCD_DATA_DIR"] = p.DataDir
-	env["ETCD_LISTEN_PEER_URLS"] = strings.Join(me.PeerUrls, ",")
-	env["ETCD_LISTEN_CLIENT_URLS"] = strings.Join(clientUrls, ",")
+
+	// etcd3.2 requires that we listen on an IP, not a DNS name
+	env["ETCD_LISTEN_PEER_URLS"] = strings.Join(changeHost(me.PeerUrls, p.ListenAddress), ",")
+	env["ETCD_LISTEN_CLIENT_URLS"] = strings.Join(changeHost(clientUrls, p.ListenAddress), ",")
 	env["ETCD_ADVERTISE_CLIENT_URLS"] = strings.Join(clientUrls, ",")
 	env["ETCD_INITIAL_ADVERTISE_PEER_URLS"] = strings.Join(me.PeerUrls, ",")
 
@@ -177,6 +183,25 @@ func (p *etcdProcess) Start() error {
 	}()
 
 	return nil
+}
+
+func changeHost(urls []string, host string) []string {
+	var remapped []string
+	for _, s := range urls {
+		u, err := url.Parse(s)
+		if err != nil {
+			glog.Warningf("error parsing url %q", s)
+			remapped = append(remapped, s)
+			continue
+		}
+		newHost := host
+		if u.Port() != "" {
+			newHost += ":" + u.Port()
+		}
+		u.Host = newHost
+		remapped = append(remapped, u.String())
+	}
+	return remapped
 }
 
 func (p *etcdProcess) NewClient() (etcdclient.EtcdClient, error) {
