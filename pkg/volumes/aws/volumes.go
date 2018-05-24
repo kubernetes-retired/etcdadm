@@ -42,10 +42,13 @@ type AWSVolumes struct {
 
 	matchTagKeys []string
 	matchTags    map[string]string
+	nameTag      string
+	clusterName  string
 
 	deviceMap  map[string]string
 	ec2        *ec2.EC2
 	instanceID string
+	localIP    string
 	metadata   *ec2metadata.EC2Metadata
 	zone       string
 
@@ -56,10 +59,12 @@ type AWSVolumes struct {
 var _ volumes.Volumes = &AWSVolumes{}
 
 // NewAWSVolumes returns a new aws volume provider
-func NewAWSVolumes(volumeTags []string, endpointFormat string) (*AWSVolumes, error) {
+func NewAWSVolumes(clusterName string, volumeTags []string, nameTag string, endpointFormat string) (*AWSVolumes, error) {
 	a := &AWSVolumes{
+		clusterName:    clusterName,
 		deviceMap:      make(map[string]string),
 		matchTags:      make(map[string]string),
+		nameTag:        nameTag,
 		endpointFormat: endpointFormat,
 	}
 
@@ -99,6 +104,11 @@ func NewAWSVolumes(volumeTags []string, endpointFormat string) (*AWSVolumes, err
 	a.instanceID, err = a.metadata.GetMetadata("instance-id")
 	if err != nil {
 		return nil, fmt.Errorf("error querying ec2 metadata service (for instance-id): %v", err)
+	}
+
+	a.localIP, err = a.metadata.GetMetadata("local-ipv4")
+	if err != nil {
+		return nil, fmt.Errorf("error querying ec2 metadata service (for local-ipv4): %v", err)
 	}
 
 	a.ec2 = ec2.New(s, config.WithRegion(region))
@@ -142,11 +152,24 @@ func (a *AWSVolumes) describeVolumes(request *ec2.DescribeVolumesInput) ([]*volu
 	var found []*volumes.Volume
 	err := a.ec2.DescribeVolumesPages(request, func(p *ec2.DescribeVolumesOutput, lastPage bool) (shouldContinue bool) {
 		for _, v := range p.Volumes {
-			volumeID := aws.StringValue(v.VolumeId)
+			etcdName := aws.StringValue(v.VolumeId)
+			if a.nameTag != "" {
+				for _, t := range v.Tags {
+					if a.nameTag == aws.StringValue(t.Key) {
+						v := aws.StringValue(t.Value)
+						if v != "" {
+							tokens := strings.SplitN(v, "/", 2)
+							etcdName = a.clusterName + "-" + tokens[0]
+						}
+					}
+				}
+			}
+
 			vol := &volumes.Volume{
-				ID: volumeID,
+				ProviderID: aws.StringValue(v.VolumeId),
+				EtcdName:   etcdName,
 				Info: volumes.VolumeInfo{
-					Description: volumeID,
+					Description: aws.StringValue(v.VolumeId),
 				},
 			}
 			state := aws.StringValue(v.State)
@@ -210,10 +233,10 @@ func (a *AWSVolumes) FindMountedVolume(volume *volumes.Volume) (string, error) {
 	if !os.IsNotExist(err) {
 		return "", fmt.Errorf("error checking for device %q: %v", device, err)
 	}
-	glog.V(2).Infof("volume %s not mounted at %s", volume.ID, volumes.PathFor(device))
+	glog.V(2).Infof("volume %s not mounted at %s", volume.ProviderID, volumes.PathFor(device))
 
-	if volume.ID != "" {
-		expected := volume.ID
+	if volume.ProviderID != "" {
+		expected := volume.ProviderID
 		expected = "nvme-Amazon_Elastic_Block_Store_" + strings.Replace(expected, "-", "", -1)
 
 		// Look for nvme devices
@@ -227,7 +250,7 @@ func (a *AWSVolumes) FindMountedVolume(volume *volumes.Volume) (string, error) {
 			glog.Infof("found nvme volume %q at %q", expected, device)
 			return device, nil
 		}
-		glog.V(2).Infof("volume %s not mounted at %s", volume.ID, expected)
+		glog.V(2).Infof("volume %s not mounted at %s", volume.ProviderID, expected)
 	}
 
 	return "", nil
@@ -295,7 +318,7 @@ func (a *AWSVolumes) releaseDevice(d string, volumeID string) {
 
 // AttachVolume attaches the specified volume to this instance, returning the mountpoint & nil if successful
 func (a *AWSVolumes) AttachVolume(volume *volumes.Volume) error {
-	volumeID := volume.ID
+	volumeID := volume.ProviderID
 
 	device := volume.LocalDevice
 	if device == "" {
@@ -362,4 +385,8 @@ func (a *AWSVolumes) AttachVolume(volume *volumes.Volume) error {
 
 		time.Sleep(10 * time.Second)
 	}
+}
+
+func (a *AWSVolumes) MyIP() (string, error) {
+	return a.localIP, nil
 }
