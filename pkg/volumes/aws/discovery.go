@@ -65,7 +65,7 @@ func (a *AWSVolumes) Poll() (map[string]discovery.Node, error) {
 					continue
 				}
 
-				// We use the volume ID as the persistent identifier, because the data determines who we are
+				// We use the etcd node ID as the persistent identifier, because the data determines who we are
 				node := discovery.Node{
 					ID: volume.ID,
 				}

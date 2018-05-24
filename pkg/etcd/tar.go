@@ -154,7 +154,7 @@ func addTreeToTar(w *tar.Writer, srcdir string, prefix string) error {
 			return fmt.Errorf("error writing to tar file: %v", err)
 		}
 
-		if err := copyFile(w, srcPath); err != nil {
+		if err := copyFileToWriter(w, srcPath); err != nil {
 			return err
 		}
 	}
@@ -163,7 +163,7 @@ func addTreeToTar(w *tar.Writer, srcdir string, prefix string) error {
 }
 
 // copyFile reads the file from srcPath and writes it to w
-func copyFile(w io.Writer, srcPath string) error {
+func copyFileToWriter(w io.Writer, srcPath string) error {
 	f, err := os.Open(srcPath)
 	if err != nil {
 		return fmt.Errorf("error reading source file %q: %v", srcPath, err)

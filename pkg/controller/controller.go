@@ -813,16 +813,6 @@ func (m *EtcdController) removeNodeFromCluster(ctx context.Context, clusterSpec 
 		return false, fmt.Errorf("unable to pick a member to remove")
 	}
 
-	//var peer *etcdClusterState
-	//for _, p := range clusterState.peers {
-	//	if p.info != nil && p.info.Id == victim.Id {
-	//		peer = p.peer
-	//	}
-	//}
-	//if peer == nil {
-	//	return false, fmt.Errorf("unable to find peer for member %v", victim)
-	//}
-
 	// Force a backup first
 	if _, err := m.doClusterBackup(ctx, clusterSpec, clusterState); err != nil {
 		return false, fmt.Errorf("failed to backup (before adding peer): %v", err)
