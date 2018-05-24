@@ -131,7 +131,7 @@ func (s *EtcdServer) runOnce() error {
 	if s.process != nil {
 		exitError, exitState := s.process.ExitState()
 		if exitError != nil || exitState != nil {
-			glog.Warningf("etc process exited (error=%v, state=%v)", exitError, exitState)
+			glog.Warningf("etcd process exited (error=%v, state=%v)", exitError, exitState)
 
 			s.process = nil
 		}
@@ -148,7 +148,7 @@ func (s *EtcdServer) runOnce() error {
 }
 
 // GetInfo gets info about the node
-func (s *EtcdServer) GetInfo(context.Context, *protoetcd.GetInfoRequest) (*protoetcd.GetInfoResponse, error) {
+func (s *EtcdServer) GetInfo(ctx context.Context, request *protoetcd.GetInfoRequest) (*protoetcd.GetInfoResponse, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -466,7 +466,7 @@ func (s *EtcdServer) findSelfNode(state *protoetcd.EtcdState) (*protoetcd.EtcdNo
 		if node.Name == s.etcdNodeConfiguration.Name {
 			if meNode != nil {
 				glog.Infof("Nodes: %v", state.Cluster.Nodes)
-				return nil, fmt.Errorf("multiple nodes matching local peer urls %s included in cluster", node.PeerUrls)
+				return nil, fmt.Errorf("multiple nodes matching local name %s included in cluster", node.Name)
 			}
 			meNode = node
 		}
