@@ -33,6 +33,9 @@ const defaultCycleInterval = 10 * time.Second
 type EtcdController struct {
 	clusterName string
 
+	// dnsSuffix is the suffix we add to member names when broadcasting the state
+	dnsSuffix string
+
 	// controlRefreshInterval determines how often we live-reload from the control store
 	// We also refresh when we become leader, so a rolling update will force a reload
 	controlRefreshInterval time.Duration
@@ -70,8 +73,6 @@ type EtcdController struct {
 
 	// controlClusterSpec is the expected cluster spec, as read from the control store
 	controlClusterSpec *protoetcd.ClusterSpec
-
-	dnsSuffix string
 }
 
 // peerState holds persistent information about a peer
@@ -86,12 +87,13 @@ type leadershipState struct {
 }
 
 // NewEtcdController is the constructor for an EtcdController
-func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, controlStore commands.Store, controlRefreshInterval time.Duration, clusterName string, peers privateapi.Peers) (*EtcdController, error) {
+func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, controlStore commands.Store, controlRefreshInterval time.Duration, clusterName string, dnsSuffix string, peers privateapi.Peers) (*EtcdController, error) {
 	if clusterName == "" {
 		return nil, fmt.Errorf("ClusterName is required")
 	}
 	m := &EtcdController{
 		clusterName:            clusterName,
+		dnsSuffix:              dnsSuffix,
 		backupStore:            backupStore,
 		peers:                  peers,
 		leaderLock:             leaderLock,
