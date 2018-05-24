@@ -8,12 +8,12 @@ import (
 	"io"
 	math_rand "math/rand"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/golang/glog"
 	"github.com/golang/protobuf/proto"
-
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/backupcontroller"
@@ -70,6 +70,8 @@ type EtcdController struct {
 
 	// controlClusterSpec is the expected cluster spec, as read from the control store
 	controlClusterSpec *protoetcd.ClusterSpec
+
+	dnsSuffix string
 }
 
 // peerState holds persistent information about a peer
@@ -259,6 +261,10 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 				quarantinedMembers++
 			}
 		}
+	}
+
+	if err := m.broadcastMemberMap(ctx, clusterState); err != nil {
+		glog.Warningf("error broadcasting member map: %v", err)
 	}
 
 	if err := m.refreshControlStore(m.controlRefreshInterval); err != nil {
@@ -453,6 +459,64 @@ func randomToken() string {
 		glog.Fatalf("error generating random token: %v", err)
 	}
 	return base64.RawURLEncoding.EncodeToString(b)
+}
+
+func (m *EtcdController) broadcastMemberMap(ctx context.Context, etcdClusterState *etcdClusterState) error {
+	memberMap := &protoetcd.MemberMap{}
+	for _, peer := range etcdClusterState.peers {
+		if peer.peer == nil || peer.peer.info == nil {
+			continue
+		}
+
+		etcdState := peer.info.EtcdState
+		if etcdState == nil {
+			continue
+		}
+
+		nodeConfiguration := peer.info.NodeConfiguration
+		if nodeConfiguration == nil {
+			continue
+		}
+
+		memberInfo := &protoetcd.MemberMapInfo{
+			Name: nodeConfiguration.Name,
+		}
+
+		if m.dnsSuffix != "" {
+			dnsSuffix := m.dnsSuffix
+			if !strings.HasPrefix(dnsSuffix, ".") {
+				dnsSuffix = "." + dnsSuffix
+			}
+			memberInfo.Dns = nodeConfiguration.Name + dnsSuffix
+		}
+
+		for _, a := range peer.peer.info.Endpoints {
+			ip := a
+			colonIndex := strings.Index(ip, ":")
+			if colonIndex != -1 {
+				ip = ip[:colonIndex]
+			}
+			memberInfo.Addresses = append(memberInfo.Addresses, ip)
+		}
+
+		memberMap.Members = append(memberMap.Members, memberInfo)
+	}
+
+	// TODO: optimize this
+	glog.Infof("sending member map to all peers: %v", memberMap)
+
+	for _, peer := range etcdClusterState.peers {
+		updateEndpointsRequest := &protoetcd.UpdateEndpointsRequest{
+			MemberMap: memberMap,
+		}
+
+		_, err := peer.peer.rpcUpdateEndpoints(ctx, updateEndpointsRequest)
+		if err != nil {
+			glog.Warningf("peer %s failed to update endpoints: %v", peer.peer.Id, err)
+		}
+	}
+
+	return nil
 }
 
 // updateClusterState queries each peer (including ourselves) for information about the desired state of the world
