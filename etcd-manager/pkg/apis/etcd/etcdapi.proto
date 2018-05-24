@@ -33,7 +33,10 @@ service EtcdManagerService {
     // GetInfo gets info about the node
     rpc GetInfo (GetInfoRequest) returns (GetInfoResponse);
 
-    // JoinCluster requests that the node join an existing cluster
+    // UpdateEndpoints is sent to peers so they can update their inter-cluster routing
+    rpc UpdateEndpoints(UpdateEndpointsRequest) returns (UpdateEndpointsResponse);
+
+     // JoinCluster requests that the node join an existing cluster
     rpc JoinCluster (JoinClusterRequest) returns (JoinClusterResponse);
 
     // Reconfigure changes the configuration of an existing node, primarily for a version upgrade/downgrade
@@ -68,6 +71,25 @@ message GetInfoResponse {
 
     EtcdNode node_configuration = 5;
     EtcdState etcd_state = 6;
+}
+
+message UpdateEndpointsRequest {
+  // Contains information about the current nodes
+  // It can be used for nodes to update /etc/hosts
+  MemberMap member_map = 1;
+}
+
+message MemberMap {
+  repeated MemberMapInfo members = 1;
+}
+
+message MemberMapInfo {
+  string name = 1;
+  string dns = 2;
+  repeated string addresses = 3;
+}
+
+message UpdateEndpointsResponse {
 }
 
 message BackupInfo {
