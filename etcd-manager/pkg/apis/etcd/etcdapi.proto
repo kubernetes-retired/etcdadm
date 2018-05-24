@@ -181,7 +181,7 @@ message EtcdCluster {
 //    string cluster_name = 4;
     string cluster_token = 5;
 
-    string my_id = 6;
+    //string my_id = 6;
     repeated EtcdNode nodes = 7;
 }
 
