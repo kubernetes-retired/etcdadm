@@ -112,6 +112,7 @@ type EtcdManagerOptions struct {
 	ClientUrls           string
 	QuarantineClientUrls string
 	ClusterName          string
+	ListenAddress        string
 	BackupStorePath      string
 	DataDir              string
 	VolumeTags           []string
@@ -151,6 +152,9 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 	if o.BackupStorePath == "" {
 		return fmt.Errorf("backup-store is required")
 	}
+
+	// We could make this configurable?
+	o.ListenAddress = "0.0.0.0"
 
 	var discoveryProvider discovery.Interface
 	var myPeerId privateapi.PeerId
@@ -280,7 +284,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 		glog.Fatalf("error performing scan for legacy data: %v", err)
 	}
 
-	etcdServer, err := etcd.NewEtcdServer(o.DataDir, o.ClusterName, etcdNodeInfo, peerServer)
+	etcdServer, err := etcd.NewEtcdServer(o.DataDir, o.ClusterName, o.ListenAddress, etcdNodeInfo, peerServer)
 	if err != nil {
 		return fmt.Errorf("error initializing etcd server: %v", err)
 	}

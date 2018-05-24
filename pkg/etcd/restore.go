@@ -134,7 +134,8 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 			ClusterToken: clusterToken,
 			Nodes:        []*protoetcd.EtcdNode{node},
 		},
-		MyNodeName: myNodeName,
+		MyNodeName:    myNodeName,
+		ListenAddress: "127.0.0.1",
 	}
 
 	if isV2 {
