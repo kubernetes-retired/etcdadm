@@ -67,7 +67,7 @@ func (a *AWSVolumes) Poll() (map[string]discovery.Node, error) {
 
 				// We use the etcd node ID as the persistent identifier, because the data determines who we are
 				node := discovery.Node{
-					ID: volume.ID,
+					ID: volume.EtcdName,
 				}
 				if aws.StringValue(instance.PrivateIpAddress) != "" {
 					e := fmt.Sprintf(a.endpointFormat, aws.StringValue(instance.PrivateIpAddress))
