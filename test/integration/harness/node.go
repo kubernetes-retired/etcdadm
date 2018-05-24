@@ -133,7 +133,9 @@ func (n *TestHarnessNode) Run() {
 	// No automatic refreshes
 	controlRefreshInterval := 10 * 365 * 24 * time.Hour
 
-	c, err := controller.NewEtcdController(leaderLock, backupStore, commandStore, controlRefreshInterval, n.TestHarness.ClusterName, peerServer)
+	dnsSuffix := ""
+
+	c, err := controller.NewEtcdController(leaderLock, backupStore, commandStore, controlRefreshInterval, n.TestHarness.ClusterName, dnsSuffix, peerServer)
 	c.CycleInterval = testCycleInterval
 	if err != nil {
 		t.Fatalf("error building etcd controller: %v", err)

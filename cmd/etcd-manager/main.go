@@ -287,7 +287,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 	go etcdServer.Run(ctx)
 
 	var leaderLock locking.Lock // nil
-	c, err := controller.NewEtcdController(leaderLock, backupStore, commandStore, o.ControlRefreshInterval, o.ClusterName, peerServer)
+	c, err := controller.NewEtcdController(leaderLock, backupStore, commandStore, o.ControlRefreshInterval, o.ClusterName, o.DNSSuffix, peerServer)
 	if err != nil {
 		return fmt.Errorf("error building etcd controller: %v", err)
 	}
