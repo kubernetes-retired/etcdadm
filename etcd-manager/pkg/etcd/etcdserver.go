@@ -34,6 +34,9 @@ type EtcdServer struct {
 	state    *protoetcd.EtcdState
 	prepared *preparedState
 	process  *etcdProcess
+
+	// listenAddress is the address we configure etcd to bind to
+	listenAddress string
 }
 
 type preparedState struct {
@@ -41,10 +44,11 @@ type preparedState struct {
 	clusterToken string
 }
 
-func NewEtcdServer(baseDir string, clusterName string, etcdNodeConfiguration *protoetcd.EtcdNode, peerServer *privateapi.Server) (*EtcdServer, error) {
+func NewEtcdServer(baseDir string, clusterName string, listenAddress string, etcdNodeConfiguration *protoetcd.EtcdNode, peerServer *privateapi.Server) (*EtcdServer, error) {
 	s := &EtcdServer{
 		baseDir:               baseDir,
 		clusterName:           clusterName,
+		listenAddress:         listenAddress,
 		peerServer:            peerServer,
 		etcdNodeConfiguration: etcdNodeConfiguration,
 	}
@@ -517,8 +521,9 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 			ClusterToken: state.Cluster.ClusterToken,
 			Nodes:        state.Cluster.Nodes,
 		},
-		Quarantined: state.Quarantined,
-		MyNodeName:  s.etcdNodeConfiguration.Name,
+		Quarantined:   state.Quarantined,
+		MyNodeName:    s.etcdNodeConfiguration.Name,
+		ListenAddress: s.listenAddress,
 	}
 
 	binDir, err := BindirForEtcdVersion(state.EtcdVersion, "etcd")
