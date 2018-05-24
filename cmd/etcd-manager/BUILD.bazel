@@ -11,6 +11,7 @@ go_library(
         "//pkg/commands:go_default_library",
         "//pkg/controller:go_default_library",
         "//pkg/etcd:go_default_library",
+        "//pkg/legacy:go_default_library",
         "//pkg/locking:go_default_library",
         "//pkg/privateapi:go_default_library",
         "//pkg/privateapi/discovery:go_default_library",
