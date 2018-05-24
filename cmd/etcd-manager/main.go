@@ -60,7 +60,7 @@ func main() {
 	o.InitDefaults()
 
 	flag.StringVar(&o.Address, "address", o.Address, "local address to use")
-	flag.IntVar(&o.PeerPort, "peer-port", o.PeerPort, "peer-port to use")
+	flag.StringVar(&o.PeerUrls, "peer-urls", o.PeerUrls, "peer-urls to use")
 	flag.IntVar(&o.GrpcPort, "grpc-port", o.GrpcPort, "grpc-port to use")
 	flag.StringVar(&o.ClientUrls, "client-urls", o.ClientUrls, "client-urls to use for normal operation")
 	flag.StringVar(&o.QuarantineClientUrls, "quarantine-client-urls", o.QuarantineClientUrls, "client-urls to use when etcd should be quarantined e.g. when offline")
@@ -69,6 +69,10 @@ func main() {
 	flag.StringVar(&o.DataDir, "data-dir", o.DataDir, "directory for storing etcd data")
 
 	flag.StringVar(&o.VolumeProviderID, "volume-provider", o.VolumeProviderID, "provider for volumes")
+
+	flag.StringVar(&o.NameTag, "volume-name-tag", o.NameTag, "tag which is used for extract node id from volume")
+
+	flag.StringVar(&o.DNSSuffix, "dns-suffix", o.DNSSuffix, "suffix which is added to member names when configuring internal DNS")
 
 	var volumeTags stringSliceFlag
 	flag.Var(&volumeTags, "volume-tag", "tag which volume is required to have")
@@ -88,11 +92,21 @@ func main() {
 	}
 }
 
+func expandUrls(urls string, address string, name string) []string {
+	var expanded []string
+	for _, s := range strings.Split(urls, ",") {
+		s = strings.Replace(s, "__address__", address, -1)
+		s = strings.Replace(s, "__name__", name, -1)
+		expanded = append(expanded, s)
+	}
+	return expanded
+}
+
 // EtcdManagerOptions holds the flag options for running etcd-manager
 type EtcdManagerOptions struct {
 	Address              string
 	VolumeProviderID     string
-	PeerPort             int
+	PeerUrls             string
 	GrpcPort             int
 	ClientUrls           string
 	QuarantineClientUrls string
@@ -100,6 +114,10 @@ type EtcdManagerOptions struct {
 	BackupStorePath      string
 	DataDir              string
 	VolumeTags           []string
+	NameTag              string
+
+	// DNSSuffix is added to etcd member names and we then use internal client id discovery
+	DNSSuffix string
 
 	// ControlRefreshInterval is the interval with which we refresh the control store
 	// (we also refresh on leadership changes and on boot)
@@ -108,10 +126,12 @@ type EtcdManagerOptions struct {
 
 // InitDefaults populates the default flag values
 func (o *EtcdManagerOptions) InitDefaults() {
-	o.Address = "127.0.0.1"
-	o.PeerPort = 2380
-	o.ClientUrls = "http://127.0.0.1:4001"
-	o.QuarantineClientUrls = "http://127.0.0.1:8001"
+	//o.Address = "127.0.0.1"
+
+	o.ClientUrls = "http://__address__:4001"
+	o.QuarantineClientUrls = "http://__address__:8001"
+	o.PeerUrls = "http://__address__:2380"
+
 	o.GrpcPort = 8000
 
 	// We effectively only refresh on leadership changes
@@ -139,7 +159,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 
 		switch o.VolumeProviderID {
 		case "aws":
-			awsVolumeProvider, err := aws.NewAWSVolumes(o.VolumeTags, "%s:"+strconv.Itoa(o.GrpcPort))
+			awsVolumeProvider, err := aws.NewAWSVolumes(o.ClusterName, o.VolumeTags, o.NameTag, "%s:"+strconv.Itoa(o.GrpcPort))
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				os.Exit(1)
@@ -156,7 +176,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 		boot := &volumes.Boot{}
 		boot.Init(volumeProvider)
 
-		glog.Infof("Mounting available etcd volumes matching tags %v", o.VolumeTags)
+		glog.Infof("Mounting available etcd volumes matching tags %v; nameTag=%s", o.VolumeTags, o.NameTag)
 		volumes := boot.WaitForVolumes()
 		if len(volumes) == 0 {
 			return fmt.Errorf("no volumes were mounted")
@@ -166,8 +186,15 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 			return fmt.Errorf("multiple volumes were mounted: %v", volumes)
 		}
 
+		address, err := volumeProvider.MyIP()
+		if err != nil {
+			return err
+		}
+		o.Address = address
+		glog.Infof("discovered IP address: %s", o.Address)
+
 		o.DataDir = volumes[0].Mountpoint
-		myPeerId = privateapi.PeerId(volumes[0].ID)
+		myPeerId = privateapi.PeerId(volumes[0].EtcdName)
 
 		glog.Infof("Setting data dir to %s", o.DataDir)
 	}
@@ -182,6 +209,11 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 			return fmt.Errorf("error getting persistent peer id: %v", err)
 		}
 		myPeerId = uniqueID
+	}
+
+	if o.Address == "" {
+		glog.Infof("using 127.0.0.1 for address")
+		o.Address = "127.0.0.1"
 	}
 
 	grpcEndpoint := fmt.Sprintf("%s:%d", o.Address, o.GrpcPort)
@@ -218,14 +250,19 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 		return fmt.Errorf("error building server: %v", err)
 	}
 
-	var peerUrls []string
-	peerUrls = append(peerUrls, fmt.Sprintf("http://%s:%d", o.Address, o.PeerPort))
+	name := string(myPeerId)
+	if o.DNSSuffix != "" {
+		if !strings.HasSuffix(name, ".") {
+			name += "."
+		}
+		name += strings.TrimPrefix(o.DNSSuffix, ".")
+	}
 
 	etcdNodeInfo := &apis_etcd.EtcdNode{
 		Name:                  string(myPeerId),
-		ClientUrls:            strings.Split(o.ClientUrls, ","),
-		QuarantinedClientUrls: strings.Split(o.QuarantineClientUrls, ","),
-		PeerUrls:              peerUrls,
+		ClientUrls:            expandUrls(o.ClientUrls, o.Address, name),
+		QuarantinedClientUrls: expandUrls(o.QuarantineClientUrls, o.Address, name),
+		PeerUrls:              expandUrls(o.PeerUrls, o.Address, name),
 	}
 
 	backupStore, err := backup.NewStore(o.BackupStorePath)

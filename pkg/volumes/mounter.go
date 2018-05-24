@@ -53,14 +53,14 @@ func (k *VolumeMountController) mountMasterVolumes() ([]*Volume, error) {
 			break
 		}
 
-		existing := k.mounted[v.ID]
+		existing := k.mounted[v.ProviderID]
 		if existing != nil {
 			continue
 		}
 
-		glog.V(2).Infof("Master volume %q is attached at %q", v.ID, v.LocalDevice)
+		glog.V(2).Infof("Master volume %q is attached at %q", v.ProviderID, v.LocalDevice)
 
-		mountpoint := "/mnt/master-" + v.ID
+		mountpoint := "/mnt/master-" + v.ProviderID
 
 		// On ContainerOS, we mount to /mnt/disks instead (/mnt is readonly)
 		_, err := os.Stat(PathFor("/mnt/disks"))
@@ -69,7 +69,7 @@ func (k *VolumeMountController) mountMasterVolumes() ([]*Volume, error) {
 				return nil, fmt.Errorf("error checking for /mnt/disks: %v", err)
 			}
 		} else {
-			mountpoint = "/mnt/disks/master-" + v.ID
+			mountpoint = "/mnt/disks/master-" + v.ProviderID
 		}
 
 		glog.Infof("Doing safe-format-and-mount of %s to %s", v.LocalDevice, mountpoint)
@@ -80,10 +80,10 @@ func (k *VolumeMountController) mountMasterVolumes() ([]*Volume, error) {
 			continue
 		}
 
-		glog.Infof("mounted master volume %q on %s", v.ID, mountpoint)
+		glog.Infof("mounted master volume %q on %s", v.ProviderID, mountpoint)
 
 		v.Mountpoint = PathFor(mountpoint)
-		k.mounted[v.ID] = v
+		k.mounted[v.ProviderID] = v
 	}
 
 	var volumes []*Volume
@@ -107,10 +107,10 @@ func (k *VolumeMountController) safeFormatAndMount(volume *Volume, mountpoint st
 			break
 		}
 
-		glog.Infof("Waiting for volume %q to be mounted", volume.ID)
+		glog.Infof("Waiting for volume %q to be mounted", volume.ProviderID)
 		time.Sleep(1 * time.Second)
 	}
-	glog.Infof("Found volume %q mounted at device %q", volume.ID, device)
+	glog.Infof("Found volume %q mounted at device %q", volume.ProviderID, device)
 
 	safeFormatAndMount := &mount.SafeFormatAndMount{}
 
@@ -233,12 +233,12 @@ func (k *VolumeMountController) attachMasterVolumes() ([]*Volume, error) {
 			break
 		}
 
-		glog.V(2).Infof("Trying to mount master volume: %q", v.ID)
+		glog.V(2).Infof("Trying to mount master volume: %q", v.ProviderID)
 
 		err := k.provider.AttachVolume(v)
 		if err != nil {
 			// We are racing with other instances here; this can happen
-			glog.Warningf("Error attaching volume %q: %v", v.ID, err)
+			glog.Warningf("Error attaching volume %q: %v", v.ProviderID, err)
 		} else {
 			if v.LocalDevice == "" {
 				glog.Fatalf("AttachVolume did not set LocalDevice")
