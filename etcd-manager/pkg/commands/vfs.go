@@ -183,7 +183,7 @@ func (s *vfsStore) MarkClusterCreated() error {
 	}
 
 	p := s.commandsBase.Join(EtcdClusterCreated)
-	if err := p.CreateFile(bytes.NewReader([]byte(data)), nil); err != nil {
+	if err := p.WriteFile(bytes.NewReader([]byte(data)), nil); err != nil {
 		return fmt.Errorf("error creating cluster-creation marker file %s: %v", p.Path(), err)
 	}
 	return nil
