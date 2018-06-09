@@ -33,7 +33,7 @@ func main() {
 	flag.IntVar(&memberCount, "members", memberCount, "initial cluster size; cluster won't start until we have a quorum of this size")
 	backupStorePath := "/backups"
 	flag.StringVar(&backupStorePath, "backup-store", backupStorePath, "backup store location")
-	etcdVersion := "3.2.12"
+	etcdVersion := "3.2.18"
 	flag.StringVar(&etcdVersion, "etcd-version", etcdVersion, "etcd version")
 
 	flag.Parse()

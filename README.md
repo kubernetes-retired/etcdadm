@@ -17,7 +17,7 @@ The format of the backup store, which is intended to be project-neutral is [here
 We'll now do a walkthrough to get going with local development.  In production you likely would run this using
 a packaged docker container, but this walkthrough lets you see what's going on here.
 
-etcd must be installed in `/opt/etcd-v2.2.1-linux-amd64/etcd`, etcdctl in `/opt/etcd-v2.2.1-linux-amd64/etcdctl`.  Each version of etcd you want to run must be installed in the same pattern.  Make sure you've downloaded `/opt/etcd-v3.2.12-linux-amd64` for this demo. (Typically you'll run etcd-manager in a docker image)
+etcd must be installed in `/opt/etcd-v2.2.1-linux-amd64/etcd`, etcdctl in `/opt/etcd-v2.2.1-linux-amd64/etcdctl`.  Each version of etcd you want to run must be installed in the same pattern.  Make sure you've downloaded `/opt/etcd-v3.2.18-linux-amd64` for this demo. (Typically you'll run etcd-manager in a docker image)
 
 NOTE: If you're running on OSX, CoreOS does not ship a version of etcd2 that runs correctly on recent versions os OSX.  Running inside Docker avoids this problem.
 
@@ -129,16 +129,16 @@ Disaster recovery will detect that no etcd nodes are running, will start a clust
 > curl http://127.0.0.1:4001/v2/keys/kope.io/etcd-manager/test/spec
 {"action":"get","node":{"key":"/kope.io/etcd-manager/test/spec","value":"{ \"memberCount\": 3, \"etcdVersion\": \"2.2.1\" }","modifiedIndex":8,"createdIndex":8}}
 
-> curl -XPUT -d 'value={ "memberCount": 3, "etcdVersion": "3.2.12" }' http://127.0.0.1:4001/v2/keys/kope.io/etcd-manager/test/spec
+> curl -XPUT -d 'value={ "memberCount": 3, "etcdVersion": "3.2.18" }' http://127.0.0.1:4001/v2/keys/kope.io/etcd-manager/test/spec
 ```
 
 Dump keys to be sure that everything copied across:
 ```
-> ETCDCTL_API=3 /opt/etcd-v3.2.12-linux-amd64/etcdctl --endpoints http://127.0.0.1:4001 get "" --prefix
+> ETCDCTL_API=3 /opt/etcd-v3.2.18-linux-amd64/etcdctl --endpoints http://127.0.0.1:4001 get "" --prefix
 /hello
 world
 /kope.io/etcd-manager/test/spec
-{ "memberCount": 3, "etcdVersion": "3.2.12" }
+{ "memberCount": 3, "etcdVersion": "3.2.18" }
 ```
 
 You may note that we did the impossible here - we went straight from etcd 2 to etcd 3 in an HA cluster.  There was some
@@ -157,7 +157,7 @@ that the etcd-version of each object is changed, meaning all watches are invalid
 TODO: We should enable "hot" upgrades where the version change is compatible.  (It's easy, but it's nice to have one code path for now)
 
 If you want to try a downgrade:
-`ETCDCTL_API=3 /opt/etcd-v3.2.12-linux-amd64/etcdctl --endpoints http://127.0.0.1:4001  put /kope.io/etcd-manager/test/spec '{ "memberCount": 3, "etcdVersion": "2.3.7" }'`
+`ETCDCTL_API=3 /opt/etcd-v3.2.18-linux-amd64/etcdctl --endpoints http://127.0.0.1:4001  put /kope.io/etcd-manager/test/spec '{ "memberCount": 3, "etcdVersion": "2.3.7" }'`
 
 ## Code overview
 
