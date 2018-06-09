@@ -18,6 +18,18 @@ import (
 	"kope.io/etcd-manager/pkg/etcdclient"
 )
 
+var baseDirs = []string{"/opt"}
+
+func init() {
+	// For bazel
+	// TODO: Use a flag?
+	if os.Getenv("TEST_SRCDIR") != "" && os.Getenv("TEST_WORKSPACE") != "" {
+		d := filepath.Join(os.Getenv("TEST_SRCDIR"), os.Getenv("TEST_WORKSPACE"))
+		glog.Infof("found bazel binary location: %s", d)
+		baseDirs = append(baseDirs, d)
+	}
+}
+
 // etcdProcess wraps a running etcd process
 type etcdProcess struct {
 	BinDir  string
@@ -89,17 +101,27 @@ func BindirForEtcdVersion(etcdVersion string, cmd string) (string, error) {
 	if !strings.HasPrefix(etcdVersion, "v") {
 		etcdVersion = "v" + etcdVersion
 	}
-	binDir := filepath.Join("/opt", "etcd-"+etcdVersion+"-"+runtime.GOOS+"-"+runtime.GOARCH)
-	etcdBinary := filepath.Join(binDir, cmd)
-	_, err := os.Stat(etcdBinary)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return "", fmt.Errorf("unknown etcd version (%s not found at %s)", cmd, etcdBinary)
-		} else {
-			return "", fmt.Errorf("error checking for %s at %s: %v", cmd, etcdBinary, err)
-		}
+
+	var binDirs []string
+	for _, baseDir := range baseDirs {
+		binDir := filepath.Join(baseDir, "etcd-"+etcdVersion+"-"+runtime.GOOS+"-"+runtime.GOARCH)
+		binDirs = append(binDirs, binDir)
 	}
-	return binDir, nil
+
+	for _, binDir := range binDirs {
+		etcdBinary := filepath.Join(binDir, cmd)
+		_, err := os.Stat(etcdBinary)
+		if err != nil {
+			if os.IsNotExist(err) {
+				continue
+			} else {
+				return "", fmt.Errorf("error checking for %s at %s: %v", cmd, etcdBinary, err)
+			}
+		}
+		return binDir, nil
+	}
+
+	return "", fmt.Errorf("unknown etcd version %s: not found in %v", etcdVersion, binDirs)
 }
 
 func (p *etcdProcess) findMyNode() *protoetcd.EtcdNode {
