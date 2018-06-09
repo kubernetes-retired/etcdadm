@@ -10,6 +10,7 @@ os:
 env:
   - BAZEL_VERSION=0.10.0
   - BAZEL_VERSION=0.11.1
+  - BAZEL_VERSION=0.14.1
 
 before_install:
   - pwd
