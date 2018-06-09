@@ -7,7 +7,7 @@ import (
 )
 
 func TestEtcdInstalled(t *testing.T) {
-	versions := []string{"2.2.1", "3.2.12"}
+	versions := []string{"2.2.1", "3.2.18"}
 	for _, version := range versions {
 		bindir, err := etcd.BindirForEtcdVersion(version, "etcd")
 		if err != nil {

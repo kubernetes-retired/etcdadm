@@ -51,12 +51,12 @@ func TestResizeCluster(t *testing.T) {
 
 	glog.Infof("expanding to cluster size 3")
 	{
-		h.SetClusterSpec(&protoetcd.ClusterSpec{MemberCount: 3, EtcdVersion: "3.2.12"})
+		h.SetClusterSpec(&protoetcd.ClusterSpec{MemberCount: 3, EtcdVersion: "3.2.18"})
 		h.InvalidateControlStore(n1, n2, n3)
 
-		n1.EtcdVersion = "3.2.12"
-		n2.EtcdVersion = "3.2.12"
-		n3.EtcdVersion = "3.2.12"
+		n1.EtcdVersion = "3.2.18"
+		n2.EtcdVersion = "3.2.18"
+		n3.EtcdVersion = "3.2.18"
 	}
 
 	// Check cluster is stable (on the v3 api)
@@ -83,9 +83,9 @@ func TestResizeCluster(t *testing.T) {
 			t.Fatalf("unexpected test key value after upgrade: %q", v)
 		}
 
-		n1.AssertVersion(t, "3.2.12")
-		n2.AssertVersion(t, "3.2.12")
-		n3.AssertVersion(t, "3.2.12")
+		n1.AssertVersion(t, "3.2.18")
+		n2.AssertVersion(t, "3.2.18")
+		n3.AssertVersion(t, "3.2.18")
 	}
 
 	cancel()
