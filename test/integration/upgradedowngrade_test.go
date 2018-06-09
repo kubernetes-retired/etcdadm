@@ -50,15 +50,15 @@ func TestUpgradeDowngrade(t *testing.T) {
 		n3.AssertVersion(t, "2.2.1")
 	}
 
-	// Upgrade to 3.2.12
-	glog.Infof("upgrading to 3.2.12")
+	// Upgrade to 3.2.18
+	glog.Infof("upgrading to 3.2.18")
 	{
-		h.SetClusterSpec(&protoetcd.ClusterSpec{MemberCount: 3, EtcdVersion: "3.2.12"})
+		h.SetClusterSpec(&protoetcd.ClusterSpec{MemberCount: 3, EtcdVersion: "3.2.18"})
 		h.InvalidateControlStore(n1, n2, n3)
 
-		n1.EtcdVersion = "3.2.12"
-		n2.EtcdVersion = "3.2.12"
-		n3.EtcdVersion = "3.2.12"
+		n1.EtcdVersion = "3.2.18"
+		n2.EtcdVersion = "3.2.18"
+		n3.EtcdVersion = "3.2.18"
 	}
 
 	// Check cluster is stable (on the v3 api)
@@ -89,9 +89,9 @@ func TestUpgradeDowngrade(t *testing.T) {
 			t.Fatalf("unable to set test key: %v", err)
 		}
 
-		n1.AssertVersion(t, "3.2.12")
-		n2.AssertVersion(t, "3.2.12")
-		n3.AssertVersion(t, "3.2.12")
+		n1.AssertVersion(t, "3.2.18")
+		n2.AssertVersion(t, "3.2.18")
+		n3.AssertVersion(t, "3.2.18")
 	}
 
 	// Downgrade to 2.2.1

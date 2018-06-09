@@ -56,7 +56,7 @@
     "version"
   ]
   revision = "b19dae00651b890498bcca38ac2cc3cad471281e"
-  version = "v3.2.12"
+  version = "v3.2.18"
 
 [[projects]]
   name = "github.com/coreos/go-semver"
@@ -321,6 +321,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d585677d8738ed47efb1ba5ea936f924dc31de67be88ae2df60017c38f2ace0d"
+  inputs-digest = "008bc9e8679d4aea0a77da84fcd320128b5bdc84b0980863e3f1247572b1522e"
   solver-name = "gps-cdcl"
   solver-version = 1
