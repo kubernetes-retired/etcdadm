@@ -31,8 +31,8 @@ before_install:
   # Install etcd versions
   - cd /tmp; wget https://github.com/coreos/etcd/releases/download/v2.2.1/etcd-v2.2.1-linux-amd64.tar.gz
   - cd /opt; tar zxf /tmp/etcd-v2.2.1-linux-amd64.tar.gz
-  - cd /tmp; wget https://github.com/coreos/etcd/releases/download/v3.2.12/etcd-v3.2.12-linux-amd64.tar.gz
-  - cd /opt; tar zxf /tmp/etcd-v3.2.12-linux-amd64.tar.gz
+  - cd /tmp; wget https://github.com/coreos/etcd/releases/download/v3.2.18/etcd-v3.2.18-linux-amd64.tar.gz
+  - cd /opt; tar zxf /tmp/etcd-v3.2.18-linux-amd64.tar.gz
 
 script:
   - cd ${TRAVIS_BUILD_DIR}
