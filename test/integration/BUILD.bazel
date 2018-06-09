@@ -10,6 +10,12 @@ go_test(
         "resize_cluster_test.go",
         "upgradedowngrade_test.go",
     ],
+    data = [
+        "//:etcd-v2.2.1-linux-amd64_etcd",
+        "//:etcd-v2.2.1-linux-amd64_etcdctl",
+        "//:etcd-v3.2.18-linux-amd64_etcd",
+        "//:etcd-v3.2.18-linux-amd64_etcdctl",
+    ],
     deps = [
         "//pkg/apis/etcd:go_default_library",
         "//pkg/etcd:go_default_library",
