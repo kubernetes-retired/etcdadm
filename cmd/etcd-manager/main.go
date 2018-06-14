@@ -68,6 +68,7 @@ func main() {
 	flag.StringVar(&o.QuarantineClientUrls, "quarantine-client-urls", o.QuarantineClientUrls, "client-urls to use when etcd should be quarantined e.g. when offline")
 	flag.StringVar(&o.ClusterName, "cluster-name", o.ClusterName, "name of cluster")
 	flag.StringVar(&o.BackupStorePath, "backup-store", o.BackupStorePath, "backup store location")
+	flag.StringVar(&o.BackupInterval, "backup-interval", o.BackupInterval, "interval for periodic backups")
 	flag.StringVar(&o.DataDir, "data-dir", o.DataDir, "directory for storing etcd data")
 
 	flag.StringVar(&o.VolumeProviderID, "volume-provider", o.VolumeProviderID, "provider for volumes")
@@ -118,6 +119,7 @@ type EtcdManagerOptions struct {
 	DataDir              string
 	VolumeTags           []string
 	NameTag              string
+	BackupInterval       string
 
 	// DNSSuffix is added to etcd member names and we then use internal client id discovery
 	DNSSuffix string
@@ -130,6 +132,8 @@ type EtcdManagerOptions struct {
 // InitDefaults populates the default flag values
 func (o *EtcdManagerOptions) InitDefaults() {
 	//o.Address = "127.0.0.1"
+
+	o.BackupInterval = "15m"
 
 	o.ClientUrls = "http://__address__:4001"
 	o.QuarantineClientUrls = "http://__address__:8001"
@@ -152,6 +156,11 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 
 	if o.BackupStorePath == "" {
 		return fmt.Errorf("backup-store is required")
+	}
+
+	backupInterval, err := time.ParseDuration(o.BackupInterval)
+	if err != nil {
+		return fmt.Errorf("invalid backup-interval duration %q", o.BackupInterval)
 	}
 
 	// We could make this configurable?
@@ -302,7 +311,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 	go etcdServer.Run(ctx)
 
 	var leaderLock locking.Lock // nil
-	c, err := controller.NewEtcdController(leaderLock, backupStore, commandStore, o.ControlRefreshInterval, o.ClusterName, o.DNSSuffix, peerServer)
+	c, err := controller.NewEtcdController(leaderLock, backupStore, backupInterval, commandStore, o.ControlRefreshInterval, o.ClusterName, o.DNSSuffix, peerServer)
 	if err != nil {
 		return fmt.Errorf("error building etcd controller: %v", err)
 	}
