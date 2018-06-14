@@ -30,10 +30,10 @@ container_push(
     name = "push-etcd-manager",
     format = "Docker",
     image = ":etcd-manager",
-    registry = "index.docker.io",
-    repository = "{DOCKER_REGISTRY}/etcd-manager",
+    registry = "{STABLE_DOCKER_REGISTRY}",
+    repository = "{STABLE_DOCKER_IMAGE_PREFIX}etcd-manager",
     stamp = True,
-    tag = "{DOCKER_TAG}",
+    tag = "{STABLE_DOCKER_TAG}",
 )
 
 container_image(
@@ -49,10 +49,10 @@ container_push(
     name = "push-etcd-dump",
     format = "Docker",
     image = ":etcd-dump",
-    registry = "index.docker.io",
-    repository = "{DOCKER_REGISTRY}/etcd-dump",
+    registry = "{STABLE_DOCKER_REGISTRY}",
+    repository = "{STABLE_DOCKER_IMAGE_PREFIX}etcd-dump",
     stamp = True,
-    tag = "{DOCKER_TAG}",
+    tag = "{STABLE_DOCKER_TAG}",
 )
 
 container_image(
@@ -68,8 +68,8 @@ container_push(
     name = "push-etcd-backup",
     format = "Docker",
     image = ":etcd-backup",
-    registry = "index.docker.io",
-    repository = "{DOCKER_REGISTRY}/etcd-backup",
+    registry = "{STABLE_DOCKER_REGISTRY}",
+    repository = "{STABLE_DOCKER_IMAGE_PREFIX}etcd-backup",
     stamp = True,
-    tag = "{DOCKER_TAG}",
+    tag = "{STABLE_DOCKER_TAG}",
 )

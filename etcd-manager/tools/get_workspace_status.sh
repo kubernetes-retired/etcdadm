@@ -26,12 +26,17 @@
 
 # These variables need to match the values in our Makefile
 if [[ -z "${DOCKER_REGISTRY}" ]]; then
-  DOCKER_REGISTRY=`whoami`
+  DOCKER_REGISTRY="index.docker.io"
+fi
+
+if [[ -z "${DOCKER_IMAGE_PREFIX}" ]]; then
+  DOCKER_IMAGE_PREFIX=`whoami`/
 fi
 
 if [[ -z "${DOCKER_TAG}" ]]; then
   DOCKER_TAG="latest"
 fi
 
-echo "DOCKER_REGISTRY ${DOCKER_REGISTRY}"
-echo "DOCKER_TAG ${DOCKER_TAG}"
+echo "STABLE_DOCKER_REGISTRY ${DOCKER_REGISTRY}"
+echo "STABLE_DOCKER_IMAGE_PREFIX ${DOCKER_IMAGE_PREFIX}"
+echo "STABLE_DOCKER_TAG ${DOCKER_TAG}"
