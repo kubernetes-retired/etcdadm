@@ -46,8 +46,16 @@ func UpdateHostsFileWithRecords(p string, key string, addrToHosts map[string][]s
 
 	var out []string
 	depth := 0
+	skipBlank := false
 	for _, line := range strings.Split(string(data), "\n") {
 		k := strings.TrimSpace(line)
+
+		if k == "" && skipBlank {
+			skipBlank = false
+			continue
+		}
+		skipBlank = false
+
 		if k == guardBegin {
 			depth++
 		}
@@ -58,6 +66,9 @@ func UpdateHostsFileWithRecords(p string, key string, addrToHosts map[string][]s
 
 		if k == guardEnd {
 			depth--
+
+			// Avoid problem where we build up lots of whitespace - clean up our blank line
+			skipBlank = true
 		}
 	}
 
