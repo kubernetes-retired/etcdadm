@@ -136,7 +136,7 @@ func WriteUnitFile(etcdAdmConfig *apis.EtcdAdmConfig) error {
 
 	unit := &etcdUnit{
 		EnvironmentFile: environmentFile,
-		Executable:      filepath.Join(etcdAdmConfig.CertificatesDir, "etcd"),
+		Executable:      filepath.Join(etcdAdmConfig.InstallDir, "etcd"),
 	}
 	if err := t.Execute(f, unit); err != nil {
 		return fmt.Errorf("unable to apply etcd environment: %s", err)
