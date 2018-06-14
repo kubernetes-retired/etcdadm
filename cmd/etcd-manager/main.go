@@ -39,6 +39,7 @@ import (
 	vfsdiscovery "kope.io/etcd-manager/pkg/privateapi/discovery/vfs"
 	"kope.io/etcd-manager/pkg/volumes"
 	"kope.io/etcd-manager/pkg/volumes/aws"
+	"kope.io/etcd-manager/pkg/volumes/gce"
 )
 
 type stringSliceFlag []string
@@ -172,6 +173,16 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 
 			volumeProvider = awsVolumeProvider
 			discoveryProvider = awsVolumeProvider
+
+		case "gce":
+			gceVolumeProvider, err := gce.NewGCEVolumes(o.ClusterName, o.VolumeTags, o.NameTag, "%s:"+strconv.Itoa(o.GrpcPort))
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%v\n", err)
+				os.Exit(1)
+			}
+
+			volumeProvider = gceVolumeProvider
+			discoveryProvider = gceVolumeProvider
 
 		default:
 			fmt.Fprintf(os.Stderr, "unknown volume-provider %q\n", o.VolumeProviderID)

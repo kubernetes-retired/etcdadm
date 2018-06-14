@@ -109,7 +109,7 @@ func (s *etcdClusterState) etcdRemoveMember(ctx context.Context, member *etcdcli
 		}
 		return nil
 	}
-	return fmt.Errorf("unable to reach any cluster member, when trying to remove member %", member)
+	return fmt.Errorf("unable to reach any cluster member, when trying to remove member %s", member)
 }
 
 func (s *etcdClusterState) etcdGet(ctx context.Context, key string) ([]byte, error) {
