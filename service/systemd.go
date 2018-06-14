@@ -18,7 +18,10 @@ func serviceStart(service string) error {
 		return err
 	}
 	args := []string{"start", service}
-	return exec.Command("systemctl", args...).Run()
+	if err := exec.Command("systemctl", args...).Run(); err != nil {
+		return fmt.Errorf("failed to start service: %v", err)
+	}
+	return nil
 }
 
 func serviceEnable(service string) error {
@@ -27,18 +30,16 @@ func serviceEnable(service string) error {
 		return err
 	}
 	args := []string{"enable", service}
-	return exec.Command("systemctl", args...).Run()
+	if err := exec.Command("systemctl", args...).Run(); err != nil {
+		return fmt.Errorf("failed to enable service: %v", err)
+	}
+	return nil
 }
 
 // EnableAndStartService enables and starts the etcd service
 func EnableAndStartService() error {
-	err := serviceEnable(unitFile)
-	if err != nil {
+	if err := serviceEnable(unitFile); err != nil {
 		return err
 	}
-	err = serviceStart(unitFile)
-	if err != nil {
-		return err
-	}
-	return nil
+	return serviceStart(unitFile)
 }
