@@ -10,7 +10,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// createCmd represents the create command
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize a new etcd cluster",
