@@ -26,38 +26,46 @@ Conflicts=etcd2.service
 
 [Service]
 EnvironmentFile={{ .EnvironmentFile }}
+ExecStart={{ .Executable }}
 Type=notify
 Restart=on-failure
 RestartSec=5s
-LimitNOFILE=65536
 TimeoutStartSec=0
+
+LimitNOFILE=65536
 Nice=-10
 IOSchedulingClass=best-effort
 IOSchedulingPriority=2
-ExecStart={{ .Executable }}
 
 [Install]
 WantedBy=multi-user.target`
 
 	envFileTemplate = `
 ETCD_NAME={{ .Name }}
+
 ETCD_DATA_DIR=/var/lib/etcd
+
 ETCD_ADVERTISE_CLIENT_URLS=https://localhost:2379
 ETCD_LISTEN_CLIENT_URLS=https://localhost:2379
+
 ETCD_LISTEN_PEER_URLS=https://{{ .IP }}:2380
 ETCD_INITIAL_ADVERTISE_PEER_URLS=https://{{ .IP }}:2380
+
 ETCD_CERT_FILE={{ .CertificatesDir }}/server.pem
 ETCD_KEY_FILE={{ .CertificatesDir }}/server-key.pem
-ETCD_CLIENT_CERT_AUTH=true
 ETCD_TRUSTED_CA_FILE={{ .CertificatesDir }}/ca.pem
+ETCD_CLIENT_CERT_AUTH=true
+
 ETCD_PEER_KEY_FILE={{ .CertificatesDir }}/peer.pem
 ETCD_PEER_CERT_FILE={{ .CertificatesDir }}/peer-key.pem
-ETCD_PEER_CLIENT_CERT_AUTH=true
 ETCD_PEER_TRUSTED_CA_FILE={{ .CertificatesDir }}/ca.pem
+ETCD_PEER_CLIENT_CERT_AUTH=true
+
 ETCD_INITIAL_CLUSTER={{ .InitialCluster }}
 ETCD_INITIAL_CLUSTER_TOKEN={{ .InitialClusterToken }}
 ETCD_INITIAL_CLUSTER_STATE={{ .InitialClusterState }}
 ETCD_STRICT_RECONFIG_CHECK=true
+
 GOMAXPROCS={{ .GOMAXPROCS }}`
 )
 
