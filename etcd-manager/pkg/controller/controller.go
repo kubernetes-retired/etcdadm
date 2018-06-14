@@ -265,8 +265,11 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		}
 	}
 
-	if err := m.broadcastMemberMap(ctx, clusterState); err != nil {
-		glog.Warningf("error broadcasting member map: %v", err)
+	{
+		memberMap := m.buildMemberMap(clusterState)
+		if errors := m.broadcastMemberMap(ctx, clusterState, memberMap); len(errors) != 0 {
+			glog.Warningf("error broadcasting member map: %v", err)
+		}
 	}
 
 	if err := m.refreshControlStore(m.controlRefreshInterval); err != nil {
@@ -463,7 +466,7 @@ func randomToken() string {
 	return base64.RawURLEncoding.EncodeToString(b)
 }
 
-func (m *EtcdController) broadcastMemberMap(ctx context.Context, etcdClusterState *etcdClusterState) error {
+func (m *EtcdController) buildMemberMap(etcdClusterState *etcdClusterState) *protoetcd.MemberMap {
 	memberMap := &protoetcd.MemberMap{}
 	for _, peer := range etcdClusterState.peers {
 		if peer.peer == nil || peer.peer.info == nil {
@@ -504,9 +507,14 @@ func (m *EtcdController) broadcastMemberMap(ctx context.Context, etcdClusterStat
 		memberMap.Members = append(memberMap.Members, memberInfo)
 	}
 
+	return memberMap
+}
+
+func (m *EtcdController) broadcastMemberMap(ctx context.Context, etcdClusterState *etcdClusterState, memberMap *protoetcd.MemberMap) []error {
 	// TODO: optimize this
 	glog.Infof("sending member map to all peers: %v", memberMap)
 
+	var errors []error
 	for _, peer := range etcdClusterState.peers {
 		updateEndpointsRequest := &protoetcd.UpdateEndpointsRequest{
 			MemberMap: memberMap,
@@ -515,10 +523,11 @@ func (m *EtcdController) broadcastMemberMap(ctx context.Context, etcdClusterStat
 		_, err := peer.peer.rpcUpdateEndpoints(ctx, updateEndpointsRequest)
 		if err != nil {
 			glog.Warningf("peer %s failed to update endpoints: %v", peer.peer.Id, err)
+			errors = append(errors, err)
 		}
 	}
 
-	return nil
+	return errors
 }
 
 // updateClusterState queries each peer (including ourselves) for information about the desired state of the world
@@ -695,7 +704,7 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterSpec *prot
 
 			joinClusterResponse, err := peer.peer.rpcJoinCluster(ctx, joinClusterRequest)
 			if err != nil {
-				return false, fmt.Errorf("error from JoinClusterRequest from peer %q: %v", peer.peer.Id, err)
+				return false, fmt.Errorf("error from JoinClusterRequest (prepare) from peer %q: %v", peer.peer.Id, err)
 			}
 			glog.V(2).Infof("JoinCluster returned %s", joinClusterResponse)
 		}
@@ -878,10 +887,40 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterState *etc
 		glog.Fatalf("Need to add dummy peers to force quorum size :-(")
 	}
 
+	// Build the proposed nodes and the proposed member map
+
 	var proposedNodes []*protoetcd.EtcdNode
+	memberMap := &protoetcd.MemberMap{}
 	for _, p := range proposal {
 		node := proto.Clone(p.info.NodeConfiguration).(*protoetcd.EtcdNode)
 		proposedNodes = append(proposedNodes, node)
+
+		memberInfo := &protoetcd.MemberMapInfo{
+			Name: node.Name,
+		}
+
+		if m.dnsSuffix != "" {
+			dnsSuffix := m.dnsSuffix
+			if !strings.HasPrefix(dnsSuffix, ".") {
+				dnsSuffix = "." + dnsSuffix
+			}
+			memberInfo.Dns = node.Name + dnsSuffix
+		}
+
+		if p.peer.info == nil {
+			return false, fmt.Errorf("no info for peer %v", p)
+		}
+
+		for _, a := range p.peer.info.Endpoints {
+			ip := a
+			colonIndex := strings.Index(ip, ":")
+			if colonIndex != -1 {
+				ip = ip[:colonIndex]
+			}
+			memberInfo.Addresses = append(memberInfo.Addresses, ip)
+		}
+
+		memberMap.Members = append(memberMap.Members, memberInfo)
 	}
 
 	// Stop any running etcd
@@ -900,6 +939,11 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterState *etc
 		}
 	}
 
+	// Broadcast the proposed member map so everyone is consistent
+	if errors := m.broadcastMemberMap(ctx, clusterState, memberMap); len(errors) != 0 {
+		return false, fmt.Errorf("unable to broadcast member map: %v", errors)
+	}
+
 	glog.Infof("starting new etcd cluster with %s", proposal)
 
 	for _, p := range proposal {
@@ -915,7 +959,7 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterState *etc
 		joinClusterResponse, err := p.peer.rpcJoinCluster(ctx, joinClusterRequest)
 		if err != nil {
 			// TODO: Send a CANCEL message for anything PREPAREd?  (currently we rely on a slow timeout)
-			return false, fmt.Errorf("error from JoinClusterRequest from peer %q: %v", p.peer, err)
+			return false, fmt.Errorf("error from JoinClusterRequest (prepare) from peer %q: %v", p.peer, err)
 		}
 		glog.V(2).Infof("JoinClusterResponse: %s", joinClusterResponse)
 	}
