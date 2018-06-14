@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/platform9/etcdadm/apis"
+	"github.com/platform9/etcdadm/constants"
 	netutil "k8s.io/apimachinery/pkg/util/net"
 )
 
@@ -82,7 +83,7 @@ func newEnvironment(c *apis.EtcdAdmConfig) (*etcdEnvironment, error) {
 	}
 	env.IP = ip.String()
 	if ip.To4() != nil {
-		env.IP = apis.DefaultBindAddressv4
+		env.IP = constants.DefaultBindAddressv4
 	}
 
 	return env, nil
