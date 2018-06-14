@@ -215,6 +215,7 @@ func (g *GCEVolumes) buildGCEVolume(d *compute.Disk) (*volumes.Volume, error) {
 
 	vol := &volumes.Volume{
 		ProviderID: d.SelfLink,
+		MountName:  "master-" + lastComponent(d.Zone) + "-" + d.Name,
 		EtcdName:   etcdName,
 		Info: volumes.VolumeInfo{
 			Description: d.SelfLink,
