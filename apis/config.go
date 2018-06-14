@@ -7,6 +7,7 @@ type EtcdAdmConfig struct {
 	Name                string
 	InitialCluster      string
 	InitialClusterToken string
+	InitialClusterState string
 	InstallDir          string
 	CertificatesDir     string
 }

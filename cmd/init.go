@@ -15,15 +15,16 @@ var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize a new etcd cluster",
 	Run: func(cmd *cobra.Command, args []string) {
+		etcdAdmConfig.InitialClusterState = "new"
 		err := binary.EnsureInstalled(etcdAdmConfig.ReleaseURL, etcdAdmConfig.Version, etcdAdmConfig.InstallDir)
 		if err != nil {
 			log.Fatalf("[install] Error: %s", err)
 		}
-		err = service.WriteUnitFile(&etcdAdmConfig)
+		err = service.WriteEnvironmentFile(&etcdAdmConfig)
 		if err != nil {
 			log.Fatalf("[configure] Error: %s", err)
 		}
-		err = service.WriteEnvironmentFile(&etcdAdmConfig)
+		err = service.WriteUnitFile(&etcdAdmConfig)
 		if err != nil {
 			log.Fatalf("[configure] Error: %s", err)
 		}

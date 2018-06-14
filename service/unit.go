@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"html/template"
 	"os"
+	"path/filepath"
+	"runtime"
 
 	"github.com/platform9/etcdadm/apis"
 	"github.com/platform9/etcdadm/constants"
@@ -23,14 +25,16 @@ Conflicts=etcd-member.service
 Conflicts=etcd2.service
 
 [Service]
-EnvironmentFile={{ .environmentFile }}
+EnvironmentFile={{ .EnvironmentFile }}
 Type=notify
-Restart=always
+Restart=on-failure
 RestartSec=5s
-LimitNOFILE=40000
+LimitNOFILE=65536
 TimeoutStartSec=0
-
-ExecStart=/usr/local/bin/etcd
+Nice=-10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=2
+ExecStart={{ .Executable }}
 
 [Install]
 WantedBy=multi-user.target`
@@ -42,18 +46,19 @@ ETCD_ADVERTISE_CLIENT_URLS=https://localhost:2379
 ETCD_LISTEN_CLIENT_URLS=https://localhost:2379
 ETCD_LISTEN_PEER_URLS=https://{{ .IP }}:2380
 ETCD_INITIAL_ADVERTISE_PEER_URLS=https://{{ .IP }}:2380
-ETCD_CERT_FILE=/etc/kubernetes/pki/etcd/server.pem
-ETCD_KEY_FILE=/etc/kubernetes/pki/etcd/server-key.pem
+ETCD_CERT_FILE={{ .CertificatesDir }}/server.pem
+ETCD_KEY_FILE={{ .CertificatesDir }}/server-key.pem
 ETCD_CLIENT_CERT_AUTH=true
-ETCD_TRUSTED_CA_FILE=/etc/kubernetes/pki/etcd/ca.pem
-ETCD_PEER_KEY_FILE=/etc/kubernetes/pki/etcd/peer.pem
-ETCD_PEER_CERT_FILE=/etc/kubernetes/pki/etcd/peer-key.pem
+ETCD_TRUSTED_CA_FILE={{ .CertificatesDir }}/ca.pem
+ETCD_PEER_KEY_FILE={{ .CertificatesDir }}/peer.pem
+ETCD_PEER_CERT_FILE={{ .CertificatesDir }}/peer-key.pem
 ETCD_PEER_CLIENT_CERT_AUTH=true
-ETCD_PEER_TRUSTED_CA_FILE=/etc/kubernetes/pki/etcd/ca.pem
+ETCD_PEER_TRUSTED_CA_FILE={{ .CertificatesDir }}/ca.pem
 ETCD_INITIAL_CLUSTER={{ .InitialCluster }}
 ETCD_INITIAL_CLUSTER_TOKEN={{ .InitialClusterToken }}
 ETCD_INITIAL_CLUSTER_STATE={{ .InitialClusterState }}
-ETCD_STRICT_RECONFIG_CHECK=true`
+ETCD_STRICT_RECONFIG_CHECK=true
+GOMAXPROCS={{ .GOMAXPROCS }}`
 )
 
 // etcdEnvironment is used to set the environment of the etcd service
@@ -63,18 +68,23 @@ type etcdEnvironment struct {
 	InitialClusterToken string
 	InitialClusterState string
 	IP                  string
+	CertificatesDir     string
+	GOMAXPROCS          int
 }
 
 type etcdUnit struct {
 	EnvironmentFile string
+	Executable      string
 }
 
-func newEnvironment(c *apis.EtcdAdmConfig) (*etcdEnvironment, error) {
+func newEnvironment(etcdAdmConfig *apis.EtcdAdmConfig) (*etcdEnvironment, error) {
 	env := &etcdEnvironment{
-		Name:                c.Name,
-		InitialCluster:      c.InitialCluster,
-		InitialClusterToken: c.InitialClusterToken,
-		InitialClusterState: "new",
+		Name:                etcdAdmConfig.Name,
+		InitialCluster:      etcdAdmConfig.InitialCluster,
+		InitialClusterToken: etcdAdmConfig.InitialClusterToken,
+		InitialClusterState: etcdAdmConfig.InitialClusterState,
+		CertificatesDir:     etcdAdmConfig.CertificatesDir,
+		GOMAXPROCS:          runtime.NumCPU(),
 	}
 
 	ip, err := netutil.ChooseHostInterface()
@@ -118,6 +128,7 @@ func WriteUnitFile(etcdAdmConfig *apis.EtcdAdmConfig) error {
 
 	unit := &etcdUnit{
 		EnvironmentFile: environmentFile,
+		Executable:      filepath.Join(etcdAdmConfig.CertificatesDir, "etcd"),
 	}
 	if err := t.Execute(f, unit); err != nil {
 		return fmt.Errorf("unable to apply etcd environment: %s", err)
