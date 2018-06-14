@@ -5,12 +5,16 @@ import (
 	"path/filepath"
 )
 
+// Command-line flag defaults
 const (
-	DefaultVersion        = "3.1.12"
-	DefaultInstallBaseDir = "/opt/bin/"
-	DefaultReleaseURL     = "https://github.com/coreos/etcd/releases/download"
-	DefaultBindAddressv4  = "0.0.0.0"
-	DefaultCertificateDir = "/etc/etcd/pki"
+	DefaultVersion             = "3.1.12"
+	DefaultInstallBaseDir      = "/opt/bin/"
+	DefaultReleaseURL          = "https://github.com/coreos/etcd/releases/download"
+	DefaultBindAddressv4       = "0.0.0.0"
+	DefaultCertificateDir      = "/etc/etcd/pki"
+	DefaultName                = ""
+	DefaultInitialClusterToken = ""
+	DefaultInitialCluster      = ""
 )
 
 func DefaultInstallDir() string {

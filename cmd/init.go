@@ -41,7 +41,7 @@ func init() {
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.ReleaseURL, "release-url", constants.DefaultReleaseURL, "URL used to download etcd")
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.CertificatesDir, "certs-dir", constants.DefaultCertificateDir, "certificates directory")
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.InstallDir, "install-dir", constants.DefaultInstallDir(), "install directory")
-	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.Name, "name", "", "etcd member name")
-	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.InitialClusterToken, "initial-cluster-token", "", "initial cluster token")
-	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.InitialCluster, "initial-cluster", "", "initial cluster")
+	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.Name, "name", constants.DefaultName, "etcd member name")
+	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.InitialClusterToken, "initial-cluster-token", constants.DefaultInitialClusterToken, "initial cluster token")
+	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.InitialCluster, "initial-cluster", constants.DefaultInitialCluster, "initial cluster")
 }
