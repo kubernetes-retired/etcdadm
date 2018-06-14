@@ -5,13 +5,10 @@ import (
 
 	"github.com/platform9/etcdadm/constants"
 
-	"github.com/platform9/etcdadm/apis"
 	"github.com/platform9/etcdadm/binary"
 	"github.com/platform9/etcdadm/service"
 	"github.com/spf13/cobra"
 )
-
-var etcdAdmConfig apis.EtcdAdmConfig
 
 // createCmd represents the create command
 var initCmd = &cobra.Command{
@@ -20,19 +17,19 @@ var initCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		err := binary.EnsureInstalled(etcdAdmConfig.ReleaseURL, etcdAdmConfig.Version, etcdAdmConfig.InstallDir)
 		if err != nil {
-			log.Fatalf("Error installing etcd: %s", err)
+			log.Fatalf("[install] Error: %s", err)
 		}
 		err = service.WriteUnitFile(&etcdAdmConfig)
 		if err != nil {
-			log.Fatalf("Error configuring etcd: %s", err)
+			log.Fatalf("[configure] Error: %s", err)
 		}
 		err = service.WriteEnvironmentFile(&etcdAdmConfig)
 		if err != nil {
-			log.Fatalf("Error configuring etcd: %s", err)
+			log.Fatalf("[configure] Error: %s", err)
 		}
 		err = service.EnableAndStartService()
 		if err != nil {
-			log.Fatalf("Error running etcd: %s", err)
+			log.Fatalf("[start] Error: %s", err)
 		}
 	},
 }

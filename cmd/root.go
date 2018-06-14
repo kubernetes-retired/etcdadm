@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/platform9/etcdadm/apis"
 	"github.com/spf13/cobra"
 )
+
+var etcdAdmConfig apis.EtcdAdmConfig
 
 var (
 	rootCmd = &cobra.Command{

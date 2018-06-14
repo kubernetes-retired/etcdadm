@@ -3,6 +3,7 @@ package binary
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -33,6 +34,7 @@ func EnsureInstalled(releaseURL, version, installDir string) error {
 }
 
 func isInstalled(version, installDir string) (bool, error) {
+	log.Printf("[install] verifying etcd %s is installed in %s\n", version, installDir)
 	for _, binary := range []string{"etcd", "etcdctl"} {
 		path := filepath.Join(installDir, binary)
 		exists, err := util.FileExists(path)
@@ -56,6 +58,7 @@ func isInstalled(version, installDir string) (bool, error) {
 }
 
 func get(url, archive string) error {
+	log.Printf("[install] downloading etcd from %s to %s\n", url, archive)
 	cmd := exec.Command("curl", "-Lo", archive, url)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -71,6 +74,7 @@ func get(url, archive string) error {
 }
 
 func extract(installDir, archive string) error {
+	log.Printf("[install] extracting etcd archive %s to %s\n", archive, installDir)
 	cmd := exec.Command("tar", "xzf", archive, "--strip-components=1", "-C", installDir)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -86,6 +90,7 @@ func extract(installDir, archive string) error {
 }
 
 func install(releaseURL, version, installDir string) error {
+	log.Printf("[install] installing etcd %s from %s to %s\n", releaseURL, version, installDir)
 	err := os.MkdirAll(installDir, 0700)
 	if err != nil {
 		return fmt.Errorf("unable to create install directory: %s", err)
