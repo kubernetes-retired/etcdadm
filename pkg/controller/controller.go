@@ -40,7 +40,8 @@ type EtcdController struct {
 	// We also refresh when we become leader, so a rolling update will force a reload
 	controlRefreshInterval time.Duration
 
-	backupStore backup.Store
+	backupInterval time.Duration
+	backupStore    backup.Store
 
 	mutex sync.Mutex
 
@@ -87,7 +88,7 @@ type leadershipState struct {
 }
 
 // NewEtcdController is the constructor for an EtcdController
-func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, controlStore commands.Store, controlRefreshInterval time.Duration, clusterName string, dnsSuffix string, peers privateapi.Peers) (*EtcdController, error) {
+func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, backupInterval time.Duration, controlStore commands.Store, controlRefreshInterval time.Duration, clusterName string, dnsSuffix string, peers privateapi.Peers) (*EtcdController, error) {
 	if clusterName == "" {
 		return nil, fmt.Errorf("ClusterName is required")
 	}
@@ -95,6 +96,7 @@ func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, contro
 		clusterName:            clusterName,
 		dnsSuffix:              dnsSuffix,
 		backupStore:            backupStore,
+		backupInterval:         backupInterval,
 		peers:                  peers,
 		leaderLock:             leaderLock,
 		CycleInterval:          defaultCycleInterval,
@@ -435,8 +437,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 func (m *EtcdController) maybeBackup(ctx context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState) error {
 	now := time.Now()
 
-	backupInterval := 5 * time.Minute
-	shouldBackup := now.Sub(m.lastBackup) > backupInterval
+	shouldBackup := now.Sub(m.lastBackup) > m.backupInterval
 
 	if !shouldBackup {
 		return nil
