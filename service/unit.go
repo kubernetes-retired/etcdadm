@@ -13,11 +13,6 @@ import (
 )
 
 const (
-	unitFile        = "/etc/systemd/system/etcd.service"
-	environmentFile = "/etc/etcd.env"
-)
-
-const (
 	unitFileTemplate = `[Unit]
 Description=etcd
 Documentation=https://github.com/coreos/etcd
@@ -111,9 +106,9 @@ func newEnvironment(etcdAdmConfig *apis.EtcdAdmConfig) (*etcdEnvironment, error)
 func WriteEnvironmentFile(etcdAdmConfig *apis.EtcdAdmConfig) error {
 	t := template.Must(template.New("environment").Parse(envFileTemplate))
 
-	f, err := os.OpenFile(environmentFile, os.O_RDWR|os.O_CREATE, 0644)
+	f, err := os.OpenFile(constants.EnvironmentFile, os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
-		return fmt.Errorf("unable to open the etcd environment file %s: %s", environmentFile, err)
+		return fmt.Errorf("unable to open the etcd environment file %s: %s", constants.EnvironmentFile, err)
 	}
 	defer f.Close()
 
@@ -128,14 +123,14 @@ func WriteEnvironmentFile(etcdAdmConfig *apis.EtcdAdmConfig) error {
 func WriteUnitFile(etcdAdmConfig *apis.EtcdAdmConfig) error {
 	t := template.Must(template.New("unit").Parse(unitFileTemplate))
 
-	f, err := os.OpenFile(unitFile, os.O_RDWR|os.O_CREATE, 0644)
+	f, err := os.OpenFile(constants.UnitFile, os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
-		return fmt.Errorf("unable to open the etcd service unit file %s: %s", unitFile, err)
+		return fmt.Errorf("unable to open the etcd service unit file %s: %s", constants.UnitFile, err)
 	}
 	defer f.Close()
 
 	unit := &etcdUnit{
-		EnvironmentFile: environmentFile,
+		EnvironmentFile: constants.EnvironmentFile,
 		Executable:      filepath.Join(etcdAdmConfig.InstallDir, "etcd"),
 	}
 	if err := t.Execute(f, unit); err != nil {

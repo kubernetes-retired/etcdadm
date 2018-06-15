@@ -37,9 +37,9 @@ func serviceEnable(service string) error {
 }
 
 // EnableAndStartService enables and starts the etcd service
-func EnableAndStartService() error {
-	if err := serviceEnable(unitFile); err != nil {
+func EnableAndStartService(service string) error {
+	if err := serviceEnable(service); err != nil {
 		return err
 	}
-	return serviceStart(unitFile)
+	return serviceStart(service)
 }
