@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/platform9/etcdadm/constants"
 	"github.com/platform9/etcdadm/util"
 )
 
@@ -106,9 +105,9 @@ func install(releaseURL, version, installDir string) error {
 	}
 	defer os.RemoveAll(downloadDir)
 
-	archive := filepath.Join(downloadDir, constants.ReleaseFile(version))
+	archive := filepath.Join(downloadDir, releaseFile(version))
 
-	url := constants.DownloadURL(releaseURL, version)
+	url := downloadURL(releaseURL, version)
 	err = get(url, archive)
 	if err != nil {
 		return fmt.Errorf("unable to download etcd: %s", err)
@@ -119,4 +118,13 @@ func install(releaseURL, version, installDir string) error {
 		return fmt.Errorf("unable to extract etcd archive: %s", err)
 	}
 	return nil
+}
+
+func releaseFile(version string) string {
+	return fmt.Sprintf("etcd-v%s-linux-amd64.tar.gz", version)
+}
+
+func downloadURL(releaseURL, version string) string {
+	// FIXME use url.ResolveReference to join
+	return fmt.Sprintf("%s/v%s/%s", releaseURL, version, releaseFile(version))
 }

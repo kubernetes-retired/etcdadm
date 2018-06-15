@@ -20,11 +20,3 @@ const (
 func DefaultInstallDir() string {
 	return filepath.Join(DefaultInstallBaseDir, fmt.Sprintf("etcd-v%s", DefaultVersion))
 }
-
-func ReleaseFile(version string) string {
-	return fmt.Sprintf("etcd-v%s-linux-amd64.tar.gz", version)
-}
-
-func DownloadURL(releaseURL, version string) string {
-	return fmt.Sprintf("%s/v%s/%s", releaseURL, version, ReleaseFile(version))
-}
