@@ -166,6 +166,7 @@ func (a *AWSVolumes) describeVolumes(request *ec2.DescribeVolumesInput) ([]*volu
 			}
 
 			vol := &volumes.Volume{
+				MountName:  "master-" + aws.StringValue(v.VolumeId),
 				ProviderID: aws.StringValue(v.VolumeId),
 				EtcdName:   etcdName,
 				Info: volumes.VolumeInfo{
