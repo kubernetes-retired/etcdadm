@@ -112,6 +112,7 @@ func (n *TestHarnessNode) Run() {
 	if err != nil {
 		t.Fatalf("error initializing backup store: %v", err)
 	}
+	backupInterval := 15 * time.Minute
 
 	commandStore, err := commands.NewStore(n.TestHarness.BackupStorePath)
 	if err != nil {
@@ -135,7 +136,7 @@ func (n *TestHarnessNode) Run() {
 
 	dnsSuffix := ""
 
-	c, err := controller.NewEtcdController(leaderLock, backupStore, commandStore, controlRefreshInterval, n.TestHarness.ClusterName, dnsSuffix, peerServer)
+	c, err := controller.NewEtcdController(leaderLock, backupStore, backupInterval, commandStore, controlRefreshInterval, n.TestHarness.ClusterName, dnsSuffix, peerServer)
 	c.CycleInterval = testCycleInterval
 	if err != nil {
 		t.Fatalf("error building etcd controller: %v", err)
