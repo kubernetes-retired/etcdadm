@@ -30,6 +30,9 @@ type Volumes interface {
 }
 
 type Volume struct {
+	// MountName is the name to use when mounting the volume
+	MountName string
+
 	// ProviderID is the cloud-provider identifier for the volume
 	ProviderID string
 
