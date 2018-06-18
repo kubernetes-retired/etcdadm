@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"log"
+	"path/filepath"
 
 	"github.com/platform9/etcdadm/apis"
 	"github.com/platform9/etcdadm/binary"
@@ -37,7 +38,8 @@ var initCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalf("[configure] Error: %s", err)
 		}
-		err = service.EnableAndStartService(constants.UnitFile)
+		unit := filepath.Base(constants.UnitFile)
+		err = service.EnableAndStartService(unit)
 		if err != nil {
 			log.Fatalf("[start] Error: %s", err)
 		}
