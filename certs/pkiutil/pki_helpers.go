@@ -12,6 +12,11 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+--
+
+This is a copy of k8s.io/kubernetes/cmd/kubeadm/app/phases/certs/pkiutil/pki_helpers.go
+modified to work independently of kubeadm internals like the configuration.
 */
 
 package pkiutil
@@ -20,10 +25,14 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/platform9/etcdadm/apis"
+	"github.com/platform9/etcdadm/constants"
+	"k8s.io/apimachinery/pkg/util/validation"
 	certutil "k8s.io/client-go/util/cert"
 )
 
@@ -35,7 +44,7 @@ func NewCertificateAuthority() (*x509.Certificate, *rsa.PrivateKey, error) {
 	}
 
 	config := certutil.Config{
-		CommonName: "kubernetes",
+		CommonName: "etcd",
 	}
 	cert, err := certutil.NewSelfSignedCACert(config, key)
 	if err != nil {
@@ -245,4 +254,56 @@ func pathForKey(pkiPath, name string) string {
 
 func pathForPublicKey(pkiPath, name string) string {
 	return filepath.Join(pkiPath, fmt.Sprintf("%s.pub", name))
+}
+
+// GetEtcdAltNames builds an AltNames object for generating the etcd server certificate.
+// `localhost` is included in the SAN since this is the interface the etcd static pod listens on.
+// Hostname and `API.AdvertiseAddress` are excluded since etcd does not listen on this interface by default.
+// The user can override the listen address with `Etcd.ExtraArgs` and add SANs with `Etcd.ServerCertSANs`.
+func GetEtcdAltNames(cfg *apis.EtcdAdmConfig) (*certutil.AltNames, error) {
+	// create AltNames with defaults DNSNames/IPs
+	altNames := &certutil.AltNames{
+		DNSNames: []string{cfg.Name, "localhost"},
+		IPs:      []net.IP{net.IPv4(127, 0, 0, 1), net.IPv6loopback},
+	}
+
+	appendSANsToAltNames(altNames, cfg.ServerCertSANs, constants.EtcdServerCertName)
+
+	return altNames, nil
+}
+
+// GetEtcdPeerAltNames builds an AltNames object for generating the etcd peer certificate.
+// `localhost` is excluded from the SAN since etcd will not refer to itself as a peer.
+// The user can add SANs with `Etcd.PeerCertSANs`.
+func GetEtcdPeerAltNames(cfg *apis.EtcdAdmConfig) (*certutil.AltNames, error) {
+	// create AltNames with defaults DNSNames/IPs
+	altNames := &certutil.AltNames{
+		DNSNames: []string{"localhost"},
+		IPs:      []net.IP{net.IPv4(127, 0, 0, 1), net.IPv6loopback},
+	}
+
+	appendSANsToAltNames(altNames, cfg.PeerCertSANs, constants.EtcdPeerCertName)
+
+	return altNames, nil
+}
+
+// appendSANsToAltNames parses SANs from as list of strings and adds them to altNames for use on a specific cert
+// altNames is passed in with a pointer, and the struct is modified
+// valid IP address strings are parsed and added to altNames.IPs as net.IP's
+// RFC-1123 compliant DNS strings are added to altNames.DNSNames as strings
+// certNames is used to print user facing warnings and should be the name of the cert the altNames will be used for
+func appendSANsToAltNames(altNames *certutil.AltNames, SANs []string, certName string) {
+	for _, altname := range SANs {
+		if ip := net.ParseIP(altname); ip != nil {
+			altNames.IPs = append(altNames.IPs, ip)
+		} else if len(validation.IsDNS1123Subdomain(altname)) == 0 {
+			altNames.DNSNames = append(altNames.DNSNames, altname)
+		} else {
+			fmt.Printf(
+				"[certificates] WARNING: '%s' was not added to the '%s' SAN, because it is not a valid IP or RFC-1123 compliant DNS entry\n",
+				altname,
+				certName,
+			)
+		}
+	}
 }

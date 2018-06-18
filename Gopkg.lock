@@ -14,6 +14,12 @@
   version = "v1.0"
 
 [[projects]]
+  name = "github.com/satori/go.uuid"
+  packages = ["."]
+  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
+  version = "v1.2.0"
+
+[[projects]]
   name = "github.com/spf13/cobra"
   packages = ["."]
   revision = "ef82de70bb3f60c65fb8eebacbb2d122ef517385"
@@ -61,8 +67,11 @@
   branch = "release-1.9"
   name = "k8s.io/apimachinery"
   packages = [
+    "pkg/util/errors",
     "pkg/util/net",
-    "pkg/util/sets"
+    "pkg/util/sets",
+    "pkg/util/validation",
+    "pkg/util/validation/field"
   ]
   revision = "21efb2924c7cf1920f76af05b1fd6a325bf46dfc"
 
@@ -75,6 +84,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "af9fd0a70c55666655bd300abed29468a5e6306062333aa356b9c98fa1d3efe6"
+  inputs-digest = "ff0de4a6bca217e45c92839531c9a49b2ab597519bc9e92b890a5762827e1fe5"
   solver-name = "gps-cdcl"
   solver-version = 1

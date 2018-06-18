@@ -37,6 +37,10 @@
   name = "k8s.io/client-go"
   branch = "release-6.0"
 
+[[constraint]]
+  name = "github.com/satori/go.uuid"
+  version = "v1.1.0"
+
 [prune]
   go-tests = true
   unused-packages = true

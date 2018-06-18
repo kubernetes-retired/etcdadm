@@ -12,6 +12,11 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+--
+
+This is a copy of k8s.io/kubernetes/cmd/kubeadm/app/phases/certs/pkiutil/pki_helpers.go
+modified to work independently of kubeadm internals like the configuration.
 */
 
 package pkiutil
@@ -21,9 +26,11 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"io/ioutil"
+	"net"
 	"os"
 	"testing"
 
+	"github.com/platform9/etcdadm/apis"
 	certutil "k8s.io/client-go/util/cert"
 )
 
@@ -430,5 +437,109 @@ func TestPathForPublicKey(t *testing.T) {
 	pubPath := pathForPublicKey("/foo", "bar")
 	if pubPath != "/foo/bar.pub" {
 		t.Errorf("unexpected certificate path: %s", pubPath)
+	}
+}
+
+func TestGetEtcdAltNames(t *testing.T) {
+	proxy := "user-etcd-proxy"
+	proxyIP := "10.10.10.100"
+	cfg := &apis.EtcdAdmConfig{
+		ServerCertSANs: []string{
+			proxy,
+			proxyIP,
+			"1.2.3.L",
+			"invalid,commas,in,DNS",
+		},
+	}
+
+	altNames, err := GetEtcdAltNames(cfg)
+	if err != nil {
+		t.Fatalf("failed calling GetEtcdAltNames: %v", err)
+	}
+
+	expectedDNSNames := []string{"localhost", proxy}
+	for _, DNSName := range expectedDNSNames {
+		found := false
+		for _, val := range altNames.DNSNames {
+			if val == DNSName {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			t.Errorf("altNames does not contain DNSName %s", DNSName)
+		}
+	}
+
+	expectedIPAddresses := []string{"127.0.0.1", net.IPv6loopback.String(), proxyIP}
+	for _, IPAddress := range expectedIPAddresses {
+		found := false
+		for _, val := range altNames.IPs {
+			if val.Equal(net.ParseIP(IPAddress)) {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			t.Errorf("altNames does not contain IPAddress %s", IPAddress)
+		}
+	}
+}
+
+func TestGetEtcdPeerAltNames(t *testing.T) {
+	hostname := "valid-hostname"
+	proxy := "user-etcd-proxy"
+	proxyIP := "10.10.10.100"
+	advertiseIP := "1.2.3.4"
+	cfg := &kubeadmapi.MasterConfiguration{
+		API:              kubeadmapi.API{AdvertiseAddress: advertiseIP},
+		NodeRegistration: kubeadmapi.NodeRegistrationOptions{Name: hostname},
+		Etcd: kubeadmapi.Etcd{
+			Local: &kubeadmapi.LocalEtcd{
+				PeerCertSANs: []string{
+					proxy,
+					proxyIP,
+					"1.2.3.L",
+					"invalid,commas,in,DNS",
+				},
+			},
+		},
+	}
+
+	altNames, err := GetEtcdPeerAltNames(cfg)
+	if err != nil {
+		t.Fatalf("failed calling GetEtcdPeerAltNames: %v", err)
+	}
+
+	expectedDNSNames := []string{hostname, proxy}
+	for _, DNSName := range expectedDNSNames {
+		found := false
+		for _, val := range altNames.DNSNames {
+			if val == DNSName {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			t.Errorf("altNames does not contain DNSName %s", DNSName)
+		}
+	}
+
+	expectedIPAddresses := []string{advertiseIP, proxyIP}
+	for _, IPAddress := range expectedIPAddresses {
+		found := false
+		for _, val := range altNames.IPs {
+			if val.Equal(net.ParseIP(IPAddress)) {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			t.Errorf("altNames does not contain IPAddress %s", IPAddress)
+		}
 	}
 }
