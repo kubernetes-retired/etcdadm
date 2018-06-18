@@ -78,30 +78,32 @@ WantedBy=multi-user.target
 
 	EnvFileTemplate = `ETCD_NAME={{ .Name }}
 
+# Initial cluster configuration
 ETCD_INITIAL_CLUSTER={{ .InitialCluster }}
 ETCD_INITIAL_CLUSTER_TOKEN={{ .InitialClusterToken }}
 ETCD_INITIAL_CLUSTER_STATE={{ .InitialClusterState }}
 
-ETCD_ADVERTISE_CLIENT_URLS={{ .AdvertiseClientURLs }}
-ETCD_LISTEN_CLIENT_URLS={{ .ListenClientURLs }}
-
+# Peer configuration
 ETCD_INITIAL_ADVERTISE_PEER_URLS={{ .AdvertisePeerURLs }}
 ETCD_LISTEN_PEER_URLS={{ .ListenPeerURLs }}
 
+ETCD_CLIENT_CERT_AUTH=true
+ETCD_PEER_CERT_FILE={{ .CertificatesDir }}/peer.crt
+ETCD_PEER_KEY_FILE={{ .CertificatesDir }}/peer.key
+ETCD_PEER_TRUSTED_CA_FILE={{ .CertificatesDir }}/ca.crt
+
+# Client/server configuration
+ETCD_ADVERTISE_CLIENT_URLS={{ .AdvertiseClientURLs }}
+ETCD_LISTEN_CLIENT_URLS={{ .ListenClientURLs }}
+
+ETCD_PEER_CLIENT_CERT_AUTH=true
 ETCD_CERT_FILE={{ .CertificatesDir }}/server.crt
 ETCD_KEY_FILE={{ .CertificatesDir }}/server.key
 ETCD_TRUSTED_CA_FILE={{ .CertificatesDir }}/ca.crt
 
-ETCD_PEER_KEY_FILE={{ .CertificatesDir }}/peer.crt
-ETCD_PEER_CERT_FILE={{ .CertificatesDir }}/peer.key
-ETCD_PEER_TRUSTED_CA_FILE={{ .CertificatesDir }}/ca.crt
-
+# Other
 ETCD_DATA_DIR={{ .DataDir }}
-
 ETCD_STRICT_RECONFIG_CHECK=true
-ETCD_CLIENT_CERT_AUTH=true
-ETCD_PEER_CLIENT_CERT_AUTH=true
-
 GOMAXPROCS={{ .GOMAXPROCS }}
 `
 )
