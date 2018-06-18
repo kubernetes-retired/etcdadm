@@ -9,12 +9,10 @@ const (
 	DefaultBindAddressv4  = "0.0.0.0"
 	DefaultCertificateDir = "/etc/etcd/pki"
 
-	UnitFileDir        = "/etc/systemd/system"
-	UnitFile           = "etcd.service"
-	EnvironmentFileDir = "/etc/etcd"
-	EnvironmentFile    = "etcd.env"
+	UnitFile        = "/etc/systemd/system/etcd.service"
+	EnvironmentFile = "/etc/etcd/etcd.env"
 
-	EtcdExecutable = "etcd"
+	DefaultDataDir = "/var/lib/etcd"
 
 	DefaultLoopbackHost = "127.0.0.1"
 	DefaultPeerPort     = 2380
@@ -75,10 +73,10 @@ IOSchedulingClass=best-effort
 IOSchedulingPriority=2
 
 [Install]
-WantedBy=multi-user.target`
+WantedBy=multi-user.target
+`
 
-	EnvFileTemplate = `
-ETCD_NAME={{ .Name }}
+	EnvFileTemplate = `ETCD_NAME={{ .Name }}
 
 ETCD_INITIAL_CLUSTER={{ .InitialCluster }}
 ETCD_INITIAL_CLUSTER_TOKEN={{ .InitialClusterToken }}
@@ -98,9 +96,12 @@ ETCD_PEER_KEY_FILE={{ .CertificatesDir }}/peer.crt
 ETCD_PEER_CERT_FILE={{ .CertificatesDir }}/peer.key
 ETCD_PEER_TRUSTED_CA_FILE={{ .CertificatesDir }}/ca.crt
 
-ETCD_DATA_DIR=/var/lib/etcd
+ETCD_DATA_DIR={{ .DataDir }}
+
 ETCD_STRICT_RECONFIG_CHECK=true
 ETCD_CLIENT_CERT_AUTH=true
 ETCD_PEER_CLIENT_CERT_AUTH=true
-GOMAXPROCS={{ .GOMAXPROCS }}`
+
+GOMAXPROCS={{ .GOMAXPROCS }}
+`
 )

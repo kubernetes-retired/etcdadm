@@ -19,12 +19,14 @@ type EtcdAdmConfig struct {
 	Version         string
 	ReleaseURL      string
 	InstallBaseDir  string
-	InstallDir      string
 	CertificatesDir string
 
-	EtcdExecutable  string
+	DataDir    string
+	InstallDir string
+
 	UnitFile        string
 	EnvironmentFile string
+	EtcdExecutable  string
 
 	AdvertisePeerURLs   string
 	ListenPeerURLs      string
@@ -58,11 +60,13 @@ func SetJoinDynamicDefaults(cfg *EtcdAdmConfig) error {
 }
 
 func setDynamicDefaults(cfg *EtcdAdmConfig) error {
-	cfg.GOMAXPROCS = runtime.NumCPU()
 	cfg.InstallDir = filepath.Join(cfg.InstallBaseDir, fmt.Sprintf("etcd-v%s", cfg.Version))
+	cfg.DataDir = constants.DefaultDataDir
 	cfg.UnitFile = constants.UnitFile
 	cfg.EnvironmentFile = constants.EnvironmentFile
-	cfg.EtcdExecutable = constants.EtcdExecutable
+	cfg.EtcdExecutable = filepath.Join(cfg.InstallDir, "etcd")
+
+	cfg.GOMAXPROCS = runtime.NumCPU()
 
 	cfg.InitialClusterToken = uuid.NewV4().String()[0:8]
 	if err := DefaultPeerURLs(cfg); err != nil {
@@ -114,7 +118,7 @@ func DefaultListenPeerURLs(cfg *EtcdAdmConfig) error {
 func DefaultListenClientURLs(cfg *EtcdAdmConfig) error {
 	url := url.URL{
 		Scheme: "https",
-		Host:   fmt.Sprintf("%s:%d", constants.DefaultLoopbackHost, constants.DefaultPeerPort),
+		Host:   fmt.Sprintf("%s:%d", constants.DefaultLoopbackHost, constants.DefaultClientPort),
 	}
 	cfg.ListenClientURLs = strings.Join([]string{
 		cfg.AdvertiseClientURLs,
