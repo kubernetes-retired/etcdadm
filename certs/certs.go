@@ -41,6 +41,7 @@ func CreatePKIAssets(cfg *apis.EtcdAdmConfig) error {
 		CreateEtcdCACertAndKeyFiles,
 		CreateEtcdServerCertAndKeyFiles,
 		CreateEtcdPeerCertAndKeyFiles,
+		CreateEtdctlClientCertAndKeyFiles,
 		CreateAPIServerEtcdClientCertAndKeyFiles,
 	}
 
@@ -123,6 +124,32 @@ func CreateEtcdPeerCertAndKeyFiles(cfg *apis.EtcdAdmConfig) error {
 	)
 }
 
+// CreateEtdctlClientCertAndKeyFiles create a new client certificate for the etcdctl client.
+// If the etcdctl-client certificate and key file already exist in the target folder, they are used only if evaluated equal; otherwise an error is returned.
+// It assumes the etcd CA certificate and key file exist in the CertificatesDir
+func CreateEtdctlClientCertAndKeyFiles(cfg *apis.EtcdAdmConfig) error {
+	log.Println("creating a new client certificate for the etcdctl")
+	etcdCACert, etcdCAKey, err := loadCertificateAuthority(cfg.CertificatesDir, constants.EtcdCACertAndKeyBaseName)
+	if err != nil {
+		return err
+	}
+
+	commonName := fmt.Sprintf("%s-etcdctl", cfg.Name)
+	organization := constants.MastersGroup
+	apiEtcdClientCert, apiEtcdClientKey, err := NewEtcdClientCertAndKey(etcdCACert, etcdCAKey, commonName, organization)
+	if err != nil {
+		return err
+	}
+
+	return writeCertificateFilesIfNotExist(
+		cfg.CertificatesDir,
+		constants.APIServerEtcdClientCertAndKeyBaseName,
+		etcdCACert,
+		apiEtcdClientCert,
+		apiEtcdClientKey,
+	)
+}
+
 // CreateAPIServerEtcdClientCertAndKeyFiles create a new client certificate for the apiserver calling etcd
 // If the apiserver-etcd-client certificate and key file already exist in the target folder, they are used only if evaluated equal; otherwise an error is returned.
 // It assumes the etcd CA certificate and key file exist in the CertificatesDir
@@ -132,8 +159,9 @@ func CreateAPIServerEtcdClientCertAndKeyFiles(cfg *apis.EtcdAdmConfig) error {
 	if err != nil {
 		return err
 	}
-
-	apiEtcdClientCert, apiEtcdClientKey, err := NewAPIServerEtcdClientCertAndKey(etcdCACert, etcdCAKey)
+	commonName := fmt.Sprintf("%s-kube-apiserver-etcd-client", cfg.Name)
+	organization := constants.MastersGroup
+	apiEtcdClientCert, apiEtcdClientKey, err := NewEtcdClientCertAndKey(etcdCACert, etcdCAKey, commonName, organization)
 	if err != nil {
 		return err
 	}
@@ -200,17 +228,17 @@ func NewEtcdPeerCertAndKey(cfg *apis.EtcdAdmConfig, caCert *x509.Certificate, ca
 	return etcdPeerCert, etcdPeerKey, nil
 }
 
-// NewAPIServerEtcdClientCertAndKey generate certificate for the apiservers to connect to etcd securely, signed by the given CA.
-func NewAPIServerEtcdClientCertAndKey(caCert *x509.Certificate, caKey *rsa.PrivateKey) (*x509.Certificate, *rsa.PrivateKey, error) {
+// NewEtcdClientCertAndKey generates a client certificate to connect to etcd securely, signed by the given CA.
+func NewEtcdClientCertAndKey(caCert *x509.Certificate, caKey *rsa.PrivateKey, commonName string, organization string) (*x509.Certificate, *rsa.PrivateKey, error) {
 
 	config := certutil.Config{
-		CommonName:   constants.APIServerEtcdClientCertCommonName,
-		Organization: []string{constants.MastersGroup},
+		CommonName:   commonName,
+		Organization: []string{organization},
 		Usages:       []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
 	}
 	apiClientCert, apiClientKey, err := pkiutil.NewCertAndKey(caCert, caKey, config)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failure while creating API server etcd client key and certificate: %v", err)
+		return nil, nil, fmt.Errorf("failure while creating %q etcd client key and certificate: %v", commonName, err)
 	}
 
 	return apiClientCert, apiClientKey, nil

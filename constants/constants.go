@@ -45,8 +45,13 @@ const (
 	APIServerEtcdClientCertName = "apiserver-etcd-client.crt"
 	// APIServerEtcdClientKeyName defines apiserver's etcd client key name
 	APIServerEtcdClientKeyName = "apiserver-etcd-client.key"
-	// APIServerEtcdClientCertCommonName defines apiserver's etcd client certificate common name (CN)
-	APIServerEtcdClientCertCommonName = "kube-apiserver-etcd-client"
+
+	// EtcdctlClientCertAndKeyBaseName defines etcdctl's client certificate and key base name
+	EtcdctlClientCertAndKeyBaseName = "etcdctl-etcd-client"
+	// EtcdctllientCertName defines etcdctl's client certificate name
+	EtcdctlClientCertName = "etcdctl-etcd-client.crt"
+	// EtcdctlClientKeyName defines etcdctl's client key name
+	EtcdctlClientKeyName = "etcdctl-etcd-client.key"
 
 	// MastersGroup defines the well-known group for the apiservers. This group is also superuser by default
 	// (i.e. bound to the cluster-admin ClusterRole)
