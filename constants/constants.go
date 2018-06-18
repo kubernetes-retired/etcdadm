@@ -11,6 +11,7 @@ const (
 
 	UnitFile        = "/etc/systemd/system/etcd.service"
 	EnvironmentFile = "/etc/etcd/etcd.env"
+	EtcdctlEnvFile  = "/etc/etcd/etcdctl.env"
 
 	DefaultDataDir = "/var/lib/etcd"
 
@@ -111,4 +112,9 @@ ETCD_DATA_DIR={{ .DataDir }}
 ETCD_STRICT_RECONFIG_CHECK=true
 GOMAXPROCS={{ .GOMAXPROCS }}
 `
+
+	EtcdctlEnvFileTemplate = `ETCDCTL_DIAL_TIMEOUT=3s
+ETCDCTL_CACERT={{ .CertificatesDir }}/ca.crt
+ETCDCTL_CERT={{ .CertificatesDir }}/etcdctl-etcd-client.crt
+ETCDCTL_KEY={{ .CertificatesDir }}/etcdctl-etcd-client.key`
 )

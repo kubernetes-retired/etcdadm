@@ -41,6 +41,10 @@ var initCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalf("[start] Error: %s", err)
 		}
+		err = service.WriteEtcdctlEnvFile(&etcdAdmConfig)
+		if err != nil {
+			log.Printf("[configure] Warning: %s", err)
+		}
 	},
 }
 

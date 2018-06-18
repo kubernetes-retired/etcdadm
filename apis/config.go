@@ -28,6 +28,8 @@ type EtcdAdmConfig struct {
 	EnvironmentFile string
 	EtcdExecutable  string
 
+	EtcdctlEnvFile string
+
 	AdvertisePeerURLs   string
 	ListenPeerURLs      string
 	AdvertiseClientURLs string

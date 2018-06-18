@@ -41,7 +41,7 @@ func CreatePKIAssets(cfg *apis.EtcdAdmConfig) error {
 		CreateEtcdCACertAndKeyFiles,
 		CreateEtcdServerCertAndKeyFiles,
 		CreateEtcdPeerCertAndKeyFiles,
-		CreateEtdctlClientCertAndKeyFiles,
+		CreateEtcdctlClientCertAndKeyFiles,
 		CreateAPIServerEtcdClientCertAndKeyFiles,
 	}
 
@@ -124,10 +124,10 @@ func CreateEtcdPeerCertAndKeyFiles(cfg *apis.EtcdAdmConfig) error {
 	)
 }
 
-// CreateEtdctlClientCertAndKeyFiles create a new client certificate for the etcdctl client.
+// CreateEtcdctlClientCertAndKeyFiles create a new client certificate for the etcdctl client.
 // If the etcdctl-client certificate and key file already exist in the target folder, they are used only if evaluated equal; otherwise an error is returned.
 // It assumes the etcd CA certificate and key file exist in the CertificatesDir
-func CreateEtdctlClientCertAndKeyFiles(cfg *apis.EtcdAdmConfig) error {
+func CreateEtcdctlClientCertAndKeyFiles(cfg *apis.EtcdAdmConfig) error {
 	log.Println("creating a new client certificate for the etcdctl")
 	etcdCACert, etcdCAKey, err := loadCertificateAuthority(cfg.CertificatesDir, constants.EtcdCACertAndKeyBaseName)
 	if err != nil {
