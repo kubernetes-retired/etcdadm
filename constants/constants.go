@@ -113,8 +113,12 @@ ETCD_STRICT_RECONFIG_CHECK=true
 GOMAXPROCS={{ .GOMAXPROCS }}
 `
 
-	EtcdctlEnvFileTemplate = `ETCDCTL_DIAL_TIMEOUT=3s
+	EtcdctlEnvFileTemplate = `ETCDCTL_API=3
+
 ETCDCTL_CACERT={{ .CertificatesDir }}/ca.crt
 ETCDCTL_CERT={{ .CertificatesDir }}/etcdctl-etcd-client.crt
-ETCDCTL_KEY={{ .CertificatesDir }}/etcdctl-etcd-client.key`
+ETCDCTL_KEY={{ .CertificatesDir }}/etcdctl-etcd-client.key
+
+ETCDCTL_DIAL_TIMEOUT=3s
+`
 )

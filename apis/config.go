@@ -67,6 +67,7 @@ func setDynamicDefaults(cfg *EtcdAdmConfig) error {
 	cfg.UnitFile = constants.UnitFile
 	cfg.EnvironmentFile = constants.EnvironmentFile
 	cfg.EtcdExecutable = filepath.Join(cfg.InstallDir, "etcd")
+	cfg.EtcdctlEnvFile = constants.EtcdctlEnvFile
 
 	cfg.GOMAXPROCS = runtime.NumCPU()
 

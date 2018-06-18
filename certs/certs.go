@@ -136,17 +136,17 @@ func CreateEtcdctlClientCertAndKeyFiles(cfg *apis.EtcdAdmConfig) error {
 
 	commonName := fmt.Sprintf("%s-etcdctl", cfg.Name)
 	organization := constants.MastersGroup
-	apiEtcdClientCert, apiEtcdClientKey, err := NewEtcdClientCertAndKey(etcdCACert, etcdCAKey, commonName, organization)
+	etcdctlClientCert, etcdctlClientKey, err := NewEtcdClientCertAndKey(etcdCACert, etcdCAKey, commonName, organization)
 	if err != nil {
 		return err
 	}
 
 	return writeCertificateFilesIfNotExist(
 		cfg.CertificatesDir,
-		constants.APIServerEtcdClientCertAndKeyBaseName,
+		constants.EtcdctlClientCertAndKeyBaseName,
 		etcdCACert,
-		apiEtcdClientCert,
-		apiEtcdClientKey,
+		etcdctlClientCert,
+		etcdctlClientKey,
 	)
 }
 
