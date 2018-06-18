@@ -19,25 +19,25 @@ const (
 	DefaultClientPort   = 2379
 
 	// EtcdCACertAndKeyBaseName defines etcd's CA certificate and key base name
-	EtcdCACertAndKeyBaseName = "etcd/ca"
+	EtcdCACertAndKeyBaseName = "ca"
 	// EtcdCACertName defines etcd's CA certificate name
-	EtcdCACertName = "etcd/ca.crt"
+	EtcdCACertName = "ca.crt"
 	// EtcdCAKeyName defines etcd's CA key name
-	EtcdCAKeyName = "etcd/ca.key"
+	EtcdCAKeyName = "ca.key"
 
 	// EtcdServerCertAndKeyBaseName defines etcd's server certificate and key base name
-	EtcdServerCertAndKeyBaseName = "etcd/server"
+	EtcdServerCertAndKeyBaseName = "server"
 	// EtcdServerCertName defines etcd's server certificate name
-	EtcdServerCertName = "etcd/server.crt"
+	EtcdServerCertName = "server.crt"
 	// EtcdServerKeyName defines etcd's server key name
-	EtcdServerKeyName = "etcd/server.key"
+	EtcdServerKeyName = "server.key"
 
 	// EtcdPeerCertAndKeyBaseName defines etcd's peer certificate and key base name
-	EtcdPeerCertAndKeyBaseName = "etcd/peer"
+	EtcdPeerCertAndKeyBaseName = "peer"
 	// EtcdPeerCertName defines etcd's peer certificate name
-	EtcdPeerCertName = "etcd/peer.crt"
+	EtcdPeerCertName = "peer.crt"
 	// EtcdPeerKeyName defines etcd's peer key name
-	EtcdPeerKeyName = "etcd/peer.key"
+	EtcdPeerKeyName = "peer.key"
 
 	// APIServerEtcdClientCertAndKeyBaseName defines apiserver's etcd client certificate and key base name
 	APIServerEtcdClientCertAndKeyBaseName = "apiserver-etcd-client"
