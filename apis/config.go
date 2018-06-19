@@ -52,13 +52,6 @@ type EtcdAdmConfig struct {
 
 // SetInitDynamicDefaults checks and sets configuration values used by the init verb
 func SetInitDynamicDefaults(cfg *EtcdAdmConfig) error {
-	if len(cfg.Name) == 0 {
-		name, err := os.Hostname()
-		if err != nil {
-			return fmt.Errorf("unable to use hostname as default name: %s", err)
-		}
-		cfg.Name = name
-	}
 	cfg.InitialClusterState = "new"
 	return setDynamicDefaults(cfg)
 }
@@ -70,6 +63,14 @@ func SetJoinDynamicDefaults(cfg *EtcdAdmConfig) error {
 }
 
 func setDynamicDefaults(cfg *EtcdAdmConfig) error {
+	if len(cfg.Name) == 0 {
+		name, err := os.Hostname()
+		if err != nil {
+			return fmt.Errorf("unable to use hostname as default name: %s", err)
+		}
+		cfg.Name = name
+	}
+
 	cfg.InstallDir = filepath.Join(cfg.InstallBaseDir, fmt.Sprintf("etcd-v%s", cfg.Version))
 	cfg.DataDir = constants.DefaultDataDir
 	cfg.UnitFile = constants.UnitFile
