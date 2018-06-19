@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 
 	"github.com/platform9/etcdadm/util"
 )
@@ -34,26 +33,40 @@ func EnsureInstalled(releaseURL, version, installDir string) error {
 
 func isInstalled(version, installDir string) (bool, error) {
 	log.Printf("[install] verifying etcd %s is installed in %s\n", version, installDir)
-	for _, binary := range []string{"etcd", "etcdctl"} {
-		path := filepath.Join(installDir, binary)
-		exists, err := util.FileExists(path)
-		if err != nil {
-			return false, err
-		}
-		if !exists {
-			return false, nil
-		}
-		cmd := exec.Command(path, "--version")
-		out, err := cmd.Output()
-		if err != nil {
-			return false, err
-		}
-		installed := strings.Contains(strings.ToLower(string(out)), fmt.Sprintf("%s version: %s", binary, version))
-		if !installed {
-			return false, nil
-		}
+	installed, err := isEtcdInstalled(version, installDir)
+	if err != nil {
+		return false, err
 	}
-	return true, nil
+	if !installed {
+		return false, nil
+	}
+	return isEtcdctlInstalled(version, installDir)
+}
+
+func isEtcdInstalled(version, installDir string) (bool, error) {
+	path := filepath.Join(installDir, "etcd")
+	exists, err := util.FileExists(path)
+	if err != nil {
+		return false, err
+	}
+	if !exists {
+		return false, nil
+	}
+	cmd := exec.Command(path, "--version")
+	return util.CmdOutputContains(cmd, fmt.Sprintf("etcd Version: %s", version))
+}
+
+func isEtcdctlInstalled(version, installDir string) (bool, error) {
+	path := filepath.Join(installDir, "etcdctl")
+	exists, err := util.FileExists(path)
+	if err != nil {
+		return false, err
+	}
+	if !exists {
+		return false, nil
+	}
+	cmd := exec.Command(path, "version")
+	return util.CmdOutputContains(cmd, fmt.Sprintf("etcdctl version: %s", version))
 }
 
 func get(url, archive string) error {
