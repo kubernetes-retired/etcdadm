@@ -53,6 +53,7 @@ type EtcdAdmConfig struct {
 // SetInitDynamicDefaults checks and sets configuration values used by the init verb
 func SetInitDynamicDefaults(cfg *EtcdAdmConfig) error {
 	cfg.InitialClusterState = "new"
+	cfg.InitialCluster = InitialClusterInit(cfg)
 	return setDynamicDefaults(cfg)
 }
 
@@ -84,14 +85,10 @@ func setDynamicDefaults(cfg *EtcdAdmConfig) error {
 	if err := DefaultPeerURLs(cfg); err != nil {
 		return err
 	}
-	if err := DefaultClientURLs(cfg); err != nil {
-		return err
-	}
-	cfg.InitialCluster = InitialCluster(cfg)
-	return nil
+	return DefaultClientURLs(cfg)
 }
 
-func InitialCluster(cfg *EtcdAdmConfig) string {
+func InitialClusterInit(cfg *EtcdAdmConfig) string {
 	return fmt.Sprintf("%s=%s", cfg.Name, cfg.AdvertisePeerURLs)
 }
 
