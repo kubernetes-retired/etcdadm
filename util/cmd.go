@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"os/exec"
 	"strings"
 )
@@ -8,7 +9,14 @@ import (
 func CmdOutputContains(cmd *exec.Cmd, expected string) (bool, error) {
 	out, err := cmd.Output()
 	if err != nil {
-		return false, err
+		switch v := err.(type) {
+		case *exec.Error:
+			return false, fmt.Errorf("failed to run command %q: %s", v.Name, v.Err)
+		case *exec.ExitError:
+			return false, fmt.Errorf("command %q failed: %q", cmd.Path, v.Stderr)
+		default:
+			return false, err
+		}
 	}
 	return strings.Contains(string(out), expected), nil
 }
