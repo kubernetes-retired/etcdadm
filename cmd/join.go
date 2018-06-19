@@ -82,7 +82,7 @@ var joinCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalf("[cluster] Error: failed to add member with peerURLs %q to cluster: %s", etcdAdmConfig.AdvertisePeerURLs, err)
 		}
-		log.Printf("[cluster] added member with ID %q, peerURLs %q to cluster", mresp.Member.ID, etcdAdmConfig.AdvertisePeerURLs)
+		log.Printf("[cluster] added member with ID %d, peerURLs %q to cluster", mresp.Member.ID, etcdAdmConfig.AdvertisePeerURLs)
 
 		resp, err := cli.MemberList(context.Background())
 		if err != nil {
