@@ -19,7 +19,7 @@ func WriteEnvironmentFile(cfg *apis.EtcdAdmConfig) error {
 		return fmt.Errorf("unable to create environment file directory %q: %s", environmentFileDir, err)
 	}
 
-	f, err := os.OpenFile(cfg.EnvironmentFile, os.O_RDWR|os.O_CREATE, 0644)
+	f, err := os.OpenFile(cfg.EnvironmentFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return fmt.Errorf("unable to open the etcd environment file %s: %s", constants.EnvironmentFile, err)
 	}
@@ -40,7 +40,7 @@ func WriteUnitFile(cfg *apis.EtcdAdmConfig) error {
 		return fmt.Errorf("unable to create unit file directory %q: %s", unitFileDir, err)
 	}
 
-	f, err := os.OpenFile(cfg.UnitFile, os.O_RDWR|os.O_CREATE, 0755)
+	f, err := os.OpenFile(cfg.UnitFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
 	if err != nil {
 		return fmt.Errorf("unable to open the etcd service unit file %s: %s", constants.UnitFile, err)
 	}
