@@ -65,7 +65,7 @@ func isEtcdctlInstalled(version, installDir string) (bool, error) {
 	if !exists {
 		return false, nil
 	}
-	cmd := exec.Command(path, "version")
+	cmd := exec.Command(path, "--version")
 	return util.CmdOutputContains(cmd, fmt.Sprintf("etcdctl version: %s", version))
 }
 
