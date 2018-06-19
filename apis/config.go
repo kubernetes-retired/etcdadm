@@ -31,30 +31,43 @@ type EtcdAdmConfig struct {
 
 	EtcdctlEnvFile string
 
-	AdvertisePeerURLs   string
-	ListenPeerURLs      string
-	AdvertiseClientURLs string
-	ListenClientURLs    string
-
-	Name                string
-	InitialCluster      string
-	InitialClusterToken string
-	InitialClusterState string
+	AdvertisePeerURLs   URLList
+	ListenPeerURLs      URLList
+	AdvertiseClientURLs URLList
+	ListenClientURLs    URLList
 
 	// ServerCertSANs sets extra Subject Alternative Names for the etcd server signing cert.
 	ServerCertSANs []string
 	// PeerCertSANs sets extra Subject Alternative Names for the etcd peer signing cert.
 	PeerCertSANs []string
 
+	Name                string
+	InitialCluster      string
+	InitialClusterToken string
+	InitialClusterState string
+
 	// GOMAXPROCS sets the max num of etcd processes will use
 	GOMAXPROCS int
+}
+
+type URLList []url.URL
+
+func (l URLList) String() string {
+	stringURLs := make([]string, len(l))
+	for i, url := range l {
+		stringURLs[i] = url.String()
+	}
+	return strings.Join(stringURLs, ",")
 }
 
 // SetInitDynamicDefaults checks and sets configuration values used by the init verb
 func SetInitDynamicDefaults(cfg *EtcdAdmConfig) error {
 	cfg.InitialClusterState = "new"
-	cfg.InitialCluster = InitialClusterInit(cfg)
-	return setDynamicDefaults(cfg)
+	if err := setDynamicDefaults(cfg); err != nil {
+		return err
+	}
+	InitialClusterInit(cfg)
+	return nil
 }
 
 // SetJoinDynamicDefaults checks and sets configuration values used by the join verb
@@ -85,11 +98,46 @@ func setDynamicDefaults(cfg *EtcdAdmConfig) error {
 	if err := DefaultPeerURLs(cfg); err != nil {
 		return err
 	}
-	return DefaultClientURLs(cfg)
+	if err := DefaultClientURLs(cfg); err != nil {
+		return err
+	}
+	DefaultPeerCertSANs(cfg)
+	DefaultServerCertSANs(cfg)
+	return nil
 }
 
 func InitialClusterInit(cfg *EtcdAdmConfig) string {
 	return fmt.Sprintf("%s=%s", cfg.Name, cfg.AdvertisePeerURLs)
+}
+
+func DefaultServerCertSANs(cfg *EtcdAdmConfig) {
+	cfg.ServerCertSANs = append(cfg.ServerCertSANs, cfg.Name)
+
+	uniqueSANs := make(map[string]int)
+	for _, url := range cfg.AdvertiseClientURLs {
+		uniqueSANs[url.Hostname()] = 0
+	}
+	for _, url := range cfg.ListenClientURLs {
+		uniqueSANs[url.Hostname()] = 0
+	}
+	for san, _ := range uniqueSANs {
+		cfg.ServerCertSANs = append(cfg.ServerCertSANs, san)
+	}
+}
+
+func DefaultPeerCertSANs(cfg *EtcdAdmConfig) {
+	cfg.PeerCertSANs = append(cfg.PeerCertSANs, cfg.Name)
+
+	uniqueSANs := make(map[string]int)
+	for _, url := range cfg.AdvertisePeerURLs {
+		uniqueSANs[url.Hostname()] = 0
+	}
+	for _, url := range cfg.ListenPeerURLs {
+		uniqueSANs[url.Hostname()] = 0
+	}
+	for san, _ := range uniqueSANs {
+		cfg.PeerCertSANs = append(cfg.PeerCertSANs, san)
+	}
 }
 
 func DefaultPeerURLs(cfg *EtcdAdmConfig) error {
@@ -110,12 +158,10 @@ func DefaultAdvertisePeerURLs(cfg *EtcdAdmConfig) error {
 	if err != nil {
 		return fmt.Errorf("failed to set default AdvertisePeerURLs: %s", err)
 	}
-	urls := make([]url.URL, 1)
-	urls[0] = url.URL{
+	cfg.AdvertisePeerURLs = append(cfg.AdvertisePeerURLs, url.URL{
 		Scheme: "https",
 		Host:   fmt.Sprintf("%s:%d", externalAddress.String(), constants.DefaultPeerPort),
-	}
-	cfg.AdvertisePeerURLs = urls[0].String()
+	})
 	return nil
 }
 
@@ -125,14 +171,11 @@ func DefaultListenPeerURLs(cfg *EtcdAdmConfig) error {
 }
 
 func DefaultListenClientURLs(cfg *EtcdAdmConfig) error {
-	url := url.URL{
+	cfg.ListenClientURLs = cfg.AdvertiseClientURLs
+	cfg.ListenClientURLs = append(cfg.ListenClientURLs, url.URL{
 		Scheme: "https",
 		Host:   fmt.Sprintf("%s:%d", constants.DefaultLoopbackHost, constants.DefaultClientPort),
-	}
-	cfg.ListenClientURLs = strings.Join([]string{
-		cfg.AdvertiseClientURLs,
-		url.String(),
-	}, ",")
+	})
 	return nil
 }
 
@@ -141,12 +184,10 @@ func DefaultAdvertiseClientURLs(cfg *EtcdAdmConfig) error {
 	if err != nil {
 		return fmt.Errorf("failed to set default AdvertiseClientURLs: %s", err)
 	}
-	urls := make([]url.URL, 1)
-	urls[0] = url.URL{
+	cfg.AdvertiseClientURLs = append(cfg.AdvertiseClientURLs, url.URL{
 		Scheme: "https",
 		Host:   fmt.Sprintf("%s:%d", externalAddress.String(), constants.DefaultClientPort),
-	}
-	cfg.AdvertiseClientURLs = urls[0].String()
+	})
 	return nil
 }
 

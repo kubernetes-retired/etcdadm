@@ -257,15 +257,9 @@ func pathForPublicKey(pkiPath, name string) string {
 }
 
 // GetEtcdAltNames builds an AltNames object for generating the etcd server certificate.
-// `localhost` is included in the SAN since this is the interface the etcd static pod listens on.
-// Hostname and `API.AdvertiseAddress` are excluded since etcd does not listen on this interface by default.
-// The user can override the listen address with `Etcd.ExtraArgs` and add SANs with `Etcd.ServerCertSANs`.
 func GetEtcdAltNames(cfg *apis.EtcdAdmConfig) (*certutil.AltNames, error) {
 	// create AltNames with defaults DNSNames/IPs
-	altNames := &certutil.AltNames{
-		DNSNames: []string{cfg.Name, "localhost"},
-		IPs:      []net.IP{net.IPv4(127, 0, 0, 1), net.IPv6loopback},
-	}
+	altNames := &certutil.AltNames{}
 
 	appendSANsToAltNames(altNames, cfg.ServerCertSANs, constants.EtcdServerCertName)
 
@@ -273,14 +267,9 @@ func GetEtcdAltNames(cfg *apis.EtcdAdmConfig) (*certutil.AltNames, error) {
 }
 
 // GetEtcdPeerAltNames builds an AltNames object for generating the etcd peer certificate.
-// `localhost` is excluded from the SAN since etcd will not refer to itself as a peer.
-// The user can add SANs with `Etcd.PeerCertSANs`.
 func GetEtcdPeerAltNames(cfg *apis.EtcdAdmConfig) (*certutil.AltNames, error) {
 	// create AltNames with defaults DNSNames/IPs
-	altNames := &certutil.AltNames{
-		DNSNames: []string{"localhost"},
-		IPs:      []net.IP{net.IPv4(127, 0, 0, 1), net.IPv6loopback},
-	}
+	altNames := &certutil.AltNames{}
 
 	appendSANsToAltNames(altNames, cfg.PeerCertSANs, constants.EtcdPeerCertName)
 

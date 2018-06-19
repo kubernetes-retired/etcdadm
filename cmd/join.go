@@ -63,12 +63,11 @@ var joinCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 		mapi := client.NewMembersAPI(c)
-		peerURLs := strings.Split(etcdAdmConfig.AdvertisePeerURLs, ",")
-		if len(peerURLs) == 0 {
-			log.Fatalf("Error: cannot add member to cluster: no peer URL defined")
+		if len(etcdAdmConfig.AdvertisePeerURLs) == 0 {
+			log.Fatalf("Error: cannot add member to cluster: no advertised peer URLs")
 		}
 
-		chosenPeerURL := peerURLs[0]
+		chosenPeerURL := etcdAdmConfig.AdvertisePeerURLs[0].String()
 		newMember, err := mapi.Add(context.Background(), chosenPeerURL)
 		if err != nil {
 			log.Fatalf("[cluster] Error: failed to add member with peerURL %q to cluster: %s", chosenPeerURL, err)

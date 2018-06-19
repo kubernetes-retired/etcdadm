@@ -90,8 +90,8 @@ ETCD_INITIAL_CLUSTER_TOKEN={{ .InitialClusterToken }}
 ETCD_INITIAL_CLUSTER_STATE={{ .InitialClusterState }}
 
 # Peer configuration
-ETCD_INITIAL_ADVERTISE_PEER_URLS={{ .AdvertisePeerURLs }}
-ETCD_LISTEN_PEER_URLS={{ .ListenPeerURLs }}
+ETCD_INITIAL_ADVERTISE_PEER_URLS={{ .AdvertisePeerURLs.String }}
+ETCD_LISTEN_PEER_URLS={{ .ListenPeerURLs.String }}
 
 ETCD_CLIENT_CERT_AUTH=true
 ETCD_PEER_CERT_FILE={{ .CertificatesDir }}/peer.crt
@@ -99,8 +99,8 @@ ETCD_PEER_KEY_FILE={{ .CertificatesDir }}/peer.key
 ETCD_PEER_TRUSTED_CA_FILE={{ .CertificatesDir }}/ca.crt
 
 # Client/server configuration
-ETCD_ADVERTISE_CLIENT_URLS={{ .AdvertiseClientURLs }}
-ETCD_LISTEN_CLIENT_URLS={{ .ListenClientURLs }}
+ETCD_ADVERTISE_CLIENT_URLS={{ .AdvertiseClientURLs.String }}
+ETCD_LISTEN_CLIENT_URLS={{ .ListenClientURLs.String }}
 
 ETCD_PEER_CLIENT_CERT_AUTH=true
 ETCD_CERT_FILE={{ .CertificatesDir }}/server.crt
