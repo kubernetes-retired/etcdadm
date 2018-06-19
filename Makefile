@@ -45,5 +45,5 @@ dep-ensure:
 	dep ensure -v
 	find vendor/ -name "BUILD" -delete
 	find vendor/ -name "BUILD.bazel" -delete
-	bazel run //:gazelle -- -proto disable
+	bazel run //:gazelle
 	rm -f vendor/github.com/coreos/etcd/cmd/etcd
