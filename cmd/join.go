@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/url"
 	"path/filepath"
@@ -21,7 +22,15 @@ import (
 var joinCmd = &cobra.Command{
 	Use:   "join",
 	Short: "Join an existing etcd cluster",
-	Args:  cobra.MinimumNArgs(1),
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(etcdAdmConfig.InitialClusterToken) == 0 {
+			return fmt.Errorf("must provide cluster token")
+		}
+		if len(args) < 1 {
+			return cobra.MinimumNArgs(1)(cmd, args)
+		}
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		endpoint := args[0]
 		if _, err := url.Parse(endpoint); err != nil {
@@ -58,12 +67,30 @@ var joinCmd = &cobra.Command{
 		if len(peerURLs) == 0 {
 			log.Fatalf("Error: cannot add member to cluster: no peer URL defined")
 		}
+
 		chosenPeerURL := peerURLs[0]
-		_, err = mapi.Add(context.Background(), chosenPeerURL)
+		newMember, err := mapi.Add(context.Background(), chosenPeerURL)
 		if err != nil {
 			log.Fatalf("[cluster] Error: failed to add member with peerURL %q to cluster: %s", chosenPeerURL, err)
 		}
-		log.Printf("[cluster] added member with peerURL %q to cluster", chosenPeerURL)
+		log.Printf("[cluster] added member with ID %q, peerURL %q to cluster", newMember.ID, chosenPeerURL)
+
+		members, err := mapi.List(context.Background())
+		if err != nil {
+			log.Fatalf("[cluster] Error: failed to list cluster members: %s", err)
+		}
+
+		conf := []string{}
+		for _, memb := range members {
+			for _, u := range memb.PeerURLs {
+				n := memb.Name
+				if memb.ID == newMember.ID {
+					n = newMember.Name
+				}
+				conf = append(conf, fmt.Sprintf("%s=%s", n, u))
+			}
+		}
+		etcdAdmConfig.InitialCluster = strings.Join(conf, ",")
 		// End
 
 		err = service.WriteEnvironmentFile(&etcdAdmConfig)
