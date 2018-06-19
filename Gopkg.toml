@@ -1,6 +1,9 @@
 [prune]
 go-tests = true
 unused-packages = true
+  [[prune.project]]
+  name = "github.com/golang/protobuf"
+  unused-packages = false
 
 # These should generally be synced with https://github.com/bazelbuild/rules_go/blob/master/go/private/repositories.bzl
 

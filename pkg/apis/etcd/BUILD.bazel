@@ -1,28 +1,17 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
-load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
-
-proto_library(
-    name = "etcd_proto",
-    srcs = ["etcdapi.proto"],
-    visibility = ["//visibility:public"],
-)
-
-go_proto_library(
-    name = "etcd_go_proto",
-    compilers = ["@io_bazel_rules_go//proto:go_grpc"],
-    importpath = "kope.io/etcd-manager/pkg/apis/etcd",
-    proto = ":etcd_proto",
-    visibility = ["//visibility:public"],
-)
 
 go_library(
     name = "go_default_library",
-    srcs = ["json.go"],
-    embed = [":etcd_go_proto"],
+    srcs = [
+        "etcdapi.pb.go",
+        "json.go",
+    ],
     importpath = "kope.io/etcd-manager/pkg/apis/etcd",
     visibility = ["//visibility:public"],
     deps = [
         "//vendor/github.com/golang/protobuf/proto:go_default_library",
+        "//vendor/golang.org/x/net/context:go_default_library",
+        "//vendor/google.golang.org/grpc:go_default_library",
         "@com_github_golang_protobuf//jsonpb:go_default_library_gen",
     ],
 )
