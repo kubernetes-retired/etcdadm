@@ -1,5 +1,7 @@
 load("@bazel_gazelle//:def.bzl", "gazelle")
 
+# gazelle:proto disable
+
 gazelle(
     name = "gazelle",
     external = "vendored",
