@@ -48,6 +48,11 @@ var initCmd = &cobra.Command{
 		if err != nil {
 			log.Printf("[configure] Warning: %s", err)
 		}
+
+		// Output etcdadm join command
+		// TODO print all advertised client URLs (first, join must parse than one endpoint)
+		log.Println("To add another member to the cluster, copy the CA cert/key to its certificate dir and run:")
+		log.Printf(`	etcdadm join %s --token %s`, etcdAdmConfig.AdvertiseClientURLs[0].String(), etcdAdmConfig.InitialClusterToken)
 	},
 }
 
