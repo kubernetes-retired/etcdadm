@@ -16,12 +16,13 @@ import (
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize a new etcd cluster",
-	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		etcdAdmConfig.Name = args[0]
-		apis.SetInitDynamicDefaults(&etcdAdmConfig)
-
 		var err error
+
+		err = apis.SetInitDynamicDefaults(&etcdAdmConfig)
+		if err != nil {
+			log.Fatalf("[defaults] Error: %s", err)
+		}
 		err = binary.EnsureInstalled(etcdAdmConfig.ReleaseURL, etcdAdmConfig.Version, etcdAdmConfig.InstallDir)
 		if err != nil {
 			log.Fatalf("[install] Error: %s", err)
@@ -52,6 +53,7 @@ var initCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(initCmd)
+	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.Name, "name", "", "etcd member name")
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.InitialClusterToken, "token", "", "initial cluster token")
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.Version, "version", constants.DefaultVersion, "etcd version")
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.ReleaseURL, "release-url", constants.DefaultReleaseURL, "URL used to download etcd")
