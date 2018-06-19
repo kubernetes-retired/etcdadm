@@ -15,7 +15,8 @@ import (
 	"github.com/platform9/etcdadm/constants"
 	"github.com/platform9/etcdadm/service"
 
-	"github.com/coreos/etcd/client"
+	"github.com/coreos/etcd/clientv3"
+	"github.com/coreos/etcd/pkg/transport"
 	"github.com/spf13/cobra"
 )
 
@@ -53,38 +54,46 @@ var joinCmd = &cobra.Command{
 		}
 
 		// Add self to cluster
-		cfg := client.Config{
-			Endpoints:               []string{endpoint},
-			Transport:               client.DefaultTransport,
-			HeaderTimeoutPerRequest: time.Second,
-		}
-		c, err := client.New(cfg)
-		if err != nil {
-			log.Fatal(err)
-		}
-		mapi := client.NewMembersAPI(c)
 		if len(etcdAdmConfig.AdvertisePeerURLs) == 0 {
 			log.Fatalf("Error: cannot add member to cluster: no advertised peer URLs")
 		}
 
-		chosenPeerURL := etcdAdmConfig.AdvertisePeerURLs[0].String()
-		newMember, err := mapi.Add(context.Background(), chosenPeerURL)
-		if err != nil {
-			log.Fatalf("[cluster] Error: failed to add member with peerURL %q to cluster: %s", chosenPeerURL, err)
+		tlsInfo := transport.TLSInfo{
+			CertFile:      filepath.Join(etcdAdmConfig.CertificatesDir, constants.EtcdctlClientCertName),
+			KeyFile:       filepath.Join(etcdAdmConfig.CertificatesDir, constants.EtcdctlClientKeyName),
+			TrustedCAFile: filepath.Join(etcdAdmConfig.CertificatesDir, constants.EtcdCACertName),
 		}
-		log.Printf("[cluster] added member with ID %q, peerURL %q to cluster", newMember.ID, chosenPeerURL)
+		tlsConfig, err := tlsInfo.ClientConfig()
+		if err != nil {
+			log.Fatal(err)
+		}
 
-		members, err := mapi.List(context.Background())
+		cli, err := clientv3.New(clientv3.Config{
+			Endpoints:   []string{endpoint},
+			DialTimeout: 5 * time.Second,
+			TLS:         tlsConfig,
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer cli.Close()
+
+		mresp, err := cli.MemberAdd(context.Background(), strings.Split(etcdAdmConfig.AdvertisePeerURLs.String(), ","))
+		if err != nil {
+			log.Fatalf("[cluster] Error: failed to add member with peerURLs %q to cluster: %s", etcdAdmConfig.AdvertisePeerURLs, err)
+		}
+		log.Printf("[cluster] added member with ID %q, peerURLs %q to cluster", mresp.Member.ID, etcdAdmConfig.AdvertisePeerURLs)
+
+		resp, err := cli.MemberList(context.Background())
 		if err != nil {
 			log.Fatalf("[cluster] Error: failed to list cluster members: %s", err)
 		}
-
 		conf := []string{}
-		for _, memb := range members {
+		for _, memb := range resp.Members {
 			for _, u := range memb.PeerURLs {
 				n := memb.Name
-				if memb.ID == newMember.ID {
-					n = newMember.Name
+				if memb.ID == mresp.Member.ID {
+					n = etcdAdmConfig.Name
 				}
 				conf = append(conf, fmt.Sprintf("%s=%s", n, u))
 			}
