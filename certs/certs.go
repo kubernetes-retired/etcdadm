@@ -36,7 +36,7 @@ import (
 // CreatePKIAssets will create and write to disk all PKI assets necessary to establish the control plane.
 // If the PKI assets already exists in the target folder, they are used only if evaluated equal; otherwise an error is returned.
 func CreatePKIAssets(cfg *apis.EtcdAdmConfig) error {
-	log.Println("[certificats] creating PKI assets")
+	log.Println("[certificates] creating PKI assets")
 	certActions := []func(etcdAdmConfig *apis.EtcdAdmConfig) error{
 		CreateEtcdCACertAndKeyFiles,
 		CreateEtcdServerCertAndKeyFiles,
