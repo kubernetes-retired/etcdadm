@@ -23,13 +23,7 @@ DETECTED_OS := $(shell uname -s)
 DEP_BIN_GIT := https://github.com/golang/dep/releases/download/v0.4.1/dep-$(DETECTED_OS)-amd64
 BIN := etcdadm
 PACKAGE_GOPATH := /go/src/github.com/platform9/$(BIN)
-DEP_TEST=$(shell which dep)
-
-ifeq ($(DEP_TEST),)
-	DEP_BIN := $(CWD)/bin/dep
-else
-	DEP_BIN := $(DEP_TEST)
-endif
+DEP_BIN := $(CWD)/bin/dep
 
 .PHONY: container-build default ensure
 
