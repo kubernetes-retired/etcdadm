@@ -30,7 +30,7 @@ DEP_BIN := $(CWD)/bin/dep
 default: $(BIN)
 
 container-build:
-	docker run --rm -v $(PWD):$(PACKAGE_GOPATH) -w $(PACKAGE_GOPATH) golang:1.10 make
+	docker run --rm -v $(PWD):$(PACKAGE_GOPATH) -w $(PACKAGE_GOPATH) golang:1.10 make ensure && make
 
 $(DEP_BIN):
 ifeq ($(DEP_BIN),$(CWD)/bin/dep)
