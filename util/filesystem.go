@@ -1,6 +1,7 @@
 package util
 
 import (
+	"log"
 	"os"
 )
 
@@ -15,9 +16,19 @@ func FileExists(path string) (bool, error) {
 	return true, nil
 }
 
-// RemoveFolder removes the folder and all of its contents
-func RemoveFolder(path string) error {
+// RemoveFolderRecursive removes the folder and all of its contents
+func RemoveFolderRecursive(path string) error {
 	if err := os.RemoveAll(path); err != nil {
+		log.Fatalf("[util] Failed recursively removing directory %s : %s", path, err)
+		return err
+	}
+	return nil
+}
+
+// RemoveFile removes the file/directory specified
+func RemoveFile(path string) error {
+	if err := os.Remove(path); err != nil {
+		log.Fatalf("[util] Failed removing path %s : %s", path, err)
 		return err
 	}
 	return nil
