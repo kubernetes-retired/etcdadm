@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/platform9/etcdadm/constants"
 	"github.com/platform9/etcdadm/util"
 	"github.com/spf13/cobra"
 )
@@ -13,11 +14,13 @@ var resetCmd = &cobra.Command{
 		util.RemoveSelfFromEtcdCluster(&etcdAdmConfig)
 
 		// Remove etcd datastore
-		// TODO: Use constants
-		util.RemoveFolder("/var/lib/etcd/")
-		util.RemoveFolder("/etc/etcd/pki/")
-		// TODO: Remove unit file & env file
+		util.RemoveFolderRecursive(constants.DefaultDataDir)
 
+		// Remove configuration files
+		util.RemoveFolderRecursive(constants.DefaultCertificateDir)
+		util.RemoveFile(constants.UnitFile)
+		util.RemoveFile(constants.EnvironmentFile)
+		util.RemoveFile(constants.EtcdctlEnvFile)
 	},
 }
 

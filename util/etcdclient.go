@@ -2,6 +2,7 @@ package util
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/url"
 	"path/filepath"
@@ -51,10 +52,10 @@ func AddSelfToEtcdCluster(endpoint string, etcdAdmConfig *apis.EtcdAdmConfig) (*
 
 // RemoveSelfFromEtcdCluster removes the local node (self) from the etcd cluster
 func RemoveSelfFromEtcdCluster(etcdAdmConfig *apis.EtcdAdmConfig) error {
-	// TODO: make this derivable
-	cli, err := getEtcdClientV3("https://127.0.0.1:2379", etcdAdmConfig)
+	etcdEndpoint := fmt.Sprintf("https://%s:%d", constants.DefaultLoopbackHost, constants.DefaultClientPort)
+	cli, err := getEtcdClientV3(etcdEndpoint, etcdAdmConfig)
 	apis.DefaultAdvertisePeerURLs(etcdAdmConfig)
-	members, err := MemberList("https://127.0.0.1:2379", etcdAdmConfig)
+	members, err := MemberList(etcdEndpoint, etcdAdmConfig)
 	// Find the current member from the list and extract it's ID
 	for _, m := range members.Members {
 		for _, urlString := range m.PeerURLs {
@@ -76,8 +77,6 @@ func RemoveSelfFromEtcdCluster(etcdAdmConfig *apis.EtcdAdmConfig) error {
 
 // MemberList lists the members that are part of the etcd cluster
 func MemberList(endpoint string, etcdAdmConfig *apis.EtcdAdmConfig) (*clientv3.MemberListResponse, error) {
-
-	// TODO: make this derivable
 	cli, err := getEtcdClientV3(endpoint, etcdAdmConfig)
 	if err != nil {
 		log.Fatal(err)
