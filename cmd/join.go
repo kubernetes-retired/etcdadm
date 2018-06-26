@@ -1,22 +1,19 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/url"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/platform9/etcdadm/apis"
 	"github.com/platform9/etcdadm/binary"
 	"github.com/platform9/etcdadm/certs"
 	"github.com/platform9/etcdadm/constants"
 	"github.com/platform9/etcdadm/service"
+	"github.com/platform9/etcdadm/util"
 
-	"github.com/coreos/etcd/clientv3"
-	"github.com/coreos/etcd/pkg/transport"
 	"github.com/spf13/cobra"
 )
 
@@ -53,38 +50,10 @@ var joinCmd = &cobra.Command{
 			log.Fatalf("[certificates] Error: %s", err)
 		}
 
-		// Add self to cluster
-		if len(etcdAdmConfig.AdvertisePeerURLs) == 0 {
-			log.Fatalf("Error: cannot add member to cluster: no advertised peer URLs")
-		}
+		mresp, err := util.AddSelfToEtcdCluster(endpoint, &etcdAdmConfig)
+		// resp, err := cli.MemberList(context.Background())
+		resp, err := util.MemberList(endpoint, &etcdAdmConfig)
 
-		tlsInfo := transport.TLSInfo{
-			CertFile:      filepath.Join(etcdAdmConfig.CertificatesDir, constants.EtcdctlClientCertName),
-			KeyFile:       filepath.Join(etcdAdmConfig.CertificatesDir, constants.EtcdctlClientKeyName),
-			TrustedCAFile: filepath.Join(etcdAdmConfig.CertificatesDir, constants.EtcdCACertName),
-		}
-		tlsConfig, err := tlsInfo.ClientConfig()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		cli, err := clientv3.New(clientv3.Config{
-			Endpoints:   []string{endpoint},
-			DialTimeout: 5 * time.Second,
-			TLS:         tlsConfig,
-		})
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer cli.Close()
-
-		mresp, err := cli.MemberAdd(context.Background(), strings.Split(etcdAdmConfig.AdvertisePeerURLs.String(), ","))
-		if err != nil {
-			log.Fatalf("[cluster] Error: failed to add member with peerURLs %q to cluster: %s", etcdAdmConfig.AdvertisePeerURLs, err)
-		}
-		log.Printf("[cluster] added member with ID %d, peerURLs %q to cluster", mresp.Member.ID, etcdAdmConfig.AdvertisePeerURLs)
-
-		resp, err := cli.MemberList(context.Background())
 		if err != nil {
 			log.Fatalf("[cluster] Error: failed to list cluster members: %s", err)
 		}
