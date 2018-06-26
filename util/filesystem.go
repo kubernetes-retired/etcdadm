@@ -14,3 +14,11 @@ func FileExists(path string) (bool, error) {
 	}
 	return true, nil
 }
+
+// RemoveFolder removes the folder and all of its contents
+func RemoveFolder(path string) error {
+	if err := os.RemoveAll(path); err != nil {
+		return err
+	}
+	return nil
+}

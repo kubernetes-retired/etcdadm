@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+// CmdOutputContains run a given given and looks for the expected result in the commands
+// output
 func CmdOutputContains(cmd *exec.Cmd, expected string) (bool, error) {
 	out, err := cmd.Output()
 	if err != nil {
