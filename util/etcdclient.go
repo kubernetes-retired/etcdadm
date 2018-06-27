@@ -54,6 +54,11 @@ func AddSelfToEtcdCluster(endpoint string, etcdAdmConfig *apis.EtcdAdmConfig) (*
 func RemoveSelfFromEtcdCluster(etcdAdmConfig *apis.EtcdAdmConfig) error {
 	etcdEndpoint := fmt.Sprintf("https://%s:%d", constants.DefaultLoopbackHost, constants.DefaultClientPort)
 	cli, err := getEtcdClientV3(etcdEndpoint, etcdAdmConfig)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	defer cli.Close()
 	apis.DefaultAdvertisePeerURLs(etcdAdmConfig)
 	members, err := MemberList(etcdEndpoint, etcdAdmConfig)
 	// Find the current member from the list and extract it's ID
