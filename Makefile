@@ -25,7 +25,7 @@ BIN := etcdadm
 PACKAGE_GOPATH := /go/src/github.com/platform9/$(BIN)
 DEP_BIN := $(CWD)/bin/dep
 
-.PHONY: container-build default ensure
+.PHONY: clean container-build default ensure
 
 default: $(BIN)
 
@@ -46,3 +46,6 @@ ensure: $(DEP_BIN)
 
 $(BIN):
 	go build
+
+clean:
+	rm -f $(BIN)
