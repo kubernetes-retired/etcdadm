@@ -7,8 +7,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-
 	"github.com/platform9/etcdadm/util"
+	"github.com/platform9/etcdadm/constants"
 )
 
 // EnsureInstalled installs etcd if it is not installed
@@ -27,6 +27,10 @@ func EnsureInstalled(releaseURL, version, installDir string) error {
 	installed, err = isInstalled(version, installDir)
 	if err != nil {
 		return fmt.Errorf("unable to verify that etcd is installed: %s", err)
+	}
+	err = util.CreateSymLinks(installDir, constants.DefaultInstallBaseDir, true)
+	if err != nil {
+		return fmt.Errorf("unable to create symlinks: %s", err)
 	}
 	return nil
 }
