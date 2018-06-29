@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/coreos/etcd/etcdserver/etcdserverpb"
+
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/pkg/transport"
 	"github.com/platform9/etcdadm/apis"
@@ -89,4 +91,32 @@ func MemberList(endpoint string, etcdAdmConfig *apis.EtcdAdmConfig) (*clientv3.M
 	defer cli.Close()
 	resp, err := cli.MemberList(context.Background())
 	return resp, err
+}
+
+func SelfMember(etcdAdmConfig *apis.EtcdAdmConfig) (*etcdserverpb.Member, error) {
+	endpoint := etcdAdmConfig.LoopbackClientURL.String()
+
+	cli, err := getEtcdClientV3(endpoint, etcdAdmConfig)
+	if err != nil {
+		return nil, err
+	}
+	defer cli.Close()
+
+	sresp, err := cli.Status(context.Background(), endpoint)
+	if err != nil {
+		return nil, err
+	}
+	endpointMemberID := sresp.Header.MemberId
+
+	mresp, err := cli.MemberList(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	for _, memb := range mresp.Members {
+		if memb.ID == endpointMemberID {
+			return memb, nil
+		}
+	}
+	return nil, fmt.Errorf("member with ID %q not found in list", endpointMemberID)
 }
