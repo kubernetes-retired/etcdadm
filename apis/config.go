@@ -36,6 +36,8 @@ type EtcdAdmConfig struct {
 	AdvertiseClientURLs URLList
 	ListenClientURLs    URLList
 
+	LoopbackClientURL url.URL
+
 	// ServerCertSANs sets extra Subject Alternative Names for the etcd server signing cert.
 	ServerCertSANs []string
 	// PeerCertSANs sets extra Subject Alternative Names for the etcd peer signing cert.
@@ -50,6 +52,21 @@ type EtcdAdmConfig struct {
 	GOMAXPROCS int
 }
 
+type EndpointStatus struct {
+	EtcdMember
+	// TODO(dlipovetsky) See https://github.com/coreos/etcd/blob/52ae578922ee3d63b23c797b61beba041573ce1a/etcdctl/ctlv3/command/ep_command.go#L117
+	// Health string `json:"health,omitempty"`
+}
+type EtcdMember struct {
+	// ID is the member ID for this member.
+	ID uint64 `json:"ID,omitempty"`
+	// name is the human-readable name of the member. If the member is not started, the name will be an empty string.
+	Name string `json:"name,omitempty"`
+	// peerURLs is the list of URLs the member exposes to the cluster for communication.
+	PeerURLs []string `json:"peerURLs,omitempty"`
+	// clientURLs is the list of URLs the member exposes to clients for communication. If the member is not started, clientURLs will be empty.
+	ClientURLs []string `json:"clientURLs,omitempty"`
+}
 type URLList []url.URL
 
 func (l URLList) String() string {
@@ -58,6 +75,10 @@ func (l URLList) String() string {
 		stringURLs[i] = url.String()
 	}
 	return strings.Join(stringURLs, ",")
+}
+
+func SetInfoDynamicDefaults(cfg *EtcdAdmConfig) error {
+	return setDynamicDefaults(cfg)
 }
 
 // SetInitDynamicDefaults checks and sets configuration values used by the init verb
@@ -148,6 +169,7 @@ func DefaultPeerURLs(cfg *EtcdAdmConfig) error {
 }
 
 func DefaultClientURLs(cfg *EtcdAdmConfig) error {
+	DefaultLoopbackClientURL(cfg)
 	DefaultAdvertiseClientURLs(cfg)
 	DefaultListenClientURLs(cfg)
 	return nil
@@ -170,12 +192,16 @@ func DefaultListenPeerURLs(cfg *EtcdAdmConfig) error {
 	return nil
 }
 
-func DefaultListenClientURLs(cfg *EtcdAdmConfig) error {
-	cfg.ListenClientURLs = cfg.AdvertiseClientURLs
-	cfg.ListenClientURLs = append(cfg.ListenClientURLs, url.URL{
+func DefaultLoopbackClientURL(cfg *EtcdAdmConfig) {
+	cfg.LoopbackClientURL = url.URL{
 		Scheme: "https",
 		Host:   fmt.Sprintf("%s:%d", constants.DefaultLoopbackHost, constants.DefaultClientPort),
-	})
+	}
+}
+
+func DefaultListenClientURLs(cfg *EtcdAdmConfig) error {
+	cfg.ListenClientURLs = cfg.AdvertiseClientURLs
+	cfg.ListenClientURLs = append(cfg.ListenClientURLs, cfg.LoopbackClientURL)
 	return nil
 }
 
