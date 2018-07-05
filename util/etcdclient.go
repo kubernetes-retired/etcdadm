@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/url"
 	"path/filepath"
 	"strings"
 	"time"
@@ -54,39 +53,40 @@ func AddSelfToEtcdCluster(endpoint string, etcdAdmConfig *apis.EtcdAdmConfig) (*
 
 // RemoveSelfFromEtcdCluster removes the local node (self) from the etcd cluster
 func RemoveSelfFromEtcdCluster(etcdAdmConfig *apis.EtcdAdmConfig) error {
-	etcdEndpoint := fmt.Sprintf("https://%s:%d", constants.DefaultLoopbackHost, constants.DefaultClientPort)
+	etcdEndpoint := etcdAdmConfig.LoopbackClientURL.String()
 	cli, err := getEtcdClientV3(etcdEndpoint, etcdAdmConfig)
 	if err != nil {
-		log.Print(err)
-		return err
+		return fmt.Errorf("[cluster] Error: etcdclient failed to connect: %s", err)
 	}
 	defer cli.Close()
-	apis.DefaultAdvertisePeerURLs(etcdAdmConfig)
-	members, err := MemberList(etcdEndpoint, etcdAdmConfig)
-	// Find the current member from the list and extract it's ID
-	for _, m := range members.Members {
-		for _, urlString := range m.PeerURLs {
-			peerurl, _ := url.Parse(urlString)
-			if *peerurl == etcdAdmConfig.AdvertisePeerURLs[0] {
-				memberID := m.GetID()
-				_, err := cli.MemberRemove(context.Background(), memberID)
-				if err != nil {
-					log.Fatalf("[cluster] Error: failed to remove self from etcd cluster: %s", err)
-				}
-				log.Printf("[cluster] Removed self (member) with ID %d, from cluster", memberID)
-				return err
-			}
-		}
+
+	// If this is the only member (single etcd cluster), continue with remove, i.e. this method is noop
+	memberListResp, err := MemberList(etcdEndpoint, etcdAdmConfig)
+	if err != nil {
+		return err
 	}
-	log.Fatalf("[cluster] Error: failed to remove self from etcd cluster. Self not in cluster members: %s", err)
-	return err
+	if len(memberListResp.Members) == 1 {
+		log.Printf("[cluster] This is the only etcd member in the cluster, continuing remove.")
+		return nil
+	}
+
+	// Find the memberID of local member
+	memberID := memberListResp.Header.GetMemberId()
+
+	// Remove member from etcd cluster
+	_, err = cli.MemberRemove(context.Background(), memberID)
+	if err != nil {
+		return fmt.Errorf("[cluster] Error: failed to remove self from etcd cluster: %s", err)
+	}
+	log.Printf("[cluster] Removed self (member) with ID %d, from cluster", memberID)
+	return nil
 }
 
 // MemberList lists the members that are part of the etcd cluster
 func MemberList(endpoint string, etcdAdmConfig *apis.EtcdAdmConfig) (*clientv3.MemberListResponse, error) {
 	cli, err := getEtcdClientV3(endpoint, etcdAdmConfig)
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("[cluster] Error: etcdclient failed to connect: %s", err)
 	}
 	defer cli.Close()
 	resp, err := cli.MemberList(context.Background())
@@ -102,16 +102,12 @@ func SelfMember(etcdAdmConfig *apis.EtcdAdmConfig) (*etcdserverpb.Member, error)
 	}
 	defer cli.Close()
 
-	sresp, err := cli.Status(context.Background(), endpoint)
-	if err != nil {
-		return nil, err
-	}
-	endpointMemberID := sresp.Header.MemberId
-
 	mresp, err := cli.MemberList(context.Background())
 	if err != nil {
 		return nil, err
 	}
+
+	endpointMemberID := mresp.Header.GetMemberId()
 
 	for _, memb := range mresp.Members {
 		if memb.ID == endpointMemberID {

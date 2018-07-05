@@ -7,8 +7,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"github.com/platform9/etcdadm/util"
+
 	"github.com/platform9/etcdadm/constants"
+	"github.com/platform9/etcdadm/util"
 )
 
 // EnsureInstalled installs etcd if it is not installed
@@ -69,7 +70,11 @@ func isEtcdctlInstalled(version, installDir string) (bool, error) {
 	if !exists {
 		return false, nil
 	}
-	cmd := exec.Command(path, "--version")
+	cmdVersionFlag := "--version"
+	if os.Getenv("ETCDCTL_API") == "3" {
+		cmdVersionFlag = "version"
+	}
+	cmd := exec.Command(path, cmdVersionFlag)
 	return util.CmdOutputContains(cmd, fmt.Sprintf("etcdctl version: %s", version))
 }
 
