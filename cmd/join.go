@@ -21,9 +21,6 @@ var joinCmd = &cobra.Command{
 	Use:   "join",
 	Short: "Join an existing etcd cluster",
 	Args: func(cmd *cobra.Command, args []string) error {
-		if len(etcdAdmConfig.InitialClusterToken) == 0 {
-			return fmt.Errorf("must provide cluster token")
-		}
 		if len(args) < 1 {
 			return cobra.MinimumNArgs(1)(cmd, args)
 		}
@@ -95,7 +92,6 @@ var joinCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(joinCmd)
 	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.Name, "name", "", "etcd member name")
-	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.InitialClusterToken, "token", "", "initial cluster token")
 	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.Version, "version", constants.DefaultVersion, "etcd version")
 	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.ReleaseURL, "release-url", constants.DefaultReleaseURL, "URL used to download etcd")
 	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.CertificatesDir, "certs-dir", constants.DefaultCertificateDir, "certificates directory")

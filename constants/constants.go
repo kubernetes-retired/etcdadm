@@ -86,7 +86,7 @@ WantedBy=multi-user.target
 
 # Initial cluster configuration
 ETCD_INITIAL_CLUSTER={{ .InitialCluster }}
-ETCD_INITIAL_CLUSTER_TOKEN={{ .InitialClusterToken }}
+{{ .InitialClusterTokenDeclaration }}
 ETCD_INITIAL_CLUSTER_STATE={{ .InitialClusterState }}
 
 # Peer configuration
