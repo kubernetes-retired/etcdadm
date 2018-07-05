@@ -43,10 +43,10 @@ type EtcdAdmConfig struct {
 	// PeerCertSANs sets extra Subject Alternative Names for the etcd peer signing cert.
 	PeerCertSANs []string
 
-	Name                string
-	InitialCluster      string
-	InitialClusterToken string
-	InitialClusterState string
+	Name                           string
+	InitialCluster                 string
+	InitialClusterTokenDeclaration string
+	InitialClusterState            string
 
 	// GOMAXPROCS sets the max num of etcd processes will use
 	GOMAXPROCS int
@@ -87,6 +87,7 @@ func SetInitDynamicDefaults(cfg *EtcdAdmConfig) error {
 	if err := setDynamicDefaults(cfg); err != nil {
 		return err
 	}
+	cfg.InitialClusterTokenDeclaration = fmt.Sprintf("ETCD_INITIAL_CLUSTER_TOKEN=%s", uuid.NewV4().String()[0:8])
 	InitialClusterInit(cfg)
 	return nil
 }
@@ -94,6 +95,7 @@ func SetInitDynamicDefaults(cfg *EtcdAdmConfig) error {
 // SetJoinDynamicDefaults checks and sets configuration values used by the join verb
 func SetJoinDynamicDefaults(cfg *EtcdAdmConfig) error {
 	cfg.InitialClusterState = "existing"
+	cfg.InitialClusterTokenDeclaration = ""
 	return setDynamicDefaults(cfg)
 }
 
@@ -115,7 +117,6 @@ func setDynamicDefaults(cfg *EtcdAdmConfig) error {
 
 	cfg.GOMAXPROCS = runtime.NumCPU()
 
-	cfg.InitialClusterToken = uuid.NewV4().String()[0:8]
 	if err := DefaultPeerURLs(cfg); err != nil {
 		return err
 	}

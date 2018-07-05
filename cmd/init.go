@@ -52,14 +52,13 @@ var initCmd = &cobra.Command{
 		// Output etcdadm join command
 		// TODO print all advertised client URLs (first, join must parse than one endpoint)
 		log.Println("To add another member to the cluster, copy the CA cert/key to its certificate dir and run:")
-		log.Printf(`	etcdadm join %s --token %s`, etcdAdmConfig.AdvertiseClientURLs[0].String(), etcdAdmConfig.InitialClusterToken)
+		log.Printf(`	etcdadm join %s`, etcdAdmConfig.AdvertiseClientURLs[0].String())
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(initCmd)
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.Name, "name", "", "etcd member name")
-	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.InitialClusterToken, "token", "", "initial cluster token")
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.Version, "version", constants.DefaultVersion, "etcd version")
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.ReleaseURL, "release-url", constants.DefaultReleaseURL, "URL used to download etcd")
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.CertificatesDir, "certs-dir", constants.DefaultCertificateDir, "certificates directory")
