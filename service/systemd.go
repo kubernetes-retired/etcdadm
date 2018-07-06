@@ -12,13 +12,6 @@ func reloadSystemd() error {
 	return nil
 }
 
-func resetFailed() error {
-	if err := exec.Command("systemctl", "reset-failed").Run(); err != nil {
-		return fmt.Errorf("failed to reset failed systemd units: %v", err)
-	}
-	return nil
-}
-
 func serviceStart(service string) error {
 	// Before we try to start any service, make sure that systemd is ready
 	if err := reloadSystemd(); err != nil {
@@ -81,8 +74,4 @@ func DisableAndStopService(service string) error {
 		return err
 	}
 	return serviceStop(service)
-	// if err := serviceStop(service); err != nil {
-	// 	return err
-	// }
-	// return resetFailed()
 }
