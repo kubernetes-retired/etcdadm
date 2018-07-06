@@ -19,27 +19,37 @@ var resetCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 		// Load constants & defaults
-		err = apis.SetJoinDynamicDefaults(&etcdAdmConfig)
+		err = apis.SetResetDynamicDefaults(&etcdAdmConfig)
 		if err != nil {
 			log.Fatalf("[defaults] Error: %s", err)
 		}
 		// Remove self as member from etcd cluster
-		if skipRemoveMember == false {
+		if !skipRemoveMember {
 			err = util.RemoveSelfFromEtcdCluster(&etcdAdmConfig)
 			if err != nil {
 				log.Fatal(err)
 			}
 		}
 		// Remove etcd datastore
-		util.RemoveFolderRecursive(constants.DefaultDataDir)
+		if err = util.RemoveFolderRecursive(constants.DefaultDataDir); err != nil {
+			log.Print(err)
+		}
 		// Disable and stop etcd service
 		unit := filepath.Base(constants.UnitFile)
 		service.DisableAndStopService(unit)
 		// Remove configuration files
-		util.RemoveFolderRecursive(constants.DefaultCertificateDir)
-		util.RemoveFile(constants.UnitFile)
-		util.RemoveFile(constants.EnvironmentFile)
-		util.RemoveFile(constants.EtcdctlEnvFile)
+		if err = util.RemoveFolderRecursive(constants.DefaultCertificateDir); err != nil {
+			log.Print(err)
+		}
+		if err = util.RemoveFile(constants.UnitFile); err != nil {
+			log.Print(err)
+		}
+		if err = util.RemoveFile(constants.EnvironmentFile); err != nil {
+			log.Print(err)
+		}
+		if err = util.RemoveFile(constants.EtcdctlEnvFile); err != nil {
+			log.Print(err)
+		}
 		log.Printf("[cluster] etcd reset complete")
 	},
 }
