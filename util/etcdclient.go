@@ -60,12 +60,12 @@ func RemoveSelfFromEtcdCluster(etcdAdmConfig *apis.EtcdAdmConfig) error {
 	}
 	defer cli.Close()
 
-	// If this is the only member (single etcd cluster), continue with remove, i.e. this method is noop
 	memberListResp, err := MemberList(etcdEndpoint, etcdAdmConfig)
 	if err != nil {
 		return err
 	}
 	if len(memberListResp.Members) == 1 {
+		// If this is the only member (single etcd cluster), continue with remove, i.e. this method is noop
 		log.Printf("[cluster] This is the only etcd member in the cluster, continuing remove.")
 		return nil
 	}
