@@ -97,6 +97,11 @@ func SetJoinDynamicDefaults(cfg *EtcdAdmConfig) error {
 	return setDynamicDefaults(cfg)
 }
 
+// SetResetDynamicDefaults checks and sets configuration values used by the reset verb
+func SetResetDynamicDefaults(cfg *EtcdAdmConfig) error {
+	return setDynamicDefaults(cfg)
+}
+
 func setDynamicDefaults(cfg *EtcdAdmConfig) error {
 	if len(cfg.Name) == 0 {
 		name, err := os.Hostname()

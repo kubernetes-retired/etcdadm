@@ -80,8 +80,9 @@ func DisableAndStopService(service string) error {
 	if err := serviceDisable(service); err != nil {
 		return err
 	}
-	if err := serviceStop(service); err != nil {
-		return err
-	}
-	return resetFailed()
+	return serviceStop(service)
+	// if err := serviceStop(service); err != nil {
+	// 	return err
+	// }
+	// return resetFailed()
 }
