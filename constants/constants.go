@@ -121,4 +121,5 @@ export ETCDCTL_KEY={{ .CertificatesDir }}/etcdctl-etcd-client.key
 
 export ETCDCTL_DIAL_TIMEOUT=3s
 `
+	DefaultSkipRemoveMember = false
 )

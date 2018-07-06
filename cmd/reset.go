@@ -56,5 +56,5 @@ var resetCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(resetCmd)
-	resetCmd.Flags().BoolVar(&skipRemoveMember, "skip-remove-member", false, "Use skip-remove-member flag to skip the process of removing member from etcd cluster but clean everything else.")
+	resetCmd.Flags().BoolVar(&skipRemoveMember, "skip-remove-member", constants.DefaultSkipRemoveMember, "Use skip-remove-member flag to skip the process of removing member from etcd cluster but clean everything else.")
 }
