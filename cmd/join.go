@@ -38,7 +38,7 @@ var joinCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalf("[defaults] Error: %s", err)
 		}
-		err = binary.EnsureInstalled(etcdAdmConfig.ReleaseURL, etcdAdmConfig.Version, etcdAdmConfig.InstallDir)
+		err = binary.EnsureInstalled(etcdAdmConfig.ReleaseURL, etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir)
 		if err != nil {
 			log.Fatalf("[install] Error: %s", err)
 		}
