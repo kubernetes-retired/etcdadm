@@ -134,13 +134,13 @@ func InstallFromCache(releaseURL, version, installDir, cacheDir string) error {
 func createSymLinks(installDir, symLinkDir string) error {
 	etcdBinaryPath := filepath.Join(installDir, "etcd")
 	etcdSymLinkPath := filepath.Join(symLinkDir, "etcd")
-	etcdCtlBinaryPath := filepath.Join(installDir, "etcdctl")
+	etcdctlBinaryPath := filepath.Join(installDir, "etcdctl")
 	etcdctlSymLinkPath := filepath.Join(symLinkDir, "etcdctl")
 
 	if err := util.CreateSymLink(etcdBinaryPath, etcdSymLinkPath); err != nil {
 		return err
 	}
-	return util.CreateSymLink(etcdCtlBinaryPath, etcdctlSymLinkPath)
+	return util.CreateSymLink(etcdctlBinaryPath, etcdctlSymLinkPath)
 }
 
 // DeleteSymLinks deletes symlinks created for etcd binaires
