@@ -38,14 +38,14 @@ var joinCmd = &cobra.Command{
 			log.Fatalf("[defaults] Error: %s", err)
 		}
 		// etcd binaries installation
-		if err = binary.InstallFromCache(etcdAdmConfig.ReleaseURL, etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir); err != nil {
-			log.Printf("[install] Artifact not found in cache or could not be installed. Trying to fetch from upstream")
+		if err = binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir); err != nil {
+			log.Printf("[install] Artifact not found in cache or could not be installed. Trying to fetch from upstream:%s", err)
 			if err = binary.Download(etcdAdmConfig.ReleaseURL, etcdAdmConfig.Version, etcdAdmConfig.CacheDir); err != nil {
-				log.Fatalf("[install] Unable to fetch artifact from upstream. Cannot continue init")
+				log.Fatalf("[install] Unable to fetch artifact from upstream. Cannot continue init: %s", err)
 			}
 			// Install downloaded binaries from cache to installDir
-			if err = binary.InstallFromCache(etcdAdmConfig.ReleaseURL, etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir); err != nil {
-				log.Fatalf("[isntall] Unable to install artifact from cache")
+			if err = binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir); err != nil {
+				log.Fatalf("[isntall] Unable to install artifact from cache: %s", err)
 			}
 		}
 		installed, err := binary.IsInstalled(etcdAdmConfig.Version, etcdAdmConfig.InstallDir)

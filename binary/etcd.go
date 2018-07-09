@@ -110,7 +110,7 @@ func downloadURL(releaseURL, version string) string {
 }
 
 // InstallFromCache method installs the binaries from cache directory
-func InstallFromCache(releaseURL, version, installDir, cacheDir string) error {
+func InstallFromCache(version, installDir, cacheDir string) error {
 	// Remove installDir if already present
 	if err := util.RemoveFolderRecursive(installDir); err != nil {
 		return fmt.Errorf("unable to clean install directory: %s", err)
