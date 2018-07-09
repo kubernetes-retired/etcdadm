@@ -110,25 +110,28 @@ func downloadURL(releaseURL, version string) string {
 }
 
 // InstallFromCache method installs the binaries from cache directory
-func InstallFromCache(version, installDir, cacheDir string) error {
+func InstallFromCache(version, installDir, cacheDir string) (bool, error) {
+	archive := filepath.Join(cacheDir, releaseFile(version))
+	if _, err := os.Stat(archive); os.IsNotExist(err) {
+		return false, nil
+	}
 	// Remove installDir if already present
 	if err := util.RemoveFolderRecursive(installDir); err != nil {
-		return fmt.Errorf("unable to clean install directory: %s", err)
+		return true, fmt.Errorf("unable to clean install directory: %s", err)
 	}
 	// Create installDir
 	if err := os.MkdirAll(installDir, 0700); err != nil {
-		return fmt.Errorf("unable to create install directory: %s", err)
+		return true, fmt.Errorf("unable to create install directory: %s", err)
 	}
-	archive := filepath.Join(cacheDir, releaseFile(version))
 	// Extract tar to installDir
 	if err := extract(installDir, archive); err != nil {
-		return fmt.Errorf("unable to extract etcd archive: %s", err)
+		return true, fmt.Errorf("unable to extract etcd archive: %s", err)
 	}
 	// Create symlinks
 	if err := createSymLinks(installDir, constants.DefaultInstallBaseDir); err != nil {
-		return fmt.Errorf("unable to create symlinks: %s", err)
+		return false, fmt.Errorf("unable to create symlinks: %s", err)
 	}
-	return nil
+	return true, nil
 }
 
 func createSymLinks(installDir, symLinkDir string) error {

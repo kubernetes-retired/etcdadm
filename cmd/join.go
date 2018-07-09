@@ -38,14 +38,22 @@ var joinCmd = &cobra.Command{
 			log.Fatalf("[defaults] Error: %s", err)
 		}
 		// etcd binaries installation
-		if err = binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir); err != nil {
-			log.Printf("[install] Artifact not found in cache or could not be installed. Trying to fetch from upstream:%s", err)
+		inCache, err := binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir)
+		if err != nil {
+			log.Fatalf("[install] Artifact could not be installed from cache: %s", err)
+		}
+		if !inCache {
+			log.Printf("[install] Artifact not found in cache. Trying to fetch from upstream: %s", err)
 			if err = binary.Download(etcdAdmConfig.ReleaseURL, etcdAdmConfig.Version, etcdAdmConfig.CacheDir); err != nil {
-				log.Fatalf("[install] Unable to fetch artifact from upstream. Cannot continue init: %s", err)
+				log.Fatalf("[install] Unable to fetch artifact from upstream: %s", err)
 			}
-			// Install downloaded binaries from cache to installDir
-			if err = binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir); err != nil {
-				log.Fatalf("[isntall] Unable to install artifact from cache: %s", err)
+			// Try installing binaries from cache now
+			inCache, err := binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir)
+			if err != nil {
+				log.Fatalf("[install] Artifact could not be installed from cache: %s", err)
+			}
+			if !inCache {
+				log.Fatalf("[install] Artifact not found in cache after download. Exiting.")
 			}
 		}
 		installed, err := binary.IsInstalled(etcdAdmConfig.Version, etcdAdmConfig.InstallDir)
@@ -53,7 +61,7 @@ var joinCmd = &cobra.Command{
 			log.Fatalf("[install] Error: %s", err)
 		}
 		if !installed {
-			log.Fatalf("[install] Binaries not found in install dir. Cannot continue")
+			log.Fatalf("[install] Binaries not found in install dir. Exiting.")
 		}
 		// cert management
 		if err = certs.CreatePKIAssets(&etcdAdmConfig); err != nil {
