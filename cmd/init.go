@@ -19,33 +19,42 @@ var initCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 
-		err = apis.SetInitDynamicDefaults(&etcdAdmConfig)
-		if err != nil {
+		if err = apis.SetInitDynamicDefaults(&etcdAdmConfig); err != nil {
 			log.Fatalf("[defaults] Error: %s", err)
 		}
-		err = binary.EnsureInstalled(etcdAdmConfig.ReleaseURL, etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir)
+		// etcd binaries installation
+		if err = binary.InstallFromCache(etcdAdmConfig.ReleaseURL, etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir); err != nil {
+			log.Printf("[install] Artifact not found in cache or could not be installed. Trying to fetch from upstream")
+			if err = binary.Download(etcdAdmConfig.ReleaseURL, etcdAdmConfig.Version, etcdAdmConfig.CacheDir); err != nil {
+				log.Fatalf("[install] Unable to fetch artifact from upstream. Cannot continue init")
+			}
+			// Install downloaded binaries from cache to installDir
+			if err = binary.InstallFromCache(etcdAdmConfig.ReleaseURL, etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir); err != nil {
+				log.Fatalf("[isntall] Unable to install artifact from cache")
+			}
+		}
+		installed, err := binary.IsInstalled(etcdAdmConfig.Version, etcdAdmConfig.InstallDir)
 		if err != nil {
 			log.Fatalf("[install] Error: %s", err)
 		}
-		err = certs.CreatePKIAssets(&etcdAdmConfig)
-		if err != nil {
+		if !installed {
+			log.Fatalf("[install] Binaries not found in install dir. Cannot continue")
+		}
+		// cert management
+		if err = certs.CreatePKIAssets(&etcdAdmConfig); err != nil {
 			log.Fatalf("[certificates] Error: %s", err)
 		}
-		err = service.WriteEnvironmentFile(&etcdAdmConfig)
-		if err != nil {
+		if err = service.WriteEnvironmentFile(&etcdAdmConfig); err != nil {
 			log.Fatalf("[configure] Error: %s", err)
 		}
-		err = service.WriteUnitFile(&etcdAdmConfig)
-		if err != nil {
+		if err = service.WriteUnitFile(&etcdAdmConfig); err != nil {
 			log.Fatalf("[configure] Error: %s", err)
 		}
 		unit := filepath.Base(constants.UnitFile)
-		err = service.EnableAndStartService(unit)
-		if err != nil {
+		if err = service.EnableAndStartService(unit); err != nil {
 			log.Fatalf("[start] Error: %s", err)
 		}
-		err = service.WriteEtcdctlEnvFile(&etcdAdmConfig)
-		if err != nil {
+		if err = service.WriteEtcdctlEnvFile(&etcdAdmConfig); err != nil {
 			log.Printf("[configure] Warning: %s", err)
 		}
 

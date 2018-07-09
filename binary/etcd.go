@@ -2,7 +2,6 @@ package binary
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -12,53 +11,17 @@ import (
 	"github.com/platform9/etcdadm/util"
 )
 
-// EnsureInstalled installs etcd if it is not installed
-func EnsureInstalled(releaseURL, version, installDir, cacheDir string) error {
-	installed, err := isInstalled(version, installDir)
-	if err != nil {
-		return fmt.Errorf("unable to verify that etcd is installed: %s", err)
-	}
-	if installed {
-		return nil
-	}
-
-	// If not installed, try to install it from cache first
-	if err = installFromCache(releaseURL, version, installDir, cacheDir); err != nil {
-		log.Printf("[install] install from cache errored! error=%s", err)
-		// Install from cache failed. Try to download to cache first
-		if err = Download(releaseURL, version, cacheDir); err != nil {
-			return err
-		}
-		// Install from cache after download
-		if err = installFromCache(releaseURL, version, installDir, cacheDir); err != nil {
-			return err
-		}
-	}
-
-	installed, err = isInstalled(version, installDir)
-	if err != nil {
-		return fmt.Errorf("unable to verify that etcd is installed: %s", err)
-	}
-	if !installed {
-		return fmt.Errorf("etcd binaries not installed. Unable to download from upstream either")
-	}
-
-	if err = createSymLinks(installDir, constants.DefaultInstallBaseDir); err != nil {
-		return fmt.Errorf("unable to create symlinks: %s", err)
-	}
-	return nil
-}
-
-func isInstalled(version, inputDir string) (bool, error) {
-	log.Printf("[install] verifying etcd %s is installed in %s\n", version, inputDir)
-	installed, err := isEtcdInstalled(version, inputDir)
+// IsInstalled method check if required etcd binaries are installed
+func IsInstalled(version, installDir string) (bool, error) {
+	log.Printf("[install] verifying etcd %s is installed in %s\n", version, installDir)
+	installed, err := isEtcdInstalled(version, installDir)
 	if err != nil {
 		return false, err
 	}
 	if !installed {
 		return false, nil
 	}
-	return isEtcdctlInstalled(version, inputDir)
+	return isEtcdctlInstalled(version, installDir)
 }
 
 func isEtcdInstalled(version, inputDir string) (bool, error) {
@@ -126,32 +89,13 @@ func extract(extractDir, archive string) error {
 // Download installs the etcd binaries in the directory specified by locationDir
 func Download(releaseURL, version, locationDir string) error {
 	log.Printf("[install] Downloading & installing etcd %s from %s to %s\n", releaseURL, version, locationDir)
-	err := os.MkdirAll(locationDir, 0700)
-	if err != nil {
+	if err := os.MkdirAll(locationDir, 0700); err != nil {
 		return fmt.Errorf("unable to create install directory: %s", err)
 	}
-
-	if err != nil {
-		return fmt.Errorf("unable to create install directory: %s", err)
-	}
-
-	downloadDir, err := ioutil.TempDir("/tmp", "etcdadm")
-	if err != nil {
-		return fmt.Errorf("unable to create temporary directory: %s", err)
-	}
-	defer os.RemoveAll(downloadDir)
-
-	archive := filepath.Join(downloadDir, releaseFile(version))
-
+	archive := filepath.Join(locationDir, releaseFile(version))
 	url := downloadURL(releaseURL, version)
-	err = get(url, archive)
-	if err != nil {
+	if err := get(url, archive); err != nil {
 		return fmt.Errorf("unable to download etcd: %s", err)
-	}
-
-	err = extract(locationDir, archive)
-	if err != nil {
-		return fmt.Errorf("unable to extract etcd archive: %s", err)
 	}
 	return nil
 }
@@ -165,19 +109,24 @@ func downloadURL(releaseURL, version string) string {
 	return fmt.Sprintf("%s/v%s/%s", releaseURL, version, releaseFile(version))
 }
 
-func installFromCache(releaseURL, version, installDir, cacheDir string) error {
-	// Create installDir if not already present
-	err := os.MkdirAll(installDir, 0700)
-	if err != nil {
+// InstallFromCache method installs the binaries from cache directory
+func InstallFromCache(releaseURL, version, installDir, cacheDir string) error {
+	// Remove installDir if already present
+	if err := util.RemoveFolderRecursive(installDir); err != nil {
+		return fmt.Errorf("unable to clean install directory: %s", err)
+	}
+	// Create installDir
+	if err := os.MkdirAll(installDir, 0700); err != nil {
 		return fmt.Errorf("unable to create install directory: %s", err)
 	}
-	installed, err := isInstalled(version, cacheDir)
-	if !installed {
-		return fmt.Errorf("etcd %s version binaries not found in cache dir %s", version, cacheDir)
+	archive := filepath.Join(cacheDir, releaseFile(version))
+	// Extract tar to installDir
+	if err := extract(installDir, archive); err != nil {
+		return fmt.Errorf("unable to extract etcd archive: %s", err)
 	}
-	// move contents from cacheDir to installDir
-	if err := util.CopyRecursive(fmt.Sprintf("%s/.", cacheDir), installDir); err != nil {
-		return err
+	// Create symlinks
+	if err := createSymLinks(installDir, constants.DefaultInstallBaseDir); err != nil {
+		return fmt.Errorf("unable to create symlinks: %s", err)
 	}
 	return nil
 }
