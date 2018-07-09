@@ -23,9 +23,7 @@ func EnsureInstalled(releaseURL, version, installDir, cacheDir string) error {
 	}
 
 	// If not installed, try to install it from cache first
-	err = installFromCache(releaseURL, version, installDir, cacheDir)
-
-	if err != nil {
+	if err = installFromCache(releaseURL, version, installDir, cacheDir); err != nil {
 		log.Printf("[install] install from cache errored! error=%s", err)
 		// Install from cache failed. Try to download to cache first
 		if err = Download(releaseURL, version, cacheDir); err != nil {
@@ -40,6 +38,9 @@ func EnsureInstalled(releaseURL, version, installDir, cacheDir string) error {
 	installed, err = isInstalled(version, installDir)
 	if err != nil {
 		return fmt.Errorf("unable to verify that etcd is installed: %s", err)
+	}
+	if !installed {
+		return fmt.Errorf("etcd binaries not installed. Unable to download from upstream either")
 	}
 
 	if err = createSymLinks(installDir, constants.DefaultInstallBaseDir); err != nil {
