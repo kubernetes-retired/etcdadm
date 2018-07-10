@@ -14,7 +14,7 @@ import (
 func WriteEnvironmentFile(cfg *apis.EtcdAdmConfig) error {
 	t := template.Must(template.New("environment").Parse(constants.EnvFileTemplate))
 
-	environmentFileDir := filepath.Base(cfg.EnvironmentFile)
+	environmentFileDir := filepath.Dir(cfg.EnvironmentFile)
 	if err := os.MkdirAll(environmentFileDir, 0755); err != nil {
 		return fmt.Errorf("unable to create environment file directory %q: %s", environmentFileDir, err)
 	}
@@ -35,7 +35,7 @@ func WriteEnvironmentFile(cfg *apis.EtcdAdmConfig) error {
 func WriteUnitFile(cfg *apis.EtcdAdmConfig) error {
 	t := template.Must(template.New("unit").Parse(constants.UnitFileTemplate))
 
-	unitFileDir := filepath.Base(cfg.UnitFile)
+	unitFileDir := filepath.Dir(cfg.UnitFile)
 	if err := os.MkdirAll(unitFileDir, 0755); err != nil {
 		return fmt.Errorf("unable to create unit file directory %q: %s", unitFileDir, err)
 	}
