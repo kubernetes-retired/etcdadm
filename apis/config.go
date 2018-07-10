@@ -24,6 +24,7 @@ type EtcdAdmConfig struct {
 
 	DataDir    string
 	InstallDir string
+	CacheDir   string
 
 	UnitFile        string
 	EnvironmentFile string
@@ -77,6 +78,7 @@ func (l URLList) String() string {
 	return strings.Join(stringURLs, ",")
 }
 
+// SetInfoDynamicDefaults checks and sets configuration values used by the info verb
 func SetInfoDynamicDefaults(cfg *EtcdAdmConfig) error {
 	return setDynamicDefaults(cfg)
 }
@@ -104,6 +106,11 @@ func SetResetDynamicDefaults(cfg *EtcdAdmConfig) error {
 	return setDynamicDefaults(cfg)
 }
 
+// SetDownloadDynamicDefaults checks and sets configuration values used by the download verb
+func SetDownloadDynamicDefaults(cfg *EtcdAdmConfig) error {
+	return setDynamicDefaults(cfg)
+}
+
 func setDynamicDefaults(cfg *EtcdAdmConfig) error {
 	if len(cfg.Name) == 0 {
 		name, err := os.Hostname()
@@ -114,6 +121,7 @@ func setDynamicDefaults(cfg *EtcdAdmConfig) error {
 	}
 
 	cfg.InstallDir = filepath.Join(cfg.InstallBaseDir, fmt.Sprintf("etcd-v%s", cfg.Version))
+	cfg.CacheDir = filepath.Join(constants.DefaultCacheBaseDir, fmt.Sprintf("etcd-v%s", cfg.Version))
 	cfg.DataDir = constants.DefaultDataDir
 	cfg.UnitFile = constants.UnitFile
 	cfg.EnvironmentFile = constants.EnvironmentFile
