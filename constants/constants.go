@@ -2,7 +2,7 @@ package constants
 
 // Command-line flag defaults
 const (
-	DefaultVersion        = "3.1.12"
+	DefaultVersion        = "3.3.8"
 	DefaultInstallBaseDir = "/opt/bin/"
 
 	DefaultReleaseURL     = "https://github.com/coreos/etcd/releases/download"
