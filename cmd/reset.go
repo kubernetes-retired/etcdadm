@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/platform9/etcdadm/apis"
+	"github.com/platform9/etcdadm/binary"
 	"github.com/platform9/etcdadm/constants"
 	"github.com/platform9/etcdadm/service"
 	"github.com/platform9/etcdadm/util"
@@ -50,6 +51,14 @@ var resetCmd = &cobra.Command{
 		if err = util.RemoveFile(constants.EtcdctlEnvFile); err != nil {
 			log.Print(err)
 		}
+		// Remove binaries
+		if err = util.RemoveFolderRecursive(etcdAdmConfig.InstallDir); err != nil {
+			log.Print(err)
+		}
+		// Remove symlinks
+		if err = binary.DeleteSymLinks(constants.DefaultInstallBaseDir); err != nil {
+			log.Print(err)
+		}
 		log.Printf("[cluster] etcd reset complete")
 	},
 }
@@ -57,4 +66,5 @@ var resetCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(resetCmd)
 	resetCmd.Flags().BoolVar(&skipRemoveMember, "skip-remove-member", constants.DefaultSkipRemoveMember, "Use skip-remove-member flag to skip the process of removing member from etcd cluster but clean everything else.")
+	resetCmd.PersistentFlags().StringVar(&etcdAdmConfig.InstallBaseDir, "install-base-dir", constants.DefaultInstallBaseDir, "install base directory")
 }

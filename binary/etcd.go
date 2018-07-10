@@ -2,7 +2,6 @@ package binary
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -12,31 +11,8 @@ import (
 	"github.com/platform9/etcdadm/util"
 )
 
-// EnsureInstalled installs etcd if it is not installed
-func EnsureInstalled(releaseURL, version, installDir string) error {
-	installed, err := isInstalled(version, installDir)
-	if err != nil {
-		return fmt.Errorf("unable to verify that etcd is installed: %s", err)
-	}
-	if installed {
-		return nil
-	}
-	err = install(releaseURL, version, installDir)
-	if err != nil {
-		return err
-	}
-	installed, err = isInstalled(version, installDir)
-	if err != nil {
-		return fmt.Errorf("unable to verify that etcd is installed: %s", err)
-	}
-	err = util.CreateSymLinks(installDir, constants.DefaultInstallBaseDir, true)
-	if err != nil {
-		return fmt.Errorf("unable to create symlinks: %s", err)
-	}
-	return nil
-}
-
-func isInstalled(version, installDir string) (bool, error) {
+// IsInstalled method check if required etcd binaries are installed
+func IsInstalled(version, installDir string) (bool, error) {
 	log.Printf("[install] verifying etcd %s is installed in %s\n", version, installDir)
 	installed, err := isEtcdInstalled(version, installDir)
 	if err != nil {
@@ -48,8 +24,8 @@ func isInstalled(version, installDir string) (bool, error) {
 	return isEtcdctlInstalled(version, installDir)
 }
 
-func isEtcdInstalled(version, installDir string) (bool, error) {
-	path := filepath.Join(installDir, "etcd")
+func isEtcdInstalled(version, inputDir string) (bool, error) {
+	path := filepath.Join(inputDir, "etcd")
 	exists, err := util.FileExists(path)
 	if err != nil {
 		return false, err
@@ -61,8 +37,8 @@ func isEtcdInstalled(version, installDir string) (bool, error) {
 	return util.CmdOutputContains(cmd, fmt.Sprintf("etcd Version: %s", version))
 }
 
-func isEtcdctlInstalled(version, installDir string) (bool, error) {
-	path := filepath.Join(installDir, "etcdctl")
+func isEtcdctlInstalled(version, inputDir string) (bool, error) {
+	path := filepath.Join(inputDir, "etcdctl")
 	exists, err := util.FileExists(path)
 	if err != nil {
 		return false, err
@@ -94,9 +70,9 @@ func get(url, archive string) error {
 	return nil
 }
 
-func extract(installDir, archive string) error {
-	log.Printf("[install] extracting etcd archive %s to %s\n", archive, installDir)
-	cmd := exec.Command("tar", "xzf", archive, "--strip-components=1", "-C", installDir)
+func extract(extractDir, archive string) error {
+	log.Printf("[install] extracting etcd archive %s to %s\n", archive, extractDir)
+	cmd := exec.Command("tar", "xzf", archive, "--strip-components=1", "-C", extractDir)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err := cmd.Start()
@@ -110,34 +86,16 @@ func extract(installDir, archive string) error {
 	return nil
 }
 
-func install(releaseURL, version, installDir string) error {
-	log.Printf("[install] installing etcd %s from %s to %s\n", releaseURL, version, installDir)
-	err := os.MkdirAll(installDir, 0700)
-	if err != nil {
+// Download installs the etcd binaries in the directory specified by locationDir
+func Download(releaseURL, version, locationDir string) error {
+	log.Printf("[install] Downloading & installing etcd %s from %s to %s\n", releaseURL, version, locationDir)
+	if err := os.MkdirAll(locationDir, 0700); err != nil {
 		return fmt.Errorf("unable to create install directory: %s", err)
 	}
-
-	if err != nil {
-		return fmt.Errorf("unable to create install directory: %s", err)
-	}
-
-	downloadDir, err := ioutil.TempDir("/tmp", "etcdadm")
-	if err != nil {
-		return fmt.Errorf("unable to create temporary directory: %s", err)
-	}
-	defer os.RemoveAll(downloadDir)
-
-	archive := filepath.Join(downloadDir, releaseFile(version))
-
+	archive := filepath.Join(locationDir, releaseFile(version))
 	url := downloadURL(releaseURL, version)
-	err = get(url, archive)
-	if err != nil {
+	if err := get(url, archive); err != nil {
 		return fmt.Errorf("unable to download etcd: %s", err)
-	}
-
-	err = extract(installDir, archive)
-	if err != nil {
-		return fmt.Errorf("unable to extract etcd archive: %s", err)
 	}
 	return nil
 }
@@ -149,4 +107,51 @@ func releaseFile(version string) string {
 func downloadURL(releaseURL, version string) string {
 	// FIXME use url.ResolveReference to join
 	return fmt.Sprintf("%s/v%s/%s", releaseURL, version, releaseFile(version))
+}
+
+// InstallFromCache method installs the binaries from cache directory
+func InstallFromCache(version, installDir, cacheDir string) (bool, error) {
+	archive := filepath.Join(cacheDir, releaseFile(version))
+	if _, err := os.Stat(archive); os.IsNotExist(err) {
+		return false, nil
+	}
+	// Remove installDir if already present
+	if err := util.RemoveFolderRecursive(installDir); err != nil {
+		return true, fmt.Errorf("unable to clean install directory: %s", err)
+	}
+	// Create installDir
+	if err := os.MkdirAll(installDir, 0700); err != nil {
+		return true, fmt.Errorf("unable to create install directory: %s", err)
+	}
+	// Extract tar to installDir
+	if err := extract(installDir, archive); err != nil {
+		return true, fmt.Errorf("unable to extract etcd archive: %s", err)
+	}
+	// Create symlinks
+	if err := createSymLinks(installDir, constants.DefaultInstallBaseDir); err != nil {
+		return false, fmt.Errorf("unable to create symlinks: %s", err)
+	}
+	return true, nil
+}
+
+func createSymLinks(installDir, symLinkDir string) error {
+	etcdBinaryPath := filepath.Join(installDir, "etcd")
+	etcdSymLinkPath := filepath.Join(symLinkDir, "etcd")
+	etcdctlBinaryPath := filepath.Join(installDir, "etcdctl")
+	etcdctlSymLinkPath := filepath.Join(symLinkDir, "etcdctl")
+
+	if err := util.CreateSymLink(etcdBinaryPath, etcdSymLinkPath); err != nil {
+		return err
+	}
+	return util.CreateSymLink(etcdctlBinaryPath, etcdctlSymLinkPath)
+}
+
+// DeleteSymLinks deletes symlinks created for etcd binaires
+func DeleteSymLinks(symLinkDir string) error {
+	etcdSymLinkPath := filepath.Join(symLinkDir, "etcd")
+	etcdctlSymLinkPath := filepath.Join(symLinkDir, "etcdctl")
+	if err := util.RemoveFile(etcdSymLinkPath); err != nil {
+		return err
+	}
+	return util.RemoveFile(etcdctlSymLinkPath)
 }
