@@ -1,5 +1,7 @@
 package constants
 
+import "time"
+
 // Command-line flag defaults
 const (
 	DefaultVersion        = "3.3.8"
@@ -18,6 +20,8 @@ const (
 	DefaultLoopbackHost = "127.0.0.1"
 	DefaultPeerPort     = 2380
 	DefaultClientPort   = 2379
+
+	DefaultDownloadConnectionTimeout = 5 * time.Second
 
 	// EtcdCACertAndKeyBaseName defines etcd's CA certificate and key base name
 	EtcdCACertAndKeyBaseName = "ca"
