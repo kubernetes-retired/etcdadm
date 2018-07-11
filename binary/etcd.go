@@ -6,6 +6,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
+	"time"
 
 	"github.com/platform9/etcdadm/constants"
 	"github.com/platform9/etcdadm/util"
@@ -56,7 +58,8 @@ func isEtcdctlInstalled(version, inputDir string) (bool, error) {
 
 func get(url, archive string) error {
 	log.Printf("[install] downloading etcd from %s to %s\n", url, archive)
-	cmd := exec.Command("curl", "-Lo", archive, url)
+	argStr := fmt.Sprintf("--connect-timeout %v --progress-bar --location --output %v %v", int(constants.DefaultDownloadConnectionTimeout/time.Second), archive, url)
+	cmd := exec.Command("curl", strings.Fields(argStr)...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err := cmd.Start()
