@@ -14,14 +14,14 @@ import (
 func WriteEnvironmentFile(cfg *apis.EtcdAdmConfig) error {
 	t := template.Must(template.New("environment").Parse(constants.EnvFileTemplate))
 
-	environmentFileDir := filepath.Base(cfg.EnvironmentFile)
+	environmentFileDir := filepath.Dir(cfg.EnvironmentFile)
 	if err := os.MkdirAll(environmentFileDir, 0755); err != nil {
 		return fmt.Errorf("unable to create environment file directory %q: %s", environmentFileDir, err)
 	}
 
 	f, err := os.OpenFile(cfg.EnvironmentFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
-		return fmt.Errorf("unable to open the etcd environment file %s: %s", constants.EnvironmentFile, err)
+		return fmt.Errorf("unable to open the etcd environment file %s: %s", cfg.EnvironmentFile, err)
 	}
 	defer f.Close()
 
@@ -35,14 +35,14 @@ func WriteEnvironmentFile(cfg *apis.EtcdAdmConfig) error {
 func WriteUnitFile(cfg *apis.EtcdAdmConfig) error {
 	t := template.Must(template.New("unit").Parse(constants.UnitFileTemplate))
 
-	unitFileDir := filepath.Base(cfg.UnitFile)
+	unitFileDir := filepath.Dir(cfg.UnitFile)
 	if err := os.MkdirAll(unitFileDir, 0755); err != nil {
 		return fmt.Errorf("unable to create unit file directory %q: %s", unitFileDir, err)
 	}
 
 	f, err := os.OpenFile(cfg.UnitFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
 	if err != nil {
-		return fmt.Errorf("unable to open the etcd service unit file %s: %s", constants.UnitFile, err)
+		return fmt.Errorf("unable to open the etcd service unit file %s: %s", cfg.UnitFile, err)
 	}
 	defer f.Close()
 
