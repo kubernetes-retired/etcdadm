@@ -22,7 +22,7 @@ go_library(
     importpath = "kope.io/etcd-manager/pkg/apis/etcd",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/golang/protobuf/jsonpb:go_default_library",
         "//vendor/github.com/golang/protobuf/proto:go_default_library",
+        "@com_github_golang_protobuf//jsonpb:go_default_library_gen",
     ],
 )
