@@ -6,6 +6,7 @@ go_library(
         "consistentread.go",
         "writer.go",
     ],
+    importmap = "kope.io/etcd-manager/vendor/k8s.io/kubernetes/pkg/util/io",
     importpath = "k8s.io/kubernetes/pkg/util/io",
     visibility = ["//visibility:public"],
     deps = [
