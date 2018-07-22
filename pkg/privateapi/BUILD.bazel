@@ -1,29 +1,14 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
-load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
-
-proto_library(
-    name = "privateapi_proto",
-    srcs = ["cluster.proto"],
-    visibility = ["//visibility:public"],
-)
-
-go_proto_library(
-    name = "privateapi_go_proto",
-    compilers = ["@io_bazel_rules_go//proto:go_grpc"],
-    importpath = "kope.io/etcd-manager/pkg/privateapi",
-    proto = ":privateapi_proto",
-    visibility = ["//visibility:public"],
-)
 
 go_library(
     name = "go_default_library",
     srcs = [
+        "cluster.pb.go",
         "id.go",
         "leadership.go",
         "peers.go",
         "server.go",
     ],
-    embed = [":privateapi_go_proto"],
     importpath = "kope.io/etcd-manager/pkg/privateapi",
     visibility = ["//visibility:public"],
     deps = [
@@ -31,6 +16,7 @@ go_library(
         "//pkg/ioutils:go_default_library",
         "//pkg/privateapi/discovery:go_default_library",
         "//vendor/github.com/golang/glog:go_default_library",
+        "//vendor/github.com/golang/protobuf/proto:go_default_library",
         "//vendor/golang.org/x/net/context:go_default_library",
         "//vendor/google.golang.org/grpc:go_default_library",
         "//vendor/google.golang.org/grpc/connectivity:go_default_library",

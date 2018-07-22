@@ -11,10 +11,6 @@ bazel-genfiles
 bazel-out
 bazel-testlogs
 
-# Symlinks that make IDEs behave better (usually)
-pkg/apis/etcd/etcdapi.pb.go
-pkg/privateapi/cluster.pb.go
-
 # We often create some local symlinks
 /etcd-manager
 /etcd-manager-ctl
