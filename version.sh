@@ -1,6 +1,4 @@
 #!/bin/bash
-# Source: https://raw.githubusercontent.com/kubernetes/kubernetes/release-1.10/hack/lib/version.sh
-# Changes: Updated location of version to  github.com/platform9/etcdadm/vendor/k8s.io/kubernetes/pkg/version
 # Copyright 2014 The Kubernetes Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +14,8 @@
 # limitations under the License.
 
 # -----------------------------------------------------------------------------
+# Source: https://raw.githubusercontent.com/kubernetes/kubernetes/release-1.10/hack/lib/version.sh
+# Changes: Updated location of version to  github.com/platform9/etcdadm/vendor/k8s.io/kubernetes/pkg/version
 # Version management helpers.  These functions help to set, save and load the
 # following variables:
 #
