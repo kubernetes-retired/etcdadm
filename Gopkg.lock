@@ -17,6 +17,12 @@
   version = "v3.3.8"
 
 [[projects]]
+  name = "github.com/ghodss/yaml"
+  packages = ["."]
+  revision = "0ca9ea5df5451ffdf184b4428c902747c2c11cd7"
+  version = "v1.0.0"
+
+[[projects]]
   name = "github.com/gogo/protobuf"
   packages = [
     "gogoproto",
@@ -142,6 +148,12 @@
   version = "v1.12.2"
 
 [[projects]]
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+  version = "v2.2.1"
+
+[[projects]]
   branch = "release-1.9"
   name = "k8s.io/apimachinery"
   packages = [
@@ -149,7 +161,8 @@
     "pkg/util/net",
     "pkg/util/sets",
     "pkg/util/validation",
-    "pkg/util/validation/field"
+    "pkg/util/validation/field",
+    "pkg/version"
   ]
   revision = "21efb2924c7cf1920f76af05b1fd6a325bf46dfc"
 
@@ -159,9 +172,15 @@
   packages = ["util/cert"]
   revision = "1692bdde78a61f6316cfb6988015bd460067b238"
 
+[[projects]]
+  name = "k8s.io/kubernetes"
+  packages = ["pkg/version"]
+  revision = "b1b29978270dc22fecc592ac55d903350454310a"
+  version = "v1.11.1"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7fb97f8315a550fefa3df8695d947d8b1820011a867ab1bbead12da1f3e219f6"
+  inputs-digest = "ea73278590077b4103e87eba0787705ceaf34e50d0ee00a305ddee0a93d8760a"
   solver-name = "gps-cdcl"
   solver-version = 1
