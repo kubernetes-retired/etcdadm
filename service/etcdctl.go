@@ -19,7 +19,7 @@ func WriteEtcdctlEnvFile(cfg *apis.EtcdAdmConfig) error {
 		return fmt.Errorf("unable to create environment file directory %q: %s", environmentFileDir, err)
 	}
 
-	f, err := os.OpenFile(cfg.EtcdctlEnvFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+	f, err := os.OpenFile(cfg.EtcdctlEnvFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return fmt.Errorf("unable to open the etcd environment file %s: %s", cfg.EtcdctlEnvFile, err)
 	}
