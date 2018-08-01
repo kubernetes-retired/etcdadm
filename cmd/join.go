@@ -34,6 +34,7 @@ var joinCmd = &cobra.Command{
 
 		var err error
 
+		apis.SetDefaults(&etcdAdmConfig)
 		if err = apis.SetJoinDynamicDefaults(&etcdAdmConfig); err != nil {
 			log.Fatalf("[defaults] Error: %s", err)
 		}
