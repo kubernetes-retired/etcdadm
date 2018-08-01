@@ -92,7 +92,7 @@ func extract(extractDir, archive string) error {
 // Download installs the etcd binaries in the directory specified by locationDir
 func Download(releaseURL, version, locationDir string) error {
 	log.Printf("[install] Downloading & installing etcd %s from %s to %s\n", releaseURL, version, locationDir)
-	if err := os.MkdirAll(locationDir, 0700); err != nil {
+	if err := os.MkdirAll(locationDir, 0755); err != nil {
 		return fmt.Errorf("unable to create install directory: %s", err)
 	}
 	archive := filepath.Join(locationDir, releaseFile(version))
@@ -123,7 +123,7 @@ func InstallFromCache(version, installDir, cacheDir string) (bool, error) {
 		return true, fmt.Errorf("unable to clean install directory: %s", err)
 	}
 	// Create installDir
-	if err := os.MkdirAll(installDir, 0700); err != nil {
+	if err := os.MkdirAll(installDir, 0755); err != nil {
 		return true, fmt.Errorf("unable to create install directory: %s", err)
 	}
 	// Extract tar to installDir
