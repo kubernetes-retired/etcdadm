@@ -18,7 +18,7 @@ var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize a new etcd cluster",
 	Run: func(cmd *cobra.Command, args []string) {
-
+		apis.SetDefaults(&etcdAdmConfig)
 		if err := apis.SetInitDynamicDefaults(&etcdAdmConfig); err != nil {
 			log.Fatalf("[defaults] Error: %s", err)
 		}

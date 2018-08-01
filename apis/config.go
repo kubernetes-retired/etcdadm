@@ -118,6 +118,14 @@ func SetDownloadDynamicDefaults(cfg *EtcdAdmConfig) error {
 	return setDynamicDefaults(cfg)
 }
 
+// SetDefaults sets configuration values defined at build time
+func SetDefaults(cfg *EtcdAdmConfig) {
+	cfg.DataDir = constants.DefaultDataDir
+	cfg.UnitFile = constants.UnitFile
+	cfg.EnvironmentFile = constants.EnvironmentFile
+	cfg.EtcdctlEnvFile = constants.EtcdctlEnvFile
+}
+
 func setDynamicDefaults(cfg *EtcdAdmConfig) error {
 	if len(cfg.Name) == 0 {
 		name, err := os.Hostname()
@@ -129,11 +137,7 @@ func setDynamicDefaults(cfg *EtcdAdmConfig) error {
 
 	cfg.InstallDir = filepath.Join(cfg.InstallBaseDir, fmt.Sprintf("etcd-v%s", cfg.Version))
 	cfg.CacheDir = filepath.Join(constants.DefaultCacheBaseDir, fmt.Sprintf("etcd-v%s", cfg.Version))
-	cfg.DataDir = constants.DefaultDataDir
-	cfg.UnitFile = constants.UnitFile
-	cfg.EnvironmentFile = constants.EnvironmentFile
 	cfg.EtcdExecutable = filepath.Join(cfg.InstallDir, "etcd")
-	cfg.EtcdctlEnvFile = constants.EtcdctlEnvFile
 
 	cfg.GOMAXPROCS = runtime.NumCPU()
 
