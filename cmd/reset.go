@@ -21,6 +21,7 @@ var resetCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 		// Load constants & defaults
+		apis.SetDefaults(&etcdAdmConfig)
 		err = apis.SetResetDynamicDefaults(&etcdAdmConfig)
 		if err != nil {
 			log.Fatalf("[defaults] Error: %s", err)
