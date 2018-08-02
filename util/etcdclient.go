@@ -25,7 +25,7 @@ func getEtcdClientV3(endpoint string, etcdAdmConfig *apis.EtcdAdmConfig) (*clien
 	}
 	tlsConfig, err := tlsInfo.ClientConfig()
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("unable to create TLS client: %v", err)
 	}
 
 	cli, err := clientv3.New(clientv3.Config{
@@ -40,13 +40,14 @@ func getEtcdClientV3(endpoint string, etcdAdmConfig *apis.EtcdAdmConfig) (*clien
 func AddSelfToEtcdCluster(endpoint string, etcdAdmConfig *apis.EtcdAdmConfig) (*clientv3.MemberAddResponse, error) {
 	cli, err := getEtcdClientV3(endpoint, etcdAdmConfig)
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("unable to create etcd client: %v")
 	}
 	defer cli.Close()
 
 	mresp, err := cli.MemberAdd(context.Background(), strings.Split(etcdAdmConfig.AdvertisePeerURLs.String(), ","))
 	if err != nil {
-		log.Fatalf("[cluster] Error: failed to add member with peerURLs %q to cluster: %s", etcdAdmConfig.AdvertisePeerURLs, err)
+		return nil, fmt.Errorf("unable to add member with peerURLs %q to cluster: %s", etcdAdmConfig.AdvertisePeerURLs, err)
+
 	}
 	log.Printf("[cluster] added member with ID %d, peerURLs %q to cluster", mresp.Member.ID, etcdAdmConfig.AdvertisePeerURLs)
 	return mresp, err
@@ -57,7 +58,7 @@ func RemoveSelfFromEtcdCluster(etcdAdmConfig *apis.EtcdAdmConfig) error {
 	etcdEndpoint := etcdAdmConfig.LoopbackClientURL.String()
 	cli, err := getEtcdClientV3(etcdEndpoint, etcdAdmConfig)
 	if err != nil {
-		return fmt.Errorf("[cluster] Error: etcdclient failed to connect: %s", err)
+		return fmt.Errorf("etcdclient failed to connect: %s", err)
 	}
 	defer cli.Close()
 
