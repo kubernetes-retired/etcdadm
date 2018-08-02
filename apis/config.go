@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/platform9/etcdadm/constants"
 	uuid "github.com/satori/go.uuid"
@@ -21,6 +22,8 @@ type EtcdAdmConfig struct {
 	ReleaseURL      string
 	InstallBaseDir  string
 	CertificatesDir string
+
+	DownloadConnectTimeout time.Duration
 
 	DataDir    string
 	InstallDir string
