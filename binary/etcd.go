@@ -119,7 +119,7 @@ func InstallFromCache(version, installDir, cacheDir string) (bool, error) {
 		return false, nil
 	}
 	// Remove installDir if already present
-	if err := util.RemoveFolderRecursive(installDir); err != nil {
+	if err := os.RemoveAll(installDir); err != nil {
 		return true, fmt.Errorf("unable to clean install directory: %s", err)
 	}
 	// Create installDir
@@ -143,18 +143,18 @@ func createSymLinks(installDir, symLinkDir string) error {
 	etcdctlBinaryPath := filepath.Join(installDir, "etcdctl")
 	etcdctlSymLinkPath := filepath.Join(symLinkDir, "etcdctl")
 
-	if err := util.CreateSymLink(etcdBinaryPath, etcdSymLinkPath); err != nil {
+	if err := os.Symlink(etcdBinaryPath, etcdSymLinkPath); err != nil {
 		return err
 	}
-	return util.CreateSymLink(etcdctlBinaryPath, etcdctlSymLinkPath)
+	return os.Symlink(etcdctlBinaryPath, etcdctlSymLinkPath)
 }
 
 // DeleteSymLinks deletes symlinks created for etcd binaires
 func DeleteSymLinks(symLinkDir string) error {
 	etcdSymLinkPath := filepath.Join(symLinkDir, "etcd")
 	etcdctlSymLinkPath := filepath.Join(symLinkDir, "etcdctl")
-	if err := util.RemoveFile(etcdSymLinkPath); err != nil {
+	if err := os.Remove(etcdSymLinkPath); err != nil {
 		return err
 	}
-	return util.RemoveFile(etcdctlSymLinkPath)
+	return os.Remove(etcdctlSymLinkPath)
 }
