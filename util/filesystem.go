@@ -32,11 +32,6 @@ func RemoveFile(path string) error {
 	return nil
 }
 
-// CopyRecursive copies all contents from srcDir to destDir
-func CopyRecursive(srcDir, destDir string) error {
-	return Run("", "cp", "-r", srcDir, destDir)
-}
-
 // CreateSymLink creates a symbolic link for a input file
 func CreateSymLink(srcFile, linkFile string) error {
 	RemoveFile(linkFile)
