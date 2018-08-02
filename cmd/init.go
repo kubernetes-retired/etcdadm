@@ -23,7 +23,7 @@ var initCmd = &cobra.Command{
 			log.Fatalf("[defaults] Error: %s", err)
 		}
 		// etcd binaries installation
-		inCache, err := binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir)
+		inCache, err := binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallBaseDir, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir)
 		if err != nil {
 			log.Fatalf("[install] Artifact could not be installed from cache: %s", err)
 		}
@@ -33,7 +33,7 @@ var initCmd = &cobra.Command{
 				log.Fatalf("[install] Unable to fetch artifact from upstream: %s", err)
 			}
 			// Try installing binaries from cache now
-			inCache, err := binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir)
+			inCache, err := binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallBaseDir, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir)
 			if err != nil {
 				log.Fatalf("[install] Artifact could not be installed from cache: %s", err)
 			}
