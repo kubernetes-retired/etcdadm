@@ -129,4 +129,9 @@ export ETCDCTL_DIAL_TIMEOUT=3s
 `
 	DefaultSkipRemoveMember = false
 	DefaultCacheBaseDir     = "/var/cache/etcdadm/"
+
+	EtcdctlShellWrapperTemplate = `#!/usr/bin/env sh
+source {{ .EtcdctlEnvFile }}
+{{ .EtcdctlExecutable }} "$@"
+`
 )

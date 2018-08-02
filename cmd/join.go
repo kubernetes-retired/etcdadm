@@ -102,6 +102,9 @@ var joinCmd = &cobra.Command{
 		if err = service.WriteEtcdctlEnvFile(&etcdAdmConfig); err != nil {
 			log.Printf("[configure] Warning: %s", err)
 		}
+		if err = service.WriteEtcdctlShellWrapper(&etcdAdmConfig); err != nil {
+			log.Printf("[configure] Warning: %s", err)
+		}
 
 		// Verify cluster?
 	},

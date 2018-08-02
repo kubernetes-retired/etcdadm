@@ -61,6 +61,9 @@ var resetCmd = &cobra.Command{
 		if err = binary.DeleteSymLinks(constants.DefaultInstallBaseDir); err != nil {
 			log.Print(err)
 		}
+		if err = util.RemoveFile(etcdAdmConfig.EtcdctlShellWrapper); err != nil {
+			log.Print(err)
+		}
 		log.Printf("[cluster] etcd reset complete")
 	},
 }
