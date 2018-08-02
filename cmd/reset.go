@@ -34,23 +34,23 @@ var resetCmd = &cobra.Command{
 			}
 		}
 		// Remove etcd datastore
-		if err = os.RemoveAll(constants.DefaultDataDir); err != nil {
+		if err = os.RemoveAll(etcdAdmConfig.DataDir); err != nil {
 			log.Print(err)
 		}
 		// Disable and stop etcd service
-		unit := filepath.Base(constants.UnitFile)
+		unit := filepath.Base(etcdAdmConfig.UnitFile)
 		service.DisableAndStopService(unit)
 		// Remove configuration files
-		if err = os.RemoveAll(constants.DefaultCertificateDir); err != nil {
+		if err = os.RemoveAll(etcdAdmConfig.CertificatesDir); err != nil {
 			log.Print(err)
 		}
-		if err = os.Remove(constants.UnitFile); err != nil {
+		if err = os.Remove(etcdAdmConfig.UnitFile); err != nil {
 			log.Print(err)
 		}
-		if err = os.Remove(constants.EnvironmentFile); err != nil {
+		if err = os.Remove(etcdAdmConfig.EnvironmentFile); err != nil {
 			log.Print(err)
 		}
-		if err = os.Remove(constants.EtcdctlEnvFile); err != nil {
+		if err = os.Remove(etcdAdmConfig.EtcdctlEnvFile); err != nil {
 			log.Print(err)
 		}
 		// Remove binaries
@@ -61,7 +61,7 @@ var resetCmd = &cobra.Command{
 		if err = binary.DeleteSymLinks(constants.DefaultInstallBaseDir); err != nil {
 			log.Print(err)
 		}
-		if err = util.RemoveFile(etcdAdmConfig.EtcdctlShellWrapper); err != nil {
+		if err = os.Remove(etcdAdmConfig.EtcdctlShellWrapper); err != nil {
 			log.Print(err)
 		}
 		log.Printf("[cluster] etcd reset complete")
