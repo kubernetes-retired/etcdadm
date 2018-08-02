@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"log"
+	"os"
 	"path/filepath"
 
 	"github.com/platform9/etcdadm/apis"
@@ -32,27 +33,27 @@ var resetCmd = &cobra.Command{
 			}
 		}
 		// Remove etcd datastore
-		if err = util.RemoveFolderRecursive(constants.DefaultDataDir); err != nil {
+		if err = os.RemoveAll(constants.DefaultDataDir); err != nil {
 			log.Print(err)
 		}
 		// Disable and stop etcd service
 		unit := filepath.Base(constants.UnitFile)
 		service.DisableAndStopService(unit)
 		// Remove configuration files
-		if err = util.RemoveFolderRecursive(constants.DefaultCertificateDir); err != nil {
+		if err = os.RemoveAll(constants.DefaultCertificateDir); err != nil {
 			log.Print(err)
 		}
-		if err = util.RemoveFile(constants.UnitFile); err != nil {
+		if err = os.Remove(constants.UnitFile); err != nil {
 			log.Print(err)
 		}
-		if err = util.RemoveFile(constants.EnvironmentFile); err != nil {
+		if err = os.Remove(constants.EnvironmentFile); err != nil {
 			log.Print(err)
 		}
-		if err = util.RemoveFile(constants.EtcdctlEnvFile); err != nil {
+		if err = os.Remove(constants.EtcdctlEnvFile); err != nil {
 			log.Print(err)
 		}
 		// Remove binaries
-		if err = util.RemoveFolderRecursive(etcdAdmConfig.InstallDir); err != nil {
+		if err = os.RemoveAll(etcdAdmConfig.InstallDir); err != nil {
 			log.Print(err)
 		}
 		// Remove symlinks
