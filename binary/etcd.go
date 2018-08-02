@@ -137,6 +137,19 @@ func InstallFromCache(version, installBaseDir, installDir, cacheDir string) (boo
 	return true, nil
 }
 
+// Uninstall removes installed binaries and symlinks
+func Uninstall(version, installBaseDir, installDir string) error {
+	// Remove binaries
+	if err := os.RemoveAll(installDir); err != nil {
+		return fmt.Errorf("unable to remove install directory: %s", err)
+	}
+	// Remove symlinks
+	if err := deleteSymLinks(installBaseDir); err != nil {
+		return fmt.Errorf("unable to remove symlinks: %s", err)
+	}
+	return nil
+}
+
 func createSymLinks(installDir, symLinkDir string) error {
 	etcdBinaryPath := filepath.Join(installDir, "etcd")
 	etcdSymLinkPath := filepath.Join(symLinkDir, "etcd")
@@ -149,8 +162,8 @@ func createSymLinks(installDir, symLinkDir string) error {
 	return os.Symlink(etcdctlBinaryPath, etcdctlSymLinkPath)
 }
 
-// DeleteSymLinks deletes symlinks created for etcd binaires
-func DeleteSymLinks(symLinkDir string) error {
+// deleteSymLinks deletes symlinks created for etcd binaires
+func deleteSymLinks(symLinkDir string) error {
 	etcdSymLinkPath := filepath.Join(symLinkDir, "etcd")
 	etcdctlSymLinkPath := filepath.Join(symLinkDir, "etcdctl")
 	if err := os.Remove(etcdSymLinkPath); err != nil {
