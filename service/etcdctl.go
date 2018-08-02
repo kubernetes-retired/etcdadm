@@ -30,3 +30,19 @@ func WriteEtcdctlEnvFile(cfg *apis.EtcdAdmConfig) error {
 	}
 	return nil
 }
+
+// WriteEtcdctlShellWrapper writes a shell script that loads the environment file before running etcdctl.
+func WriteEtcdctlShellWrapper(cfg *apis.EtcdAdmConfig) error {
+	t := template.Must(template.New("etcdctl-shell-wrapper").Parse(constants.EtcdctlShellWrapperTemplate))
+
+	f, err := os.OpenFile(cfg.EtcdctlShellWrapper, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
+	if err != nil {
+		return fmt.Errorf("unable to create the etcd shell wrapper %q: %v", cfg.EtcdctlShellWrapper, err)
+	}
+	defer f.Close()
+
+	if err := t.Execute(f, cfg); err != nil {
+		return fmt.Errorf("unable to apply the etcd environment: %v", err)
+	}
+	return nil
+}
