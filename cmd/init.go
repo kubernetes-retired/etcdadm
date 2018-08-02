@@ -70,6 +70,9 @@ var initCmd = &cobra.Command{
 		if err = service.WriteEtcdctlEnvFile(&etcdAdmConfig); err != nil {
 			log.Printf("[configure] Warning: %s", err)
 		}
+		if err = service.WriteEtcdctlShellWrapper(&etcdAdmConfig); err != nil {
+			log.Printf("[configure] Warning: %s", err)
+		}
 
 		// Output etcdadm join command
 		// TODO print all advertised client URLs (first, join must parse than one endpoint)

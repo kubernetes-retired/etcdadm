@@ -29,11 +29,12 @@ type EtcdAdmConfig struct {
 	InstallDir string
 	CacheDir   string
 
-	UnitFile        string
-	EnvironmentFile string
-	EtcdExecutable  string
-
-	EtcdctlEnvFile string
+	UnitFile            string
+	EnvironmentFile     string
+	EtcdExecutable      string
+	EtcdctlExecutable   string
+	EtcdctlEnvFile      string
+	EtcdctlShellWrapper string
 
 	AdvertisePeerURLs   URLList
 	ListenPeerURLs      URLList
@@ -141,6 +142,8 @@ func setDynamicDefaults(cfg *EtcdAdmConfig) error {
 	cfg.InstallDir = filepath.Join(cfg.InstallBaseDir, fmt.Sprintf("etcd-v%s", cfg.Version))
 	cfg.CacheDir = filepath.Join(constants.DefaultCacheBaseDir, fmt.Sprintf("etcd-v%s", cfg.Version))
 	cfg.EtcdExecutable = filepath.Join(cfg.InstallDir, "etcd")
+	cfg.EtcdctlExecutable = filepath.Join(cfg.InstallDir, "etcdctl")
+	cfg.EtcdctlShellWrapper = filepath.Join(cfg.InstallBaseDir, "etcdctl.sh")
 
 	cfg.GOMAXPROCS = runtime.NumCPU()
 
