@@ -113,7 +113,7 @@ func downloadURL(releaseURL, version string) string {
 }
 
 // InstallFromCache method installs the binaries from cache directory
-func InstallFromCache(version, installDir, cacheDir string) (bool, error) {
+func InstallFromCache(version, installBaseDir, installDir, cacheDir string) (bool, error) {
 	archive := filepath.Join(cacheDir, releaseFile(version))
 	if _, err := os.Stat(archive); os.IsNotExist(err) {
 		return false, nil
@@ -131,7 +131,7 @@ func InstallFromCache(version, installDir, cacheDir string) (bool, error) {
 		return true, fmt.Errorf("unable to extract etcd archive: %s", err)
 	}
 	// Create symlinks
-	if err := createSymLinks(installDir, constants.DefaultInstallBaseDir); err != nil {
+	if err := createSymLinks(installDir, installBaseDir); err != nil {
 		return false, fmt.Errorf("unable to create symlinks: %s", err)
 	}
 	return true, nil
