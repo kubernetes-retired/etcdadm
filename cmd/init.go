@@ -63,7 +63,7 @@ var initCmd = &cobra.Command{
 		if err = service.WriteUnitFile(&etcdAdmConfig); err != nil {
 			log.Fatalf("[configure] Error: %s", err)
 		}
-		unit := filepath.Base(constants.UnitFile)
+		unit := filepath.Base(etcdAdmConfig.UnitFile)
 		if err = service.EnableAndStartService(unit); err != nil {
 			log.Fatalf("[start] Error: %s", err)
 		}
