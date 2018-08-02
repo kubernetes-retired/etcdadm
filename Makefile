@@ -19,14 +19,10 @@
 
 SHELL := /usr/bin/env bash
 CWD := $(shell pwd)
-DETECTED_OS := $(shell uname -s)
-DEP_BIN_GIT := https://github.com/golang/dep/releases/download/v0.4.1/dep-$(DETECTED_OS)-amd64
 BIN := etcdadm
 PACKAGE_GOPATH := /go/src/github.com/platform9/$(BIN)
-DEP_BIN := $(CWD)/bin/dep
 LDFLAGS := $(shell source ./version.sh ; KUBE_ROOT=. ; kube::version::ldflags)
 GIT_STORAGE_MOUNT := $(shell source ./git_utils.sh; container_git_storage_mount)
-
 
 .PHONY: clean container-build default ensure
 
@@ -34,18 +30,6 @@ default: $(BIN)
 
 container-build:
 	docker run --rm -v $(PWD):$(PACKAGE_GOPATH) -w $(PACKAGE_GOPATH) $(GIT_STORAGE_MOUNT) golang:1.10 /bin/bash -c "make ensure && make"
-
-$(DEP_BIN):
-ifeq ($(DEP_BIN),$(CWD)/bin/dep)
-	echo "Downloading dep from GitHub" &&\
-	mkdir -p $(CWD)/bin &&\
-	wget $(DEP_BIN_GIT) -O $(DEP_BIN) &&\
-	chmod +x $(DEP_BIN)
-endif
-
-ensure: $(DEP_BIN)
-	echo $(DEP_BIN)
-	$(DEP_BIN) ensure -v
 
 $(BIN):
 	go build -ldflags "$(LDFLAGS)"
