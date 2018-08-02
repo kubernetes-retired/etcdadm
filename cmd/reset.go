@@ -54,12 +54,8 @@ var resetCmd = &cobra.Command{
 			log.Print(err)
 		}
 		// Remove binaries
-		if err = os.RemoveAll(etcdAdmConfig.InstallDir); err != nil {
-			log.Print(err)
-		}
-		// Remove symlinks
-		if err = binary.DeleteSymLinks(constants.DefaultInstallBaseDir); err != nil {
-			log.Print(err)
+		if err := binary.Uninstall(etcdAdmConfig.Version, etcdAdmConfig.InstallBaseDir, etcdAdmConfig.InstallDir); err != nil {
+			log.Printf("[binaries] Unable to uninstall binaries: %v", err)
 		}
 		if err = os.Remove(etcdAdmConfig.EtcdctlShellWrapper); err != nil {
 			log.Print(err)
