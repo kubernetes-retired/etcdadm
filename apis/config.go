@@ -51,6 +51,9 @@ type EtcdAdmConfig struct {
 
 	// GOMAXPROCS sets the max num of etcd processes will use
 	GOMAXPROCS int
+
+	Snapshot      string
+	SkipHashCheck bool
 }
 
 type EndpointStatus struct {
