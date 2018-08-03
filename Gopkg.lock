@@ -2,19 +2,97 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "github.com/beorn7/perks"
+  packages = ["quantile"]
+  revision = "3a771d992973f24aa725d07868b467d1ddfceafb"
+
+[[projects]]
+  name = "github.com/coreos/bbolt"
+  packages = ["."]
+  revision = "48ea1b39c25fc1bab3506fbc712ecbaa842c4d2d"
+  version = "v1.3.1-coreos.6"
+
+[[projects]]
   name = "github.com/coreos/etcd"
   packages = [
+    "alarm",
+    "auth",
     "auth/authpb",
+    "client",
     "clientv3",
+    "compactor",
+    "discovery",
+    "error",
+    "etcdserver",
+    "etcdserver/api",
+    "etcdserver/api/v2http/httptypes",
     "etcdserver/api/v3rpc/rpctypes",
     "etcdserver/etcdserverpb",
+    "etcdserver/membership",
+    "etcdserver/stats",
+    "lease",
+    "lease/leasehttp",
+    "lease/leasepb",
+    "mvcc",
+    "mvcc/backend",
     "mvcc/mvccpb",
+    "pkg/adt",
+    "pkg/contention",
+    "pkg/cpuutil",
+    "pkg/crc",
+    "pkg/fileutil",
+    "pkg/httputil",
+    "pkg/idutil",
+    "pkg/ioutil",
+    "pkg/logutil",
+    "pkg/netutil",
+    "pkg/pathutil",
+    "pkg/pbutil",
+    "pkg/runtime",
+    "pkg/schedule",
+    "pkg/srv",
     "pkg/tlsutil",
     "pkg/transport",
-    "pkg/types"
+    "pkg/types",
+    "pkg/wait",
+    "raft",
+    "raft/raftpb",
+    "rafthttp",
+    "snap",
+    "snap/snappb",
+    "snapshot",
+    "store",
+    "version",
+    "wal",
+    "wal/walpb"
   ]
   revision = "33245c6b5b49130ca99280408fadfab01aac0e48"
   version = "v3.3.8"
+
+[[projects]]
+  name = "github.com/coreos/go-semver"
+  packages = ["semver"]
+  revision = "8ab6407b697782a06568d4b7f1db25550ec2e4c6"
+  version = "v0.2.0"
+
+[[projects]]
+  name = "github.com/coreos/go-systemd"
+  packages = ["journal"]
+  revision = "39ca1b05acc7ad1220e09f133283b8859a8b71ab"
+  version = "v17"
+
+[[projects]]
+  name = "github.com/coreos/pkg"
+  packages = ["capnslog"]
+  revision = "97fdf19511ea361ae1c100dd393cc47f8dcfa1e1"
+  version = "v4"
+
+[[projects]]
+  name = "github.com/dgrijalva/jwt-go"
+  packages = ["."]
+  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
+  version = "v3.2.0"
 
 [[projects]]
   name = "github.com/ghodss/yaml"
@@ -51,10 +129,67 @@
   version = "v1.1.0"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/google/btree"
+  packages = ["."]
+  revision = "e89373fe6b4a7413d7acd6da1725b83ef713e6e4"
+
+[[projects]]
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
+
+[[projects]]
+  name = "github.com/jonboulle/clockwork"
+  packages = ["."]
+  revision = "2eee05ed794112d45db504eb05aa693efd2b8b09"
+  version = "v0.1.0"
+
+[[projects]]
+  name = "github.com/matttproud/golang_protobuf_extensions"
+  packages = ["pbutil"]
+  revision = "c12348ce28de40eed0136aa2b644d0ee0650e56c"
+  version = "v1.0.1"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/petar/GoLLRB"
+  packages = ["llrb"]
+  revision = "53be0d36a84c2a886ca057d34b6aa4468df9ccb4"
+
+[[projects]]
+  name = "github.com/prometheus/client_golang"
+  packages = ["prometheus"]
+  revision = "c5b7fccd204277076155f10851dad72b76a49317"
+  version = "v0.8.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/prometheus/client_model"
+  packages = ["go"]
+  revision = "5c3871d89910bfb32f5fcab2aa4b9ec68e65a99f"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/prometheus/common"
+  packages = [
+    "expfmt",
+    "internal/bitbucket.org/ww/goautoneg",
+    "model"
+  ]
+  revision = "c7de2306084e37d54b8be01f3541a8464345e9a5"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/prometheus/procfs"
+  packages = [
+    ".",
+    "internal/util",
+    "nfs",
+    "xfs"
+  ]
+  revision = "05ee40e3a273f7245e8777337fc7b46e533a9a92"
 
 [[projects]]
   name = "github.com/satori/go.uuid"
@@ -75,6 +210,52 @@
   version = "v1.0.1"
 
 [[projects]]
+  name = "github.com/ugorji/go"
+  packages = ["codec"]
+  revision = "b4c50a2b199d93b13dc15e78929cfb23bfdf21ab"
+  version = "v1.1.1"
+
+[[projects]]
+  name = "github.com/xiang90/probing"
+  packages = ["."]
+  revision = "07dd2e8dfe18522e9c447ba95f2fe95262f63bb2"
+  version = "0.0.1"
+
+[[projects]]
+  name = "go.uber.org/atomic"
+  packages = ["."]
+  revision = "1ea20fb1cbb1cc08cbd0d913a96dead89aa18289"
+  version = "v1.3.2"
+
+[[projects]]
+  name = "go.uber.org/multierr"
+  packages = ["."]
+  revision = "3c4937480c32f4c13a875a1829af76c98ca3d40a"
+  version = "v1.1.0"
+
+[[projects]]
+  name = "go.uber.org/zap"
+  packages = [
+    ".",
+    "buffer",
+    "internal/bufferpool",
+    "internal/color",
+    "internal/exit",
+    "zapcore"
+  ]
+  revision = "4d45f9617f7d90f7a663ff21c7a4321dbe78098b"
+  version = "v1.9.0"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/crypto"
+  packages = [
+    "bcrypt",
+    "blowfish"
+  ]
+  revision = "56440b844dfe139a8ac053f4ecac0b20b79058f4"
+
+[[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = [
@@ -87,6 +268,12 @@
     "trace"
   ]
   revision = "db08ff08e8622530d9ed3a0e8ac279f6d4c02196"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/sys"
+  packages = ["unix"]
+  revision = "0ffbfd41fbef8ffcf9b62b0b0aa3a5873ed7a4fe"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -108,6 +295,12 @@
   ]
   revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
   version = "v0.3.0"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/time"
+  packages = ["rate"]
+  revision = "fbb02b2291d28baffd63558aa44b4b56f178d650"
 
 [[projects]]
   branch = "master"
@@ -181,6 +374,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ea73278590077b4103e87eba0787705ceaf34e50d0ee00a305ddee0a93d8760a"
+  inputs-digest = "042ea43bcf3662507f6427ca022c85b66ef2f63df77e27ff2ae6017510d9ee75"
   solver-name = "gps-cdcl"
   solver-version = 1

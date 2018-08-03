@@ -45,6 +45,10 @@
   name = "github.com/coreos/etcd"
   version = "3.3.8"
 
+[[override]]
+  name = "github.com/coreos/bbolt"
+  version = "v1.3.1-coreos.6"
+
 [prune]
   go-tests = true
   unused-packages = true
