@@ -71,11 +71,16 @@ type EtcdMember struct {
 type URLList []url.URL
 
 func (l URLList) String() string {
+	stringURLs := l.StringSlice()
+	return strings.Join(stringURLs, ",")
+}
+
+func (l URLList) StringSlice() []string {
 	stringURLs := make([]string, len(l))
 	for i, url := range l {
 		stringURLs[i] = url.String()
 	}
-	return strings.Join(stringURLs, ",")
+	return stringURLs
 }
 
 // SetInfoDynamicDefaults checks and sets configuration values used by the info verb
