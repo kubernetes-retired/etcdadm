@@ -95,7 +95,7 @@ func SetInitDynamicDefaults(cfg *EtcdAdmConfig) error {
 		return err
 	}
 	cfg.InitialClusterToken = uuid.NewV4().String()[0:8]
-	InitialClusterInit(cfg)
+	cfg.InitialCluster = fmt.Sprintf("%s=%s", cfg.Name, cfg.AdvertisePeerURLs)
 	return nil
 }
 
@@ -143,10 +143,6 @@ func setDynamicDefaults(cfg *EtcdAdmConfig) error {
 	DefaultPeerCertSANs(cfg)
 	DefaultServerCertSANs(cfg)
 	return nil
-}
-
-func InitialClusterInit(cfg *EtcdAdmConfig) string {
-	return fmt.Sprintf("%s=%s", cfg.Name, cfg.AdvertisePeerURLs)
 }
 
 func DefaultServerCertSANs(cfg *EtcdAdmConfig) {
