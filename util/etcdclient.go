@@ -8,10 +8,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/coreos/etcd/etcdserver/etcdserverpb"
-
 	"github.com/coreos/etcd/clientv3"
+	"github.com/coreos/etcd/etcdserver/etcdserverpb"
 	"github.com/coreos/etcd/pkg/transport"
+	"github.com/coreos/etcd/snapshot"
+
 	"github.com/platform9/etcdadm/apis"
 	"github.com/platform9/etcdadm/constants"
 )
@@ -115,4 +116,19 @@ func SelfMember(etcdAdmConfig *apis.EtcdAdmConfig) (*etcdserverpb.Member, error)
 		}
 	}
 	return nil, fmt.Errorf("member with ID %q not found in list", endpointMemberID)
+}
+
+// RestoreSnapshot initializes the etcd data directory from a snapshot
+func RestoreSnapshot(cfg *apis.EtcdAdmConfig) error {
+	sp := snapshot.NewV3(nil)
+
+	return sp.Restore(snapshot.RestoreConfig{
+		SnapshotPath:        cfg.Snapshot,
+		Name:                cfg.Name,
+		OutputDataDir:       cfg.DataDir,
+		PeerURLs:            cfg.AdvertisePeerURLs.StringSlice(),
+		InitialCluster:      cfg.InitialCluster,
+		InitialClusterToken: cfg.InitialClusterToken,
+		SkipHashCheck:       cfg.SkipHashCheck,
+	})
 }

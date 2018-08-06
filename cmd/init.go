@@ -8,7 +8,7 @@ import (
 	"github.com/platform9/etcdadm/binary"
 	"github.com/platform9/etcdadm/certs"
 	"github.com/platform9/etcdadm/constants"
-	"github.com/platform9/etcdadm/snapshot"
+	"github.com/platform9/etcdadm/util"
 
 	"github.com/platform9/etcdadm/service"
 	"github.com/spf13/cobra"
@@ -53,7 +53,7 @@ var initCmd = &cobra.Command{
 			log.Fatalf("[certificates] Error: %s", err)
 		}
 		if etcdAdmConfig.Snapshot != "" {
-			if err := snapshot.Restore(&etcdAdmConfig); err != nil {
+			if err := util.RestoreSnapshot(&etcdAdmConfig); err != nil {
 				log.Fatalf("[snapshot] Error restoring snapshot: %v", err)
 			}
 		}
