@@ -131,7 +131,11 @@ export ETCDCTL_DIAL_TIMEOUT=3s
 	DefaultCacheBaseDir     = "/var/cache/etcdadm/"
 
 	EtcdctlShellWrapperTemplate = `#!/usr/bin/env sh
-source {{ .EtcdctlEnvFile }}
-{{ .EtcdctlExecutable }} "$@"
+if ! [ -r "{{ .EtcdctlEnvFile }}" ]; then
+	echo "Unable to read the etcdctl environment file '{{ .EtcdctlEnvFile }}'. The file must exist, and this wrapper must be run as root."
+	exit 1
+fi
+source "{{ .EtcdctlEnvFile }}"
+"{{ .EtcdctlExecutable }}" "$@"
 `
 )
