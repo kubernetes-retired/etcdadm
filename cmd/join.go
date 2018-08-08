@@ -39,7 +39,7 @@ var joinCmd = &cobra.Command{
 			log.Fatalf("[defaults] Error: %s", err)
 		}
 		// etcd binaries installation
-		inCache, err := binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallBaseDir, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir)
+		inCache, err := binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir)
 		if err != nil {
 			log.Fatalf("[install] Artifact could not be installed from cache: %s", err)
 		}
@@ -49,7 +49,7 @@ var joinCmd = &cobra.Command{
 				log.Fatalf("[install] Unable to fetch artifact from upstream: %s", err)
 			}
 			// Try installing binaries from cache now
-			inCache, err := binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallBaseDir, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir)
+			inCache, err := binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir)
 			if err != nil {
 				log.Fatalf("[install] Artifact could not be installed from cache: %s", err)
 			}
@@ -116,5 +116,5 @@ func init() {
 	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.Version, "version", constants.DefaultVersion, "etcd version")
 	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.ReleaseURL, "release-url", constants.DefaultReleaseURL, "URL used to download etcd")
 	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.CertificatesDir, "certs-dir", constants.DefaultCertificateDir, "certificates directory")
-	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.InstallBaseDir, "install-base-dir", constants.DefaultInstallBaseDir, "install base directory")
+	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.InstallDir, "install-dir", constants.DefaultInstallDir, "install directory")
 }
