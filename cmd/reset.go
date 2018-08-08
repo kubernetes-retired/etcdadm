@@ -54,7 +54,7 @@ var resetCmd = &cobra.Command{
 			log.Print(err)
 		}
 		// Remove binaries
-		if err := binary.Uninstall(etcdAdmConfig.Version, etcdAdmConfig.InstallBaseDir, etcdAdmConfig.InstallDir); err != nil {
+		if err := binary.Uninstall(etcdAdmConfig.Version, etcdAdmConfig.InstallDir); err != nil {
 			log.Printf("[binaries] Unable to uninstall binaries: %v", err)
 		}
 		if err = os.Remove(etcdAdmConfig.EtcdctlShellWrapper); err != nil {
@@ -67,6 +67,6 @@ var resetCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(resetCmd)
 	resetCmd.Flags().BoolVar(&skipRemoveMember, "skip-remove-member", constants.DefaultSkipRemoveMember, "Use skip-remove-member flag to skip the process of removing member from etcd cluster but clean everything else.")
-	resetCmd.PersistentFlags().StringVar(&etcdAdmConfig.InstallBaseDir, "install-base-dir", constants.DefaultInstallBaseDir, "install base directory")
+	resetCmd.PersistentFlags().StringVar(&etcdAdmConfig.InstallDir, "install-dir", constants.DefaultInstallDir, "install directory")
 	resetCmd.PersistentFlags().StringVar(&etcdAdmConfig.CertificatesDir, "certs-dir", constants.DefaultCertificateDir, "certificates directory")
 }

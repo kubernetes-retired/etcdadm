@@ -23,7 +23,7 @@ var initCmd = &cobra.Command{
 			log.Fatalf("[defaults] Error: %s", err)
 		}
 		// etcd binaries installation
-		inCache, err := binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallBaseDir, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir)
+		inCache, err := binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir)
 		if err != nil {
 			log.Fatalf("[install] Artifact could not be installed from cache: %s", err)
 		}
@@ -33,7 +33,7 @@ var initCmd = &cobra.Command{
 				log.Fatalf("[install] Unable to fetch artifact from upstream: %s", err)
 			}
 			// Try installing binaries from cache now
-			inCache, err := binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallBaseDir, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir)
+			inCache, err := binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir)
 			if err != nil {
 				log.Fatalf("[install] Artifact could not be installed from cache: %s", err)
 			}
@@ -87,7 +87,7 @@ func init() {
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.Version, "version", constants.DefaultVersion, "etcd version")
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.ReleaseURL, "release-url", constants.DefaultReleaseURL, "URL used to download etcd")
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.CertificatesDir, "certs-dir", constants.DefaultCertificateDir, "certificates directory")
-	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.InstallBaseDir, "install-base-dir", constants.DefaultInstallBaseDir, "install base directory")
+	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.InstallDir, "install-dir", constants.DefaultInstallDir, "install directory")
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.Snapshot, "snapshot", "", "Etcd v3 snapshot file used to initialize member")
 	initCmd.PersistentFlags().BoolVar(&etcdAdmConfig.SkipHashCheck, "skip-hash-check", false, "Ignore snapshot integrity hash value (required if copied from data directory)")
 	initCmd.PersistentFlags().DurationVar(&etcdAdmConfig.DownloadConnectTimeout, "download-connect-timeout", constants.DefaultDownloadConnectTimeout, "Maximum time in seconds that you allow the connection to the server to take.")
