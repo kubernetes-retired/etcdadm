@@ -2,6 +2,7 @@ package binary
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -113,61 +114,47 @@ func downloadURL(releaseURL, version string) string {
 }
 
 // InstallFromCache method installs the binaries from cache directory
-func InstallFromCache(version, installBaseDir, installDir, cacheDir string) (bool, error) {
+func InstallFromCache(version, installDir, cacheDir string) (bool, error) {
 	archive := filepath.Join(cacheDir, releaseFile(version))
 	if _, err := os.Stat(archive); os.IsNotExist(err) {
 		return false, nil
 	}
-	// Remove installDir if already present
-	if err := os.RemoveAll(installDir); err != nil {
-		return true, fmt.Errorf("unable to clean install directory: %s", err)
+	// Create a tmp dir
+	tmpDir, err := ioutil.TempDir("", "etcd")
+	if err != nil {
+		return true, fmt.Errorf("unable to create tmp dir %s to extract etcd archive", err)
 	}
-	// Create installDir
-	if err := os.MkdirAll(installDir, 0755); err != nil {
-		return true, fmt.Errorf("unable to create install directory: %s", err)
-	}
-	// Extract tar to installDir
-	if err := extract(installDir, archive); err != nil {
+	defer os.RemoveAll(tmpDir)
+	// Extract tar to tmp location
+	if err := extract(tmpDir, archive); err != nil {
 		return true, fmt.Errorf("unable to extract etcd archive: %s", err)
 	}
-	// Create symlinks
-	if err := createSymLinks(installDir, installBaseDir); err != nil {
-		return false, fmt.Errorf("unable to create symlinks: %s", err)
+	// Copy binaries
+	if err := Install(tmpDir, installDir); err != nil {
+		return false, fmt.Errorf("unable to copy binaries: %s", err)
 	}
 	return true, nil
 }
 
+//Install copies binaries from srcDir to installDir
+func Install(srcDir, installDir string) error {
+	etcdSrcPath := filepath.Join(srcDir, "etcd")
+	etcdDestPath := filepath.Join(installDir, "etcd")
+	etcdctlSrcPath := filepath.Join(srcDir, "etcdctl")
+	etcdctlDestPath := filepath.Join(installDir, "etcdctl")
+	if err := util.CopyFile(etcdSrcPath, etcdDestPath); err != nil {
+		return err
+	}
+	return util.CopyFile(etcdctlSrcPath, etcdctlDestPath)
+}
+
 // Uninstall removes installed binaries and symlinks
-func Uninstall(version, installBaseDir, installDir string) error {
+func Uninstall(version, installDir string) error {
 	// Remove binaries
-	if err := os.RemoveAll(installDir); err != nil {
-		return fmt.Errorf("unable to remove install directory: %s", err)
-	}
-	// Remove symlinks
-	if err := deleteSymLinks(installBaseDir); err != nil {
-		return fmt.Errorf("unable to remove symlinks: %s", err)
-	}
-	return nil
-}
-
-func createSymLinks(installDir, symLinkDir string) error {
-	etcdBinaryPath := filepath.Join(installDir, "etcd")
-	etcdSymLinkPath := filepath.Join(symLinkDir, "etcd")
-	etcdctlBinaryPath := filepath.Join(installDir, "etcdctl")
-	etcdctlSymLinkPath := filepath.Join(symLinkDir, "etcdctl")
-
-	if err := os.Symlink(etcdBinaryPath, etcdSymLinkPath); err != nil {
+	etcdPath := filepath.Join(installDir, "etcd")
+	etcdctlPath := filepath.Join(installDir, "etcdctl")
+	if err := os.Remove(etcdPath); err != nil {
 		return err
 	}
-	return os.Symlink(etcdctlBinaryPath, etcdctlSymLinkPath)
-}
-
-// deleteSymLinks deletes symlinks created for etcd binaires
-func deleteSymLinks(symLinkDir string) error {
-	etcdSymLinkPath := filepath.Join(symLinkDir, "etcd")
-	etcdctlSymLinkPath := filepath.Join(symLinkDir, "etcdctl")
-	if err := os.Remove(etcdSymLinkPath); err != nil {
-		return err
-	}
-	return os.Remove(etcdctlSymLinkPath)
+	return os.Remove(etcdctlPath)
 }

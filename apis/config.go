@@ -20,7 +20,6 @@ import (
 type EtcdAdmConfig struct {
 	Version         string
 	ReleaseURL      string
-	InstallBaseDir  string
 	CertificatesDir string
 
 	DownloadConnectTimeout time.Duration
@@ -139,11 +138,10 @@ func setDynamicDefaults(cfg *EtcdAdmConfig) error {
 		cfg.Name = name
 	}
 
-	cfg.InstallDir = filepath.Join(cfg.InstallBaseDir, fmt.Sprintf("etcd-v%s", cfg.Version))
-	cfg.CacheDir = filepath.Join(constants.DefaultCacheBaseDir, fmt.Sprintf("etcd-v%s", cfg.Version))
+	cfg.CacheDir = filepath.Join(constants.DefaultCacheBaseDir, "etcd", fmt.Sprintf("v%s", cfg.Version))
 	cfg.EtcdExecutable = filepath.Join(cfg.InstallDir, "etcd")
 	cfg.EtcdctlExecutable = filepath.Join(cfg.InstallDir, "etcdctl")
-	cfg.EtcdctlShellWrapper = filepath.Join(cfg.InstallBaseDir, "etcdctl.sh")
+	cfg.EtcdctlShellWrapper = filepath.Join(cfg.InstallDir, "etcdctl.sh")
 
 	cfg.GOMAXPROCS = runtime.NumCPU()
 
