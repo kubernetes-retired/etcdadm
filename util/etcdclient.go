@@ -44,12 +44,11 @@ func AddSelfToEtcdCluster(endpoint string, etcdAdmConfig *apis.EtcdAdmConfig) (*
 	}
 	defer cli.Close()
 
-	mresp, err := cli.MemberAdd(context.Background(), strings.Split(etcdAdmConfig.AdvertisePeerURLs.String(), ","))
+	mresp, err := cli.MemberAdd(context.Background(), strings.Split(etcdAdmConfig.InitialAdvertisePeerURLs.String(), ","))
 	if err != nil {
-		return nil, fmt.Errorf("unable to add member with peerURLs %q to cluster: %s", etcdAdmConfig.AdvertisePeerURLs, err)
-
+		return nil, fmt.Errorf("unable to add member with peerURLs %q to cluster: %s", etcdAdmConfig.InitialAdvertisePeerURLs, err)
 	}
-	log.Printf("[cluster] added member with ID %d, peerURLs %q to cluster", mresp.Member.ID, etcdAdmConfig.AdvertisePeerURLs)
+	log.Printf("[cluster] added member with ID %d, peerURLs %q to cluster", mresp.Member.ID, etcdAdmConfig.InitialAdvertisePeerURLs)
 	return mresp, err
 }
 
@@ -127,7 +126,7 @@ func RestoreSnapshot(cfg *apis.EtcdAdmConfig) error {
 		SnapshotPath:        cfg.Snapshot,
 		Name:                cfg.Name,
 		OutputDataDir:       cfg.DataDir,
-		PeerURLs:            cfg.AdvertisePeerURLs.StringSlice(),
+		PeerURLs:            cfg.InitialAdvertisePeerURLs.StringSlice(),
 		InitialCluster:      cfg.InitialCluster,
 		InitialClusterToken: cfg.InitialClusterToken,
 		SkipHashCheck:       cfg.SkipHashCheck,

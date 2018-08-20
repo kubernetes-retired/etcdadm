@@ -94,7 +94,7 @@ ETCD_INITIAL_CLUSTER={{ .InitialCluster }}
 ETCD_INITIAL_CLUSTER_STATE={{ .InitialClusterState }}
 
 # Peer configuration
-ETCD_INITIAL_ADVERTISE_PEER_URLS={{ .AdvertisePeerURLs.String }}
+ETCD_INITIAL_ADVERTISE_PEER_URLS={{ .InitialAdvertisePeerURLs.String }}
 ETCD_LISTEN_PEER_URLS={{ .ListenPeerURLs.String }}
 
 ETCD_CLIENT_CERT_AUTH=true
