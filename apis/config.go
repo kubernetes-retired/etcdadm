@@ -35,10 +35,10 @@ type EtcdAdmConfig struct {
 	EtcdctlEnvFile      string
 	EtcdctlShellWrapper string
 
-	AdvertisePeerURLs   URLList
-	ListenPeerURLs      URLList
-	AdvertiseClientURLs URLList
-	ListenClientURLs    URLList
+	InitialAdvertisePeerURLs URLList
+	ListenPeerURLs           URLList
+	AdvertiseClientURLs      URLList
+	ListenClientURLs         URLList
 
 	LoopbackClientURL url.URL
 
@@ -101,7 +101,7 @@ func SetInitDynamicDefaults(cfg *EtcdAdmConfig) error {
 		return err
 	}
 	cfg.InitialClusterToken = uuid.NewV4().String()[0:8]
-	cfg.InitialCluster = fmt.Sprintf("%s=%s", cfg.Name, cfg.AdvertisePeerURLs)
+	cfg.InitialCluster = fmt.Sprintf("%s=%s", cfg.Name, cfg.InitialAdvertisePeerURLs)
 	return nil
 }
 
@@ -175,7 +175,7 @@ func DefaultPeerCertSANs(cfg *EtcdAdmConfig) {
 	cfg.PeerCertSANs = append(cfg.PeerCertSANs, cfg.Name)
 
 	uniqueSANs := make(map[string]int)
-	for _, url := range cfg.AdvertisePeerURLs {
+	for _, url := range cfg.InitialAdvertisePeerURLs {
 		uniqueSANs[url.Hostname()] = 0
 	}
 	for _, url := range cfg.ListenPeerURLs {
@@ -187,7 +187,7 @@ func DefaultPeerCertSANs(cfg *EtcdAdmConfig) {
 }
 
 func DefaultPeerURLs(cfg *EtcdAdmConfig) error {
-	if err := DefaultAdvertisePeerURLs(cfg); err != nil {
+	if err := DefaultInitialAdvertisePeerURLs(cfg); err != nil {
 		return err
 	}
 	return DefaultListenPeerURLs(cfg)
@@ -200,12 +200,12 @@ func DefaultClientURLs(cfg *EtcdAdmConfig) error {
 	return nil
 }
 
-func DefaultAdvertisePeerURLs(cfg *EtcdAdmConfig) error {
+func DefaultInitialAdvertisePeerURLs(cfg *EtcdAdmConfig) error {
 	externalAddress, err := defaultExternalAddress()
 	if err != nil {
-		return fmt.Errorf("failed to set default AdvertisePeerURLs: %s", err)
+		return fmt.Errorf("failed to set default InitialAdvertisePeerURLs: %s", err)
 	}
-	cfg.AdvertisePeerURLs = append(cfg.AdvertisePeerURLs, url.URL{
+	cfg.InitialAdvertisePeerURLs = append(cfg.InitialAdvertisePeerURLs, url.URL{
 		Scheme: "https",
 		Host:   fmt.Sprintf("%s:%d", externalAddress.String(), constants.DefaultPeerPort),
 	})
@@ -213,7 +213,7 @@ func DefaultAdvertisePeerURLs(cfg *EtcdAdmConfig) error {
 }
 
 func DefaultListenPeerURLs(cfg *EtcdAdmConfig) error {
-	cfg.ListenPeerURLs = cfg.AdvertisePeerURLs
+	cfg.ListenPeerURLs = cfg.InitialAdvertisePeerURLs
 	return nil
 }
 
