@@ -24,6 +24,17 @@ type EtcdAdmConfig struct {
 
 	DownloadConnectTimeout time.Duration
 
+	PeerCertFile      string
+	PeerKeyFile       string
+	PeerTrustedCAFile string
+
+	CertFile      string
+	KeyFile       string
+	TrustedCAFile string
+
+	EtcdctlCertFile string
+	EtcdctlKeyFile  string
+
 	DataDir    string
 	InstallDir string
 	CacheDir   string
@@ -142,6 +153,17 @@ func setDynamicDefaults(cfg *EtcdAdmConfig) error {
 	cfg.EtcdExecutable = filepath.Join(cfg.InstallDir, "etcd")
 	cfg.EtcdctlExecutable = filepath.Join(cfg.InstallDir, "etcdctl")
 	cfg.EtcdctlShellWrapper = filepath.Join(cfg.InstallDir, "etcdctl.sh")
+
+	cfg.PeerCertFile = filepath.Join(cfg.CertificatesDir, constants.EtcdPeerCertName)
+	cfg.PeerKeyFile = filepath.Join(cfg.CertificatesDir, constants.EtcdPeerKeyName)
+	cfg.PeerTrustedCAFile = filepath.Join(cfg.CertificatesDir, constants.EtcdCACertName)
+
+	cfg.CertFile = filepath.Join(cfg.CertificatesDir, constants.EtcdServerCertName)
+	cfg.KeyFile = filepath.Join(cfg.CertificatesDir, constants.EtcdServerKeyName)
+	cfg.TrustedCAFile = filepath.Join(cfg.CertificatesDir, constants.EtcdCACertName)
+
+	cfg.EtcdctlCertFile = filepath.Join(cfg.CertificatesDir, constants.EtcdctlClientCertName)
+	cfg.EtcdctlKeyFile = filepath.Join(cfg.CertificatesDir, constants.EtcdctlClientKeyName)
 
 	cfg.GOMAXPROCS = runtime.NumCPU()
 
