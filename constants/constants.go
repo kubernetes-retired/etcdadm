@@ -98,18 +98,18 @@ ETCD_INITIAL_ADVERTISE_PEER_URLS={{ .InitialAdvertisePeerURLs.String }}
 ETCD_LISTEN_PEER_URLS={{ .ListenPeerURLs.String }}
 
 ETCD_CLIENT_CERT_AUTH=true
-ETCD_PEER_CERT_FILE={{ .CertificatesDir }}/peer.crt
-ETCD_PEER_KEY_FILE={{ .CertificatesDir }}/peer.key
-ETCD_PEER_TRUSTED_CA_FILE={{ .CertificatesDir }}/ca.crt
+ETCD_PEER_CERT_FILE={{ .PeerCertFile }}
+ETCD_PEER_KEY_FILE={{ .PeerKeyFile }}
+ETCD_PEER_TRUSTED_CA_FILE={{ .PeerTrustedCAFile }}
 
 # Client/server configuration
 ETCD_ADVERTISE_CLIENT_URLS={{ .AdvertiseClientURLs.String }}
 ETCD_LISTEN_CLIENT_URLS={{ .ListenClientURLs.String }}
 
 ETCD_PEER_CLIENT_CERT_AUTH=true
-ETCD_CERT_FILE={{ .CertificatesDir }}/server.crt
-ETCD_KEY_FILE={{ .CertificatesDir }}/server.key
-ETCD_TRUSTED_CA_FILE={{ .CertificatesDir }}/ca.crt
+ETCD_CERT_FILE={{ .CertFile }}
+ETCD_KEY_FILE={{ .KeyFile }}
+ETCD_TRUSTED_CA_FILE={{ .TrustedCAFile }}
 
 # Other
 ETCD_DATA_DIR={{ .DataDir }}
@@ -119,9 +119,9 @@ GOMAXPROCS={{ .GOMAXPROCS }}
 
 	EtcdctlEnvFileTemplate = `export ETCDCTL_API=3
 
-export ETCDCTL_CACERT={{ .CertificatesDir }}/ca.crt
-export ETCDCTL_CERT={{ .CertificatesDir }}/etcdctl-etcd-client.crt
-export ETCDCTL_KEY={{ .CertificatesDir }}/etcdctl-etcd-client.key
+export ETCDCTL_CACERT={{ .TrustedCAFile }}
+export ETCDCTL_CERT={{ .EtcdctlCertFile }}
+export ETCDCTL_KEY={{ .EtcdctlKeyFile }}
 
 export ETCDCTL_DIAL_TIMEOUT=3s
 `
