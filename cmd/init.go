@@ -2,6 +2,9 @@ package cmd
 
 import (
 	"log"
+	"os"
+
+	"github.com/platform9/etcdadm/preflight"
 
 	"github.com/platform9/etcdadm/apis"
 	"github.com/platform9/etcdadm/binary"
@@ -21,6 +24,23 @@ var initCmd = &cobra.Command{
 		if err := apis.SetInitDynamicDefaults(&etcdAdmConfig); err != nil {
 			log.Fatalf("[defaults] Error: %s", err)
 		}
+
+		log.Println("[pre-flight] Running mandatory checks")
+		if err := preflight.Mandatory(&etcdAdmConfig); err != nil {
+			log.Fatalf("[pre-flight] Error: %v", err)
+		}
+		log.Println("[pre-flight] Passed mandatory checks.")
+
+		service.DisableAndStopService(constants.UnitFileBaseName)
+		exists, err := util.Exists(etcdAdmConfig.DataDir)
+		if err != nil {
+			log.Fatalf("Unable to verify whether data dir exists: %v", err)
+		}
+		if exists {
+			log.Printf("[install] Removing existing data dir %q", etcdAdmConfig.DataDir)
+			os.RemoveAll(etcdAdmConfig.DataDir)
+		}
+
 		// etcd binaries installation
 		inCache, err := binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir)
 		if err != nil {

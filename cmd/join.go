@@ -10,6 +10,7 @@ import (
 	"github.com/platform9/etcdadm/binary"
 	"github.com/platform9/etcdadm/certs"
 	"github.com/platform9/etcdadm/constants"
+	"github.com/platform9/etcdadm/preflight"
 	"github.com/platform9/etcdadm/service"
 	"github.com/platform9/etcdadm/util"
 
@@ -30,6 +31,12 @@ var joinCmd = &cobra.Command{
 		if _, err := url.Parse(endpoint); err != nil {
 			log.Fatalf("Error: endpoint %q must be a valid URL: %s", endpoint, err)
 		}
+
+		log.Println("[pre-flight] Running mandatory checks")
+		if err := preflight.Mandatory(&etcdAdmConfig); err != nil {
+			log.Fatalf("[pre-flight] Error: %v", err)
+		}
+		log.Println("[pre-flight] Passed mandatory checks.")
 
 		var err error
 
