@@ -11,9 +11,10 @@ const (
 	DefaultBindAddressv4  = "0.0.0.0"
 	DefaultCertificateDir = "/etc/etcd/pki"
 
-	UnitFile        = "/etc/systemd/system/etcd.service"
-	EnvironmentFile = "/etc/etcd/etcd.env"
-	EtcdctlEnvFile  = "/etc/etcd/etcdctl.env"
+	UnitFileBaseName = "etcd.service"
+	UnitFile         = "/etc/systemd/system/etcd.service"
+	EnvironmentFile  = "/etc/etcd/etcd.env"
+	EtcdctlEnvFile   = "/etc/etcd/etcdctl.env"
 
 	DefaultDataDir = "/var/lib/etcd"
 
