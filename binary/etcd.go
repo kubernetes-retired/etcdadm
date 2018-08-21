@@ -29,7 +29,7 @@ func IsInstalled(version, installDir string) (bool, error) {
 
 func isEtcdInstalled(version, inputDir string) (bool, error) {
 	path := filepath.Join(inputDir, "etcd")
-	exists, err := util.FileExists(path)
+	exists, err := util.Exists(path)
 	if err != nil {
 		return false, err
 	}
@@ -42,7 +42,7 @@ func isEtcdInstalled(version, inputDir string) (bool, error) {
 
 func isEtcdctlInstalled(version, inputDir string) (bool, error) {
 	path := filepath.Join(inputDir, "etcdctl")
-	exists, err := util.FileExists(path)
+	exists, err := util.Exists(path)
 	if err != nil {
 		return false, err
 	}
