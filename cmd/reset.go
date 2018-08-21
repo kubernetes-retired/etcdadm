@@ -3,7 +3,6 @@ package cmd
 import (
 	"log"
 	"os"
-	"path/filepath"
 
 	"github.com/platform9/etcdadm/apis"
 	"github.com/platform9/etcdadm/binary"
@@ -38,8 +37,7 @@ var resetCmd = &cobra.Command{
 			log.Print(err)
 		}
 		// Disable and stop etcd service
-		unit := filepath.Base(etcdAdmConfig.UnitFile)
-		service.DisableAndStopService(unit)
+		service.DisableAndStopService(constants.UnitFileBaseName)
 		// Remove configuration files
 		if err = os.RemoveAll(etcdAdmConfig.CertificatesDir); err != nil {
 			log.Print(err)

@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"log"
-	"path/filepath"
 
 	"github.com/platform9/etcdadm/apis"
 	"github.com/platform9/etcdadm/binary"
@@ -63,8 +62,7 @@ var initCmd = &cobra.Command{
 		if err = service.WriteUnitFile(&etcdAdmConfig); err != nil {
 			log.Fatalf("[configure] Error: %s", err)
 		}
-		unit := filepath.Base(etcdAdmConfig.UnitFile)
-		if err = service.EnableAndStartService(unit); err != nil {
+		if err = service.EnableAndStartService(constants.UnitFileBaseName); err != nil {
 			log.Fatalf("[start] Error: %s", err)
 		}
 		if err = service.WriteEtcdctlEnvFile(&etcdAdmConfig); err != nil {
