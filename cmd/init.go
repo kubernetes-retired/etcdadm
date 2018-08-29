@@ -1,8 +1,13 @@
 package cmd
 
 import (
+	"context"
 	"log"
 	"os"
+	"time"
+
+	"github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes"
+	"github.com/platform9/etcdadm/etcd"
 
 	"github.com/platform9/etcdadm/preflight"
 
@@ -90,6 +95,20 @@ var initCmd = &cobra.Command{
 		}
 		if err = service.WriteEtcdctlShellWrapper(&etcdAdmConfig); err != nil {
 			log.Printf("[configure] Warning: %s", err)
+		}
+
+		log.Println("[health] Checking local etcd endpoint health")
+		client, err := etcd.ClientForEndpoint(etcdAdmConfig.LoopbackClientURL.String(), &etcdAdmConfig)
+		if err != nil {
+			log.Printf("[health] Error checking health: %v", err)
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		_, err = client.Get(ctx, "health")
+		cancel()
+		if err == nil || err == rpctypes.ErrPermissionDenied {
+			log.Println("[health] Local etcd endpoint is healthy")
+		} else {
+			log.Fatalf("[health] Local etcd endpoint is unhealthy: %v", err)
 		}
 
 		// Output etcdadm join command
