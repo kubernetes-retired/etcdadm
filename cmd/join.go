@@ -1,15 +1,19 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/url"
 	"strings"
+	"time"
 
+	"github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes"
 	"github.com/platform9/etcdadm/apis"
 	"github.com/platform9/etcdadm/binary"
 	"github.com/platform9/etcdadm/certs"
 	"github.com/platform9/etcdadm/constants"
+	"github.com/platform9/etcdadm/etcd"
 	"github.com/platform9/etcdadm/preflight"
 	"github.com/platform9/etcdadm/service"
 	"github.com/platform9/etcdadm/util"
@@ -111,7 +115,19 @@ var joinCmd = &cobra.Command{
 			log.Printf("[configure] Warning: %s", err)
 		}
 
-		// Verify cluster?
+		log.Println("[health] Checking local etcd endpoint health")
+		client, err := etcd.ClientForEndpoint(etcdAdmConfig.LoopbackClientURL.String(), &etcdAdmConfig)
+		if err != nil {
+			log.Printf("[health] Error checking health: %v", err)
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		_, err = client.Get(ctx, "health")
+		cancel()
+		if err == nil || err == rpctypes.ErrPermissionDenied {
+			log.Println("[health] Local etcd endpoint is healthy")
+		} else {
+			log.Fatalf("[health] Local etcd endpoint is unhealthy: %v", err)
+		}
 	},
 }
 
