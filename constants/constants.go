@@ -23,6 +23,7 @@ const (
 	DefaultClientPort   = 2379
 
 	DefaultDownloadConnectTimeout = 10 * time.Second
+	DefaultEtcdRequestTimeout     = 5 * time.Second
 
 	// EtcdCACertAndKeyBaseName defines etcd's CA certificate and key base name
 	EtcdCACertAndKeyBaseName = "ca"

@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes"
 	"github.com/platform9/etcdadm/apis"
@@ -120,7 +119,7 @@ var joinCmd = &cobra.Command{
 		if err != nil {
 			log.Printf("[health] Error checking health: %v", err)
 		}
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), constants.DefaultEtcdRequestTimeout)
 		_, err = client.Get(ctx, "health")
 		cancel()
 		if err == nil || err == rpctypes.ErrPermissionDenied {
