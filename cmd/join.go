@@ -120,8 +120,10 @@ var joinCmd = &cobra.Command{
 			log.Printf("[health] Error checking health: %v", err)
 		}
 		ctx, cancel := context.WithTimeout(context.Background(), constants.DefaultEtcdRequestTimeout)
-		_, err = client.Get(ctx, "health")
+		_, err = client.Get(ctx, constants.EtcdHealthCheckKey)
 		cancel()
+		// Healthy because the cluster reaches consensus for the get request,
+		// even if permission (to get the key) is denied.
 		if err == nil || err == rpctypes.ErrPermissionDenied {
 			log.Println("[health] Local etcd endpoint is healthy")
 		} else {
