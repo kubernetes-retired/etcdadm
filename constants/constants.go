@@ -25,6 +25,8 @@ const (
 	DefaultDownloadConnectTimeout = 10 * time.Second
 	DefaultEtcdRequestTimeout     = 5 * time.Second
 
+	EtcdHealthCheckKey = "health"
+
 	// EtcdCACertAndKeyBaseName defines etcd's CA certificate and key base name
 	EtcdCACertAndKeyBaseName = "ca"
 	// EtcdCACertName defines etcd's CA certificate name
