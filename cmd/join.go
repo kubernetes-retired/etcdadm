@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/url"
-	"strings"
+	"os"
+
+	"github.com/coreos/etcd/etcdserver/etcdserverpb"
 
 	"github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes"
 	"github.com/platform9/etcdadm/apis"
@@ -13,9 +14,7 @@ import (
 	"github.com/platform9/etcdadm/certs"
 	"github.com/platform9/etcdadm/constants"
 	"github.com/platform9/etcdadm/etcd"
-	"github.com/platform9/etcdadm/preflight"
 	"github.com/platform9/etcdadm/service"
-	"github.com/platform9/etcdadm/util"
 
 	"github.com/spf13/cobra"
 )
@@ -23,30 +22,100 @@ import (
 var joinCmd = &cobra.Command{
 	Use:   "join",
 	Short: "Join an existing etcd cluster",
-	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
-			return cobra.MinimumNArgs(1)(cmd, args)
-		}
-		return nil
-	},
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		endpoint := args[0]
 		if _, err := url.Parse(endpoint); err != nil {
 			log.Fatalf("Error: endpoint %q must be a valid URL: %s", endpoint, err)
 		}
 
-		log.Println("[pre-flight] Running mandatory checks")
-		if err := preflight.Mandatory(&etcdAdmConfig); err != nil {
-			log.Fatalf("[pre-flight] Error: %v", err)
-		}
-		log.Println("[pre-flight] Passed mandatory checks.")
-
-		var err error
-
 		apis.SetDefaults(&etcdAdmConfig)
-		if err = apis.SetJoinDynamicDefaults(&etcdAdmConfig); err != nil {
+		if err := apis.SetJoinDynamicDefaults(&etcdAdmConfig); err != nil {
 			log.Fatalf("[defaults] Error: %s", err)
 		}
+
+		active, err := service.Active(constants.UnitFileBaseName)
+		if err != nil {
+			log.Fatalf("[start] Error checking if etcd service is active: %s", err)
+		}
+		if active {
+			if err := service.Stop(constants.UnitFileBaseName); err != nil {
+				log.Fatalf("[start] Error stopping existing etcd service: %s", err)
+			}
+		}
+
+		enabled, err := service.Enabled(constants.UnitFileBaseName)
+		if err != nil {
+			log.Fatalf("[start] Error checking if etcd service is enabled: %s", err)
+		}
+		if enabled {
+			if err := service.Disable(constants.UnitFileBaseName); err != nil {
+				log.Fatalf("[start] Error disabling existing etcd service: %s", err)
+			}
+		}
+
+		// cert management
+		if err := certs.CreatePKIAssets(&etcdAdmConfig); err != nil {
+			log.Fatalf("[certificates] Error: %s", err)
+		}
+
+		var localMember *etcdserverpb.Member
+		var members []*etcdserverpb.Member
+		log.Println("[membership] Checking if this member was added")
+		client, err := etcd.ClientForEndpoint(endpoint, &etcdAdmConfig)
+		if err != nil {
+			log.Printf("[membership] Error checking membership: %v", err)
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), constants.DefaultEtcdRequestTimeout)
+		mresp, err := client.MemberList(ctx)
+		cancel()
+		if err != nil {
+			log.Fatalf("[membership] Error listing members: %v", err)
+		}
+		members = mresp.Members
+		localMember, ok := etcd.MemberForPeerURLs(members, etcdAdmConfig.InitialAdvertisePeerURLs.StringSlice())
+		if !ok {
+			log.Printf("[membership] Member was not added")
+			log.Printf("Removing existing data dir %q", etcdAdmConfig.DataDir)
+			os.RemoveAll(etcdAdmConfig.DataDir)
+			log.Println("[membership] Adding member")
+			ctx, cancel := context.WithTimeout(context.Background(), constants.DefaultEtcdRequestTimeout)
+			mresp, err := client.MemberAdd(ctx, etcdAdmConfig.InitialAdvertisePeerURLs.StringSlice())
+			if err != nil {
+				log.Fatalf("[membership] Error adding member: %v", err)
+			}
+			localMember = mresp.Member
+			members = mresp.Members
+			cancel()
+		} else {
+			log.Println("[membership] Member was added")
+		}
+
+		log.Println("[membership] Checking if member was started")
+		if !etcd.Started(localMember) {
+			log.Println("[membership] Member was not started")
+			log.Printf("[membership] Removing existing data dir %q", etcdAdmConfig.DataDir)
+			os.RemoveAll(etcdAdmConfig.DataDir)
+
+			// To derive the initial cluster string, add the name and peerURLs to the local member
+			localMember.Name = etcdAdmConfig.Name
+			localMember.PeerURLs = etcdAdmConfig.InitialAdvertisePeerURLs.StringSlice()
+
+			var desiredMembers []*etcdserverpb.Member
+			for _, m := range members {
+				if m.ID == localMember.ID {
+					continue
+				}
+				desiredMembers = append(desiredMembers, m)
+			}
+			desiredMembers = append(desiredMembers, localMember)
+			etcdAdmConfig.InitialCluster = etcd.InitialClusterFromMembers(desiredMembers)
+		} else {
+			log.Println("[membership] Member was started")
+			log.Printf("[membership] Keeping existing data dir %q", etcdAdmConfig.DataDir)
+			etcdAdmConfig.InitialCluster = etcd.InitialClusterFromMembers(members)
+		}
+
 		// etcd binaries installation
 		inCache, err := binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir)
 		if err != nil {
@@ -73,53 +142,29 @@ var joinCmd = &cobra.Command{
 		if !installed {
 			log.Fatalf("[install] Binaries not found in install dir. Exiting.")
 		}
-		// cert management
-		if err = certs.CreatePKIAssets(&etcdAdmConfig); err != nil {
-			log.Fatalf("[certificates] Error: %s", err)
-		}
 
-		mresp, err := util.AddSelfToEtcdCluster(endpoint, &etcdAdmConfig)
-		// resp, err := cli.MemberList(context.Background())
-		resp, err := util.MemberList(endpoint, &etcdAdmConfig)
-
-		if err != nil {
-			log.Fatalf("[cluster] Error: failed to list cluster members: %s", err)
-		}
-		conf := []string{}
-		for _, memb := range resp.Members {
-			for _, u := range memb.PeerURLs {
-				n := memb.Name
-				if memb.ID == mresp.Member.ID {
-					n = etcdAdmConfig.Name
-				}
-				conf = append(conf, fmt.Sprintf("%s=%s", n, u))
-			}
-		}
-		etcdAdmConfig.InitialCluster = strings.Join(conf, ",")
-		// End
-
-		if err = service.WriteEnvironmentFile(&etcdAdmConfig); err != nil {
+		if err := service.WriteEnvironmentFile(&etcdAdmConfig); err != nil {
 			log.Fatalf("[configure] Error: %s", err)
 		}
-		if err = service.WriteUnitFile(&etcdAdmConfig); err != nil {
+		if err := service.WriteUnitFile(&etcdAdmConfig); err != nil {
 			log.Fatalf("[configure] Error: %s", err)
 		}
-		if err = service.EnableAndStartService(constants.UnitFileBaseName); err != nil {
+		if err := service.EnableAndStartService(constants.UnitFileBaseName); err != nil {
 			log.Fatalf("[start] Error: %s", err)
 		}
-		if err = service.WriteEtcdctlEnvFile(&etcdAdmConfig); err != nil {
+		if err := service.WriteEtcdctlEnvFile(&etcdAdmConfig); err != nil {
 			log.Printf("[configure] Warning: %s", err)
 		}
-		if err = service.WriteEtcdctlShellWrapper(&etcdAdmConfig); err != nil {
+		if err := service.WriteEtcdctlShellWrapper(&etcdAdmConfig); err != nil {
 			log.Printf("[configure] Warning: %s", err)
 		}
 
 		log.Println("[health] Checking local etcd endpoint health")
-		client, err := etcd.ClientForEndpoint(etcdAdmConfig.LoopbackClientURL.String(), &etcdAdmConfig)
+		client, err = etcd.ClientForEndpoint(etcdAdmConfig.LoopbackClientURL.String(), &etcdAdmConfig)
 		if err != nil {
 			log.Printf("[health] Error checking health: %v", err)
 		}
-		ctx, cancel := context.WithTimeout(context.Background(), constants.DefaultEtcdRequestTimeout)
+		ctx, cancel = context.WithTimeout(context.Background(), constants.DefaultEtcdRequestTimeout)
 		_, err = client.Get(ctx, constants.EtcdHealthCheckKey)
 		cancel()
 		// Healthy because the cluster reaches consensus for the get request,
