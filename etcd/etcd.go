@@ -56,7 +56,7 @@ func MemberForID(members []*etcdserverpb.Member, id uint64) (*etcdserverpb.Membe
 }
 
 // Started checks whether the member has started.
-func Started(member etcdserverpb.Member) bool {
+func Started(member *etcdserverpb.Member) bool {
 	unstarted := (member.Name == "" && len(member.ClientURLs) == 0)
 	return !unstarted
 }
