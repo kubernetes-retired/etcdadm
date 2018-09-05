@@ -2,6 +2,7 @@ package etcd
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/coreos/etcd/clientv3"
@@ -74,4 +75,16 @@ func RestoreSnapshot(cfg *apis.EtcdAdmConfig) error {
 		InitialClusterToken: cfg.InitialClusterToken,
 		SkipHashCheck:       cfg.SkipHashCheck,
 	})
+}
+
+// InitialClusterFromMembers derives an "initial cluster" string from a member list
+func InitialClusterFromMembers(members []*etcdserverpb.Member) string {
+	namePeerURLs := []string{}
+	for _, m := range members {
+		for _, u := range m.PeerURLs {
+			n := m.Name
+			namePeerURLs = append(namePeerURLs, fmt.Sprintf("%s=%s", n, u))
+		}
+	}
+	return strings.Join(namePeerURLs, ",")
 }
