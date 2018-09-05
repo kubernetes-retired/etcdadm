@@ -36,23 +36,23 @@ func ClientForEndpoint(endpoint string, cfg *apis.EtcdAdmConfig) (*clientv3.Clie
 }
 
 // MemberForPeerURLs searches the list for a member with matching peerURLs.
-func MemberForPeerURLs(members []*etcdserverpb.Member, peerURLs []string) (bool, *etcdserverpb.Member) {
+func MemberForPeerURLs(members []*etcdserverpb.Member, peerURLs []string) (*etcdserverpb.Member, bool) {
 	for _, m := range members {
 		if cmp.Equal(m.PeerURLs, peerURLs, cmpopts.EquateEmpty()) {
-			return true, m
+			return m, true
 		}
 	}
-	return false, nil
+	return nil, false
 }
 
 // MemberForID searches the list for a member with a matching ID.
-func MemberForID(members []*etcdserverpb.Member, id uint64) (bool, *etcdserverpb.Member) {
+func MemberForID(members []*etcdserverpb.Member, id uint64) (*etcdserverpb.Member, bool) {
 	for _, m := range members {
 		if m.ID == id {
-			return true, m
+			return m, true
 		}
 	}
-	return false, nil
+	return nil, false
 }
 
 // Started checks whether the member has started.
