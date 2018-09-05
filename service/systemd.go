@@ -12,7 +12,7 @@ func reloadSystemd() error {
 	return nil
 }
 
-func serviceStart(service string) error {
+func Start(service string) error {
 	// Before we try to start any service, make sure that systemd is ready
 	if err := reloadSystemd(); err != nil {
 		return err
@@ -24,7 +24,7 @@ func serviceStart(service string) error {
 	return nil
 }
 
-func serviceStop(service string) error {
+func Stop(service string) error {
 	// Before we try to start any service, make sure that systemd is ready
 	if err := reloadSystemd(); err != nil {
 		return err
@@ -36,7 +36,7 @@ func serviceStop(service string) error {
 	return nil
 }
 
-func serviceEnable(service string) error {
+func Enable(service string) error {
 	// Before we try to enable any service, make sure that systemd is ready
 	if err := reloadSystemd(); err != nil {
 		return err
@@ -48,7 +48,7 @@ func serviceEnable(service string) error {
 	return nil
 }
 
-func serviceDisable(service string) error {
+func Disable(service string) error {
 	// Before we try to disable any service, make sure that systemd is ready
 	if err := reloadSystemd(); err != nil {
 		return err
@@ -62,16 +62,48 @@ func serviceDisable(service string) error {
 
 // EnableAndStartService enables and starts the etcd service
 func EnableAndStartService(service string) error {
-	if err := serviceEnable(service); err != nil {
+	if err := Enable(service); err != nil {
 		return err
 	}
-	return serviceStart(service)
+	return Start(service)
 }
 
 // DisableAndStopService disables and stops the etcd service
 func DisableAndStopService(service string) error {
-	if err := serviceDisable(service); err != nil {
+	if err := Disable(service); err != nil {
 		return err
 	}
-	return serviceStop(service)
+	return Stop(service)
+}
+
+// Active checks if the systemd unit is active
+func Active(service string) (bool, error) {
+	args := []string{"is-active", service}
+	if err := exec.Command("systemctl", args...).Run(); err != nil {
+		switch v := err.(type) {
+		case *exec.Error:
+			return false, fmt.Errorf("failed to run command %q: %s", v.Name, v.Err)
+		case *exec.ExitError:
+			return false, nil
+		default:
+			return false, err
+		}
+	}
+	return true, nil
+}
+
+// Enabled checks if the systemd unit is enabled
+func Enabled(service string) (bool, error) {
+	args := []string{"is-enabled", service}
+	if err := exec.Command("systemctl", args...).Run(); err != nil {
+		switch v := err.(type) {
+		case *exec.Error:
+			return false, fmt.Errorf("failed to run command %q: %s", v.Name, v.Err)
+		case *exec.ExitError:
+			return false, nil
+		default:
+			return false, err
+		}
+	}
+	return true, nil
 }
