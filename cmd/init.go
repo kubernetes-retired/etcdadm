@@ -8,8 +8,6 @@ import (
 	"github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes"
 	"github.com/platform9/etcdadm/etcd"
 
-	"github.com/platform9/etcdadm/preflight"
-
 	"github.com/platform9/etcdadm/apis"
 	"github.com/platform9/etcdadm/binary"
 	"github.com/platform9/etcdadm/certs"
@@ -29,13 +27,26 @@ var initCmd = &cobra.Command{
 			log.Fatalf("[defaults] Error: %s", err)
 		}
 
-		log.Println("[pre-flight] Running mandatory checks")
-		if err := preflight.Mandatory(&etcdAdmConfig); err != nil {
-			log.Fatalf("[pre-flight] Error: %v", err)
+		active, err := service.Active(constants.UnitFileBaseName)
+		if err != nil {
+			log.Fatalf("[start] Error checking if etcd service is active: %s", err)
 		}
-		log.Println("[pre-flight] Passed mandatory checks.")
+		if active {
+			if err := service.Stop(constants.UnitFileBaseName); err != nil {
+				log.Fatalf("[start] Error stopping existing etcd service: %s", err)
+			}
+		}
 
-		service.DisableAndStopService(constants.UnitFileBaseName)
+		enabled, err := service.Enabled(constants.UnitFileBaseName)
+		if err != nil {
+			log.Fatalf("[install] Error checking if etcd service is enabled: %s", err)
+		}
+		if enabled {
+			if err := service.Disable(constants.UnitFileBaseName); err != nil {
+				log.Fatalf("[install] Error disabling existing etcd service: %s", err)
+			}
+		}
+
 		exists, err := util.Exists(etcdAdmConfig.DataDir)
 		if err != nil {
 			log.Fatalf("Unable to verify whether data dir exists: %v", err)
