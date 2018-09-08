@@ -87,7 +87,7 @@ var initCmd = &cobra.Command{
 			log.Fatalf("[certificates] Error: %s", err)
 		}
 		if etcdAdmConfig.Snapshot != "" {
-			if err := util.RestoreSnapshot(&etcdAdmConfig); err != nil {
+			if err := etcd.RestoreSnapshot(&etcdAdmConfig); err != nil {
 				log.Fatalf("[snapshot] Error restoring snapshot: %v", err)
 			}
 		}
