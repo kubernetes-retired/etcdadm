@@ -64,7 +64,7 @@ var joinCmd = &cobra.Command{
 		log.Println("[membership] Checking if this member was added")
 		client, err := etcd.ClientForEndpoint(endpoint, &etcdAdmConfig)
 		if err != nil {
-			log.Printf("[membership] Error checking membership: %v", err)
+			log.Fatalf("[membership] Error checking membership: %v", err)
 		}
 		ctx, cancel := context.WithTimeout(context.Background(), constants.DefaultEtcdRequestTimeout)
 		mresp, err := client.MemberList(ctx)
