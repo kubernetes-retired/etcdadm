@@ -24,7 +24,8 @@ go get -u github.com/platform9/etcdadm
 
 ### Creating a new cluster
 
-Copy `etcdadm` to each machine that will become a member. On the first machine, run:
+1. Copy `etcdadm` to each machine that will become a member.
+2. Choose one machine and run
 
 ```
 etcdadm init
@@ -32,12 +33,20 @@ etcdadm init
 
 ### Adding a member
 
-1. Copy CA cert/key from a machine in the cluster
-2. Choose a cluster endpoint (i.e. client URL of some member) and run `etcdadm join <endpoint>`
+1. Copy the CA certificate and key from any machine in the cluster to the machine being added.
+2. Choose a cluster endpoint (i.e. client URL of some member) and run
+
+```
+etcdadm join <endpoint>
+```
 
 ### Removing a member
 
-1. Run `etcdadm reset`
+On the machine being removed, run
+
+```
+etcdadm reset
+```
 
 ## Advanced Usage
 
