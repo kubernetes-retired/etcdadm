@@ -10,6 +10,8 @@ etcdadm is a command-line tool for managing an etcd cluster. It makes it easy to
     - [Creating a new cluster](#creating-a-new-cluster)
     - [Adding a member](#adding-a-member)
     - [Removing a member](#removing-a-member)
+  - [Advanced Features](#advanced-features)
+    - [Creating a new cluster from a snapshot](#creating-a-new-cluster-from-a-snapshot)
   - [Caveats & Limitations](#caveats--limitations)
 
 ## Getting Started
@@ -28,14 +30,6 @@ Copy `etcdadm` to each machine that will become a member. On the first machine, 
 etcdadm init
 ```
 
-#### From a snapshot
-
-If you have an existing etcd snapshot, you can use it to create a new cluster:
-
-```
-etcdadm init --snapshot /path/to/etcd.snapshot
-```
-
 ### Adding a member
 
 1. Copy CA cert/key from a machine in the cluster
@@ -44,6 +38,16 @@ etcdadm init --snapshot /path/to/etcd.snapshot
 ### Removing a member
 
 1. Run `etcdadm reset`
+
+## Advanced Features
+
+### Creating a new cluster from a snapshot
+
+If you have an existing etcd snapshot, you can use it to create a new cluster:
+
+```
+etcdadm init --snapshot /path/to/etcd.snapshot
+```
 
 ## Caveats and Limitations
 
