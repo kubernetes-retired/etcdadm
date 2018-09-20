@@ -1,7 +1,7 @@
 etcdadm
 =======
 
-etcdadm is a command-line tool for managing an etcd cluster. It makes it easy to create a new cluster, add a member to, or remove a member from an existing cluster. Its user experience is inspired by [kubeadm](http://blah.com).
+etcdadm is a command-line tool for managing an etcd cluster. It makes it easy to create a new cluster, add a member to, or remove a member from an existing cluster. Its user experience is inspired by [kubeadm](https://kubernetes.io/docs/reference/setup-tools/kubeadm/).
 
 ## Table of Contents
 
