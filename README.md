@@ -10,7 +10,7 @@ etcdadm is a command-line tool for managing an etcd cluster. It makes it easy to
     - [Creating a new cluster](#creating-a-new-cluster)
     - [Adding a member](#adding-a-member)
     - [Removing a member](#removing-a-member)
-  - [Advanced Features](#advanced-features)
+  - [Advanced Usage](#advanced-usage)
     - [Creating a new cluster from a snapshot](#creating-a-new-cluster-from-a-snapshot)
   - [Caveats & Limitations](#caveats--limitations)
 
@@ -39,7 +39,7 @@ etcdadm init
 
 1. Run `etcdadm reset`
 
-## Advanced Features
+## Advanced Usage
 
 ### Creating a new cluster from a snapshot
 
