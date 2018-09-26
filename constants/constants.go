@@ -101,6 +101,7 @@ LimitNOFILE=65536
 Nice=-10
 IOSchedulingClass=best-effort
 IOSchedulingPriority=2
+MemoryLow=200M
 
 [Install]
 WantedBy=multi-user.target
