@@ -15,7 +15,7 @@ etcdadm is a command-line tool for operating an etcd cluster. It makes it easy t
   - [Advanced Usage](#advanced-usage)
     - [Creating a new cluster from a snapshot](#creating-a-new-cluster-from-a-snapshot)
   - [Caveats & Limitations](#caveats--limitations)
-  - [Design]
+  - [Design](#design)
 
 ## Getting Started
 
