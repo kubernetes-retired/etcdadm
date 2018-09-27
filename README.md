@@ -3,7 +3,7 @@ etcdadm
 
 etcdadm is a command-line tool for operating an etcd cluster. It makes it easy to create a new cluster, add a member to, or remove a member from an existing cluster. Its user experience is inspired by [kubeadm](https://kubernetes.io/docs/reference/setup-tools/kubeadm/).
 
-[![asciicast](https://asciinema.org/a/Ham0ZE4YobtgfJTvcfn1SKfZN.png)](https://asciinema.org/a/Ham0ZE4YobtgfJTvcfn1SKfZN)
+![alt text](demo.svg "etcdadm demo - generated with https://github.com/nbedos/termtosvg")
 
 ## Table of Contents
 
