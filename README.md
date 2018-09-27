@@ -69,8 +69,8 @@ etcdadm init --snapshot /path/to/etcd.snapshot
 
 ## Design
 
-Etcdadm is meant to simplify some of the more mundane steps of operating an etcd cluster. It will download a specific release, install the binary, configure a systemd service, and add/remove a cluster member. It is used today to operate etcd clusters in an environment with no IaaS APIs and no egress to the internet.
+The goal of etcdadm is to make it easy to operate an etcd cluster. It downloads a specific etcd release, installs the binary, configures a systemd service, generates certificates, calls the etcd API to add (or remove) a member, and verifies that the new member is healthy.
 
-It does not automate cluster operation. For example, if a member permanently fails, and the operator cannot invoke `etcdadm reset` on that machine, the operator must use the etcd API to delete the failed member from the list of members.
+Etcdadm must be run on the machine that is being added or removed. As a consequence, if a member permanently fails, and the operator cannot invoke `etcdadm reset` on that machine, the operator must use the etcd API to delete the failed member from the list of members.
 
-On the other hand, etcdadm could be used with a higher-level controller that reconciles cluster membership against some external source of truth (e.g. an IaaS API like AWS EC2). The controller would delegate all of the tasks local to the host (installation, configuration) to etcdadm.
+On its own, etcdadm does not automate cluster operation, but a cluster orchestrator can delegate all the above tasks to etcdadm.
