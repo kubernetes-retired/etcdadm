@@ -145,6 +145,8 @@ func InstallFromCache(version, installDir, cacheDir string) (bool, error) {
 	if err := extract(tmpDir, archive); err != nil {
 		return true, fmt.Errorf("unable to extract etcd archive: %s", err)
 	}
+	// Create the install dir
+	os.MkdirAll(installDir, 755)
 	// Copy binaries
 	if err := Install(tmpDir, installDir); err != nil {
 		return false, fmt.Errorf("unable to copy binaries: %s", err)
