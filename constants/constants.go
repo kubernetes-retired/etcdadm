@@ -153,7 +153,7 @@ if ! [ -r "{{ .EtcdctlEnvFile }}" ]; then
 	echo "Unable to read the etcdctl environment file '{{ .EtcdctlEnvFile }}'. The file must exist, and this wrapper must be run as root."
 	exit 1
 fi
-source "{{ .EtcdctlEnvFile }}"
+. "{{ .EtcdctlEnvFile }}"
 "{{ .EtcdctlExecutable }}" "$@"
 `
 )
