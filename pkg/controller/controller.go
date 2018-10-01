@@ -321,7 +321,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 
 	restoreBackupCommand := m.getRestoreBackupCommand()
 	if restoreBackupCommand != nil {
-		glog.Infof("got restore-backup command: %v", restoreBackupCommand.Data)
+		glog.Infof("got restore-backup command: %v", restoreBackupCommand.Data())
 
 		if restoreBackupCommand.Data().RestoreBackup == nil || restoreBackupCommand.Data().RestoreBackup.ClusterSpec == nil {
 			// Should be unreachable
@@ -857,7 +857,7 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterState *etc
 	desiredQuorumSize := quorumSize(desiredMemberCount)
 
 	if len(clusterState.peers) < desiredQuorumSize {
-		glog.Infof("Insufficient peers to form a quorum %d, won't proceed", quorumSize)
+		glog.Infof("Insufficient peers to form a quorum %d, won't proceed", desiredQuorumSize)
 		return false, nil
 	}
 
@@ -868,7 +868,7 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterState *etc
 		if quorumSize(len(clusterState.peers)) == desiredQuorumSize {
 			glog.Infof("Fewer peers (%d) than desired members (%d), but quorum size is the same, so will proceed", len(clusterState.peers), desiredMemberCount)
 		} else {
-			glog.Infof("Insufficient peers to form full cluster %d, won't proceed", quorumSize)
+			glog.Infof("Insufficient peers to form full cluster %d, won't proceed", desiredQuorumSize)
 			return false, nil
 		}
 	}
