@@ -47,3 +47,4 @@ dep-ensure:
 	find vendor/ -name "BUILD.bazel" -delete
 	bazel run //:gazelle
 	rm -f vendor/github.com/coreos/etcd/cmd/etcd
+	rm -rf vendor/github.com/golang/protobuf/protoc-gen-go/testdata
