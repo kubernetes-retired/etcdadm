@@ -13,7 +13,8 @@ container_image(
     tars = [
         "@etcd_2_2_1_tar//file",  # etcd2 version
         "@etcd_3_1_12_tar//file",  # k8s 1.10
-        "@etcd_3_2_18_tar//file",  # current k8s 1.11
+        "@etcd_3_2_18_tar//file",  # original k8s 1.11
+        "@etcd_3_2_24_tar//file",  # updated recommendation for k8s 1.11 and later
     ],
 )
 
