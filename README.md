@@ -1,9 +1,11 @@
 etcdadm
 =======
 
-etcdadm is a command-line tool for managing an etcd cluster. It makes it easy to create a new cluster, add a member to, or remove a member from an existing cluster. Its user experience is inspired by [kubeadm](https://kubernetes.io/docs/reference/setup-tools/kubeadm/).
+etcdadm is a command-line tool for operating an etcd cluster. It makes it easy to create a new cluster, add a member to, or remove a member from an existing cluster. Its user experience is inspired by [kubeadm](https://kubernetes.io/docs/reference/setup-tools/kubeadm/).
 
-[![asciicast](https://asciinema.org/a/Ham0ZE4YobtgfJTvcfn1SKfZN.png)](https://asciinema.org/a/Ham0ZE4YobtgfJTvcfn1SKfZN)
+<p align="center">
+    <img src="https://cdn.rawgit.com/platform9/etcdadm/master/demo.svg">
+</p>
 
 ## Table of Contents
 
@@ -15,6 +17,7 @@ etcdadm is a command-line tool for managing an etcd cluster. It makes it easy to
   - [Advanced Usage](#advanced-usage)
     - [Creating a new cluster from a snapshot](#creating-a-new-cluster-from-a-snapshot)
   - [Caveats & Limitations](#caveats--limitations)
+  - [Design](#design)
 
 ## Getting Started
 
@@ -64,3 +67,12 @@ etcdadm init --snapshot /path/to/etcd.snapshot
 
 1. Must run as root. (This is because etcdadm creates a systemd service)
 2. Does not support etcd v2.
+3. Currently tested on Container Linux, with plans for other platforms.
+
+## Design
+
+The goal of etcdadm is to make it easy to operate an etcd cluster. It downloads a specific etcd release, installs the binary, configures a systemd service, generates certificates, calls the etcd API to add (or remove) a member, and verifies that the new member is healthy.
+
+Etcdadm must be run on the machine that is being added or removed. As a consequence, if a member permanently fails, and the operator cannot invoke `etcdadm reset` on that machine, the operator must use the etcd API to delete the failed member from the list of members.
+
+On its own, etcdadm does not automate cluster operation, but a cluster orchestrator can delegate all the above tasks to etcdadm.
