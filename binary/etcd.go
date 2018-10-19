@@ -19,12 +19,13 @@ package binary
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
+
+	log "github.com/platform9/etcdadm/pkg/logrus"
 
 	"github.com/platform9/etcdadm/constants"
 	"github.com/platform9/etcdadm/util"

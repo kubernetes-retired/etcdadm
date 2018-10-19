@@ -19,7 +19,8 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+
+	log "github.com/platform9/etcdadm/pkg/logrus"
 
 	"github.com/ghodss/yaml"
 	"github.com/spf13/cobra"
