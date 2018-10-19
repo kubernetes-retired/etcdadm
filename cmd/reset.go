@@ -18,8 +18,9 @@ package cmd
 
 import (
 	"context"
-	"log"
 	"os"
+
+	log "github.com/platform9/etcdadm/pkg/logrus"
 
 	"github.com/coreos/etcd/etcdserver/etcdserverpb"
 	"github.com/platform9/etcdadm/apis"
