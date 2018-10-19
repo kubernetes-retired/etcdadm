@@ -29,8 +29,8 @@ unused-packages = true
 
 [[constraint]]
   name = "k8s.io/kops"
-  revision = "cccd71e67e681754759c5cf7f66850d8908613b6" # 1.9.0
+  version = "v1.10.0"
 
 [[constraint]]
   name = "k8s.io/kubernetes"
-  version = "v1.10.1"
+  version = "v1.12.1"
