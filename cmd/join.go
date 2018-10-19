@@ -18,9 +18,10 @@ package cmd
 
 import (
 	"context"
-	"log"
 	"net/url"
 	"os"
+
+	log "github.com/platform9/etcdadm/pkg/logrus"
 
 	"github.com/coreos/etcd/etcdserver/etcdserverpb"
 

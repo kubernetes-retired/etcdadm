@@ -25,7 +25,8 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"fmt"
-	"log"
+
+	log "github.com/platform9/etcdadm/pkg/logrus"
 
 	"github.com/platform9/etcdadm/apis"
 	"github.com/platform9/etcdadm/certs/pkiutil"

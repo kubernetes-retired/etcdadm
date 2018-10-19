@@ -17,7 +17,7 @@
 package cmd
 
 import (
-	"log"
+	log "github.com/platform9/etcdadm/pkg/logrus"
 
 	"github.com/platform9/etcdadm/apis"
 	"github.com/platform9/etcdadm/binary"
