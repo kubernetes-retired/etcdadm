@@ -59,7 +59,7 @@ var resetCmd = &cobra.Command{
 				log.Println("[membership] Checking if this member was removed")
 				client, err := etcd.ClientForEndpoint(etcdAdmConfig.LoopbackClientURL.String(), &etcdAdmConfig)
 				if err != nil {
-					log.Printf("[membership] Error checking membership: %v", err)
+					log.Fatalf("[membership] Error checking membership: %v", err)
 				}
 				ctx, cancel := context.WithTimeout(context.Background(), constants.DefaultEtcdRequestTimeout)
 				mresp, err := client.MemberList(ctx)
