@@ -321,10 +321,12 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 
 	restoreBackupCommand := m.getRestoreBackupCommand()
 	if restoreBackupCommand != nil {
-		glog.Infof("got restore-backup command: %v", restoreBackupCommand.Data())
+		data := restoreBackupCommand.Data()
+		glog.Infof("got restore-backup command: %v", data.String())
 
-		if restoreBackupCommand.Data().RestoreBackup == nil || restoreBackupCommand.Data().RestoreBackup.ClusterSpec == nil {
+		if data.RestoreBackup == nil || data.RestoreBackup.ClusterSpec == nil {
 			// Should be unreachable
+			glog.Warningf("restore-backup command had no data: %v", restoreBackupCommand)
 			return false, fmt.Errorf("RestoreBackup was not set: %v", restoreBackupCommand)
 		}
 
@@ -333,7 +335,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 			return false, nil
 		}
 
-		clusterSpec := restoreBackupCommand.Data().RestoreBackup.ClusterSpec
+		clusterSpec := data.RestoreBackup.ClusterSpec
 		if _, err := m.createNewCluster(ctx, clusterState, clusterSpec); err != nil {
 			return false, err
 		}
