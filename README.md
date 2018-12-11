@@ -18,6 +18,7 @@ etcdadm is a command-line tool for operating an etcd cluster. It makes it easy t
     - [Creating a new cluster from a snapshot](#creating-a-new-cluster-from-a-snapshot)
   - [Caveats & Limitations](#caveats--limitations)
   - [Design](#design)
+  - [Questions](#questions)
 
 ## Getting Started
 
@@ -76,3 +77,8 @@ The goal of etcdadm is to make it easy to operate an etcd cluster. It downloads 
 Etcdadm must be run on the machine that is being added or removed. As a consequence, if a member permanently fails, and the operator cannot invoke `etcdadm reset` on that machine, the operator must use the etcd API to delete the failed member from the list of members.
 
 On its own, etcdadm does not automate cluster operation, but a cluster orchestrator can delegate all the above tasks to etcdadm.
+
+<a name="questions"></a>
+## Questions?
+
+For more information reach out to [etcdadm slack channel](https://kubernetes.slack.com/messages/CEM0AT9GW)
