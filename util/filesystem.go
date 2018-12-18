@@ -17,8 +17,10 @@
 package util
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 // Exists checks whether the file or directory exists.
@@ -34,8 +36,9 @@ func Exists(path string) (bool, error) {
 
 // CopyFile copies file from src to dest
 func CopyFile(srcFile, destFile string) error {
-	if err := exec.Command("cp", "-f", srcFile, destFile).Run(); err != nil {
-		return err
+	if output, err := exec.Command("cp", "-f", srcFile, destFile).CombinedOutput(); err != nil {
+		stderr := strings.TrimSpace(string(output))
+		return fmt.Errorf("unable to copy file from %s -> %s (%s): %v", srcFile, destFile, stderr, err)
 	}
 	return nil
 }
