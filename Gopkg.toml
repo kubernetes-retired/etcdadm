@@ -52,7 +52,3 @@
 [prune]
   go-tests = true
   unused-packages = true
-
-[[constraint]]
-  name = "github.com/google/go-cmp"
-  version = "0.2.0"

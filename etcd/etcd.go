@@ -26,9 +26,6 @@ import (
 	"github.com/coreos/etcd/pkg/transport"
 	"github.com/coreos/etcd/snapshot"
 
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
-
 	"github.com/platform9/etcdadm/apis"
 )
 
@@ -55,11 +52,24 @@ func ClientForEndpoint(endpoint string, cfg *apis.EtcdAdmConfig) (*clientv3.Clie
 // MemberForPeerURLs searches the list for a member with matching peerURLs.
 func MemberForPeerURLs(members []*etcdserverpb.Member, peerURLs []string) (*etcdserverpb.Member, bool) {
 	for _, m := range members {
-		if cmp.Equal(m.PeerURLs, peerURLs, cmpopts.EquateEmpty()) {
+		if stringSlicesEqual(m.PeerURLs, peerURLs) {
 			return m, true
 		}
 	}
 	return nil, false
+}
+
+// stringSlicesEqual compares two string slices for equality
+func stringSlicesEqual(l, r []string) bool {
+	if len(l) != len(r) {
+		return false
+	}
+	for i := range l {
+		if l[i] != r[i] {
+			return false
+		}
+	}
+	return true
 }
 
 // MemberForID searches the list for a member with a matching ID.
