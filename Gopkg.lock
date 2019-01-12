@@ -346,26 +346,36 @@
   revision = "91d8586aac31d9086939d077ba556d2c7fb157b4"
 
 [[projects]]
-  digest = "1:ae93b7099dd2f6ed6e1c2ba3e8bda7a6d6becdaf66d5a20280f71efa208aeb3d"
+  digest = "1:bf83d8940d59a175dad5ba323b47c6e62b3ba2dc9b2d449f629288deeeeb6582"
+  name = "k8s.io/client-go"
+  packages = ["util/homedir"]
+  pruneopts = "UT"
+  revision = "1638f8970cefaa404ff3a62950f88b08292b2696"
+  version = "v9.0.0"
+
+[[projects]]
+  digest = "1:8a335574b2ecf993b2520eed2035e5f9d6ed562d2d0c659f0ca510686fc239e2"
   name = "k8s.io/kops"
   packages = [
     "util/pkg/hashing",
     "util/pkg/vfs",
   ]
   pruneopts = "UT"
-  revision = "cccd71e67e681754759c5cf7f66850d8908613b6"
+  revision = "8b52ea6d1cac6913cb2fa8edda6e054a6fdc5f27"
+  version = "1.10.0"
 
 [[projects]]
-  digest = "1:37025afb60511c8f306ae49b92ca8630253677126f47da2f9bef0f77a4b785d3"
+  digest = "1:54f05d2b09982c6ce153e2157eef013d98133cfea437a992a1a40d702a8770e4"
   name = "k8s.io/kubernetes"
   packages = [
+    "pkg/util/file",
     "pkg/util/io",
     "pkg/util/mount",
     "pkg/util/nsenter",
   ]
   pruneopts = "UT"
-  revision = "81753b10df112992bf51bbc2c2f85208aad78335"
-  version = "v1.10.2"
+  revision = "4ed3216f3ec431b140b1d899130a69fc671678f4"
+  version = "v1.12.1"
 
 [[projects]]
   branch = "master"
