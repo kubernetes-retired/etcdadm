@@ -267,6 +267,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	// Number of peers that are configured as part of this cluster
 	configuredMembers := 0
 	quarantinedMembers := 0
+	nonQuarantinedMembers := 0
 	for _, peer := range clusterState.peers {
 		if peer.info == nil {
 			continue
@@ -280,6 +281,8 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 
 			if peer.info.EtcdState.Quarantined {
 				quarantinedMembers++
+			} else {
+				nonQuarantinedMembers++
 			}
 		}
 	}
@@ -387,6 +390,12 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 				glog.Infof("insufficient peers to lift quarantine")
 				return false, nil
 			}
+		}
+
+		// Ensure that if anyone is quarantined (and should be) that everyone is quarantined
+		if nonQuarantinedMembers > 0 {
+			glog.Infof("inconsistent quarantine state, will set all to quarantined")
+			return m.updateQuarantine(ctx, clusterState, true)
 		}
 	}
 
