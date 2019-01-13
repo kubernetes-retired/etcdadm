@@ -12,6 +12,7 @@ import (
 	"github.com/golang/glog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/commands"
+	"kope.io/etcd-manager/pkg/pki"
 )
 
 // testCycleInterval is the cycle interval to use for tests.
@@ -21,6 +22,7 @@ const testCycleInterval = time.Second
 type TestHarness struct {
 	T *testing.T
 
+	CA                *pki.Keypair
 	ClusterName       string
 	LockPath          string
 	BackupStorePath   string
@@ -49,6 +51,14 @@ func NewTestHarness(t *testing.T, ctx context.Context) *TestHarness {
 		Nodes:       make(map[string]*TestHarnessNode),
 		Context:     ctx,
 	}
+
+	store := pki.NewFSStore(filepath.Join(h.WorkDir, "pki"))
+	keypairs := pki.Keypairs{Store: store}
+	ca, err := keypairs.CA()
+	if err != nil {
+		t.Fatalf("error building CA: %v", err)
+	}
+	h.CA = ca
 
 	// To test with S3:
 	// TEST_VFS_BASE_DIR=s3://bucket/etcd-manager/testing/ go test ./test/... -args --v=2 -logtostderr

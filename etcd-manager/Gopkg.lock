@@ -346,12 +346,23 @@
   revision = "91d8586aac31d9086939d077ba556d2c7fb157b4"
 
 [[projects]]
-  digest = "1:bf83d8940d59a175dad5ba323b47c6e62b3ba2dc9b2d449f629288deeeeb6582"
+  digest = "1:7d39f3ce15df904cd2da2de9fb11df1174b69be30517b443b7e4c428de5a7a17"
   name = "k8s.io/client-go"
-  packages = ["util/homedir"]
+  packages = [
+    "util/cert",
+    "util/homedir",
+  ]
   pruneopts = "UT"
   revision = "1638f8970cefaa404ff3a62950f88b08292b2696"
   version = "v9.0.0"
+
+[[projects]]
+  digest = "1:e2999bf1bb6eddc2a6aa03fe5e6629120a53088926520ca3b4765f77d7ff7eab"
+  name = "k8s.io/klog"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "a5bc97fbc634d635061f3146511332c7e313a55a"
+  version = "v0.1.0"
 
 [[projects]]
   digest = "1:8a335574b2ecf993b2520eed2035e5f9d6ed562d2d0c659f0ca510686fc239e2"
@@ -408,10 +419,14 @@
     "google.golang.org/api/googleapi",
     "google.golang.org/grpc",
     "google.golang.org/grpc/connectivity",
+    "google.golang.org/grpc/credentials",
     "gopkg.in/yaml.v2",
     "k8s.io/apimachinery/pkg/util/wait",
+    "k8s.io/client-go/util/cert",
+    "k8s.io/klog",
     "k8s.io/kops/util/pkg/vfs",
     "k8s.io/kubernetes/pkg/util/mount",
+    "k8s.io/kubernetes/pkg/util/nsenter",
     "k8s.io/utils/exec",
   ]
   solver-name = "gps-cdcl"

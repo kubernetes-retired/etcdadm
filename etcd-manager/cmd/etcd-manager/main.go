@@ -18,6 +18,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"flag"
 	"fmt"
 	"os"
@@ -34,9 +35,11 @@ import (
 	"kope.io/etcd-manager/pkg/etcd"
 	"kope.io/etcd-manager/pkg/legacy"
 	"kope.io/etcd-manager/pkg/locking"
+	"kope.io/etcd-manager/pkg/pki"
 	"kope.io/etcd-manager/pkg/privateapi"
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 	vfsdiscovery "kope.io/etcd-manager/pkg/privateapi/discovery/vfs"
+	"kope.io/etcd-manager/pkg/tlsconfig"
 	"kope.io/etcd-manager/pkg/volumes"
 	"kope.io/etcd-manager/pkg/volumes/aws"
 	"kope.io/etcd-manager/pkg/volumes/gce"
@@ -70,6 +73,8 @@ func main() {
 	flag.StringVar(&o.BackupStorePath, "backup-store", o.BackupStorePath, "backup store location")
 	flag.StringVar(&o.BackupInterval, "backup-interval", o.BackupInterval, "interval for periodic backups")
 	flag.StringVar(&o.DataDir, "data-dir", o.DataDir, "directory for storing etcd data")
+
+	flag.StringVar(&o.PKIDir, "pki-dir", o.PKIDir, "directory for PKI keys")
 
 	flag.StringVar(&o.VolumeProviderID, "volume-provider", o.VolumeProviderID, "provider for volumes")
 
@@ -107,6 +112,7 @@ func expandUrls(urls string, address string, name string) []string {
 
 // EtcdManagerOptions holds the flag options for running etcd-manager
 type EtcdManagerOptions struct {
+	PKIDir               string
 	Address              string
 	VolumeProviderID     string
 	PeerUrls             string
@@ -146,6 +152,8 @@ func (o *EtcdManagerOptions) InitDefaults() {
 
 	// o.BackupStorePath = "/backups"
 	// o.DataDir = "/data"
+
+	// o.PKIDir = "/etc/kubernetes/pki/etcd-manager"
 }
 
 // RunEtcdManager runs the etcd-manager, returning only we should exit.
@@ -264,13 +272,30 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 		discoveryProvider = vfsDiscovery
 	}
 
+	var grpcServerTLS *tls.Config
+	var grpcClientTLS *tls.Config
+	if o.PKIDir != "" {
+		store := pki.NewFSStore(o.PKIDir)
+		keypairs := &pki.Keypairs{Store: store}
+
+		grpcServerTLS, err = tlsconfig.GRPCServerConfig(keypairs, string(myPeerId))
+		if err != nil {
+			return err
+		}
+
+		grpcClientTLS, err = tlsconfig.GRPCClientConfig(keypairs, string(myPeerId))
+		if err != nil {
+			return err
+		}
+	}
+
 	ctx := context.TODO()
 
 	myInfo := privateapi.PeerInfo{
 		Id:        string(myPeerId),
 		Endpoints: []string{grpcEndpoint},
 	}
-	peerServer, err := privateapi.NewServer(ctx, myInfo, discoveryProvider)
+	peerServer, err := privateapi.NewServer(ctx, myInfo, grpcServerTLS, discoveryProvider, grpcClientTLS)
 	if err != nil {
 		return fmt.Errorf("error building server: %v", err)
 	}
