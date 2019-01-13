@@ -6,6 +6,7 @@ go_library(
         "commands.go",
         "controller.go",
         "etcdclusterstate.go",
+        "newcluster.go",
         "peer.go",
         "restore.go",
         "upgrade.go",
