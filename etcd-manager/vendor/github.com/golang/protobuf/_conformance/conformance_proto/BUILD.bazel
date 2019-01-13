@@ -2,19 +2,17 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "go_default_library",
-    srcs = [
-        "any.go",
-        "doc.go",
-        "duration.go",
-        "timestamp.go",
-    ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/golang/protobuf/ptypes",
-    importpath = "github.com/golang/protobuf/ptypes",
+    srcs = ["conformance.pb.go"],
+    importmap = "kope.io/etcd-manager/vendor/github.com/golang/protobuf/_conformance/conformance_proto",
+    importpath = "github.com/golang/protobuf/_conformance/conformance_proto",
     visibility = ["//visibility:public"],
     deps = [
         "//vendor/github.com/golang/protobuf/proto:go_default_library",
         "//vendor/github.com/golang/protobuf/ptypes/any:go_default_library",
         "//vendor/github.com/golang/protobuf/ptypes/duration:go_default_library",
+        "//vendor/github.com/golang/protobuf/ptypes/struct:go_default_library",
         "//vendor/github.com/golang/protobuf/ptypes/timestamp:go_default_library",
+        "//vendor/github.com/golang/protobuf/ptypes/wrappers:go_default_library",
+        "@org_golang_google_genproto//protobuf:go_default_library",
     ],
 )
