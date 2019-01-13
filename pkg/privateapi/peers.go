@@ -9,6 +9,7 @@ import (
 	"github.com/golang/glog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
+	"google.golang.org/grpc/credentials"
 	"kope.io/etcd-manager/pkg/contextutil"
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 )
@@ -219,25 +220,18 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 	}
 
 	var opts []grpc.DialOption
-	//if *tls {
-	//	var sn string
-	//	if *serverHostOverride != "" {
-	//		sn = *serverHostOverride
-	//	}
-	//	var creds credentials.TransportCredentials
-	//	if *caFile != "" {
-	//		var err error
-	//		creds, err = credentials.NewClientTLSFromFile(*caFile, sn)
-	//		if err != nil {
-	//			grpclog.Fatalf("Failed to create TLS credentials %v", err)
-	//		}
-	//	} else {
-	//		creds = credentials.NewClientTLSFromCert(nil, sn)
-	//	}
-	//	opts = append(opts, grpc.WithTransportCredentials(creds))
-	//} else {
-	opts = append(opts, grpc.WithInsecure())
-	//}
+	if p.server.clientTLSConfig != nil {
+		cfg := p.server.clientTLSConfig.Clone()
+		cfg.ServerName = "etcd-manager-server-" + string(p.id)
+		creds := credentials.NewTLS(cfg)
+
+		glog.Infof("connecting to peer %q with TLS policy, servername=%q", p.id, cfg.ServerName)
+
+		opts = append(opts, grpc.WithTransportCredentials(creds))
+	} else {
+		glog.Warningf("connecting to peer %q insecurely", p.id)
+		opts = append(opts, grpc.WithInsecure())
+	}
 
 	endpoints := make(map[string]bool)
 	{
@@ -268,7 +262,7 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 		}
 		response, err := client.Ping(context, request)
 		if err != nil {
-			glog.Warningf("unable to talk to discovered peer %s: %v", endpoint, err)
+			glog.Warningf("unable to grpc-ping discovered peer %s: %v", endpoint, err)
 			conn.Close()
 			continue
 		}
