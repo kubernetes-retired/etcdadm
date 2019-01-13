@@ -3,6 +3,7 @@ package harness
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -16,9 +17,11 @@ import (
 	"kope.io/etcd-manager/pkg/etcd"
 	"kope.io/etcd-manager/pkg/etcdclient"
 	"kope.io/etcd-manager/pkg/locking"
+	"kope.io/etcd-manager/pkg/pki"
 	"kope.io/etcd-manager/pkg/privateapi"
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 	vfsdiscovery "kope.io/etcd-manager/pkg/privateapi/discovery/vfs"
+	"kope.io/etcd-manager/pkg/tlsconfig"
 )
 
 type TestHarnessNode struct {
@@ -67,11 +70,25 @@ func (n *TestHarnessNode) Run() {
 		glog.Fatalf("error building discovery: %v", err)
 	}
 
+	store := pki.NewFSStore(filepath.Join(n.NodeDir, "pki"))
+	keypairs := &pki.Keypairs{Store: store}
+	keypairs.SetCA(n.TestHarness.CA)
+
+	serverTLSConfig, err := tlsconfig.GRPCServerConfig(keypairs, string(uniqueID))
+	if err != nil {
+		t.Fatalf("error building server TLS config: %v", err)
+	}
+
+	clientTLSConfig, err := tlsconfig.GRPCClientConfig(keypairs, string(uniqueID))
+	if err != nil {
+		t.Fatalf("error building client TLS config: %v", err)
+	}
+
 	myInfo := privateapi.PeerInfo{
 		Id:        string(uniqueID),
 		Endpoints: []string{grpcEndpoint},
 	}
-	peerServer, err := privateapi.NewServer(n.ctx, myInfo, disco)
+	peerServer, err := privateapi.NewServer(n.ctx, myInfo, serverTLSConfig, disco, clientTLSConfig)
 	peerServer.PingInterval = time.Second
 	peerServer.HealthyTimeout = time.Second * 5
 	peerServer.DiscoveryPollInterval = time.Second * 5
