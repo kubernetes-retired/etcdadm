@@ -101,7 +101,7 @@ func (s *vfsStore) ListCommands() ([]Command, error) {
 		return commands[i].Data().Timestamp < commands[j].Data().Timestamp
 	})
 
-	glog.Infof("listed commands in %s: %d commands", s.commandsBase.Path(), len(commands))
+	glog.V(2).Infof("listed commands in %s: %d commands", s.commandsBase.Path(), len(commands))
 
 	return commands, nil
 }

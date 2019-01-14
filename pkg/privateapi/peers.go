@@ -204,7 +204,7 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 			state := p.conn.GetState()
 			switch state {
 			case connectivity.TransientFailure, connectivity.Shutdown:
-				glog.Warningf("closing grpc connection to peer %s in state %s", p, state)
+				glog.Warningf("closing grpc connection to peer %s in state %s", p.id, state)
 				p.conn.Close()
 				p.conn = nil
 			default:
