@@ -1,6 +1,7 @@
 package etcdclient
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 )
@@ -18,8 +19,8 @@ type EtcdProcessMember struct {
 	idv3 uint64
 }
 
-func (m *EtcdProcessMember) NewClient() (EtcdClient, error) {
-	return NewClient(m.etcdVersion, m.ClientURLs)
+func (m *EtcdProcessMember) NewClient(tlsConfig *tls.Config) (EtcdClient, error) {
+	return NewClient(m.etcdVersion, m.ClientURLs, tlsConfig)
 }
 
 func (m *EtcdProcessMember) String() string {

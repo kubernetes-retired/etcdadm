@@ -3,6 +3,7 @@ package controller
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"fmt"
 
 	"github.com/golang/glog"
@@ -14,6 +15,9 @@ import (
 type EtcdMemberId string
 
 type etcdClusterState struct {
+	// etcdClientTLSConfig is the tls.Config for connecting to etcd as a client
+	etcdClientTLSConfig *tls.Config
+
 	members        map[EtcdMemberId]*etcdclient.EtcdProcessMember
 	peers          map[privateapi.PeerId]*etcdClusterPeerInfo
 	healthyMembers map[EtcdMemberId]*etcdclient.EtcdProcessMember
@@ -75,7 +79,7 @@ func (p *etcdClusterPeerInfo) String() string {
 
 func (s *etcdClusterState) etcdAddMember(ctx context.Context, nodeInfo *protoetcd.EtcdNode) (*etcdclient.EtcdProcessMember, error) {
 	for _, member := range s.members {
-		etcdClient, err := member.NewClient()
+		etcdClient, err := member.NewClient(s.etcdClientTLSConfig)
 		if err != nil {
 			glog.Warningf("unable to build client for member %s: %v", member.Name, err)
 			continue
@@ -95,7 +99,7 @@ func (s *etcdClusterState) etcdAddMember(ctx context.Context, nodeInfo *protoetc
 
 func (s *etcdClusterState) etcdRemoveMember(ctx context.Context, member *etcdclient.EtcdProcessMember) error {
 	for id, member := range s.members {
-		etcdClient, err := member.NewClient()
+		etcdClient, err := member.NewClient(s.etcdClientTLSConfig)
 		if err != nil {
 			glog.Warningf("unable to build client for member %s: %v", member.Name, err)
 			continue
@@ -119,7 +123,7 @@ func (s *etcdClusterState) etcdGet(ctx context.Context, key string) ([]byte, err
 			continue
 		}
 
-		etcdClient, err := member.NewClient()
+		etcdClient, err := member.NewClient(s.etcdClientTLSConfig)
 		if err != nil {
 			glog.Warningf("unable to build client for member %s: %v", member, err)
 			continue
@@ -145,7 +149,7 @@ func (s *etcdClusterState) etcdCreate(ctx context.Context, key string, value []b
 			continue
 		}
 
-		etcdClient, err := member.NewClient()
+		etcdClient, err := member.NewClient(s.etcdClientTLSConfig)
 		if err != nil {
 			glog.Warningf("unable to build client for member %s: %v", member.Name, err)
 			continue

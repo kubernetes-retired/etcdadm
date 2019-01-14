@@ -2,6 +2,7 @@ package harness
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"testing"
 	"time"
@@ -53,7 +54,10 @@ func (n *TestHarnessNode) NewClient() (etcdclient.EtcdClient, error) {
 	clientUrls := []string{
 		n.ClientURL,
 	}
-	return etcdclient.NewClient(n.EtcdVersion, clientUrls)
+
+	// TODO
+	var tlsConfig *tls.Config
+	return etcdclient.NewClient(n.EtcdVersion, clientUrls, tlsConfig)
 }
 
 func waitForListMembers(t *testing.T, client etcdclient.EtcdClient, timeout time.Duration) {

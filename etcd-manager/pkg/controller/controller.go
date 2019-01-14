@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	crypto_rand "crypto/rand"
+	"crypto/tls"
 	"encoding/base64"
 	"fmt"
 	"io"
@@ -74,6 +75,9 @@ type EtcdController struct {
 
 	// controlClusterSpec is the expected cluster spec, as read from the control store
 	controlClusterSpec *protoetcd.ClusterSpec
+
+	// etcdClientTLSConfig is a TLS configuration for talking to etcd members, including a client certificate
+	etcdClientTLSConfig *tls.Config
 }
 
 // peerState holds persistent information about a peer
@@ -536,7 +540,8 @@ func (m *EtcdController) broadcastMemberMap(ctx context.Context, etcdClusterStat
 // updateClusterState queries each peer (including ourselves) for information about the desired state of the world
 func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) (*etcdClusterState, error) {
 	clusterState := &etcdClusterState{
-		peers: make(map[privateapi.PeerId]*etcdClusterPeerInfo),
+		etcdClientTLSConfig: m.etcdClientTLSConfig,
+		peers:               make(map[privateapi.PeerId]*etcdClusterPeerInfo),
 	}
 
 	// Collect info from each peer
@@ -572,7 +577,7 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 			continue
 		}
 
-		etcdClient, err := etcdclient.NewClient(p.info.EtcdState.EtcdVersion, clientUrls)
+		etcdClient, err := etcdclient.NewClient(p.info.EtcdState.EtcdVersion, clientUrls, m.etcdClientTLSConfig)
 		if err != nil {
 			glog.Warningf("unable to reach member %s: %v", p, err)
 			continue
@@ -600,7 +605,7 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 	clusterState.healthyMembers = make(map[EtcdMemberId]*etcdclient.EtcdProcessMember)
 	//clusterState.versions = make(map[EtcdMemberId]*version.Versions)
 	for id, member := range clusterState.members {
-		etcdClient, err := member.NewClient()
+		etcdClient, err := member.NewClient(m.etcdClientTLSConfig)
 		if err != nil {
 			glog.Warningf("health-check unable to reach member %s: %v", id, err)
 			continue

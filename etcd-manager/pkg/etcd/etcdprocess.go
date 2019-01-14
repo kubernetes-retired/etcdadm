@@ -1,6 +1,8 @@
 package etcd
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"net/url"
 	"os"
@@ -13,9 +15,11 @@ import (
 	"time"
 
 	"github.com/golang/glog"
+	certutil "k8s.io/client-go/util/cert"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/etcdclient"
+	"kope.io/etcd-manager/pkg/pki"
 )
 
 var baseDirs = []string{"/opt"}
@@ -34,6 +38,14 @@ func init() {
 type etcdProcess struct {
 	BinDir  string
 	DataDir string
+
+	PKIPeersDir   string
+	PKIClientsDir string
+
+	etcdClientsCA *pki.Keypair
+	// etcdClientTLSConfig is the tls.Config we can use to talk to the etcd process,
+	// including a client certificate & CA configuration (if needed)
+	etcdClientTLSConfig *tls.Config
 
 	// EtcdVersion is the version of etcd we are running
 	EtcdVersion string
@@ -182,6 +194,24 @@ func (p *etcdProcess) Start() error {
 	}
 	env["ETCD_INITIAL_CLUSTER"] = strings.Join(initialCluster, ",")
 
+	if p.PKIPeersDir != "" {
+		env["ETCD_PEER_CLIENT_CERT_AUTH"] = "true"
+		env["ETCD_PEER_TRUSTED_CA_FILE"] = filepath.Join(p.PKIPeersDir, "ca.crt")
+		env["ETCD_PEER_CERT_FILE"] = filepath.Join(p.PKIPeersDir, "me.crt")
+		env["ETCD_PEER_KEY_FILE"] = filepath.Join(p.PKIPeersDir, "me.key")
+	} else {
+		glog.Warningf("PKIPeersDir not set, won't use PKI for peers")
+	}
+
+	if p.PKIClientsDir != "" {
+		env["ETCD_CLIENT_CERT_AUTH"] = "true"
+		env["ETCD_TRUSTED_CA_FILE"] = filepath.Join(p.PKIClientsDir, "ca.crt")
+		env["ETCD_CERT_FILE"] = filepath.Join(p.PKIClientsDir, "server.crt")
+		env["ETCD_KEY_FILE"] = filepath.Join(p.PKIClientsDir, "server.key")
+	} else {
+		glog.Warningf("PKIPeersDir not set, won't use PKI for clients")
+	}
+
 	for k, v := range env {
 		c.Env = append(c.Env, k+"="+v)
 	}
@@ -226,6 +256,39 @@ func changeHost(urls []string, host string) []string {
 	return remapped
 }
 
+func BuildTLSClientConfig(keypairs *pki.Keypairs, cn string) (*tls.Config, error) {
+	ca, err := keypairs.CA()
+	if err != nil {
+		return nil, err
+	}
+
+	caPool := x509.NewCertPool()
+	caPool.AddCert(ca.Certificate)
+
+	memStore := pki.NewInMemoryStore()
+	keypairs = &pki.Keypairs{Store: memStore}
+	keypairs.SetCA(ca)
+
+	keypair, err := keypairs.EnsureKeypair("client", certutil.Config{
+		CommonName: cn,
+		Usages:     []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
+	}, ca)
+	if err != nil {
+		return nil, err
+	}
+
+	c := &tls.Config{
+		RootCAs: caPool,
+	}
+	c.Certificates = append(c.Certificates, tls.Certificate{
+		Certificate: [][]byte{keypair.Certificate.Raw},
+		PrivateKey:  keypair.PrivateKey,
+		Leaf:        keypair.Certificate,
+	})
+
+	return c, nil
+}
+
 func (p *etcdProcess) NewClient() (etcdclient.EtcdClient, error) {
 	var me *protoetcd.EtcdNode
 	for _, node := range p.Cluster.Nodes {
@@ -242,7 +305,7 @@ func (p *etcdProcess) NewClient() (etcdclient.EtcdClient, error) {
 		clientUrls = me.QuarantinedClientUrls
 	}
 
-	return etcdclient.NewClient(p.EtcdVersion, clientUrls)
+	return etcdclient.NewClient(p.EtcdVersion, clientUrls, p.etcdClientTLSConfig)
 }
 
 // isV2 checks if this is etcd v2
@@ -265,7 +328,7 @@ func (p *etcdProcess) DoBackup(store backup.Store, info *protoetcd.BackupInfo) (
 		clientUrls = me.QuarantinedClientUrls
 	}
 
-	return DoBackup(store, info, p.DataDir, clientUrls)
+	return DoBackup(store, info, p.DataDir, clientUrls, p.etcdClientTLSConfig)
 }
 
 // RestoreV3Snapshot calls etcdctl snapshot restore
