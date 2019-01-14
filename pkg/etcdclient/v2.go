@@ -2,7 +2,9 @@ package etcdclient
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -20,7 +22,7 @@ type V2Client struct {
 
 var _ EtcdClient = &V2Client{}
 
-func NewV2Client(clientUrls []string) (EtcdClient, error) {
+func NewV2Client(clientUrls []string, tlsConfig *tls.Config) (EtcdClient, error) {
 	if len(clientUrls) == 0 {
 		return nil, fmt.Errorf("no endpoints provided")
 	}
@@ -29,6 +31,13 @@ func NewV2Client(clientUrls []string) (EtcdClient, error) {
 		Transport:               etcd_client_v2.DefaultTransport,
 		HeaderTimeoutPerRequest: 10 * time.Second,
 	}
+	if tlsConfig != nil {
+		transport := *(cfg.Transport.(*http.Transport))
+		transport.TLSClientConfig = tlsConfig
+
+		cfg.Transport = &transport
+	}
+
 	etcdClient, err := etcd_client_v2.New(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("error building etcd client for %s: %v", clientUrls, err)

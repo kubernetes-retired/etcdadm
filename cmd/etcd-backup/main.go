@@ -18,13 +18,13 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"flag"
 	"fmt"
 	"os"
 	"time"
 
 	"github.com/golang/glog"
-
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/backupcontroller"
 )
@@ -65,12 +65,15 @@ func main() {
 
 	ctx := context.TODO()
 
+	// TODO
+	var etcdClientTLSConfig *tls.Config
+
 	backupStore, err := backup.NewStore(backupStorePath)
 	if err != nil {
 		glog.Fatalf("error initializing backup store: %v", err)
 	}
 	clientURLs := []string{clientURL}
-	c, err := backupcontroller.NewBackupController(backupStore, clusterName, clientURLs, dataDir, backupInterval)
+	c, err := backupcontroller.NewBackupController(backupStore, clusterName, clientURLs, etcdClientTLSConfig, dataDir, backupInterval)
 	if err != nil {
 		glog.Fatalf("error building backup controller: %v", err)
 	}

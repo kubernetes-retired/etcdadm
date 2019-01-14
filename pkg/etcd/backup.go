@@ -2,6 +2,7 @@ package etcd
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -15,7 +16,7 @@ import (
 )
 
 // DoBackup performs a backup of etcd v2 or v3
-func DoBackup(backupStore backup.Store, info *protoetcd.BackupInfo, dataDir string, clientUrls []string) (*protoetcd.DoBackupResponse, error) {
+func DoBackup(backupStore backup.Store, info *protoetcd.BackupInfo, dataDir string, clientUrls []string, tlsConfig *tls.Config) (*protoetcd.DoBackupResponse, error) {
 	etcdVersion := info.EtcdVersion
 	if etcdVersion == "" {
 		return nil, fmt.Errorf("EtcdVersion not set")
@@ -24,7 +25,7 @@ func DoBackup(backupStore backup.Store, info *protoetcd.BackupInfo, dataDir stri
 	if etcdclient.IsV2(etcdVersion) {
 		return DoBackupV2(backupStore, info, dataDir)
 	} else {
-		return DoBackupV3(backupStore, info, clientUrls)
+		return DoBackupV3(backupStore, info, clientUrls, tlsConfig)
 	}
 }
 
@@ -92,7 +93,7 @@ func DoBackupV2(backupStore backup.Store, info *protoetcd.BackupInfo, dataDir st
 }
 
 // DoBackupV3 performs a backup of etcd v3; using the etcd v3 API
-func DoBackupV3(backupStore backup.Store, info *protoetcd.BackupInfo, clientUrls []string) (*protoetcd.DoBackupResponse, error) {
+func DoBackupV3(backupStore backup.Store, info *protoetcd.BackupInfo, clientUrls []string, tlsConfig *tls.Config) (*protoetcd.DoBackupResponse, error) {
 	etcdVersion := info.EtcdVersion
 
 	tempDir, err := ioutil.TempDir("", "")
@@ -107,7 +108,7 @@ func DoBackupV3(backupStore backup.Store, info *protoetcd.BackupInfo, clientUrls
 		}
 	}()
 
-	client, err := etcdclient.NewClient(etcdVersion, clientUrls)
+	client, err := etcdclient.NewClient(etcdVersion, clientUrls, tlsConfig)
 	if err != nil {
 		return nil, fmt.Errorf("error building etcd client to etcd: %v", err)
 	}
