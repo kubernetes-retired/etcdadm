@@ -2,6 +2,7 @@ package etcdclient
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"io"
 	"strings"
@@ -53,12 +54,12 @@ type LocalNodeInfo struct {
 	IsLeader bool
 }
 
-func NewClient(etcdVersion string, clientURLs []string) (EtcdClient, error) {
+func NewClient(etcdVersion string, clientURLs []string, tlsConfig *tls.Config) (EtcdClient, error) {
 	if IsV2(etcdVersion) {
-		return NewV2Client(clientURLs)
+		return NewV2Client(clientURLs, tlsConfig)
 	}
 	if IsV3(etcdVersion) {
-		return NewV3Client(clientURLs)
+		return NewV3Client(clientURLs, tlsConfig)
 	}
 	return nil, fmt.Errorf("unhandled etcd version %q", etcdVersion)
 }

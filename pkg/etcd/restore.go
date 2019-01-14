@@ -13,6 +13,7 @@ import (
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/etcdclient"
+	"kope.io/etcd-manager/pkg/pki"
 )
 
 // DoRestore restores a backup from the backup store
@@ -83,6 +84,7 @@ func (s *EtcdServer) DoRestore(ctx context.Context, request *protoetcd.DoRestore
 
 func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir string) (*etcdProcess, error) {
 	dataDir := filepath.Join(basedir, "data")
+	pkiDir := filepath.Join(basedir, "pki")
 	clusterToken := filepath.Base(dataDir)
 
 	backupInfo, err := backupStore.LoadInfo(backupName)
@@ -116,10 +118,10 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 	// TODO: randomize port
 	port := 8002
 	peerPort := 8003 // Needed because otherwise etcd won't start (sadly)
-	clientUrl := "http://127.0.0.1:" + strconv.Itoa(port)
-	peerUrl := "http://127.0.0.1:" + strconv.Itoa(peerPort)
+	clientUrl := "https://127.0.0.1:" + strconv.Itoa(port)
+	peerUrl := "https://127.0.0.1:" + strconv.Itoa(peerPort)
 	myNodeName := "restore"
-	node := &protoetcd.EtcdNode{
+	myNode := &protoetcd.EtcdNode{
 		Name:       myNodeName,
 		ClientUrls: []string{clientUrl},
 		PeerUrls:   []string{peerUrl},
@@ -132,10 +134,36 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 		DataDir:          dataDir,
 		Cluster: &protoetcd.EtcdCluster{
 			ClusterToken: clusterToken,
-			Nodes:        []*protoetcd.EtcdNode{node},
+			Nodes:        []*protoetcd.EtcdNode{myNode},
 		},
 		MyNodeName:    myNodeName,
 		ListenAddress: "127.0.0.1",
+	}
+
+	var etcdClientsCA *pki.Keypair
+	{
+		store := pki.NewInMemoryStore()
+		keypairs := pki.Keypairs{Store: store}
+		ca, err := keypairs.CA()
+		if err != nil {
+			return nil, fmt.Errorf("error building CA: %v", err)
+		}
+		etcdClientsCA = ca
+	}
+
+	var etcdPeersCA *pki.Keypair
+	{
+		store := pki.NewInMemoryStore()
+		keypairs := pki.Keypairs{Store: store}
+		ca, err := keypairs.CA()
+		if err != nil {
+			return nil, fmt.Errorf("error building CA: %v", err)
+		}
+		etcdPeersCA = ca
+	}
+
+	if err := p.createKeypairs(etcdPeersCA, etcdClientsCA, pkiDir, myNode); err != nil {
+		return nil, err
 	}
 
 	if isV2 {
