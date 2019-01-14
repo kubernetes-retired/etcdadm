@@ -169,7 +169,7 @@ func (n *TestHarnessNode) Run() {
 }
 
 func (n *TestHarnessNode) WaitForListMembers(timeout time.Duration) {
-	client, err := etcdclient.NewClient(n.EtcdVersion, []string{n.ClientURL})
+	client, err := n.NewClient()
 	if err != nil {
 		n.TestHarness.T.Fatalf("error building etcd client: %v", err)
 	}
@@ -178,7 +178,7 @@ func (n *TestHarnessNode) WaitForListMembers(timeout time.Duration) {
 }
 
 func (n *TestHarnessNode) ListMembers(ctx context.Context) ([]*etcdclient.EtcdProcessMember, error) {
-	client, err := etcdclient.NewClient(n.EtcdVersion, []string{n.ClientURL})
+	client, err := n.NewClient()
 	if err != nil {
 		n.TestHarness.T.Fatalf("error building etcd client: %v", err)
 	}
@@ -204,7 +204,7 @@ func (n *TestHarnessNode) Close() error {
 func (n *TestHarnessNode) AssertVersion(t *testing.T, version string) {
 	ctx := context.TODO()
 
-	client, err := etcdclient.NewClient(n.EtcdVersion, []string{n.ClientURL})
+	client, err := n.NewClient()
 	if err != nil {
 		n.TestHarness.T.Fatalf("error building etcd client: %v", err)
 	}
@@ -223,7 +223,7 @@ func (n *TestHarnessNode) WaitForHealthy(timeout time.Duration) {
 
 	endAt := time.Now().Add(timeout)
 	for {
-		client, err := etcdclient.NewClient(n.EtcdVersion, []string{n.ClientURL})
+		client, err := n.NewClient()
 		if err != nil {
 			n.TestHarness.T.Fatalf("error building etcd client: %v", err)
 		}
