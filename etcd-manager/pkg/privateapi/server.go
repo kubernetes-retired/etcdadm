@@ -1,6 +1,7 @@
 package privateapi
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net"
 	"sync"
@@ -9,12 +10,15 @@ import (
 	"github.com/golang/glog"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 )
 
 type Server struct {
 	myInfo     PeerInfo
 	grpcServer *grpc.Server
+
+	clientTLSConfig *tls.Config
 
 	discovery discovery.Interface
 
@@ -36,12 +40,13 @@ type Server struct {
 	HealthyTimeout time.Duration
 }
 
-func NewServer(ctx context.Context, myInfo PeerInfo, discovery discovery.Interface) (*Server, error) {
+func NewServer(ctx context.Context, myInfo PeerInfo, serverTLSConfig *tls.Config, discovery discovery.Interface, clientTLSConfig *tls.Config) (*Server, error) {
 	s := &Server{
-		discovery: discovery,
-		myInfo:    myInfo,
-		peers:     make(map[PeerId]*peer),
-		context:   ctx,
+		discovery:       discovery,
+		clientTLSConfig: clientTLSConfig,
+		myInfo:          myInfo,
+		peers:           make(map[PeerId]*peer),
+		context:         ctx,
 
 		DiscoveryPollInterval: defaultDiscoveryPollInterval,
 		PingInterval:          defaultPingInterval,
@@ -49,13 +54,15 @@ func NewServer(ctx context.Context, myInfo PeerInfo, discovery discovery.Interfa
 	}
 
 	var opts []grpc.ServerOption
-	//if *tls {
-	//	creds, err := credentials.NewServerTLSFromFile(*certFile, *keyFile)
-	//	if err != nil {
-	//		grpclog.Fatalf("Failed to generate credentials %v", err)
-	//	}
-	//	opts = []grpc.ServerOption{grpc.Creds(creds)}
-	//}
+	if serverTLSConfig != nil {
+		glog.Infof("starting GRPC server using TLS, ServerName=%q", serverTLSConfig.ServerName)
+		opts = []grpc.ServerOption{
+			grpc.Creds(credentials.NewTLS(serverTLSConfig)),
+		}
+	} else {
+		glog.Warningf("starting insecure GRPC server")
+	}
+
 	s.grpcServer = grpc.NewServer(opts...)
 
 	return s, nil
@@ -65,6 +72,8 @@ var _ ClusterServiceServer = &Server{}
 
 func (s *Server) ListenAndServe(ctx context.Context, listen string) error {
 	go s.runDiscovery(ctx)
+
+	glog.Infof("GRPC server listening on %q", listen)
 
 	lis, err := net.Listen("tcp", listen)
 	if err != nil {
