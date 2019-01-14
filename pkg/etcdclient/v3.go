@@ -3,6 +3,7 @@ package etcdclient
 import (
 	"compress/gzip"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -23,17 +24,19 @@ type V3Client struct {
 	client    *etcd_client_v3.Client
 	kv        etcd_client_v3.KV
 	cluster   etcd_client_v3.Cluster
+	tlsConfig *tls.Config
 }
 
 var _ EtcdClient = &V3Client{}
 
-func NewV3Client(endpoints []string) (EtcdClient, error) {
+func NewV3Client(endpoints []string, tlsConfig *tls.Config) (EtcdClient, error) {
 	if len(endpoints) == 0 {
 		return nil, fmt.Errorf("no endpoints provided")
 	}
 	cfg := etcd_client_v3.Config{
 		Endpoints:   endpoints,
 		DialTimeout: 10 * time.Second,
+		TLS:         tlsConfig,
 	}
 	etcdClient, err := etcd_client_v3.New(cfg)
 	if err != nil {
@@ -46,6 +49,7 @@ func NewV3Client(endpoints []string) (EtcdClient, error) {
 		client:    etcdClient,
 		kv:        kv,
 		cluster:   etcd_client_v3.NewCluster(etcdClient),
+		tlsConfig: tlsConfig,
 	}, nil
 }
 
@@ -59,13 +63,25 @@ func (c *V3Client) String() string {
 
 // ServerVersion returns the version of etcd running
 func (c *V3Client) ServerVersion(ctx context.Context) (string, error) {
+	tr := &http.Transport{
+		TLSClientConfig: c.tlsConfig,
+	}
+	httpClient := &http.Client{Transport: tr}
+
 	for _, endpoint := range c.endpoints {
 		u := endpoint
 		if !strings.HasSuffix(u, "/") {
 			u += "/"
 		}
 		u += "version"
-		resp, err := http.Get(u)
+
+		req, err := http.NewRequest("GET", u, nil)
+		if err != nil {
+			glog.Warningf("failed to fetch %s: %v", u, err)
+			continue
+		}
+
+		resp, err := httpClient.Do(req)
 		if err != nil {
 			glog.Warningf("failed to fetch %s: %v", u, err)
 			continue
