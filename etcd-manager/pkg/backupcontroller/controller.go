@@ -2,11 +2,11 @@ package backupcontroller
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"time"
 
 	"github.com/golang/glog"
-
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/contextutil"
@@ -24,6 +24,7 @@ type BackupController struct {
 
 	clientUrls []string
 
+	etcdClientTLSConfig *tls.Config
 	// lastBackup is the time at which we last performed a backup (as leader)
 	lastBackup time.Time
 
@@ -32,18 +33,19 @@ type BackupController struct {
 	backupCleanup *BackupCleanup
 }
 
-func NewBackupController(backupStore backup.Store, clusterName string, clientUrls []string, dataDir string, backupInterval time.Duration) (*BackupController, error) {
+func NewBackupController(backupStore backup.Store, clusterName string, clientUrls []string, etcdClientTLSConfig *tls.Config, dataDir string, backupInterval time.Duration) (*BackupController, error) {
 	if clusterName == "" {
 		return nil, fmt.Errorf("ClusterName is required")
 	}
 
 	m := &BackupController{
-		clusterName:    clusterName,
-		backupStore:    backupStore,
-		dataDir:        dataDir,
-		clientUrls:     clientUrls,
-		backupInterval: backupInterval,
-		backupCleanup:  NewBackupCleanup(backupStore),
+		clusterName:         clusterName,
+		backupStore:         backupStore,
+		dataDir:             dataDir,
+		clientUrls:          clientUrls,
+		etcdClientTLSConfig: etcdClientTLSConfig,
+		backupInterval:      backupInterval,
+		backupCleanup:       NewBackupCleanup(backupStore),
 	}
 	return m, nil
 }
@@ -71,7 +73,7 @@ func (m *BackupController) run(ctx context.Context) error {
 		return fmt.Errorf("DataDir is required for etcd v2")
 	}
 
-	etcdClient, err := etcdclient.NewClient(etcdVersion, m.clientUrls)
+	etcdClient, err := etcdclient.NewClient(etcdVersion, m.clientUrls, m.etcdClientTLSConfig)
 	if err != nil {
 		return fmt.Errorf("unable to reach etcd on %s: %v", m.clientUrls, err)
 	}
@@ -127,5 +129,5 @@ func (m *BackupController) doClusterBackup(ctx context.Context, etcdVersion stri
 		EtcdVersion: etcdVersion,
 	}
 
-	return etcd.DoBackup(m.backupStore, info, m.dataDir, m.clientUrls)
+	return etcd.DoBackup(m.backupStore, info, m.dataDir, m.clientUrls, m.etcdClientTLSConfig)
 }
