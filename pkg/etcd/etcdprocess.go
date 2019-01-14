@@ -200,7 +200,7 @@ func (p *etcdProcess) Start() error {
 		env["ETCD_PEER_CERT_FILE"] = filepath.Join(p.PKIPeersDir, "me.crt")
 		env["ETCD_PEER_KEY_FILE"] = filepath.Join(p.PKIPeersDir, "me.key")
 	} else {
-		glog.Warningf("PKIPeersDir not set, won't use PKI for peers")
+		glog.Warningf("using insecure configuration for etcd peers")
 	}
 
 	if p.PKIClientsDir != "" {
@@ -209,7 +209,7 @@ func (p *etcdProcess) Start() error {
 		env["ETCD_CERT_FILE"] = filepath.Join(p.PKIClientsDir, "server.crt")
 		env["ETCD_KEY_FILE"] = filepath.Join(p.PKIClientsDir, "server.key")
 	} else {
-		glog.Warningf("PKIPeersDir not set, won't use PKI for clients")
+		glog.Warningf("using insecure configuration for etcd clients")
 	}
 
 	for k, v := range env {
