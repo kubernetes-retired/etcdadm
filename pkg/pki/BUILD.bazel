@@ -5,6 +5,7 @@ go_library(
     srcs = [
         "certs.go",
         "fs.go",
+        "inmem.go",
         "store.go",
         "utils.go",
     ],

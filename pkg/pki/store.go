@@ -1,7 +1,6 @@
 package pki
 
 import (
-	"path/filepath"
 	"sync"
 
 	certutil "k8s.io/client-go/util/cert"
@@ -9,26 +8,6 @@ import (
 
 type Store interface {
 	Keypair(name string) MutableKeypair
-}
-
-type FSStore struct {
-	basedir string
-}
-
-var _ Store = &FSStore{}
-
-func NewFSStore(basedir string) *FSStore {
-	return &FSStore{
-		basedir: basedir,
-	}
-}
-
-func (s *FSStore) Keypair(name string) MutableKeypair {
-	p := name
-	return &MutableKeypairFromFile{
-		PrivateKeyPath:  filepath.Join(s.basedir, p+".key"),
-		CertificatePath: filepath.Join(s.basedir, p+".crt"),
-	}
 }
 
 // Keypairs manages a set of keypairs, providing utilities for fetching / creating them
