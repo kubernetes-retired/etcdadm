@@ -74,7 +74,7 @@ func waitForListMembers(t *testing.T, client etcdclient.EtcdClient, timeout time
 }
 
 func (n *TestHarnessNode) WaitForQuorumRead(ctx context.Context, timeout time.Duration) {
-	client, err := etcdclient.NewClient(n.EtcdVersion, []string{n.ClientURL})
+	client, err := n.NewClient()
 	if err != nil {
 		n.TestHarness.T.Fatalf("error building etcd client: %v", err)
 	}
