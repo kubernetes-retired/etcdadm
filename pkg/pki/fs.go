@@ -14,38 +14,17 @@ import (
 
 func LoadCAFromDisk(dir string) (*Keypair, error) {
 	klog.Infof("Loading certificate authority from %v", dir)
-	certPath := filepath.Join(dir, "ca.crt")
-	certMaterial, err := ioutil.ReadFile(certPath)
-	if err != nil {
-		return nil, fmt.Errorf("unable to read cert %v: %v", certPath, err)
+
+	keypair := &Keypair{}
+
+	if err := loadPrivateKey(filepath.Join(dir, "ca.key"), keypair); err != nil {
+		return nil, err
 	}
-	keyPath := filepath.Join(dir, "ca.key")
-	keyMaterial, err := ioutil.ReadFile(keyPath)
-	if err != nil {
-		return nil, fmt.Errorf("unable to read key %v: %v", keyPath, err)
-	}
-	cert, err := ParseOneCertificate(certMaterial)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing cert %q: %v", certPath, err)
+	if err := loadCertificate(filepath.Join(dir, "ca.crt"), keypair); err != nil {
+		return nil, err
 	}
 
-	key, err := certutil.ParsePrivateKeyPEM(keyMaterial)
-	if err != nil {
-		return nil, fmt.Errorf("unable to parse private key %q: %v", keyPath, err)
-	}
-
-	rsaKey, ok := key.(*rsa.PrivateKey)
-	if !ok {
-		return nil, fmt.Errorf("unexpected private key type in %q: %T", keyPath, key)
-	}
-
-	ca := &Keypair{
-		Certificate:    cert,
-		CertificatePEM: certMaterial,
-		PrivateKey:     rsaKey,
-		PrivateKeyPEM:  keyMaterial,
-	}
-	return ca, nil
+	return keypair, nil
 }
 
 type MutableKeypairFromFile struct {
@@ -57,52 +36,26 @@ var _ MutableKeypair = &MutableKeypairFromFile{}
 
 func (s *MutableKeypairFromFile) MutateKeypair(mutator func(keypair *Keypair) error) (*Keypair, error) {
 	keypair := &Keypair{}
-
-	privateKeyBytes, err := ioutil.ReadFile(s.PrivateKeyPath)
-	if err != nil {
+	if err := loadPrivateKey(s.PrivateKeyPath, keypair); err != nil {
 		if !os.IsNotExist(err) {
-			return nil, fmt.Errorf("unable to read key %v: %v", s.PrivateKeyPath, err)
+			return nil, err
 		}
-		privateKeyBytes = nil
+		// We tolerate a missing key when generating the keypair
 	}
-
-	if privateKeyBytes != nil {
-		key, err := certutil.ParsePrivateKeyPEM(privateKeyBytes)
-		if err != nil {
-			return nil, fmt.Errorf("unable to parse private key %q: %v", s.PrivateKeyPath, err)
-		}
-
-		rsaKey, ok := key.(*rsa.PrivateKey)
-		if !ok {
-			return nil, fmt.Errorf("unexpected private key type in %q: %T", s.PrivateKeyPath, key)
-		}
-		keypair.PrivateKey = rsaKey
-		keypair.PrivateKeyPEM = privateKeyBytes
-	}
-
-	certBytes, err := ioutil.ReadFile(s.CertificatePath)
-	if err != nil {
+	if err := loadCertificate(s.CertificatePath, keypair); err != nil {
 		if !os.IsNotExist(err) {
-			return nil, fmt.Errorf("unable to read certificate %v: %v", s.CertificatePath, err)
+			return nil, err
 		}
-		certBytes = nil
+		// We tolerate a missing cert when generating the keypair
 	}
 
-	if certBytes != nil {
-		cert, err := ParseOneCertificate(certBytes)
-		if err != nil {
-			return nil, fmt.Errorf("error parsing certificate data in %q: %v", s.CertificatePath, err)
-		}
-
-		keypair.Certificate = cert
-		keypair.CertificatePEM = certBytes
-	}
+	original := *keypair
 
 	if err := mutator(keypair); err != nil {
 		return nil, err
 	}
 
-	if !bytes.Equal(privateKeyBytes, keypair.PrivateKeyPEM) {
+	if !bytes.Equal(original.PrivateKeyPEM, keypair.PrivateKeyPEM) {
 		if err := os.MkdirAll(filepath.Dir(s.PrivateKeyPath), 0755); err != nil {
 			return nil, fmt.Errorf("error creating directories for private key file %q: %v", s.PrivateKeyPath, err)
 		}
@@ -112,7 +65,8 @@ func (s *MutableKeypairFromFile) MutateKeypair(mutator func(keypair *Keypair) er
 		}
 	}
 
-	if !bytes.Equal(certBytes, keypair.CertificatePEM) {
+	if !bytes.Equal(original.CertificatePEM, keypair.CertificatePEM) {
+		// TODO: Replace with simpler call to WriteCertificate?
 		if err := os.MkdirAll(filepath.Dir(s.CertificatePath), 0755); err != nil {
 			return nil, fmt.Errorf("error creating directories for certificate file %q: %v", s.CertificatePath, err)
 		}
@@ -123,4 +77,97 @@ func (s *MutableKeypairFromFile) MutateKeypair(mutator func(keypair *Keypair) er
 	}
 
 	return keypair, nil
+}
+
+type FSStore struct {
+	basedir string
+}
+
+var _ Store = &FSStore{}
+
+func NewFSStore(basedir string) *FSStore {
+	return &FSStore{
+		basedir: basedir,
+	}
+}
+
+func (s *FSStore) Keypair(name string) MutableKeypair {
+	return &MutableKeypairFromFile{
+		PrivateKeyPath:  filepath.Join(s.basedir, name+".key"),
+		CertificatePath: filepath.Join(s.basedir, name+".crt"),
+	}
+}
+
+func (s *FSStore) WriteCertificate(name string, keypair *Keypair) error {
+	p := filepath.Join(s.basedir, name+".crt")
+
+	if err := os.MkdirAll(filepath.Dir(p), 0755); err != nil {
+		return fmt.Errorf("error creating directories for certificate file %q: %v", p, err)
+	}
+
+	if err := ioutil.WriteFile(p, keypair.CertificatePEM, 0644); err != nil {
+		return fmt.Errorf("error writing certificate key file %q: %v", p, err)
+	}
+
+	return nil
+}
+
+func (s *FSStore) LoadKeypair(name string) (*Keypair, error) {
+	keypair := &Keypair{}
+	if err := loadPrivateKey(filepath.Join(s.basedir, name+".key"), keypair); err != nil {
+		return nil, err
+	}
+	if err := loadCertificate(filepath.Join(s.basedir, name+".crt"), keypair); err != nil {
+		return nil, err
+	}
+	return keypair, nil
+}
+
+func loadPrivateKey(privateKeyPath string, keypair *Keypair) error {
+	privateKeyBytes, err := ioutil.ReadFile(privateKeyPath)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return fmt.Errorf("unable to read key %v: %v", privateKeyPath, err)
+		} else {
+			return err
+		}
+	}
+
+	if privateKeyBytes != nil {
+		key, err := certutil.ParsePrivateKeyPEM(privateKeyBytes)
+		if err != nil {
+			return fmt.Errorf("unable to parse private key %q: %v", privateKeyPath, err)
+		}
+
+		rsaKey, ok := key.(*rsa.PrivateKey)
+		if !ok {
+			return fmt.Errorf("unexpected private key type in %q: %T", privateKeyPath, key)
+		}
+		keypair.PrivateKey = rsaKey
+		keypair.PrivateKeyPEM = privateKeyBytes
+	}
+
+	return nil
+}
+
+func loadCertificate(certificatePath string, keypair *Keypair) error {
+	certBytes, err := ioutil.ReadFile(certificatePath)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return fmt.Errorf("unable to read certificate %v: %v", certificatePath, err)
+		}
+		certBytes = nil
+	}
+
+	if certBytes != nil {
+		cert, err := ParseOneCertificate(certBytes)
+		if err != nil {
+			return fmt.Errorf("error parsing certificate data in %q: %v", certificatePath, err)
+		}
+
+		keypair.Certificate = cert
+		keypair.CertificatePEM = certBytes
+	}
+
+	return nil
 }
