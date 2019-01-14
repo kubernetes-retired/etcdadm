@@ -378,6 +378,13 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	}
 
 	if len(clusterState.members) < int(clusterSpec.MemberCount) {
+		if len(clusterState.members) == 0 {
+			if err := m.InvalidateControlStore(); err != nil {
+				glog.Warningf("error refreshing control store: %v", err)
+			}
+			return false, fmt.Errorf("etcd has 0 members registered; must issue restore-backup command to proceed")
+		}
+
 		glog.Infof("etcd has %d members registered, we want %d; will try to expand cluster", len(clusterState.members), clusterSpec.MemberCount)
 		if ackedPeerCount >= quorumSize(len(clusterState.members)) {
 			return m.addNodeToCluster(ctx, clusterSpec, clusterState)
