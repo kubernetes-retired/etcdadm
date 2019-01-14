@@ -113,5 +113,8 @@ func addAltNames(certConfig *certutil.Config, urls []string) error {
 		}
 	}
 
+	// We always self-sign for 127.0.0.1, so that we can always be reached by apiserver / debug clients
+	certConfig.AltNames.IPs = append(certConfig.AltNames.IPs, net.ParseIP("127.0.0.1"))
+
 	return nil
 }
