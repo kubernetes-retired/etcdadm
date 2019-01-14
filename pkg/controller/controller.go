@@ -228,6 +228,8 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		}
 	}
 
+	glog.Infof("I am leader with token %q", m.leadership.token)
+
 	// Query all our peers to try to find the actual state of etcd on each node
 	clusterState, err := m.updateClusterState(ctx, peers)
 	if err != nil {
