@@ -496,6 +496,7 @@ func (s *EtcdServer) findSelfNode(state *protoetcd.EtcdState) (*protoetcd.EtcdNo
 }
 
 func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
+	glog.Infof("starting etcd with state %v", state)
 	if state.Cluster == nil {
 		return fmt.Errorf("cluster not configured, cannot start etcd")
 	}
