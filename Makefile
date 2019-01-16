@@ -1,3 +1,4 @@
+BAZEL_FLAGS=--features=pure --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64
 .PHONY: all
 all: test
 
@@ -19,15 +20,15 @@ goimports:
 
 .PHONY: push-etcd-manager
 push-etcd-manager:
-	bazel run //images:push-etcd-manager
+	bazel run ${BAZEL_FLAGS} //images:push-etcd-manager
 
 .PHONY: push-etcd-dump
 push-etcd-dump:
-	bazel run //images:push-etcd-dump
+	bazel run ${BAZEL_FLAGS} //images:push-etcd-dump
 
 .PHONY: push-etcd-backup
 push-etcd-backup:
-	bazel run //images:push-etcd-backup
+	bazel run ${BAZEL_FLAGS} //images:push-etcd-backup
 
 .PHONY: push
 push: push-etcd-manager push-etcd-dump push-etcd-backup
