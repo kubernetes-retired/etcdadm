@@ -12,7 +12,7 @@ import (
 
 func TestUpgradeDowngrade(t *testing.T) {
 	ctx := context.TODO()
-	ctx, cancel := context.WithTimeout(ctx, time.Second*180)
+	ctx, cancel := context.WithTimeout(ctx, time.Second*240)
 
 	defer cancel()
 
