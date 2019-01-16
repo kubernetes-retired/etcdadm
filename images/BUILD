@@ -3,18 +3,64 @@ package(default_visibility = ["//visibility:public"])
 load(
     "@io_bazel_rules_docker//container:container.bzl",
     "container_image",
+    "container_layer",
     "container_push",
+)
+
+# Layer for etcd 2.2.1, the version of etcd2 that was recommended
+container_layer(
+    name = "etcd-2-2-1-layer",
+    directory = "/opt/etcd-v2.2.1-linux-amd64/",
+    files = [
+        "@etcd_v2_2_1_source//:etcd",
+        "@etcd_v2_2_1_source//etcdctl",
+    ],
+)
+
+#container_layer(
+#    name = "etcd-2-2-1-layer-upstream",
+#    directory = "/opt/",
+#    tars = [
+#        "@etcd_2_2_1_tar//file",
+#],
+#)
+
+# Layer for etcd 3.1.12, as used in k8s 1.10
+container_layer(
+    name = "etcd-3-1-12-layer",
+    directory = "/opt/",
+    tars = [
+        "@etcd_3_1_12_tar//file",
+    ],
+)
+
+# Layer for etcd 3.2.18, as originally used in k8s 1.11
+container_layer(
+    name = "etcd-3-2-18-layer",
+    directory = "/opt/",
+    tars = [
+        "@etcd_3_2_18_tar//file",
+    ],
+)
+
+# Layer for etcd 3.2.24, updated recommendation for k8s 1.11 and later
+container_layer(
+    name = "etcd-3-2-24-layer",
+    directory = "/opt/",
+    tars = [
+        "@etcd_3_2_24_tar//file",
+    ],
 )
 
 container_image(
     name = "etcd-manager-base",
     base = "@debian_base_amd64//image",
     directory = "/opt",
-    tars = [
-        "@etcd_2_2_1_tar//file",  # etcd2 version
-        "@etcd_3_1_12_tar//file",  # k8s 1.10
-        "@etcd_3_2_18_tar//file",  # original k8s 1.11
-        "@etcd_3_2_24_tar//file",  # updated recommendation for k8s 1.11 and later
+    layers = [
+        "etcd-2-2-1-layer",
+        "etcd-3-1-12-layer",
+        "etcd-3-2-18-layer",
+        "etcd-3-2-24-layer",
     ],
 )
 
