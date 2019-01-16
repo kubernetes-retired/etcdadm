@@ -23,6 +23,7 @@ import (
 )
 
 var baseDirs = []string{"/opt"}
+var isTest = false
 
 func init() {
 	// For bazel
@@ -31,6 +32,8 @@ func init() {
 		d := filepath.Join(os.Getenv("TEST_SRCDIR"), os.Getenv("TEST_WORKSPACE"))
 		glog.Infof("found bazel binary location: %s", d)
 		baseDirs = append(baseDirs, d)
+
+		isTest = true
 	}
 }
 
@@ -118,6 +121,17 @@ func BindirForEtcdVersion(etcdVersion string, cmd string) (string, error) {
 	for _, baseDir := range baseDirs {
 		binDir := filepath.Join(baseDir, "etcd-"+etcdVersion+"-"+runtime.GOOS+"-"+runtime.GOARCH)
 		binDirs = append(binDirs, binDir)
+	}
+
+	if isTest {
+		for _, baseDir := range baseDirs {
+			platform := "linux_amd64_stripped"
+
+			binDir := filepath.Join(baseDir, "external", "etcd_"+strings.Replace(etcdVersion, ".", "_", -1)+"_source", platform)
+			binDirs = append(binDirs, binDir)
+			binDir = filepath.Join(baseDir, "external", "etcd_"+strings.Replace(etcdVersion, ".", "_", -1)+"_source", cmd, platform)
+			binDirs = append(binDirs, binDir)
+		}
 	}
 
 	for _, binDir := range binDirs {
