@@ -64,6 +64,7 @@ func main() {
 	var o EtcdManagerOptions
 	o.InitDefaults()
 
+	flag.StringVar(&o.ListenAddress, "etcd-address", o.ListenAddress, "address on which etcd listens")
 	flag.StringVar(&o.Address, "address", o.Address, "local address to use")
 	flag.StringVar(&o.PeerUrls, "peer-urls", o.PeerUrls, "peer-urls to use")
 	flag.IntVar(&o.GrpcPort, "grpc-port", o.GrpcPort, "grpc-port to use")
@@ -147,6 +148,8 @@ func (o *EtcdManagerOptions) InitDefaults() {
 
 	o.GrpcPort = 8000
 
+	o.ListenAddress = "0.0.0.0"
+
 	// We effectively only refresh on leadership changes
 	o.ControlRefreshInterval = 10 * 365 * 24 * time.Hour
 
@@ -170,9 +173,6 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 	if err != nil {
 		return fmt.Errorf("invalid backup-interval duration %q", o.BackupInterval)
 	}
-
-	// We could make this configurable?
-	o.ListenAddress = "0.0.0.0"
 
 	var discoveryProvider discovery.Interface
 	var myPeerId privateapi.PeerId
