@@ -76,3 +76,24 @@ http_file(
     sha256 = "947849dbcfa13927c81236fb76a7c01d587bbab42ab1e807184cd91b026ebed7",
     url = "https://github.com/coreos/etcd/releases/download/v3.2.24/etcd-v3.2.24-linux-amd64.tar.gz",
 )
+
+
+#=============================================================================
+# Build etcd from source
+# This picks up a number of critical bug fixes, for example:
+#  * Caching of /etc/hosts https://github.com/golang/go/issues/13340
+#  * General GC etc improvements
+#  * Misc security fixes that are not backported
+
+load("@bazel_gazelle//:deps.bzl", "go_repository")
+
+# Download via HTTP
+go_repository(
+  name = "etcd_v2_2_1_source",
+  urls = ["https://github.com/etcd-io/etcd/archive/v2.2.1.tar.gz"],
+  sha256 = "1c0ce63812ef951f79c0a544c91f9f1ba3c6b50cb3e8197de555732454864d05",
+  importpath="github.com/coreos/etcd",
+  strip_prefix="etcd-2.2.1/",
+  build_external="vendored",
+  build_file_proto_mode="disable_global",
+)
