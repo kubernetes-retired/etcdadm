@@ -20,9 +20,12 @@ import (
 	"kope.io/etcd-manager/pkg/backupcontroller"
 	"kope.io/etcd-manager/pkg/commands"
 	"kope.io/etcd-manager/pkg/contextutil"
+	"kope.io/etcd-manager/pkg/etcd"
 	"kope.io/etcd-manager/pkg/etcdclient"
 	"kope.io/etcd-manager/pkg/locking"
+	"kope.io/etcd-manager/pkg/pki"
 	"kope.io/etcd-manager/pkg/privateapi"
+	"kope.io/etcd-manager/pkg/urls"
 )
 
 const removeUnhealthyDeadline = time.Minute // TODO: increase
@@ -76,6 +79,10 @@ type EtcdController struct {
 	// controlClusterSpec is the expected cluster spec, as read from the control store
 	controlClusterSpec *protoetcd.ClusterSpec
 
+	// disableEtcdTLS is set if we should _not_ enable TLS.
+	// We do it this way so we fail secure
+	disableEtcdTLS bool
+
 	// etcdClientTLSConfig is a TLS configuration for talking to etcd members, including a client certificate
 	etcdClientTLSConfig *tls.Config
 }
@@ -92,7 +99,7 @@ type leadershipState struct {
 }
 
 // NewEtcdController is the constructor for an EtcdController
-func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, backupInterval time.Duration, controlStore commands.Store, controlRefreshInterval time.Duration, clusterName string, dnsSuffix string, peers privateapi.Peers) (*EtcdController, error) {
+func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, backupInterval time.Duration, controlStore commands.Store, controlRefreshInterval time.Duration, clusterName string, dnsSuffix string, peers privateapi.Peers, etcdClientsCA *pki.Keypair, disableEtcdTLS bool) (*EtcdController, error) {
 	if clusterName == "" {
 		return nil, fmt.Errorf("ClusterName is required")
 	}
@@ -107,6 +114,25 @@ func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, backup
 		backupCleanup:          backupcontroller.NewBackupCleanup(backupStore),
 		controlStore:           controlStore,
 		controlRefreshInterval: controlRefreshInterval,
+	}
+
+	// Generate a keypair & tls config for talking to etcd (as a client)
+	if etcdClientsCA != nil {
+		store := pki.NewInMemoryStore()
+		keypairs := &pki.Keypairs{Store: store}
+		keypairs.SetCA(etcdClientsCA)
+
+		cn := "etcd-manager-" + string(peers.MyPeerId())
+		c, err := etcd.BuildTLSClientConfig(keypairs, cn)
+		if err != nil {
+			return nil, err
+		}
+		m.etcdClientTLSConfig = c
+	}
+
+	if disableEtcdTLS {
+		glog.Warningf("not enabling TLS for etcd, this is insecure")
+		m.disableEtcdTLS = true
 	}
 
 	return m, nil
@@ -454,6 +480,16 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		}
 	}
 
+	// Once we're stable, we can turn on TLS
+	{
+		changed, err := m.reconcileTLS(ctx, clusterState)
+		if changed || err != nil {
+			return changed, err
+		}
+	}
+
+	// Finally we can do the big one ... upgrade / downgrade etcd versions
+	// We do this last because we want everything else to be in a known state
 	if len(versionMismatch) != 0 {
 		glog.Infof("detected that we need to upgrade/downgrade etcd")
 
@@ -461,6 +497,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 			return m.stopForUpgrade(ctx, clusterSpec, clusterState)
 		} else {
 			glog.Infof("upgrade/downgrade needed, but we don't have sufficient peers")
+			return false, nil
 		}
 	}
 
@@ -725,12 +762,24 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterSpec *prot
 				Name:       member.Name,
 				ClientUrls: member.ClientURLs,
 				PeerUrls:   member.PeerURLs,
+				TlsEnabled: isTLSEnabled(member),
 			}
 			nodes = append(nodes, node)
 		}
 
 		{
 			node := proto.Clone(peer.info.NodeConfiguration).(*protoetcd.EtcdNode)
+
+			if m.disableEtcdTLS {
+				node.PeerUrls = urls.RewriteScheme(node.PeerUrls, "https://", "http://")
+				node.ClientUrls = urls.RewriteScheme(node.ClientUrls, "https://", "http://")
+				node.TlsEnabled = false
+			} else {
+				node.PeerUrls = urls.RewriteScheme(node.PeerUrls, "http://", "https://")
+				node.ClientUrls = urls.RewriteScheme(node.ClientUrls, "http://", "https://")
+				node.TlsEnabled = true
+			}
+
 			nodes = append(nodes, node)
 		}
 

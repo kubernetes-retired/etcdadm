@@ -70,6 +70,10 @@ func (p *etcdProcess) createKeypairs(peersCA *pki.Keypair, clientsCA *pki.Keypai
 			return err
 		}
 
+		if err := addAltNames(&certConfig, me.PeerUrls); err != nil {
+			return err
+		}
+
 		glog.Infof("building client-serving certificate: %+v", certConfig)
 
 		_, err := keypairs.EnsureKeypair("server", certConfig, clientsCA)
@@ -103,9 +107,8 @@ func addAltNames(certConfig *certutil.Config, urls []string) error {
 		}
 
 		switch u.Scheme {
-		case "http":
-			glog.Warningf("not generate certificate for http url %q", urlString)
-		case "https":
+		case "http", "https":
+			// We generate even for http endpoints, because that way we can switch to https dynamically
 			h := u.Hostname() // Hostname does not include port
 			ip := net.ParseIP(h)
 			if ip == nil {
