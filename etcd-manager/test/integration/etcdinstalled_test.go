@@ -7,14 +7,26 @@ import (
 )
 
 func TestEtcdInstalled(t *testing.T) {
-	versions := []string{"2.2.1", "3.2.18"}
-	for _, version := range versions {
-		bindir, err := etcd.BindirForEtcdVersion(version, "etcd")
-		if err != nil {
-			t.Errorf("etcd %q not installed in /opt: %v", version, err)
-		}
-		if bindir == "" {
-			t.Errorf("etcd %q did not return bindir", version)
-		}
+	for _, etcdVersion := range AllEtcdVersions {
+		t.Run("etcdVersion="+etcdVersion, func(t *testing.T) {
+			{
+				bindir, err := etcd.BindirForEtcdVersion(etcdVersion, "etcd")
+				if err != nil {
+					t.Errorf("etcd %q not installed in /opt: %v", etcdVersion, err)
+				}
+				if bindir == "" {
+					t.Errorf("etcd %q did not return bindir", etcdVersion)
+				}
+			}
+			{
+				bindir, err := etcd.BindirForEtcdVersion(etcdVersion, "etcdctl")
+				if err != nil {
+					t.Errorf("etcdctl %q not installed in /opt: %v", etcdVersion, err)
+				}
+				if bindir == "" {
+					t.Errorf("etcdctl %q did not return bindir", etcdVersion)
+				}
+			}
+		})
 	}
 }
