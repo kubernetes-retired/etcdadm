@@ -168,6 +168,10 @@ message ReconfigureRequest {
 
     // Note that because this is bool this must always be specified
     bool quarantined = 11;
+
+    // Note that because this is bool we need two fields
+    bool enable_tls = 12;
+    //bool disable_tls = 13;
 }
 
 message ReconfigureResponse {
@@ -196,6 +200,7 @@ message EtcdNode {
     repeated string peer_urls = 2;
     repeated string client_urls = 3;
     repeated string quarantined_client_urls = 4;
+    bool tls_enabled = 5;
 }
 
 message EtcdState {

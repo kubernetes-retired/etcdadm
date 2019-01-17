@@ -2,7 +2,6 @@ package harness
 
 import (
 	"context"
-	"crypto/tls"
 	"fmt"
 	"time"
 
@@ -49,16 +48,6 @@ func (n *TestHarnessNode) Put(ctx context.Context, key string, value string) err
 	return nil
 }
 
-func (n *TestHarnessNode) NewClient() (etcdclient.EtcdClient, error) {
-	clientUrls := []string{
-		n.ClientURL,
-	}
-
-	// TODO
-	var tlsConfig *tls.Config
-	return etcdclient.NewClient(n.EtcdVersion, clientUrls, tlsConfig)
-}
-
 func (n *TestHarnessNode) waitForClient(deadline time.Time) etcdclient.EtcdClient {
 	t := n.TestHarness.T
 
@@ -95,10 +84,32 @@ func (n *TestHarnessNode) WaitForListMembers(timeout time.Duration) {
 			return
 		}
 		glog.Infof("test waiting for members from %s: (%v)", client, err)
+
 		if time.Now().After(endAt) {
 			t.Fatalf("list-members did not succeed within %v", timeout)
 			return
 		}
+		time.Sleep(time.Second)
+	}
+}
+
+func (h *TestHarness) WaitFor(timeout time.Duration, f func() error) {
+	t := h.T
+
+	endAt := time.Now().Add(timeout)
+
+	for {
+		err := f()
+		if err == nil {
+			return
+		}
+
+		if time.Now().After(endAt) {
+			t.Fatalf("time out waiting for condition: %v", err)
+		} else {
+			t.Logf("waiting for condition: %v", err)
+		}
+
 		time.Sleep(time.Second)
 	}
 }
