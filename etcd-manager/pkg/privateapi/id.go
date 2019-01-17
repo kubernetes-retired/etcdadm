@@ -20,6 +20,11 @@ func PersistentPeerId(basedir string) (PeerId, error) {
 			token := randomToken()
 			glog.Infof("Self-assigned new identity: %q", token)
 			b = []byte(token)
+
+			if err := os.MkdirAll(basedir, 0755); err != nil {
+				return "", fmt.Errorf("error creating directories %q: %v", basedir, err)
+			}
+
 			if err := ioutils.CreateFile(idFile, b, 0644); err != nil {
 				return "", fmt.Errorf("error creating id file %q: %v", idFile, err)
 			}
