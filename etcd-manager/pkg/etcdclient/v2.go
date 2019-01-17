@@ -141,6 +141,11 @@ func (c *V2Client) AddMember(ctx context.Context, peerURLs []string) error {
 	return err
 }
 
+func (c *V2Client) SetPeerURLs(ctx context.Context, member *EtcdProcessMember, peerURLs []string) error {
+	err := c.members.Update(ctx, member.idv2, peerURLs)
+	return err
+}
+
 func (c *V2Client) RemoveMember(ctx context.Context, member *EtcdProcessMember) error {
 	err := c.members.Remove(ctx, member.idv2)
 	return err

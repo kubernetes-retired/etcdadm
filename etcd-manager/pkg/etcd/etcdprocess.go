@@ -64,6 +64,10 @@ type etcdProcess struct {
 	// Quarantined indicates if this process should be quarantined - we will use the QuarantinedClientUrls if so
 	Quarantined bool
 
+	// DisableTLS is set if we should _not_ enable TLS.
+	// It's done this way to fail-secure
+	DisableTLS bool
+
 	cmd *exec.Cmd
 
 	mutex     sync.Mutex

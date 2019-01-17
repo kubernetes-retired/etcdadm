@@ -8,6 +8,7 @@ import (
 	"github.com/golang/glog"
 	"github.com/golang/protobuf/proto"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
+	"kope.io/etcd-manager/pkg/urls"
 )
 
 // createNewCluster starts a new etcd cluster.
@@ -54,6 +55,17 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterState *etc
 	memberMap := &protoetcd.MemberMap{}
 	for _, p := range proposal {
 		node := proto.Clone(p.info.NodeConfiguration).(*protoetcd.EtcdNode)
+
+		if m.disableEtcdTLS {
+			node.PeerUrls = urls.RewriteScheme(node.PeerUrls, "https://", "http://")
+			node.ClientUrls = urls.RewriteScheme(node.ClientUrls, "https://", "http://")
+			node.TlsEnabled = false
+		} else {
+			node.PeerUrls = urls.RewriteScheme(node.PeerUrls, "http://", "https://")
+			node.ClientUrls = urls.RewriteScheme(node.ClientUrls, "http://", "https://")
+			node.TlsEnabled = true
+		}
+
 		proposedNodes = append(proposedNodes, node)
 
 		memberInfo := &protoetcd.MemberMapInfo{
