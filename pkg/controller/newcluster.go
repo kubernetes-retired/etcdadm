@@ -108,7 +108,7 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterState *etc
 	glog.Infof("starting new etcd cluster with %s", proposal)
 
 	for _, p := range proposal {
-		// Note the we may send the message to ourselves
+		// Note that we may send the message to ourselves
 		joinClusterRequest := &protoetcd.JoinClusterRequest{
 			Header:       m.buildHeader(),
 			Phase:        protoetcd.Phase_PHASE_PREPARE,
@@ -126,7 +126,7 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterState *etc
 	}
 
 	for _, p := range proposal {
-		// Note the we may send the message to ourselves
+		// Note that we may send the message to ourselves
 		joinClusterRequest := &protoetcd.JoinClusterRequest{
 			Header:       m.buildHeader(),
 			Phase:        protoetcd.Phase_PHASE_INITIAL_CLUSTER,

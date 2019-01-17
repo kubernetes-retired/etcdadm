@@ -138,7 +138,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	sort.SliceStable(peers, func(i, j int) bool {
 		return peers[i].Id < peers[j].Id
 	})
-	glog.Infof("peers: %s", peers)
+	glog.V(8).Infof("peers: %s", peers)
 
 	// Find self
 	var me *peer
@@ -276,7 +276,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	{
 		memberMap := m.buildMemberMap(clusterState)
 		if errors := m.broadcastMemberMap(ctx, clusterState, memberMap); len(errors) != 0 {
-			glog.Warningf("error broadcasting member map: %v", err)
+			glog.Warningf("error broadcasting member map: %v", errors)
 		}
 	}
 
@@ -538,7 +538,7 @@ func (m *EtcdController) broadcastMemberMap(ctx context.Context, etcdClusterStat
 
 		_, err := peer.peer.rpcUpdateEndpoints(ctx, updateEndpointsRequest)
 		if err != nil {
-			glog.Warningf("peer %s failed to update endpoints: %v", peer.peer.Id, err)
+			glog.Warningf("peer %s failed to broadcast endpoints to members: %v", peer.peer.Id, err)
 			errors = append(errors, err)
 		}
 	}
@@ -594,7 +594,7 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 		members, err := etcdClient.ListMembers(ctx)
 		etcdclient.LoggedClose(etcdClient)
 		if err != nil {
-			glog.Warningf("unable to reach member %s: %v", p, err)
+			glog.Warningf("unable to reach member for ListMembers %s: %v", p, err)
 			continue
 		}
 
@@ -623,7 +623,7 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 		_, err = etcdClient.ListMembers(ctx)
 		etcdclient.LoggedClose(etcdClient)
 		if err != nil {
-			glog.Warningf("health-check unable to reach member %s: %v", id, err)
+			glog.Warningf("health-check unable to reach member %s on %v: %v", id, member.ClientURLs, err)
 			continue
 		}
 

@@ -36,10 +36,14 @@ func (p *etcdProcess) createKeypairs(peersCA *pki.Keypair, clientsCA *pki.Keypai
 			return err
 		}
 
+		glog.Infof("generating peer keypair for etcd: %+v", certConfig)
+
 		_, err := keypairs.EnsureKeypair("me", certConfig, peersCA)
 		if err != nil {
 			return err
 		}
+	} else {
+		glog.Warningf("not generating peer keypair as peers-ca not set")
 	}
 
 	p.etcdClientsCA = clientsCA
@@ -72,6 +76,8 @@ func (p *etcdProcess) createKeypairs(peersCA *pki.Keypair, clientsCA *pki.Keypai
 		if err != nil {
 			return err
 		}
+	} else {
+		glog.Warningf("not generating client keypair as clients-ca not set")
 	}
 
 	if clientsCA != nil {
