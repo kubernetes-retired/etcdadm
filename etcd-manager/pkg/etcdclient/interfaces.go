@@ -55,6 +55,10 @@ type LocalNodeInfo struct {
 }
 
 func NewClient(etcdVersion string, clientURLs []string, tlsConfig *tls.Config) (EtcdClient, error) {
+	if len(clientURLs) == 0 {
+		return nil, fmt.Errorf("no client URLs were provided")
+	}
+
 	if IsV2(etcdVersion) {
 		return NewV2Client(clientURLs, tlsConfig)
 	}
