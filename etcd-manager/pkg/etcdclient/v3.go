@@ -34,9 +34,11 @@ func NewV3Client(endpoints []string, tlsConfig *tls.Config) (EtcdClient, error) 
 		return nil, fmt.Errorf("no endpoints provided")
 	}
 	cfg := etcd_client_v3.Config{
-		Endpoints:   endpoints,
-		DialTimeout: 10 * time.Second,
-		TLS:         tlsConfig,
+		Endpoints:            endpoints,
+		DialTimeout:          5 * time.Second,
+		TLS:                  tlsConfig,
+		DialKeepAliveTime:    2 * time.Second,
+		DialKeepAliveTimeout: 2 * time.Second,
 	}
 	etcdClient, err := etcd_client_v3.New(cfg)
 	if err != nil {
