@@ -17,30 +17,38 @@ func init() {
 	flag.Parse()
 }
 
+var AllEtcdVersions = []string{"2.2.1", "3.1.12", "3.2.18", "3.2.24"}
+
 func TestClusterWithOneMember(t *testing.T) {
-	ctx := context.TODO()
-	ctx, cancel := context.WithTimeout(ctx, time.Second*30)
+	for _, etcdVersion := range AllEtcdVersions {
+		t.Run("etcdVersion="+etcdVersion, func(t *testing.T) {
+			ctx := context.TODO()
+			ctx, cancel := context.WithTimeout(ctx, time.Second*30)
 
-	defer cancel()
+			defer cancel()
 
-	h := harness.NewTestHarness(t, ctx)
-	h.SeedNewCluster(&protoetcd.ClusterSpec{MemberCount: 1, EtcdVersion: "2.2.1"})
-	defer h.Close()
+			h := harness.NewTestHarness(t, ctx)
+			h.SeedNewCluster(&protoetcd.ClusterSpec{MemberCount: 1, EtcdVersion: etcdVersion})
+			defer h.Close()
 
-	n1 := h.NewNode("127.0.0.1")
-	go n1.Run()
+			n1 := h.NewNode("127.0.0.1")
+			n1.EtcdVersion = etcdVersion
+			go n1.Run()
 
-	n1.WaitForListMembers(20 * time.Second)
-	members, err := n1.ListMembers(ctx)
-	if err != nil {
-		t.Errorf("error doing etcd ListMembers: %v", err)
+			n1.WaitForListMembers(20 * time.Second)
+			members, err := n1.ListMembers(ctx)
+			if err != nil {
+				t.Errorf("error doing etcd ListMembers: %v", err)
+			}
+			if len(members) != 1 {
+				t.Errorf("members was not as expected: %v", members)
+			}
+
+			cancel()
+			h.Close()
+		})
 	}
-	if len(members) != 1 {
-		t.Errorf("members was not as expected: %v", members)
-	}
 
-	cancel()
-	h.Close()
 }
 
 func TestClusterWithThreeMembers(t *testing.T) {
