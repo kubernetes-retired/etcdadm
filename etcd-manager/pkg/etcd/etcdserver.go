@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sync"
 	"time"
 
@@ -514,6 +515,15 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 	}
 	if meNode == nil {
 		return fmt.Errorf("self node was not included in cluster")
+	}
+
+	if !reflect.DeepEqual(s.etcdNodeConfiguration.ClientUrls, meNode.ClientUrls) {
+		glog.Infof("overriding clientURLs with %v (state had %v)", s.etcdNodeConfiguration.ClientUrls, meNode.ClientUrls)
+		meNode.ClientUrls = s.etcdNodeConfiguration.ClientUrls
+	}
+	if !reflect.DeepEqual(s.etcdNodeConfiguration.QuarantinedClientUrls, meNode.QuarantinedClientUrls) {
+		glog.Infof("overriding quarantinedClientURLs with %v (state had %v)", s.etcdNodeConfiguration.QuarantinedClientUrls, meNode.QuarantinedClientUrls)
+		meNode.QuarantinedClientUrls = s.etcdNodeConfiguration.QuarantinedClientUrls
 	}
 
 	p := &etcdProcess{
