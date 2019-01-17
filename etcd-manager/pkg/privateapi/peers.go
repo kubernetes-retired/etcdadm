@@ -233,6 +233,8 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 		opts = append(opts, grpc.WithInsecure())
 	}
 
+	opts = append(opts, grpc.WithBackoffMaxDelay(10*time.Second))
+
 	endpoints := make(map[string]bool)
 	{
 		p.mutex.Lock()
