@@ -77,9 +77,40 @@ func (p *etcdClusterPeerInfo) String() string {
 	return fmt.Sprintf("etcdClusterPeerInfo{peer=%s, info=%s}", p.peer, p.info)
 }
 
+// newEtcdClient builds a client for the speicfied member.  We do this
+// because clientURLs as reported by etcd might not be correct,
+// because it's ultimately controlled by command line flags, and does
+// not go through raft.
+func (s *etcdClusterState) newEtcdClient(member *etcdclient.EtcdProcessMember) (etcdclient.EtcdClient, error) {
+	clientURLs := member.ClientURLs
+
+	var node *protoetcd.GetInfoResponse
+	for _, p := range s.peers {
+		if p.info == nil || p.info.NodeConfiguration == nil {
+			continue
+		}
+		if p.info.NodeConfiguration.Name == member.Name {
+			node = p.info
+		}
+	}
+	if node == nil {
+		glog.Warningf("unable to find node for member %q; using default clientURLs %v", member.Name, clientURLs)
+	} else if node.NodeConfiguration == nil {
+		glog.Warningf("unable to find node configuration for member %q; using default clientURLs %v", member.Name, clientURLs)
+	} else {
+		clientURLs = node.NodeConfiguration.ClientUrls
+		if node.EtcdState != nil && node.EtcdState.Quarantined {
+			clientURLs = node.NodeConfiguration.QuarantinedClientUrls
+		}
+	}
+
+	etcdClient, err := member.NewClient(clientURLs, s.etcdClientTLSConfig)
+	return etcdClient, err
+}
+
 func (s *etcdClusterState) etcdAddMember(ctx context.Context, nodeInfo *protoetcd.EtcdNode) (*etcdclient.EtcdProcessMember, error) {
 	for _, member := range s.members {
-		etcdClient, err := member.NewClient(s.etcdClientTLSConfig)
+		etcdClient, err := s.newEtcdClient(member)
 		if err != nil {
 			glog.Warningf("unable to build client for member %s: %v", member.Name, err)
 			continue
@@ -99,7 +130,7 @@ func (s *etcdClusterState) etcdAddMember(ctx context.Context, nodeInfo *protoetc
 
 func (s *etcdClusterState) etcdRemoveMember(ctx context.Context, member *etcdclient.EtcdProcessMember) error {
 	for id, member := range s.members {
-		etcdClient, err := member.NewClient(s.etcdClientTLSConfig)
+		etcdClient, err := s.newEtcdClient(member)
 		if err != nil {
 			glog.Warningf("unable to build client for member %s: %v", member.Name, err)
 			continue
@@ -123,7 +154,7 @@ func (s *etcdClusterState) etcdGet(ctx context.Context, key string) ([]byte, err
 			continue
 		}
 
-		etcdClient, err := member.NewClient(s.etcdClientTLSConfig)
+		etcdClient, err := s.newEtcdClient(member)
 		if err != nil {
 			glog.Warningf("unable to build client for member %s: %v", member, err)
 			continue
@@ -149,7 +180,7 @@ func (s *etcdClusterState) etcdCreate(ctx context.Context, key string, value []b
 			continue
 		}
 
-		etcdClient, err := member.NewClient(s.etcdClientTLSConfig)
+		etcdClient, err := s.newEtcdClient(member)
 		if err != nil {
 			glog.Warningf("unable to build client for member %s: %v", member.Name, err)
 			continue
