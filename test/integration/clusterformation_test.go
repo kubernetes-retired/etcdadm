@@ -99,18 +99,19 @@ func TestClusterExpansion(t *testing.T) {
 	n1.WaitForListMembers(20 * time.Second)
 	members1, err := n1.ListMembers(ctx)
 	if err != nil {
-		t.Errorf("error doing etcd ListMembers: %v", err)
+		t.Fatalf("error doing etcd ListMembers: %v", err)
 	} else if len(members1) != 2 {
-		t.Errorf("members was not as expected: %v", members1)
+		t.Fatalf("members was not as expected: %v", members1)
 	} else {
 		glog.Infof("got members from #1: %v", members1)
 	}
 
+	n2.WaitForListMembers(20 * time.Second)
 	members2, err := n2.ListMembers(ctx)
 	if err != nil {
-		t.Errorf("error doing etcd ListMembers: %v", err)
+		t.Fatalf("error doing etcd ListMembers: %v", err)
 	} else if len(members2) != 2 {
-		t.Errorf("members was not as expected: %v", members2)
+		t.Fatalf("members was not as expected: %v", members2)
 	} else {
 		glog.Infof("got members from #2: %v", members2)
 	}
@@ -121,9 +122,9 @@ func TestClusterExpansion(t *testing.T) {
 	n3.WaitForListMembers(20 * time.Second)
 	members3, err := n3.ListMembers(ctx)
 	if err != nil {
-		t.Errorf("error doing etcd ListMembers: %v", err)
+		t.Fatalf("error doing etcd ListMembers: %v", err)
 	} else if len(members3) != 3 {
-		t.Errorf("members was not as expected: %v", members3)
+		t.Fatalf("members was not as expected: %v", members3)
 	} else {
 		glog.Infof("got members from #3: %v", members3)
 	}
