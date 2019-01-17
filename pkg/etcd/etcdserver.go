@@ -384,6 +384,7 @@ func (s *EtcdServer) Reconfigure(ctx context.Context, request *protoetcd.Reconfi
 	}
 
 	s.state = state
+	glog.Infof("updated cluster state: %s", proto.CompactTextString(state))
 	if err := writeState(s.baseDir, s.state); err != nil {
 		return nil, err
 	}
