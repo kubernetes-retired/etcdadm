@@ -125,6 +125,21 @@ func (m *EtcdController) Run(ctx context.Context) {
 				contextutil.Sleep(ctx, m.CycleInterval)
 			}
 		})
+
+	if err := m.releaseLeaderLock(); err != nil {
+		glog.Warningf("error releasing leader lock: %v", err)
+	}
+}
+
+func (m *EtcdController) releaseLeaderLock() error {
+	if m.leaderLockGuard != nil {
+		glog.Infof("releasing leader lock")
+		if err := m.leaderLockGuard.Release(); err != nil {
+			return fmt.Errorf("failed to release leader lock guard: %v", err)
+		}
+		m.leaderLockGuard = nil
+	}
+	return nil
 }
 
 func (m *EtcdController) run(ctx context.Context) (bool, error) {
@@ -155,12 +170,8 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	if peers[0].Id != me.Id {
 		glog.V(4).Infof("we are not leader")
 
-		if m.leaderLockGuard != nil {
-			glog.Infof("releasing leader lock")
-			if err := m.leaderLockGuard.Release(); err != nil {
-				return false, fmt.Errorf("failed to release leader lock guard: %v", err)
-			}
-			m.leaderLockGuard = nil
+		if err := m.releaseLeaderLock(); err != nil {
+			return false, err
 		}
 
 		return false, nil
