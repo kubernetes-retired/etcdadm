@@ -19,6 +19,7 @@ package volumes
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/golang/glog"
@@ -201,7 +202,32 @@ func (k *VolumeMountController) safeFormatAndMount(volume *Volume, mountpoint st
 
 		if mountedDevice != "" {
 			// We check that it is the correct device.  We also tolerate /dev/X as well as /root/dev/X
-			if mountedDevice != source && mountedDevice != device {
+			ok := false
+			if mountedDevice == source || mountedDevice == device {
+				ok = true
+			}
+			if !ok {
+				// Check for a symlink
+				s, err := filepath.EvalSymlinks(mountedDevice)
+				if err != nil {
+					glog.Warningf("device %q did not evaluate as a symlink: %v", mountedDevice, err)
+				} else {
+					a, err := filepath.Abs(s)
+					if err != nil {
+						glog.Warningf("unable to make filepath %q absolute: %v", s, err)
+					} else {
+						s = a
+					}
+				}
+				if s == source || mountedDevice == s {
+					glog.V(2).Infof("matched device by symlink")
+					ok = true
+				} else {
+					glog.Warningf("device %q did not match even after symlink evaluation to %q", mountedDevice, s)
+				}
+			}
+
+			if !ok {
 				return fmt.Errorf("device already mounted at %s, but is %s and we want %s or %s", target, mountedDevice, source, device)
 			}
 		} else {
