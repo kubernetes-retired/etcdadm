@@ -593,7 +593,7 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 		if p.info.EtcdState.Quarantined {
 			clientUrls = p.info.NodeConfiguration.QuarantinedClientUrls
 		}
-		if len(p.info.NodeConfiguration.ClientUrls) == 0 {
+		if len(clientUrls) == 0 {
 			continue
 		}
 
@@ -625,7 +625,7 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 	clusterState.healthyMembers = make(map[EtcdMemberId]*etcdclient.EtcdProcessMember)
 	//clusterState.versions = make(map[EtcdMemberId]*version.Versions)
 	for id, member := range clusterState.members {
-		etcdClient, err := member.NewClient(m.etcdClientTLSConfig)
+		etcdClient, err := clusterState.newEtcdClient(member)
 		if err != nil {
 			glog.Warningf("health-check unable to reach member %s: %v", id, err)
 			continue
