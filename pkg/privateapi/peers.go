@@ -3,6 +3,7 @@ package privateapi
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"sync"
 	"time"
 
@@ -133,6 +134,25 @@ func (p *peer) updatePeerInfo(peerInfo *PeerInfo) {
 		// TODO: We should probably keep a map by ip & socket
 		glog.Warningf("ignoring peer info with unexpected identity: %q vs %q", peerInfo.Id, p.id)
 		return
+	}
+
+	if p.lastInfo != nil {
+		// TODO: Consider discovery?  Use discovery only as a fallback?
+		oldEndpoints := make(map[string]bool)
+		for _, endpoint := range p.lastInfo.Endpoints {
+			oldEndpoints[endpoint] = true
+		}
+		newEndpoints := make(map[string]bool)
+		for _, endpoint := range peerInfo.Endpoints {
+			newEndpoints[endpoint] = true
+		}
+		if !reflect.DeepEqual(oldEndpoints, newEndpoints) {
+			glog.Infof("peer %s changed endpoints; will invalidate connection", peerInfo.Id)
+			if p.conn != nil {
+				p.conn.Close()
+				p.conn = nil
+			}
+		}
 	}
 
 	p.lastInfo = peerInfo
