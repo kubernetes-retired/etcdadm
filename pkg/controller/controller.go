@@ -620,7 +620,11 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 			continue
 		}
 
+		// Use a timeout - despite aggressive keepalive settings we still see the etcd client hang here
+		ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 		_, err = etcdClient.ListMembers(ctx)
+		cancel()
+
 		etcdclient.LoggedClose(etcdClient)
 		if err != nil {
 			glog.Warningf("health-check unable to reach member %s: %v", id, err)
