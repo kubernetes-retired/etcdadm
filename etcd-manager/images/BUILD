@@ -28,27 +28,30 @@ container_layer(
 # Layer for etcd 3.1.12, as used in k8s 1.10
 container_layer(
     name = "etcd-3-1-12-layer",
-    directory = "/opt/",
-    tars = [
-        "@etcd_3_1_12_tar//file",
+    directory = "/opt/etcd-v3.1.12-linux-amd64/",
+    files = [
+        "//:etcd-v3.1.12-linux-amd64_etcdctl",
+        "//:etcd-v3.1.12-linux-amd64_etcd",
     ],
 )
 
 # Layer for etcd 3.2.18, as originally used in k8s 1.11
 container_layer(
     name = "etcd-3-2-18-layer",
-    directory = "/opt/",
-    tars = [
-        "@etcd_3_2_18_tar//file",
+    directory = "/opt/etcd-v3.2.18-linux-amd64/",
+    files = [
+        "//:etcd-v3.2.18-linux-amd64_etcdctl",
+        "//:etcd-v3.2.18-linux-amd64_etcd",
     ],
 )
 
 # Layer for etcd 3.2.24, updated recommendation for k8s 1.11 and later
 container_layer(
     name = "etcd-3-2-24-layer",
-    directory = "/opt/",
-    tars = [
-        "@etcd_3_2_24_tar//file",
+    directory = "/opt/etcd-v3.2.24-linux-amd64/",
+    files = [
+        "//:etcd-v3.2.24-linux-amd64_etcdctl",
+        "//:etcd-v3.2.24-linux-amd64_etcd",
     ],
 )
 
