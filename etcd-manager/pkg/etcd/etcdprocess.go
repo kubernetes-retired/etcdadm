@@ -279,10 +279,6 @@ func BuildTLSClientConfig(keypairs *pki.Keypairs, cn string) (*tls.Config, error
 	caPool := x509.NewCertPool()
 	caPool.AddCert(ca.Certificate)
 
-	memStore := pki.NewInMemoryStore()
-	keypairs = &pki.Keypairs{Store: memStore}
-	keypairs.SetCA(ca)
-
 	keypair, err := keypairs.EnsureKeypair("client", certutil.Config{
 		CommonName: cn,
 		Usages:     []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
