@@ -182,6 +182,9 @@ func (n *TestHarnessNode) ListMembers(ctx context.Context) ([]*etcdclient.EtcdPr
 	if err != nil {
 		n.TestHarness.T.Fatalf("error building etcd client: %v", err)
 	}
+	if client == nil {
+		return nil, fmt.Errorf("unable to build etcd client")
+	}
 	defer client.Close()
 	return client.ListMembers(ctx)
 }
