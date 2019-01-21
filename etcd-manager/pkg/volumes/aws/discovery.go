@@ -70,13 +70,13 @@ func (a *AWSVolumes) Poll() (map[string]discovery.Node, error) {
 					ID: volume.EtcdName,
 				}
 				if aws.StringValue(instance.PrivateIpAddress) != "" {
-					e := fmt.Sprintf(a.endpointFormat, aws.StringValue(instance.PrivateIpAddress))
-					node.Endpoints = append(node.Endpoints, discovery.NodeEndpoint{Endpoint: e})
+					ip := aws.StringValue(instance.PrivateIpAddress)
+					node.Endpoints = append(node.Endpoints, discovery.NodeEndpoint{IP: ip})
 				}
 				for _, ni := range instance.NetworkInterfaces {
 					if aws.StringValue(ni.PrivateIpAddress) != "" {
-						e := fmt.Sprintf(a.endpointFormat, aws.StringValue(ni.PrivateIpAddress))
-						node.Endpoints = append(node.Endpoints, discovery.NodeEndpoint{Endpoint: e})
+						ip := aws.StringValue(ni.PrivateIpAddress)
+						node.Endpoints = append(node.Endpoints, discovery.NodeEndpoint{IP: ip})
 					}
 				}
 				nodes[node.ID] = node

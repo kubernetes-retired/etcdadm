@@ -13,6 +13,7 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/contextutil:go_default_library",
+        "//pkg/dns:go_default_library",
         "//pkg/ioutils:go_default_library",
         "//pkg/privateapi/discovery:go_default_library",
         "//vendor/github.com/golang/glog:go_default_library",

@@ -81,5 +81,4 @@ func (d *VFSDiscovery) Poll() (map[string]discovery.Node, error) {
 	}
 
 	return nodes, nil
-
 }

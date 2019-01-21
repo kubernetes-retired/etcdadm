@@ -19,18 +19,70 @@ package hosts
 import (
 	"fmt"
 	"io/ioutil"
+	"net"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/golang/glog"
+	"kope.io/etcd-manager/pkg/dns"
 )
 
 const GUARD_BEGIN_TEMPLATE = "# Begin host entries managed by __key__ - do not edit"
 const GUARD_END_TEMPLATE = "# End host entries managed by __key__"
 
-func UpdateHostsFileWithRecords(p string, key string, addrToHosts map[string][]string) error {
+type Provider struct {
+	Key string
+
+	mutex     sync.Mutex
+	primary   map[string][]string
+	fallbacks map[string][]net.IP
+}
+
+var _ dns.Provider = &Provider{}
+
+func (h *Provider) AddFallbacks(dnsFallbacks map[string][]net.IP) error {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+	h.fallbacks = dnsFallbacks
+	return h.update()
+}
+
+func (h *Provider) UpdateHosts(addressToHosts map[string][]string) error {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+	h.primary = addressToHosts
+	return h.update()
+}
+
+func (h *Provider) update() error {
+	addrToHosts := make(map[string][]string)
+	hostExists := make(map[string]bool)
+	for addr, hosts := range h.primary {
+		addrToHosts[addr] = hosts
+		for _, h := range hosts {
+			hostExists[h] = true
+		}
+	}
+
+	for host, ips := range h.fallbacks {
+		if hostExists[host] {
+			continue
+		}
+
+		for _, ip := range ips {
+			addr := ip.String()
+			addrToHosts[addr] = append(addrToHosts[addr], host)
+		}
+	}
+
+	glog.Infof("hosts update: primary%v, fallbacks=%v, final=%v", h.primary, h.fallbacks, addrToHosts)
+	return updateHostsFileWithRecords("/etc/hosts", h.Key, addrToHosts)
+}
+
+func updateHostsFileWithRecords(p string, key string, addrToHosts map[string][]string) error {
 	stat, err := os.Stat(p)
 	if err != nil {
 		return fmt.Errorf("error getting file status of %q: %v", p, err)
@@ -89,7 +141,21 @@ func UpdateHostsFileWithRecords(p string, key string, addrToHosts map[string][]s
 	var lines []string
 	for addr, hosts := range addrToHosts {
 		sort.Strings(hosts)
-		lines = append(lines, addr+"\t"+strings.Join(hosts, " "))
+		var line strings.Builder
+		line.WriteString(addr)
+		line.WriteString("\t")
+		// manual strings.Join(hosts, " ") that skips duplicates
+		for i, host := range hosts {
+			// skip duplicates
+			if i != 0 && hosts[i-1] == host {
+				continue
+			}
+			if i != 0 {
+				line.WriteString(" ")
+			}
+			line.WriteString(host)
+		}
+		lines = append(lines, line.String())
 	}
 	sort.Strings(lines)
 
