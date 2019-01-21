@@ -22,7 +22,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -33,6 +32,7 @@ import (
 	"kope.io/etcd-manager/pkg/commands"
 	"kope.io/etcd-manager/pkg/controller"
 	"kope.io/etcd-manager/pkg/etcd"
+	"kope.io/etcd-manager/pkg/hosts"
 	"kope.io/etcd-manager/pkg/legacy"
 	"kope.io/etcd-manager/pkg/locking"
 	"kope.io/etcd-manager/pkg/pki"
@@ -174,6 +174,10 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 		return fmt.Errorf("invalid backup-interval duration %q", o.BackupInterval)
 	}
 
+	dnsProvider := &hosts.Provider{
+		Key: "etcd-manager[" + o.ClusterName + "]",
+	}
+
 	var discoveryProvider discovery.Interface
 	var myPeerId privateapi.PeerId
 
@@ -182,7 +186,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 
 		switch o.VolumeProviderID {
 		case "aws":
-			awsVolumeProvider, err := aws.NewAWSVolumes(o.ClusterName, o.VolumeTags, o.NameTag, "%s:"+strconv.Itoa(o.GrpcPort))
+			awsVolumeProvider, err := aws.NewAWSVolumes(o.ClusterName, o.VolumeTags, o.NameTag)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				os.Exit(1)
@@ -192,7 +196,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 			discoveryProvider = awsVolumeProvider
 
 		case "gce":
-			gceVolumeProvider, err := gce.NewGCEVolumes(o.ClusterName, o.VolumeTags, o.NameTag, "%s:"+strconv.Itoa(o.GrpcPort))
+			gceVolumeProvider, err := gce.NewGCEVolumes(o.ClusterName, o.VolumeTags, o.NameTag)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				os.Exit(1)
@@ -257,7 +261,8 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 		}
 
 		discoMe.Endpoints = append(discoMe.Endpoints, discovery.NodeEndpoint{
-			Endpoint: grpcEndpoint,
+			IP:   o.Address,
+			Port: o.GrpcPort,
 		})
 
 		glog.Warningf("Using fake discovery manager")
@@ -295,7 +300,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 		Id:        string(myPeerId),
 		Endpoints: []string{grpcEndpoint},
 	}
-	peerServer, err := privateapi.NewServer(ctx, myInfo, grpcServerTLS, discoveryProvider, grpcClientTLS)
+	peerServer, err := privateapi.NewServer(ctx, myInfo, grpcServerTLS, discoveryProvider, o.GrpcPort, dnsProvider, o.DNSSuffix, grpcClientTLS)
 	if err != nil {
 		return fmt.Errorf("error building server: %v", err)
 	}
@@ -329,7 +334,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 		glog.Fatalf("error performing scan for legacy data: %v", err)
 	}
 
-	etcdServer, err := etcd.NewEtcdServer(o.DataDir, o.ClusterName, o.ListenAddress, etcdNodeInfo, peerServer)
+	etcdServer, err := etcd.NewEtcdServer(o.DataDir, o.ClusterName, o.ListenAddress, etcdNodeInfo, peerServer, dnsProvider)
 	if err != nil {
 		return fmt.Errorf("error initializing etcd server: %v", err)
 	}
