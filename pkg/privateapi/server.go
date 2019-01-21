@@ -11,6 +11,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"kope.io/etcd-manager/pkg/dns"
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 )
 
@@ -21,6 +22,9 @@ type Server struct {
 	clientTLSConfig *tls.Config
 
 	discovery discovery.Interface
+
+	// defaultPort is the port to use when one is not specified
+	defaultPort int
 
 	mutex      sync.Mutex
 	peers      map[PeerId]*peer
@@ -38,15 +42,24 @@ type Server struct {
 	// HealthyTimeout is the time after which we will consider a peer down if we have not heard a ping from it
 	// HealthyTimeout should be a moderate multiple of PingInterval (e.g. 10x)
 	HealthyTimeout time.Duration
+
+	// dnsProvider is used to register fallback DNS names found from discovery
+	dnsProvider dns.Provider
+
+	// dnsSuffix is the suffix added to the node names for discovery fallbacks
+	dnsSuffix string
 }
 
-func NewServer(ctx context.Context, myInfo PeerInfo, serverTLSConfig *tls.Config, discovery discovery.Interface, clientTLSConfig *tls.Config) (*Server, error) {
+func NewServer(ctx context.Context, myInfo PeerInfo, serverTLSConfig *tls.Config, discovery discovery.Interface, defaultPort int, dnsProvider dns.Provider, dnsSuffix string, clientTLSConfig *tls.Config) (*Server, error) {
 	s := &Server{
+		context:         ctx,
 		discovery:       discovery,
+		defaultPort:     defaultPort,
 		clientTLSConfig: clientTLSConfig,
 		myInfo:          myInfo,
 		peers:           make(map[PeerId]*peer),
-		context:         ctx,
+		dnsProvider:     dnsProvider,
+		dnsSuffix:       dnsSuffix,
 
 		DiscoveryPollInterval: defaultDiscoveryPollInterval,
 		PingInterval:          defaultPingInterval,

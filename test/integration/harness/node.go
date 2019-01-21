@@ -3,6 +3,7 @@ package harness
 import (
 	"context"
 	"fmt"
+	"net"
 	"path/filepath"
 	"testing"
 	"time"
@@ -14,6 +15,7 @@ import (
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/commands"
 	"kope.io/etcd-manager/pkg/controller"
+	"kope.io/etcd-manager/pkg/dns"
 	"kope.io/etcd-manager/pkg/etcd"
 	"kope.io/etcd-manager/pkg/etcdclient"
 	"kope.io/etcd-manager/pkg/locking"
@@ -59,7 +61,7 @@ func (n *TestHarnessNode) Run() {
 		ID: string(uniqueID),
 	}
 	discoMe.Endpoints = append(discoMe.Endpoints, discovery.NodeEndpoint{
-		Endpoint: grpcEndpoint,
+		IP: address,
 	})
 	p, err := vfs.Context.BuildVfsPath(n.TestHarness.DiscoveryStoreDir)
 	if err != nil {
@@ -84,11 +86,14 @@ func (n *TestHarnessNode) Run() {
 		t.Fatalf("error building client TLS config: %v", err)
 	}
 
+	dnsProvider := &MockDNSProvider{}
+	dnsSuffix := "mock.local"
+
 	myInfo := privateapi.PeerInfo{
 		Id:        string(uniqueID),
 		Endpoints: []string{grpcEndpoint},
 	}
-	peerServer, err := privateapi.NewServer(n.ctx, myInfo, serverTLSConfig, disco, clientTLSConfig)
+	peerServer, err := privateapi.NewServer(n.ctx, myInfo, serverTLSConfig, disco, grpcPort, dnsProvider, dnsSuffix, clientTLSConfig)
 	peerServer.PingInterval = time.Second
 	peerServer.HealthyTimeout = time.Second * 5
 	peerServer.DiscoveryPollInterval = time.Second * 5
@@ -141,7 +146,7 @@ func (n *TestHarnessNode) Run() {
 		t.Fatalf("error initializing lock: %v", err)
 	}
 
-	etcdServer, err := etcd.NewEtcdServer(n.NodeDir, n.TestHarness.ClusterName, n.Address, me, peerServer)
+	etcdServer, err := etcd.NewEtcdServer(n.NodeDir, n.TestHarness.ClusterName, n.Address, me, peerServer, dnsProvider)
 	if err != nil {
 		t.Fatalf("error building EtcdServer: %v", err)
 	}
@@ -150,8 +155,6 @@ func (n *TestHarnessNode) Run() {
 
 	// No automatic refreshes
 	controlRefreshInterval := 10 * 365 * 24 * time.Hour
-
-	dnsSuffix := ""
 
 	c, err := controller.NewEtcdController(leaderLock, backupStore, backupInterval, commandStore, controlRefreshInterval, n.TestHarness.ClusterName, dnsSuffix, peerServer)
 	c.CycleInterval = testCycleInterval
@@ -234,4 +237,17 @@ func (n *TestHarnessNode) WaitForHealthy(timeout time.Duration) {
 		}
 		time.Sleep(time.Second)
 	}
+}
+
+type MockDNSProvider struct {
+}
+
+var _ dns.Provider = &MockDNSProvider{}
+
+func (p *MockDNSProvider) AddFallbacks(dnsFallbacks map[string][]net.IP) error {
+	return nil
+}
+
+func (p *MockDNSProvider) UpdateHosts(addToHost map[string][]string) error {
+	return nil
 }
