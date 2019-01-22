@@ -10,7 +10,7 @@ etcdadm is a command-line tool for operating an etcd cluster. It makes it easy t
 ## Table of Contents
 
   - [Getting Started](#getting-started)
-    - [Installing](#installing)
+    - [Building](#building)
     - [Creating a new cluster](#creating-a-new-cluster)
     - [Adding a member](#adding-a-member)
     - [Removing a member](#removing-a-member)
