@@ -46,6 +46,14 @@
   version = "v1.12.70"
 
 [[projects]]
+  digest = "1:705c40022f5c03bf96ffeb6477858d88565064485a513abcd0f11a0911546cb6"
+  name = "github.com/blang/semver"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "2ee87856327ba09384cabd113bc6b5d174e9ec0f"
+  version = "v3.5.1"
+
+[[projects]]
   digest = "1:c74fdb8fa270a48c3179f3c6057e0080045ec8484ff4771a3a765ab4b154f397"
   name = "github.com/coreos/etcd"
   packages = [
@@ -406,6 +414,7 @@
     "github.com/aws/aws-sdk-go/aws/request",
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/ec2",
+    "github.com/blang/semver",
     "github.com/coreos/etcd/client",
     "github.com/coreos/etcd/clientv3",
     "github.com/coreos/etcd/pkg/pathutil",
