@@ -19,6 +19,7 @@ go_library(
         "//pkg/privateapi/discovery:go_default_library",
         "//pkg/privateapi/discovery/vfs:go_default_library",
         "//pkg/tlsconfig:go_default_library",
+        "//pkg/urls:go_default_library",
         "//pkg/volumes:go_default_library",
         "//pkg/volumes/aws:go_default_library",
         "//pkg/volumes/gce:go_default_library",

@@ -22,7 +22,10 @@ const testCycleInterval = time.Second
 type TestHarness struct {
 	T *testing.T
 
-	CA                *pki.Keypair
+	grpcCA        *pki.Keypair
+	etcdClientsCA *pki.Keypair
+	etcdPeersCA   *pki.Keypair
+
 	ClusterName       string
 	LockPath          string
 	BackupStorePath   string
@@ -52,13 +55,35 @@ func NewTestHarness(t *testing.T, ctx context.Context) *TestHarness {
 		Context:     ctx,
 	}
 
-	store := pki.NewFSStore(filepath.Join(h.WorkDir, "pki"))
-	keypairs := pki.Keypairs{Store: store}
-	ca, err := keypairs.CA()
-	if err != nil {
-		t.Fatalf("error building CA: %v", err)
+	{
+		store := pki.NewFSStore(filepath.Join(h.WorkDir, "pki/grpc"))
+		keypairs := pki.Keypairs{Store: store}
+		ca, err := keypairs.CA()
+		if err != nil {
+			t.Fatalf("error building CA: %v", err)
+		}
+		h.grpcCA = ca
 	}
-	h.CA = ca
+
+	{
+		store := pki.NewFSStore(filepath.Join(h.WorkDir, "pki/clients"))
+		keypairs := pki.Keypairs{Store: store}
+		ca, err := keypairs.CA()
+		if err != nil {
+			t.Fatalf("error building CA: %v", err)
+		}
+		h.etcdClientsCA = ca
+	}
+
+	{
+		store := pki.NewFSStore(filepath.Join(h.WorkDir, "pki/peers"))
+		keypairs := pki.Keypairs{Store: store}
+		ca, err := keypairs.CA()
+		if err != nil {
+			t.Fatalf("error building CA: %v", err)
+		}
+		h.etcdPeersCA = ca
+	}
 
 	// To test with S3:
 	// TEST_VFS_BASE_DIR=s3://bucket/etcd-manager/testing/ go test ./test/... -args --v=2 -logtostderr
@@ -116,9 +141,11 @@ func (h *TestHarness) NewNode(address string) *TestHarnessNode {
 		NodeDir:     nodeDir,
 		EtcdVersion: "2.2.1",
 	}
+	if err := n.Init(); err != nil {
+		t.Fatalf("error initializing node: %v", err)
+	}
 
 	h.Nodes[address] = n
-	n.ClientURL = "http://" + address + ":4001"
 
 	return n
 }

@@ -17,7 +17,9 @@ import (
 	"kope.io/etcd-manager/pkg/contextutil"
 	"kope.io/etcd-manager/pkg/dns"
 	"kope.io/etcd-manager/pkg/legacy"
+	"kope.io/etcd-manager/pkg/pki"
 	"kope.io/etcd-manager/pkg/privateapi"
+	"kope.io/etcd-manager/pkg/urls"
 )
 
 const PreparedValidity = time.Minute
@@ -39,6 +41,9 @@ type EtcdServer struct {
 
 	// listenAddress is the address we configure etcd to bind to
 	listenAddress string
+
+	etcdClientsCA *pki.Keypair
+	etcdPeersCA   *pki.Keypair
 }
 
 type preparedState struct {
@@ -46,7 +51,7 @@ type preparedState struct {
 	clusterToken string
 }
 
-func NewEtcdServer(baseDir string, clusterName string, listenAddress string, etcdNodeConfiguration *protoetcd.EtcdNode, peerServer *privateapi.Server, dnsProvider dns.Provider) (*EtcdServer, error) {
+func NewEtcdServer(baseDir string, clusterName string, listenAddress string, etcdNodeConfiguration *protoetcd.EtcdNode, peerServer *privateapi.Server, dnsProvider dns.Provider, etcdClientsCA *pki.Keypair, etcdPeersCA *pki.Keypair) (*EtcdServer, error) {
 	s := &EtcdServer{
 		baseDir:               baseDir,
 		clusterName:           clusterName,
@@ -54,6 +59,8 @@ func NewEtcdServer(baseDir string, clusterName string, listenAddress string, etc
 		peerServer:            peerServer,
 		dnsProvider:           dnsProvider,
 		etcdNodeConfiguration: etcdNodeConfiguration,
+		etcdClientsCA:         etcdClientsCA,
+		etcdPeersCA:           etcdPeersCA,
 	}
 
 	// Make sure we have read state from disk before serving
@@ -356,11 +363,11 @@ func (s *EtcdServer) Reconfigure(ctx context.Context, request *protoetcd.Reconfi
 	response := &protoetcd.ReconfigureResponse{}
 
 	state := proto.Clone(s.state).(*protoetcd.EtcdState)
-	me, err := s.findSelfNode(state)
+	meNode, err := s.findSelfNode(state)
 	if err != nil {
 		return nil, err
 	}
-	if me == nil {
+	if meNode == nil {
 		return nil, fmt.Errorf("could not find self node in cluster: %v", err)
 	}
 
@@ -379,6 +386,12 @@ func (s *EtcdServer) Reconfigure(ctx context.Context, request *protoetcd.Reconfi
 	}
 
 	state.Quarantined = request.Quarantined
+
+	if request.EnableTls {
+		meNode.TlsEnabled = true
+		meNode.PeerUrls = urls.RewriteScheme(meNode.PeerUrls, "http://", "https://")
+		meNode.ClientUrls = urls.RewriteScheme(meNode.ClientUrls, "http://", "https://")
+	}
 
 	glog.Infof("Stopping etcd for reconfigure request: %v", request)
 	_, err = s.stopEtcdProcess()
@@ -508,7 +521,10 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 		return fmt.Errorf("ClusterToken not configured, cannot start etcd")
 	}
 	dataDir := filepath.Join(s.baseDir, "data", state.Cluster.ClusterToken)
+	pkiDir := filepath.Join(s.baseDir, "pki", state.Cluster.ClusterToken)
 	glog.Infof("starting etcd with datadir %s", dataDir)
+
+	state = proto.Clone(state).(*protoetcd.EtcdState)
 
 	// TODO: Validate this during the PREPARE phase
 	meNode, err := s.findSelfNode(state)
@@ -538,6 +554,12 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 		Quarantined:   state.Quarantined,
 		MyNodeName:    s.etcdNodeConfiguration.Name,
 		ListenAddress: s.listenAddress,
+		DisableTLS:    !meNode.TlsEnabled,
+	}
+
+	// We always generate the keypairs, as this allows us to switch to TLS without a restart
+	if err := p.createKeypairs(s.etcdPeersCA, s.etcdClientsCA, pkiDir, meNode); err != nil {
+		return err
 	}
 
 	binDir, err := BindirForEtcdVersion(state.EtcdVersion, "etcd")

@@ -209,6 +209,11 @@ func (c *V3Client) AddMember(ctx context.Context, peerURLs []string) error {
 	return err
 }
 
+func (c *V3Client) SetPeerURLs(ctx context.Context, member *EtcdProcessMember, peerURLs []string) error {
+	_, err := c.cluster.MemberUpdate(ctx, member.idv3, peerURLs)
+	return err
+}
+
 func (c *V3Client) RemoveMember(ctx context.Context, member *EtcdProcessMember) error {
 	_, err := c.cluster.MemberRemove(ctx, member.idv3)
 	return err
