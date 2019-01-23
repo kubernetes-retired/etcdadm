@@ -174,7 +174,7 @@ func (n *TestHarnessNode) Run() {
 func (n *TestHarnessNode) ListMembers(ctx context.Context) ([]*etcdclient.EtcdProcessMember, error) {
 	client, err := n.NewClient()
 	if err != nil {
-		n.TestHarness.T.Fatalf("error building etcd client: %v", err)
+		return nil, fmt.Errorf("error building etcd client: %v", err)
 	}
 	if client == nil {
 		return nil, fmt.Errorf("unable to build etcd client")
