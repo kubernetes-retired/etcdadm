@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/blang/semver"
 	"github.com/golang/glog"
 	"github.com/golang/protobuf/proto"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
@@ -409,11 +410,21 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 
 	// Check if the cluster is not of the desired version
 	var versionMismatch []*etcdClusterPeerInfo
+	canUpgradeInPlace := true
 	{
 		for _, peer := range clusterState.peers {
 			if peer.info != nil && peer.info.EtcdState != nil && peer.info.EtcdState.EtcdVersion != clusterSpec.EtcdVersion {
 				glog.Infof("mismatched version for peer %v: want %q, have %q", peer.peer, clusterSpec.EtcdVersion, peer.info.EtcdState.EtcdVersion)
 				versionMismatch = append(versionMismatch, peer)
+
+				if !upgradeInPlaceSupported(peer.info.EtcdState.EtcdVersion, clusterSpec.EtcdVersion) {
+					// TODO: Automatic intermediate upgrades?  3.1 -> 3.2 -> 3.3 ?
+					if canUpgradeInPlace {
+						glog.Infof("can't do in-place upgrade from %q -> %q", peer.info.EtcdState.EtcdVersion, clusterSpec.EtcdVersion)
+
+						canUpgradeInPlace = false
+					}
+				}
 			}
 		}
 
@@ -506,7 +517,11 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		glog.Infof("detected that we need to upgrade/downgrade etcd")
 
 		if ackedPeerCount >= quorumSize(int(clusterSpec.MemberCount)) {
-			return m.stopForUpgrade(ctx, clusterSpec, clusterState)
+			if canUpgradeInPlace {
+				return m.upgradeInPlace(ctx, clusterSpec, clusterState)
+			} else {
+				return m.stopForUpgrade(ctx, clusterSpec, clusterState)
+			}
 		} else {
 			glog.Infof("upgrade/downgrade needed, but we don't have sufficient peers")
 			return false, nil
@@ -993,4 +1008,38 @@ func (m *EtcdController) verifyEtcdVersion(clusterSpec *protoetcd.ClusterSpec) (
 	glog.Warningf("we don't support etcd version requested, won't assume forward compatability: %v", clusterSpec)
 
 	return false, fmt.Errorf("can't act as leader for unknown etcd version %q", clusterSpec.EtcdVersion)
+}
+
+func upgradeInPlaceSupported(fromVersion, toVersion string) bool {
+	fromSemver, err := semver.ParseTolerant(fromVersion)
+	if err != nil {
+		glog.Warningf("unknown version format: %q", fromVersion)
+		return false
+	}
+
+	toSemver, err := semver.ParseTolerant(toVersion)
+	if err != nil {
+		glog.Warningf("unknown version format: %q", toVersion)
+		return false
+	}
+
+	if fromSemver.Major == 3 && toSemver.Major == 3 {
+		if fromSemver.Minor == 1 && toSemver.Minor == 1 {
+			return true
+		}
+		if fromSemver.Minor == 1 && toSemver.Minor == 2 {
+			return true
+		}
+		if fromSemver.Minor == 2 && toSemver.Minor == 2 {
+			return true
+		}
+		if fromSemver.Minor == 2 && toSemver.Minor == 3 {
+			return true
+		}
+		if fromSemver.Minor == 3 && toSemver.Minor == 3 {
+			return true
+		}
+	}
+
+	return false
 }
