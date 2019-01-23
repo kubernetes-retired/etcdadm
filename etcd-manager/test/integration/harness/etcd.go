@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"testing"
 	"time"
 
 	"github.com/golang/glog"
@@ -60,8 +59,35 @@ func (n *TestHarnessNode) NewClient() (etcdclient.EtcdClient, error) {
 	return etcdclient.NewClient(n.EtcdVersion, clientUrls, tlsConfig)
 }
 
-func waitForListMembers(t *testing.T, client etcdclient.EtcdClient, timeout time.Duration) {
+func (n *TestHarnessNode) waitForClient(deadline time.Time) etcdclient.EtcdClient {
+	t := n.TestHarness.T
+
+	for {
+		client, err := n.NewClient()
+		if client != nil && err == nil {
+			return client
+		}
+
+		if err != nil {
+			glog.Warningf("error building client: %v", err)
+		}
+
+		glog.Infof("test waiting for client: (%v)", err)
+
+		if time.Now().After(deadline) {
+			t.Fatalf("wait-for-client did not succeed within timeout")
+		}
+		time.Sleep(time.Second)
+	}
+}
+
+func (n *TestHarnessNode) WaitForListMembers(timeout time.Duration) {
+	t := n.TestHarness.T
+
 	endAt := time.Now().Add(timeout)
+
+	client := n.waitForClient(endAt)
+
 	for {
 		members, err := client.ListMembers(context.Background())
 		if err == nil {
