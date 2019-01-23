@@ -19,6 +19,15 @@ a packaged docker container, but this walkthrough lets you see what's going on h
 
 etcd must be installed in `/opt/etcd-v2.2.1-linux-amd64/etcd`, etcdctl in `/opt/etcd-v2.2.1-linux-amd64/etcdctl`.  Each version of etcd you want to run must be installed in the same pattern.  Make sure you've downloaded `/opt/etcd-v3.2.18-linux-amd64` for this demo. (Typically you'll run etcd-manager in a docker image)
 
+On Linux, you can do this with:
+
+```
+bazel build //:etcd-v2.2.1-linux-amd64_etcd //:etcd-v2.2.1-linux-amd64_etcdctl
+bazel build //:etcd-v3.2.24-linux-amd64_etcd //:etcd-v3.2.24-linux-amd64_etcdctl
+sudo cp -r bazel-genfiles/etcd-v* /opt/
+sudo chown -R ${USER} /opt/etcd-v*
+```
+
 NOTE: If you're running on OSX, CoreOS does not ship a version of etcd2 that runs correctly on recent versions os OSX.  Running inside Docker avoids this problem.
 
 ```
@@ -32,11 +41,16 @@ ln -sf bazel-bin/cmd/etcd-manager-ctl/linux_amd64_stripped/etcd-manager-ctl
 ln -sf bazel-bin/cmd/etcd-manager/linux_amd64_stripped/etcd-manager
 
 # Start etcd manager
-./etcd-manager --address 127.0.0.1 --cluster-name=test --backup-store=file:///tmp/etcd-manager/backups/test --data-dir=/tmp/etcd-manager/data/test/1 --client-urls=http://127.0.0.1:4001 --quarantine-client-urls=http://127.0.0.1:8001
+./etcd-manager --insecure --etcd-insecure --address 127.0.0.1 --etcd-address 127.0.0.1 --cluster-name=test --backup-store=file:///tmp/etcd-manager/backups/test --data-dir=/tmp/etcd-manager/data/test/1 --client-urls=http://127.0.0.1:4001 --quarantine-client-urls=http://127.0.0.1:8001 --peer-urls=http://127.0.0.1:2380
 
 # Seed cluster creation
-./etcd-manager-ctl --members=1 --backup-store=file:///tmp/etcd-manager/backups/test --etcd-version=2.2.1
+./etcd-manager-ctl -member-count=1 --backup-store=file:///tmp/etcd-manager/backups/test -etcd-version=2.2.1 configure-cluster
 ```
+
+Note the `--insecure` and `--etcd-insecure` flags - we're turning off TLS for
+both etcd-manager and etcd - you shouldn't do that in production, but for a
+demo/walkthrough the TLS keys are a little complicated.  The test suite and
+production configurations do use TLS.
 
 `etcd-manager` will start a node ready to start running etcd, and `etcd-manager-ctl` will provide the initial settings
 for the cluster.  Those settings are written to the backup store, so the backup store acts as a source of truth when
@@ -55,8 +69,8 @@ You should be able to set and list keys using the etcdctl tool:
 Now if we want to expand the cluster (it's probably easiest to run each of these commands in different windows / tabs / tmux windows / screen windows):
 
 ```
-./etcd-manager --address 127.0.0.2 --cluster-name=test --backup-store=file:///tmp/etcd-manager/backups/test --data-dir=/tmp/etcd-manager/data/test/2 --client-urls=http://127.0.0.2:4001 --quarantine-client-urls=http://127.0.0.2:8001
-./etcd-manager --address 127.0.0.3 --cluster-name=test --backup-store=file:///tmp/etcd-manager/backups/test --data-dir=/tmp/etcd-manager/data/test/3 --client-urls=http://127.0.0.3:4001 --quarantine-client-urls=http://127.0.0.3:8001
+./etcd-manager --insecure --etcd-insecure --address 127.0.0.2 --etcd-address 127.0.0.2 --cluster-name=test --backup-store=file:///tmp/etcd-manager/backups/test --data-dir=/tmp/etcd-manager/data/test/2 --client-urls=http://127.0.0.2:4001 --quarantine-client-urls=http://127.0.0.2:8001 --peer-urls=http://127.0.0.2:2380
+./etcd-manager --insecure --etcd-insecure --address 127.0.0.3 --etcd-address 127.0.0.3 --cluster-name=test --backup-store=file:///tmp/etcd-manager/backups/test --data-dir=/tmp/etcd-manager/data/test/3 --client-urls=http://127.0.0.3:4001 --quarantine-client-urls=http://127.0.0.3:8001 --peer-urls=http://127.0.0.3:2380
 ```
 
 Within a few seconds, the two other nodes will join the gossip cluster, but will not yet be part of etcd.  The leader controller will be logging something like this:
@@ -87,13 +101,13 @@ If you do look around the directories:
 We can reconfigure the cluster:
 
 ```
-> curl http://127.0.0.1:4001/v2/keys/kope.io/etcd-manager/test/spec
-{"action":"get","node":{"key":"/kope.io/etcd-manager/test/spec","value":"{\n  \"memberCount\": 1,\n  \"etcdVersion\": \"2.2.1\"\n}","modifiedIndex":4,"createdIndex":4}}
-
-> curl -XPUT -d 'value={ "memberCount": 3, "etcdVersion": "2.2.1" }' http://127.0.0.1:4001/v2/keys/kope.io/etcd-manager/test/spec
+> ./etcd-manager-ctl -backup-store=file:///tmp/etcd-manager/backups/test get
+etcd-manager-ctl
+member_count:1 etcd_version:"2.2.1"
+> ./etcd-manager-ctl -backup-store=file:///tmp/etcd-manager/backups/test -member-count=3 --etcd-version=2.2.1 configure-cluster
 ```
 
-Within a minute, we should see all 3 nodes in the etcd cluster:
+If you now bounce the first etcd-manager process (control-C and relaunch), the cluster will reconfigure itself.  This bouncing is typically done by a rolling-update, though etcd-manager can also be configured to automatically look for configuration changes:
 
 ```
 > curl http://127.0.0.1:4001/v2/members/
@@ -106,8 +120,9 @@ and as long as you allow the cluster to recover before deleting a second data di
 
 ### Disaster recovery
 
-The etcd-manager performs periodic backups.  In the event of a total failure, it will restore automatically
-(TODO: we should make this configurable - if a node _could_ recover we likely want this to be manually triggered)
+The etcd-manager performs periodic backups.  In the event of a total failure, we
+can restore from that backup.  Note that this involves data loss since the last
+backup, so we require a manual trigger.
 
 Verify backup/restore works correctly:
 
@@ -120,25 +135,48 @@ curl -XPUT -d "value=world"  http://127.0.0.1:4001/v2/keys/hello
 * Remove the active data: `rm -rf /tmp/etcd-manager/data/test`
 * Restart all 3 processes
 
-Disaster recovery will detect that no etcd nodes are running, will start a cluster on all 3 nodes, and restore the backup.
+A leader will be elected, and will start logging `etcd has 0 members registered; must issue restore-backup command to proceed`
 
+List the available backups with:
+
+```bash
+> ./etcd-manager-ctl -backup-store=file:///tmp/etcd-manager/backups/test list-backups
+2019-01-14T15:26:45Z-000001
+2019-01-14T15:27:43Z-000001
+2019-01-14T15:29:48Z-000001
+2019-01-14T15:29:48Z-000002
+2019-01-14T15:29:48Z-000003
+```
+
+Issue the restore-backup command:
+
+```bash
+> ./etcd-manager-ctl -backup-store=file:///tmp/etcd-manager/backups/test restore-backup 2019-01-14T15:29:48Z-000003
+added restore-backup command: timestamp:1547480961703914946 restore_backup:<cluster_spec:<member_count:3 etcd_version:"2.2.1" > backup:"2019-01-14T15:29:48Z-000003" >
+```
+
+The controller will shortly restore the backup.  Confirm this with:
+
+```bash
+curl http://127.0.0.1:4001/v2/members/
+curl http://127.0.0.1:4001/v2/keys/hello
+```
 
 ### Upgrading
 
 ```
-> curl http://127.0.0.1:4001/v2/keys/kope.io/etcd-manager/test/spec
-{"action":"get","node":{"key":"/kope.io/etcd-manager/test/spec","value":"{ \"memberCount\": 3, \"etcdVersion\": \"2.2.1\" }","modifiedIndex":8,"createdIndex":8}}
-
-> curl -XPUT -d 'value={ "memberCount": 3, "etcdVersion": "3.2.18" }' http://127.0.0.1:4001/v2/keys/kope.io/etcd-manager/test/spec
+> ./etcd-manager-ctl -backup-store=file:///tmp/etcd-manager/backups/test get
+member_count:3 etcd_version:"2.2.1"
+> ./etcd-manager-ctl -backup-store=file:///tmp/etcd-manager/backups/test -member-count=3 --etcd-version=3.2.24 configure-cluster
 ```
+
+Bounce the etcd-manager that has leadership so that it picks up the reconfiguration.
 
 Dump keys to be sure that everything copied across:
 ```
-> ETCDCTL_API=3 /opt/etcd-v3.2.18-linux-amd64/etcdctl --endpoints http://127.0.0.1:4001 get "" --prefix
+> ETCDCTL_API=3 /opt/etcd-v3.2.24-linux-amd64/etcdctl --endpoints http://127.0.0.1:4001 get "" --prefix
 /hello
 world
-/kope.io/etcd-manager/test/spec
-{ "memberCount": 3, "etcdVersion": "3.2.18" }
 ```
 
 You may note that we did the impossible here - we went straight from etcd 2 to etcd 3 in an HA cluster.  There was some
@@ -157,7 +195,10 @@ that the etcd-version of each object is changed, meaning all watches are invalid
 TODO: We should enable "hot" upgrades where the version change is compatible.  (It's easy, but it's nice to have one code path for now)
 
 If you want to try a downgrade:
-`ETCDCTL_API=3 /opt/etcd-v3.2.18-linux-amd64/etcdctl --endpoints http://127.0.0.1:4001  put /kope.io/etcd-manager/test/spec '{ "memberCount": 3, "etcdVersion": "2.3.7" }'`
+
+```
+./etcd-manager-ctl -backup-store=file:///tmp/etcd-manager/backups/test -member-count=3 --etcd-version=2.2.1 configure-cluster
+```
 
 ## Code overview
 
@@ -194,21 +235,21 @@ Once a leader has been determined, it performs this basic loop:
 
 Help gratefully received:
 
-* We need to split out the backup logic, so that we can run it as a simple coprocess
-  alongside existing etcd implementations.
-* We should better integrate settting the `/kope.io/etcd-manager/test/spec` into kubernetes.  A controller could sync it
+* ~We need to split out the backup logic, so that we can run it as a simple coprocess
+  alongside existing etcd implementations.~
+* We should better integrate settting the spec into kubernetes.  A controller could sync it
   with a CRD or apimachinery type.
 * We use the VFS library from kops (that is the only dependency on kops, and it's not a big one).  We should look at making VFS
   into a true kubernetes shared library.
-* We should probably not recover automatically from a backup in the event of total cluster loss, because backups are periodic
-  and thus we know some data loss is likely.  Idea: drop a marker file into the backup store.
+* ~We should probably not recover automatically from a backup in the event of total cluster loss, because backups are periodic
+  and thus we know some data loss is likely.  Idea: drop a marker file into the backup store.~
 * The controller leader election currently considers itself the leader when it has consensus amongst all reachable peers,
   and will create a cluster when there are sufficient peers to form a quorum. But with partitions, it's possible to have
   two nodes that both believe themselves to be the leader.  If the number of machines is `>= 2 * quorum` then we could
   form two etcd clusters (etcd itself should stop overlapping clusters).  A pluggable locking implementation is one
   solution in progress; GCS has good consistency guarantees.
-* Discovery mechanisms are currently mostly fake - they work on a local filesystem.  We have an early one backed by VFS,
-  but discovery via the EC2/GCE APIs would be great, as would network scanning or multicast discovery.
+* ~Discovery mechanisms are currently mostly fake - they work on a local filesystem.  We have an early one backed by VFS,
+  but discovery via the EC2/GCE APIs would be great, as would network scanning or multicast discovery.~
 * All cluster version changes currently are performed via the "full dump and restore" mechanism.  We should learn
   that some version changes are in fact safe, and perform them as a rolling-update (after a backup!)
-* There should be a way to trigger a backup via a convenient mechanism.  Idea: drop a marker key into etcd.
+* ~There should be a way to trigger a backup via a convenient mechanism.  Idea: drop a marker key into etcd.~
