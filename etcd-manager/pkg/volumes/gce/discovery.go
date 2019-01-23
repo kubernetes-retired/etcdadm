@@ -17,8 +17,6 @@ limitations under the License.
 package gce
 
 import (
-	"fmt"
-
 	"github.com/golang/glog"
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 	"kope.io/etcd-manager/pkg/volumes"
@@ -68,8 +66,8 @@ func (g *GCEVolumes) Poll() (map[string]discovery.Node, error) {
 			// TODO: Check e.g. Network
 
 			if ni.NetworkIP != "" {
-				e := fmt.Sprintf(g.endpointFormat, ni.NetworkIP)
-				node.Endpoints = append(node.Endpoints, discovery.NodeEndpoint{Endpoint: e})
+				ip := ni.NetworkIP
+				node.Endpoints = append(node.Endpoints, discovery.NodeEndpoint{IP: ip})
 			}
 		}
 

@@ -51,21 +51,17 @@ type AWSVolumes struct {
 	localIP    string
 	metadata   *ec2metadata.EC2Metadata
 	zone       string
-
-	// endpointFormat is the format string to transform an address into a discovery endpoint
-	endpointFormat string
 }
 
 var _ volumes.Volumes = &AWSVolumes{}
 
 // NewAWSVolumes returns a new aws volume provider
-func NewAWSVolumes(clusterName string, volumeTags []string, nameTag string, endpointFormat string) (*AWSVolumes, error) {
+func NewAWSVolumes(clusterName string, volumeTags []string, nameTag string) (*AWSVolumes, error) {
 	a := &AWSVolumes{
-		clusterName:    clusterName,
-		deviceMap:      make(map[string]string),
-		matchTags:      make(map[string]string),
-		nameTag:        nameTag,
-		endpointFormat: endpointFormat,
+		clusterName: clusterName,
+		deviceMap:   make(map[string]string),
+		matchTags:   make(map[string]string),
+		nameTag:     nameTag,
 	}
 
 	for _, volumeTag := range volumeTags {

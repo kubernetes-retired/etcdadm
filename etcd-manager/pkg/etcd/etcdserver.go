@@ -15,7 +15,7 @@ import (
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/contextutil"
-	"kope.io/etcd-manager/pkg/hosts"
+	"kope.io/etcd-manager/pkg/dns"
 	"kope.io/etcd-manager/pkg/legacy"
 	"kope.io/etcd-manager/pkg/privateapi"
 )
@@ -27,6 +27,7 @@ type EtcdServer struct {
 	peerServer            *privateapi.Server
 	etcdNodeConfiguration *protoetcd.EtcdNode
 	clusterName           string
+	dnsProvider           dns.Provider
 
 	backupStore backup.Store
 
@@ -45,12 +46,13 @@ type preparedState struct {
 	clusterToken string
 }
 
-func NewEtcdServer(baseDir string, clusterName string, listenAddress string, etcdNodeConfiguration *protoetcd.EtcdNode, peerServer *privateapi.Server) (*EtcdServer, error) {
+func NewEtcdServer(baseDir string, clusterName string, listenAddress string, etcdNodeConfiguration *protoetcd.EtcdNode, peerServer *privateapi.Server, dnsProvider dns.Provider) (*EtcdServer, error) {
 	s := &EtcdServer{
 		baseDir:               baseDir,
 		clusterName:           clusterName,
 		listenAddress:         listenAddress,
 		peerServer:            peerServer,
+		dnsProvider:           dnsProvider,
 		etcdNodeConfiguration: etcdNodeConfiguration,
 	}
 
@@ -211,7 +213,7 @@ func (s *EtcdServer) UpdateEndpoints(ctx context.Context, request *protoetcd.Upd
 
 		if len(addressToHosts) != 0 {
 			glog.Infof("updating hosts: %v", addressToHosts)
-			if err := hosts.UpdateHostsFileWithRecords("/etc/hosts", "etcd-manager["+s.clusterName+"]", addressToHosts); err != nil {
+			if err := s.dnsProvider.UpdateHosts(addressToHosts); err != nil {
 				glog.Warningf("error updating hosts: %v", err)
 				return nil, err
 			}
