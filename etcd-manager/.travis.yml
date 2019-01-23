@@ -33,7 +33,9 @@ before_install:
 script:
   - cd ${TRAVIS_BUILD_DIR}
   - bazel build //cmd/...
-  - bazel test //test/... --test_output=streamed --local_test_jobs=1
+  # Tests log too much output for travis
+  #- bazel test //test/... --test_output=streamed --local_test_jobs=1
+  - bazel test //test/... --local_test_jobs=1
 
 notifications:
   email: false
