@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"net"
 	"net/http"
 	"strings"
 	"time"
@@ -26,16 +27,22 @@ func NewV2Client(clientUrls []string, tlsConfig *tls.Config) (EtcdClient, error)
 	if len(clientUrls) == 0 {
 		return nil, fmt.Errorf("no endpoints provided")
 	}
+
+	// Copy of etcd_client_v2.DefaultTransport, it's not safe to copy http.Transport
+	transport := &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+		Dial: (&net.Dialer{
+			Timeout:   30 * time.Second,
+			KeepAlive: 30 * time.Second,
+		}).Dial,
+		TLSHandshakeTimeout: 10 * time.Second,
+		TLSClientConfig:     tlsConfig,
+	}
+
 	cfg := etcd_client_v2.Config{
 		Endpoints:               clientUrls,
-		Transport:               etcd_client_v2.DefaultTransport,
+		Transport:               transport,
 		HeaderTimeoutPerRequest: 10 * time.Second,
-	}
-	if tlsConfig != nil {
-		transport := *(cfg.Transport.(*http.Transport))
-		transport.TLSClientConfig = tlsConfig
-
-		cfg.Transport = &transport
 	}
 
 	etcdClient, err := etcd_client_v2.New(cfg)
