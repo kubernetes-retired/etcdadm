@@ -51,20 +51,16 @@ type GCEVolumes struct {
 	internalIP   net.IP
 
 	allZonesInRegion []string
-
-	// endpointFormat is the format string to transform an address into a discovery endpoint
-	endpointFormat string
 }
 
 var _ volumes.Volumes = &GCEVolumes{}
 
 // NewGCEVolumes returns a new aws volume provider
-func NewGCEVolumes(clusterName string, volumeTags []string, nameTag string, endpointFormat string) (*GCEVolumes, error) {
+func NewGCEVolumes(clusterName string, volumeTags []string, nameTag string) (*GCEVolumes, error) {
 	g := &GCEVolumes{
-		clusterName:    clusterName,
-		matchTags:      make(map[string]string),
-		nameTag:        nameTag,
-		endpointFormat: endpointFormat,
+		clusterName: clusterName,
+		matchTags:   make(map[string]string),
+		nameTag:     nameTag,
 	}
 
 	for _, volumeTag := range volumeTags {

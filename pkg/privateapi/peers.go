@@ -3,7 +3,9 @@ package privateapi
 import (
 	"context"
 	"fmt"
+	"net"
 	"reflect"
+	"strings"
 	"sync"
 	"time"
 
@@ -39,6 +41,9 @@ type peer struct {
 
 	// Information from discovery.  Should not be considered authoritative
 	discoveryNode discovery.Node
+
+	// defaultPort is the port to use when one is not specified, particularly for discovery
+	defaultPort int
 
 	// Addresses from GRPC
 	lastInfo     *PeerInfo
@@ -95,8 +100,9 @@ func (s *Server) updateFromDiscovery(discoveryNode discovery.Node) {
 	if existing == nil {
 		glog.Infof("found new candidate peer from discovery: %s %v", id, discoveryNode.Endpoints)
 		existing = &peer{
-			server: s,
-			id:     id,
+			server:      s,
+			id:          id,
+			defaultPort: s.defaultPort,
 		}
 		existing.updateFromDiscovery(discoveryNode)
 		s.peers[id] = existing
@@ -114,6 +120,33 @@ func (s *Server) runDiscoveryOnce() error {
 
 	for k := range nodes {
 		s.updateFromDiscovery(nodes[k])
+	}
+
+	if s.dnsSuffix != "" {
+		dnsSuffix := s.dnsSuffix
+		if !strings.HasPrefix(dnsSuffix, ".") {
+			dnsSuffix = "." + dnsSuffix
+		}
+
+		dnsFallbacks := make(map[string][]net.IP)
+		for _, node := range nodes {
+			dnsName := node.ID + dnsSuffix
+
+			var ips []net.IP
+			for _, e := range node.Endpoints {
+				ip := net.ParseIP(e.IP)
+				if ip != nil {
+					ips = append(ips, ip)
+				} else {
+					glog.Warningf("skipping endpoint that cannot be parsed as IP: %q", e.IP)
+				}
+			}
+			dnsFallbacks[dnsName] = ips
+		}
+
+		if err := s.dnsProvider.AddFallbacks(dnsFallbacks); err != nil {
+			glog.Warningf("error registering dns fallbacks: %v", err)
+		}
 	}
 
 	return nil
@@ -259,7 +292,12 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 	{
 		p.mutex.Lock()
 		for _, endpoint := range p.discoveryNode.Endpoints {
-			endpoints[endpoint.Endpoint] = true
+			port := endpoint.Port
+			if port == 0 {
+				port = p.defaultPort
+			}
+			s := fmt.Sprintf("%s:%v", endpoint.IP, port)
+			endpoints[s] = true
 		}
 
 		if p.lastInfo != nil {

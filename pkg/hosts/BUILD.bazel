@@ -5,5 +5,8 @@ go_library(
     srcs = ["hosts.go"],
     importpath = "kope.io/etcd-manager/pkg/hosts",
     visibility = ["//visibility:public"],
-    deps = ["//vendor/github.com/golang/glog:go_default_library"],
+    deps = [
+        "//pkg/dns:go_default_library",
+        "//vendor/github.com/golang/glog:go_default_library",
+    ],
 )

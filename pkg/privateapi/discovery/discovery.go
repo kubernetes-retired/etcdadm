@@ -10,5 +10,6 @@ type Node struct {
 }
 
 type NodeEndpoint struct {
-	Endpoint string `json:"endpoint"`
+	IP   string `json:"ip"`
+	Port int    `json:"port"`
 }
