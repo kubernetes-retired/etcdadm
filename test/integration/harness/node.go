@@ -2,8 +2,10 @@ package harness
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"net"
+	"os"
 	"path/filepath"
 	"testing"
 	"time"
@@ -32,12 +34,49 @@ type TestHarnessNode struct {
 	NodeDir     string
 	EtcdVersion string
 
+	InsecureMode bool
+
 	ctx       context.Context
 	ctxCancel context.CancelFunc
 
 	ClientURL      string
 	etcdServer     *etcd.EtcdServer
 	etcdController *controller.EtcdController
+
+	etcdClientTLSConfig *tls.Config
+}
+
+func (n *TestHarnessNode) Init() error {
+	if err := os.MkdirAll(n.NodeDir, 0755); err != nil {
+		return fmt.Errorf("error creating node directory %q: %v", n.NodeDir, err)
+	}
+
+	uniqueID, err := privateapi.PersistentPeerId(n.NodeDir)
+	if err != nil {
+		return fmt.Errorf("error getting persistent peer id: %v", err)
+	}
+
+	if !n.InsecureMode && n.TestHarness.etcdClientsCA != nil {
+		store := pki.NewInMemoryStore()
+		keypairs := &pki.Keypairs{Store: store}
+		keypairs.SetCA(n.TestHarness.etcdClientsCA)
+
+		c, err := etcd.BuildTLSClientConfig(keypairs, string(uniqueID))
+		if err != nil {
+			return fmt.Errorf("error building etcd-client TLS config: %v", err)
+		}
+		n.etcdClientTLSConfig = c
+	} else {
+		n.etcdClientTLSConfig = nil
+	}
+
+	if n.InsecureMode {
+		n.ClientURL = "http://" + n.Address + ":4001"
+	} else {
+		n.ClientURL = "https://" + n.Address + ":4001"
+	}
+
+	return nil
 }
 
 func (n *TestHarnessNode) Run() {
@@ -72,18 +111,22 @@ func (n *TestHarnessNode) Run() {
 		glog.Fatalf("error building discovery: %v", err)
 	}
 
-	store := pki.NewFSStore(filepath.Join(n.NodeDir, "pki"))
-	keypairs := &pki.Keypairs{Store: store}
-	keypairs.SetCA(n.TestHarness.CA)
+	var serverTLSConfig *tls.Config
+	var clientTLSConfig *tls.Config
+	if !n.InsecureMode {
+		store := pki.NewFSStore(filepath.Join(n.NodeDir, "pki"))
+		keypairs := &pki.Keypairs{Store: store}
+		keypairs.SetCA(n.TestHarness.grpcCA)
 
-	serverTLSConfig, err := tlsconfig.GRPCServerConfig(keypairs, string(uniqueID))
-	if err != nil {
-		t.Fatalf("error building server TLS config: %v", err)
-	}
+		serverTLSConfig, err = tlsconfig.GRPCServerConfig(keypairs, string(uniqueID))
+		if err != nil {
+			t.Fatalf("error building grpc-server TLS config: %v", err)
+		}
 
-	clientTLSConfig, err := tlsconfig.GRPCClientConfig(keypairs, string(uniqueID))
-	if err != nil {
-		t.Fatalf("error building client TLS config: %v", err)
+		clientTLSConfig, err = tlsconfig.GRPCClientConfig(keypairs, string(uniqueID))
+		if err != nil {
+			t.Fatalf("error building grpc-client TLS config: %v", err)
+		}
 	}
 
 	dnsProvider := &MockDNSProvider{}
@@ -101,24 +144,22 @@ func (n *TestHarnessNode) Run() {
 		glog.Fatalf("error building server: %v", err)
 	}
 
-	//c := &apis_etcd.EtcdNode{
-	//	DesiredClusterSize: 3,
-	//	ClusterName:        "etcd-main",
-	//
-	//	ClientPort: 4001,
-	//	PeerPort:   2380,
-	//}
+	scheme := "https"
+	if n.InsecureMode {
+		scheme = "http"
+	}
+
 	var clientUrls []string
 	clientPort := 4001
-	clientUrls = append(clientUrls, fmt.Sprintf("http://%s:%d", address, clientPort))
+	clientUrls = append(clientUrls, fmt.Sprintf("%s://%s:%d", scheme, address, clientPort))
 
 	var quarantinedClientUrls []string
 	quarantinedClientPort := 4002
-	quarantinedClientUrls = append(quarantinedClientUrls, fmt.Sprintf("http://%s:%d", address, quarantinedClientPort))
+	quarantinedClientUrls = append(quarantinedClientUrls, fmt.Sprintf("%s://%s:%d", scheme, address, quarantinedClientPort))
 
 	var peerUrls []string
 	peerPort := 2380
-	peerUrls = append(peerUrls, fmt.Sprintf("http://%s:%d", address, peerPort))
+	peerUrls = append(peerUrls, fmt.Sprintf("%s://%s:%d", scheme, address, peerPort))
 
 	me := &apis_etcd.EtcdNode{
 		Name:                  string(uniqueID),
@@ -126,9 +167,6 @@ func (n *TestHarnessNode) Run() {
 		QuarantinedClientUrls: quarantinedClientUrls,
 		PeerUrls:              peerUrls,
 	}
-	//c.Me = me
-	//c.Nodes = append(c.Nodes, me)
-	//c.ClusterToken = "etcd-cluster-token-" + c.ClusterName
 
 	backupStore, err := backup.NewStore(n.TestHarness.BackupStorePath)
 	if err != nil {
@@ -146,7 +184,15 @@ func (n *TestHarnessNode) Run() {
 		t.Fatalf("error initializing lock: %v", err)
 	}
 
-	etcdServer, err := etcd.NewEtcdServer(n.NodeDir, n.TestHarness.ClusterName, n.Address, me, peerServer, dnsProvider)
+	etcdClientsCA := n.TestHarness.etcdClientsCA
+	etcdPeersCA := n.TestHarness.etcdPeersCA
+
+	if n.InsecureMode {
+		etcdClientsCA = nil
+		etcdPeersCA = nil
+	}
+
+	etcdServer, err := etcd.NewEtcdServer(n.NodeDir, n.TestHarness.ClusterName, n.Address, me, peerServer, dnsProvider, etcdClientsCA, etcdPeersCA)
 	if err != nil {
 		t.Fatalf("error building EtcdServer: %v", err)
 	}
@@ -156,11 +202,11 @@ func (n *TestHarnessNode) Run() {
 	// No automatic refreshes
 	controlRefreshInterval := 10 * 365 * 24 * time.Hour
 
-	c, err := controller.NewEtcdController(leaderLock, backupStore, backupInterval, commandStore, controlRefreshInterval, n.TestHarness.ClusterName, dnsSuffix, peerServer)
-	c.CycleInterval = testCycleInterval
+	c, err := controller.NewEtcdController(leaderLock, backupStore, backupInterval, commandStore, controlRefreshInterval, n.TestHarness.ClusterName, dnsSuffix, peerServer, n.TestHarness.etcdClientsCA, n.InsecureMode)
 	if err != nil {
 		t.Fatalf("error building etcd controller: %v", err)
 	}
+	c.CycleInterval = testCycleInterval
 	n.etcdController = c
 	go c.Run(n.ctx)
 
@@ -176,11 +222,21 @@ func (n *TestHarnessNode) ListMembers(ctx context.Context) ([]*etcdclient.EtcdPr
 	if err != nil {
 		return nil, fmt.Errorf("error building etcd client: %v", err)
 	}
+
 	if client == nil {
 		return nil, fmt.Errorf("unable to build etcd client")
 	}
 	defer client.Close()
+
 	return client.ListMembers(ctx)
+}
+
+func (n *TestHarnessNode) NewClient() (etcdclient.EtcdClient, error) {
+	client, err := etcdclient.NewClient(n.EtcdVersion, []string{n.ClientURL}, n.etcdClientTLSConfig)
+	if err != nil {
+		return nil, err
+	}
+	return client, nil
 }
 
 func (n *TestHarnessNode) Close() error {

@@ -8,6 +8,7 @@ go_test(
         "datapersists_test.go",
         "etcdinstalled_test.go",
         "resize_cluster_test.go",
+        "secure_transitions_test.go",
         "upgradedowngrade_test.go",
     ],
     data = [

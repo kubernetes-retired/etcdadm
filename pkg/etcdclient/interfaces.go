@@ -29,6 +29,8 @@ type EtcdClient interface {
 	AddMember(ctx context.Context, peerURLs []string) error
 	RemoveMember(ctx context.Context, member *EtcdProcessMember) error
 
+	SetPeerURLs(ctx context.Context, member *EtcdProcessMember, peerURLs []string) error
+
 	// ServerVersion returns the version of etcd running
 	ServerVersion(ctx context.Context) (string, error)
 

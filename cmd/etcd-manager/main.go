@@ -40,6 +40,7 @@ import (
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 	vfsdiscovery "kope.io/etcd-manager/pkg/privateapi/discovery/vfs"
 	"kope.io/etcd-manager/pkg/tlsconfig"
+	"kope.io/etcd-manager/pkg/urls"
 	"kope.io/etcd-manager/pkg/volumes"
 	"kope.io/etcd-manager/pkg/volumes/aws"
 	"kope.io/etcd-manager/pkg/volumes/gce"
@@ -76,6 +77,8 @@ func main() {
 	flag.StringVar(&o.DataDir, "data-dir", o.DataDir, "directory for storing etcd data")
 
 	flag.StringVar(&o.PKIDir, "pki-dir", o.PKIDir, "directory for PKI keys")
+	flag.BoolVar(&o.Insecure, "insecure", o.Insecure, "allow use of non-secure connections for etcd-manager")
+	flag.BoolVar(&o.EtcdInsecure, "etcd-insecure", o.EtcdInsecure, "allow use of non-secure connections for etcd itself")
 
 	flag.StringVar(&o.VolumeProviderID, "volume-provider", o.VolumeProviderID, "provider for volumes")
 
@@ -134,6 +137,12 @@ type EtcdManagerOptions struct {
 	// ControlRefreshInterval is the interval with which we refresh the control store
 	// (we also refresh on leadership changes and on boot)
 	ControlRefreshInterval time.Duration
+
+	// We have an explicit option for insecure configuration for grpc
+	Insecure bool
+
+	// We have an explicit option for insecure configuration for etcd
+	EtcdInsecure bool
 }
 
 // InitDefaults populates the default flag values
@@ -142,9 +151,9 @@ func (o *EtcdManagerOptions) InitDefaults() {
 
 	o.BackupInterval = "15m"
 
-	o.ClientUrls = "http://__address__:4001"
-	o.QuarantineClientUrls = "http://__address__:8001"
-	o.PeerUrls = "http://__address__:2380"
+	o.ClientUrls = "https://__address__:4001"
+	o.QuarantineClientUrls = "https://__address__:8001"
+	o.PeerUrls = "https://__address__:2380"
 
 	o.GrpcPort = 8000
 
@@ -156,7 +165,10 @@ func (o *EtcdManagerOptions) InitDefaults() {
 	// o.BackupStorePath = "/backups"
 	// o.DataDir = "/data"
 
-	// o.PKIDir = "/etc/kubernetes/pki/etcd-manager"
+	o.PKIDir = "/etc/kubernetes/pki/etcd-manager"
+
+	o.Insecure = false
+	o.EtcdInsecure = false
 }
 
 // RunEtcdManager runs the etcd-manager, returning only we should exit.
@@ -279,9 +291,22 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 
 	var grpcServerTLS *tls.Config
 	var grpcClientTLS *tls.Config
-	if o.PKIDir != "" {
+
+	var etcdClientsCA *pki.Keypair
+	var etcdPeersCA *pki.Keypair
+	if !o.Insecure {
+		if o.PKIDir == "" {
+			return fmt.Errorf("pki-dir is required for secure configurations")
+		}
+
 		store := pki.NewFSStore(o.PKIDir)
 		keypairs := &pki.Keypairs{Store: store}
+
+		ca, err := store.LoadKeypair("etcd-manager-ca")
+		if err != nil {
+			return err
+		}
+		keypairs.SetCA(ca)
 
 		grpcServerTLS, err = tlsconfig.GRPCServerConfig(keypairs, string(myPeerId))
 		if err != nil {
@@ -291,6 +316,24 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 		grpcClientTLS, err = tlsconfig.GRPCClientConfig(keypairs, string(myPeerId))
 		if err != nil {
 			return err
+		}
+	}
+
+	if !o.EtcdInsecure {
+		if o.PKIDir == "" {
+			return fmt.Errorf("pki-dir is required for secure configurations")
+		}
+
+		store := pki.NewFSStore(o.PKIDir)
+
+		etcdPeersCA, err = store.LoadKeypair("etcd-peers-ca")
+		if err != nil {
+			return fmt.Errorf("error loading etcd-peers-ca keypair: %v", err)
+		}
+
+		etcdClientsCA, err = store.LoadKeypair("etcd-clients-ca")
+		if err != nil {
+			return fmt.Errorf("error loading etcd-clients-ca keypair: %v", err)
 		}
 	}
 
@@ -320,6 +363,12 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 		PeerUrls:              expandUrls(o.PeerUrls, o.Address, name),
 	}
 
+	if o.EtcdInsecure {
+		etcdNodeInfo.ClientUrls = urls.RewriteScheme(etcdNodeInfo.ClientUrls, "https://", "http://")
+		etcdNodeInfo.QuarantinedClientUrls = urls.RewriteScheme(etcdNodeInfo.QuarantinedClientUrls, "https://", "http://")
+		etcdNodeInfo.PeerUrls = urls.RewriteScheme(etcdNodeInfo.PeerUrls, "https://", "http://")
+	}
+
 	backupStore, err := backup.NewStore(o.BackupStorePath)
 	if err != nil {
 		return fmt.Errorf("error initializing backup store: %v", err)
@@ -334,14 +383,14 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 		glog.Fatalf("error performing scan for legacy data: %v", err)
 	}
 
-	etcdServer, err := etcd.NewEtcdServer(o.DataDir, o.ClusterName, o.ListenAddress, etcdNodeInfo, peerServer, dnsProvider)
+	etcdServer, err := etcd.NewEtcdServer(o.DataDir, o.ClusterName, o.ListenAddress, etcdNodeInfo, peerServer, dnsProvider, etcdClientsCA, etcdPeersCA)
 	if err != nil {
 		return fmt.Errorf("error initializing etcd server: %v", err)
 	}
 	go etcdServer.Run(ctx)
 
 	var leaderLock locking.Lock // nil
-	c, err := controller.NewEtcdController(leaderLock, backupStore, backupInterval, commandStore, o.ControlRefreshInterval, o.ClusterName, o.DNSSuffix, peerServer)
+	c, err := controller.NewEtcdController(leaderLock, backupStore, backupInterval, commandStore, o.ControlRefreshInterval, o.ClusterName, o.DNSSuffix, peerServer, etcdClientsCA, o.EtcdInsecure)
 	if err != nil {
 		return fmt.Errorf("error building etcd controller: %v", err)
 	}
