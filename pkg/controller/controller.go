@@ -711,6 +711,10 @@ func (e *etcdClusterState) idlePeers() []*etcdClusterPeerInfo {
 }
 
 func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState) (bool, error) {
+	if len(clusterState.healthyMembers) < quorumSize(len(clusterState.members)) {
+		return false, fmt.Errorf("can't expand cluster - don't have quorum")
+	}
+
 	var peersMissingFromEtcd []*etcdClusterPeerInfo
 	var idlePeers []*etcdClusterPeerInfo
 	for _, peer := range clusterState.peers {
@@ -805,6 +809,24 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterSpec *prot
 		glog.Infof("Adding member to cluster: %s", peer.info.NodeConfiguration)
 		_, err := clusterState.etcdAddMember(ctx, peer.info.NodeConfiguration)
 		if err != nil {
+			// Try to cancel prepare; best-effort, it will time out
+			{
+				cancelPrepareRequest := &protoetcd.JoinClusterRequest{
+					Header:       m.buildHeader(),
+					Phase:        protoetcd.Phase_PHASE_CANCEL_PREPARE,
+					ClusterToken: clusterToken,
+				}
+
+				glog.Infof("cancelling prepare: %v", cancelPrepareRequest)
+
+				cancelPrepareResponse, err := peer.peer.rpcJoinCluster(ctx, cancelPrepareRequest)
+				if err != nil {
+					glog.Infof("failed to cancel prepare: %v", err)
+				} else {
+					glog.Infof("cancelled prepare: %v", cancelPrepareResponse)
+				}
+			}
+
 			return false, fmt.Errorf("error adding peer %q to cluster: %v", peer, err)
 		}
 
