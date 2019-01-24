@@ -77,6 +77,7 @@ func (m *BackupController) run(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("unable to reach etcd on %s: %v", m.clientUrls, err)
 	}
+
 	members, err := etcdClient.ListMembers(ctx)
 	if err != nil {
 		etcdclient.LoggedClose(etcdClient)
