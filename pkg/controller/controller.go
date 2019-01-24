@@ -337,6 +337,10 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 
 		clusterSpec := m.getControlClusterSpec()
 		if clusterSpec != nil {
+			if changed, err := m.verifyEtcdVersion(clusterSpec); err != nil {
+				return changed, err
+			}
+
 			if ackedPeerCount < quorumSize(int(clusterSpec.MemberCount)) {
 				glog.Infof("insufficient peers in our gossip group to build a cluster of size %d", clusterSpec.MemberCount)
 				return false, nil
@@ -367,6 +371,10 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 
 	restoreBackupCommand := m.getRestoreBackupCommand()
 	if restoreBackupCommand != nil {
+		if changed, err := m.verifyEtcdVersion(clusterSpec); err != nil {
+			return changed, err
+		}
+
 		data := restoreBackupCommand.Data()
 		glog.Infof("got restore-backup command: %v", data.String())
 
@@ -393,6 +401,10 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		if err := m.maybeBackup(ctx, clusterSpec, clusterState); err != nil {
 			glog.Warningf("error during backup: %v", err)
 		}
+	}
+
+	if changed, err := m.verifyEtcdVersion(clusterSpec); err != nil {
+		return changed, err
 	}
 
 	// Check if the cluster is not of the desired version
@@ -966,4 +978,19 @@ func (m *EtcdController) buildHeader() *protoetcd.CommonRequestHeader {
 		LeadershipToken: m.leadership.token,
 		ClusterName:     m.clusterName,
 	}
+}
+
+// verifyEtcdVersion verifies that we know as the etcd version in question.
+// We choose not to act as leader for unknown (newer) versions of etcd
+func (m *EtcdController) verifyEtcdVersion(clusterSpec *protoetcd.ClusterSpec) (bool, error) {
+	_, err := etcd.BindirForEtcdVersion(clusterSpec.EtcdVersion, "etcd")
+	if err == nil {
+		return false, nil
+	}
+
+	// New versions of etcd might introduce new management requirements
+	// If we aren't aware of the version, we don't proceed
+	glog.Warningf("we don't support etcd version requested, won't assume forward compatability: %v", clusterSpec)
+
+	return false, fmt.Errorf("can't act as leader for unknown etcd version %q", clusterSpec.EtcdVersion)
 }
