@@ -96,15 +96,14 @@ func (n *TestHarnessNode) WaitForListMembers(timeout time.Duration) {
 func (h *TestHarness) WaitFor(timeout time.Duration, f func() error) {
 	t := h.T
 
-	endAt := time.Now().Add(timeout)
-
+	deadline := time.Now().Add(timeout)
 	for {
 		err := f()
 		if err == nil {
 			return
 		}
 
-		if time.Now().After(endAt) {
+		if time.Now().After(deadline) {
 			t.Fatalf("time out waiting for condition: %v", err)
 		} else {
 			t.Logf("waiting for condition: %v", err)

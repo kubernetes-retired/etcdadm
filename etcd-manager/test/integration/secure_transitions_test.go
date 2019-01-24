@@ -109,21 +109,20 @@ func TestEnableTLS(t *testing.T) {
 								}
 							}
 
+							// Sanity check values
+							v, err := n.GetQuorum(ctx, testKey+strconv.Itoa(i))
+							if err != nil {
+								return fmt.Errorf("error reading test key after upgrade: %v", err)
+							}
+							if v != "value"+strconv.Itoa(i) {
+								// Reading the wrong value is _never_ ok
+								t.Fatalf("unexpected test key value after TLS enable: %q", v)
+							}
+
 							return nil
 						})
 					}
 
-				}
-
-				// Sanity check values
-				for i, n := range nodes {
-					v, err := n.GetQuorum(ctx, testKey+strconv.Itoa(i))
-					if err != nil {
-						t.Fatalf("error reading test key after upgrade: %v", err)
-					}
-					if v != "value"+strconv.Itoa(i) {
-						t.Fatalf("unexpected test key value after TLS enable: %q", v)
-					}
 				}
 
 				// Check still can write

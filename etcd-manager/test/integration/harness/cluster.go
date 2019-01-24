@@ -2,6 +2,7 @@ package harness
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
@@ -153,6 +154,30 @@ func (h *TestHarness) NewNode(address string) *TestHarnessNode {
 func (h *TestHarness) WaitForHealthy(nodes ...*TestHarnessNode) {
 	for _, node := range nodes {
 		node.WaitForHealthy(10 * time.Second)
+	}
+}
+
+func (h *TestHarness) WaitForVersion(timeout time.Duration, expectedVersion string, nodes ...*TestHarnessNode) {
+	for _, n := range nodes {
+		h.WaitFor(timeout, func() error {
+			client, err := n.NewClient()
+			if err != nil {
+				return fmt.Errorf("error building etcd client: %v", err)
+			}
+
+			version, err := client.ServerVersion(h.Context)
+			client.Close()
+			if err != nil {
+				return fmt.Errorf("error getting etcd version: %v", err)
+			}
+
+			if version == expectedVersion {
+				glog.Infof("node %q is on target version %q", n.Address, expectedVersion)
+				return nil
+			}
+
+			return fmt.Errorf("version %q was not target version %q", version, expectedVersion)
+		})
 	}
 }
 
