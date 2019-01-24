@@ -122,7 +122,14 @@ func TestEnableTLS(t *testing.T) {
 							return nil
 						})
 					}
+				}
 
+				// When we turn on peer TLS, we can do that live via Raft,
+				// but we have to bounce the processes (?)
+				// Sometimes we'll catch the process bouncing, so we pause briefly and check everyone is online before continuing
+				{
+					time.Sleep(5 * time.Second)
+					h.WaitForHealthy(nodes...)
 				}
 
 				// Check still can write
