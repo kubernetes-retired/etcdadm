@@ -112,6 +112,7 @@ func DoBackupV3(backupStore backup.Store, info *protoetcd.BackupInfo, clientUrls
 	if err != nil {
 		return nil, fmt.Errorf("error building etcd client to etcd: %v", err)
 	}
+	defer etcdclient.LoggedClose(client)
 
 	snapshotFile := filepath.Join(tempDir, "snapshot.db.gz")
 	glog.Infof("performing snapshot save to %s", snapshotFile)
