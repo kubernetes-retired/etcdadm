@@ -36,7 +36,7 @@ service EtcdManagerService {
     // UpdateEndpoints is sent to peers so they can update their inter-cluster routing
     rpc UpdateEndpoints(UpdateEndpointsRequest) returns (UpdateEndpointsResponse);
 
-     // JoinCluster requests that the node join an existing cluster
+    // JoinCluster requests that the node join an existing cluster
     rpc JoinCluster (JoinClusterRequest) returns (JoinClusterResponse);
 
     // Reconfigure changes the configuration of an existing node, primarily for a version upgrade/downgrade
@@ -58,6 +58,9 @@ enum Phase {
     PHASE_PREPARE = 1;
     PHASE_INITIAL_CLUSTER = 2;
     PHASE_JOIN_EXISTING = 3;
+
+    // Cancel a previous prepare (it times out eventually)
+    PHASE_CANCEL_PREPARE = 4;
 }
 
 message GetInfoRequest {
@@ -150,15 +153,9 @@ message JoinClusterRequest {
     string etcd_version = 7;
 }
 
-//enum JoinResult {
-//    JOINRESULT_UNKNOWN = 0;
-//    JOINRESULT_OK = 1;
-//}
-
 message JoinClusterResponse {
-//    EtcdNode node = 1;
-//    JoinResult result = 2;
 }
+
 
 
 message ReconfigureRequest {

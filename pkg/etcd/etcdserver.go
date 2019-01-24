@@ -239,6 +239,20 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 		return nil, err
 	}
 
+	if request.Phase == protoetcd.Phase_PHASE_CANCEL_PREPARE {
+		response := &protoetcd.JoinClusterResponse{}
+		if s.prepared == nil {
+			glog.Infof("cancelled prepare (already expired): %v", request)
+			return response, nil
+		}
+		if s.prepared.clusterToken == request.ClusterToken {
+			s.prepared = nil
+			glog.Infof("cancelled prepare in response to request: %v", request)
+			return response, nil
+		}
+		return nil, fmt.Errorf("concurrent prepare in progress %q", s.prepared.clusterToken)
+	}
+
 	if s.prepared != nil && time.Now().After(s.prepared.validUntil) {
 		glog.Infof("preparation %q expired", s.prepared.clusterToken)
 		s.prepared = nil
