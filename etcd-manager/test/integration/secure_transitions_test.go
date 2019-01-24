@@ -133,6 +133,8 @@ func TestEnableTLS(t *testing.T) {
 					}
 				}
 
+				glog.Infof("success")
+
 				cancel()
 				h.Close()
 			})
