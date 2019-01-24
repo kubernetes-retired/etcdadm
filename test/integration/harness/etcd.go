@@ -22,6 +22,7 @@ func (n *TestHarnessNode) get(ctx context.Context, key string, quorum bool) (str
 	if err != nil {
 		return "", err
 	}
+	defer client.Close()
 
 	response, err := client.Get(ctx, key, quorum)
 	if err != nil {

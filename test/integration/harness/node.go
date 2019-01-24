@@ -222,10 +222,6 @@ func (n *TestHarnessNode) ListMembers(ctx context.Context) ([]*etcdclient.EtcdPr
 	if err != nil {
 		return nil, fmt.Errorf("error building etcd client: %v", err)
 	}
-
-	if client == nil {
-		return nil, fmt.Errorf("unable to build etcd client")
-	}
 	defer client.Close()
 
 	return client.ListMembers(ctx)
@@ -262,6 +258,7 @@ func (n *TestHarnessNode) AssertVersion(t *testing.T, version string) {
 		n.TestHarness.T.Fatalf("error building etcd client: %v", err)
 	}
 	defer client.Close()
+
 	actual, err := client.ServerVersion(ctx)
 	if err != nil {
 		t.Fatalf("error getting version from node: %v", err)

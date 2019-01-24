@@ -145,6 +145,8 @@ func TestUpgradeDowngrade(t *testing.T) {
 					n3.AssertVersion(t, fromVersion)
 				}
 
+				glog.Infof("success!")
+
 				cancel()
 				h.Close()
 			})
