@@ -161,7 +161,7 @@ message JoinClusterResponse {
 message ReconfigureRequest {
     CommonRequestHeader header = 1;
 
-    string etcd_version = 10;
+    string set_etcd_version = 10;
 
     // Note that because this is bool this must always be specified
     bool quarantined = 11;
