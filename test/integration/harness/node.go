@@ -269,27 +269,16 @@ func (n *TestHarnessNode) AssertVersion(t *testing.T, version string) {
 }
 
 func (n *TestHarnessNode) WaitForHealthy(timeout time.Duration) {
-	t := n.TestHarness.T
-
-	endAt := time.Now().Add(timeout)
-	for {
+	n.TestHarness.WaitFor(timeout, func() error {
 		client, err := n.NewClient()
 		if err != nil {
-			n.TestHarness.T.Fatalf("error building etcd client: %v", err)
+			return fmt.Errorf("error building etcd client: %v", err)
 		}
+		defer client.Close()
 
 		_, err = client.ListMembers(context.Background())
-		client.Close()
-		if err == nil {
-			return
-		}
-
-		if time.Now().After(endAt) {
-			t.Fatalf("wait-for-healthy did not succeed within %v", timeout)
-			return
-		}
-		time.Sleep(time.Second)
-	}
+		return err
+	})
 }
 
 type MockDNSProvider struct {
