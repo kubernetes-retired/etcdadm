@@ -390,13 +390,13 @@ func (s *EtcdServer) Reconfigure(ctx context.Context, request *protoetcd.Reconfi
 	//	me.ClientUrls = request.ClientUrls
 	//}
 
-	if request.EtcdVersion != "" {
-		_, err := BindirForEtcdVersion(request.EtcdVersion, "etcd")
+	if request.SetEtcdVersion != "" {
+		_, err := BindirForEtcdVersion(request.SetEtcdVersion, "etcd")
 		if err != nil {
-			return nil, fmt.Errorf("etcd version %q not supported", request.EtcdVersion)
+			return nil, fmt.Errorf("etcd version %q not supported", request.SetEtcdVersion)
 		}
 
-		state.EtcdVersion = request.EtcdVersion
+		state.EtcdVersion = request.SetEtcdVersion
 	}
 
 	state.Quarantined = request.Quarantined
