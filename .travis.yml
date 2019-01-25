@@ -35,7 +35,7 @@ script:
   - bazel build //cmd/...
   # Tests log too much output for travis
   #- bazel test //test/... --test_output=streamed --local_test_jobs=1
-  - bazel test //test/... --local_test_jobs=1
+  - bazel test //test/... --test_output=errors --local_test_jobs=1
 
 notifications:
   email: false
