@@ -201,33 +201,7 @@ func (k *VolumeMountController) safeFormatAndMount(volume *Volume, mountpoint st
 		}
 
 		if mountedDevice != "" {
-			// We check that it is the correct device.  We also tolerate /dev/X as well as /root/dev/X
-			ok := false
-			if mountedDevice == source || mountedDevice == device {
-				ok = true
-			}
-			if !ok {
-				// Check for a symlink
-				s, err := filepath.EvalSymlinks(mountedDevice)
-				if err != nil {
-					glog.Warningf("device %q did not evaluate as a symlink: %v", mountedDevice, err)
-				} else {
-					a, err := filepath.Abs(s)
-					if err != nil {
-						glog.Warningf("unable to make filepath %q absolute: %v", s, err)
-					} else {
-						s = a
-					}
-				}
-				if s == source || mountedDevice == s {
-					glog.V(2).Infof("matched device by symlink")
-					ok = true
-				} else {
-					glog.Warningf("device %q did not match even after symlink evaluation to %q", mountedDevice, s)
-				}
-			}
-
-			if !ok {
+			if !isSameDevice(device, mountedDevice) {
 				return fmt.Errorf("device already mounted at %s, but is %s and we want %s or %s", target, mountedDevice, source, device)
 			}
 		} else {
@@ -239,6 +213,48 @@ func (k *VolumeMountController) safeFormatAndMount(volume *Volume, mountpoint st
 	}
 
 	return nil
+}
+
+// Checks if l and r are the same device.  We tolerate /dev/X vs /rootfs/dev/X, and we also dereference symlinks
+func isSameDevice(dev1, dev2 string) bool {
+	aliases1 := namesFor(dev1)
+	aliases2 := namesFor(dev2)
+
+	for k1 := range aliases1 {
+		for k2 := range aliases2 {
+			if k1 == k2 {
+				glog.V(2).Infof("matched device %q and %q via %q", dev1, dev2, k1)
+				return true
+			}
+		}
+	}
+
+	glog.Warningf("device %q and %q were not the same; expansions %v and %v", dev1, dev2, aliases1, aliases2)
+
+	return false
+}
+
+// namesFor tries to find all the names for the device, including dereferencing symlinks and looking for /rootfs alias
+func namesFor(dev string) []string {
+	var names []string
+	names = append(names, dev)
+	names = append(names, PathFor(dev))
+
+	// Check for a symlink
+	s, err := filepath.EvalSymlinks(dev)
+	if err != nil {
+		glog.Infof("device %q did not evaluate as a symlink: %v", dev, err)
+	} else {
+		a, err := filepath.Abs(s)
+		if err != nil {
+			glog.Warningf("unable to make filepath %q absolute: %v", s, err)
+		} else {
+			s = a
+		}
+		names = append(names, s)
+	}
+
+	return names
 }
 
 func (k *VolumeMountController) attachMasterVolumes() ([]*Volume, error) {
