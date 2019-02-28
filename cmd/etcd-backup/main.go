@@ -19,8 +19,10 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"time"
 
@@ -42,6 +44,12 @@ func main() {
 	flag.StringVar(&clientURL, "client-url", clientURL, "URL on which to connect to etcd")
 	interval := "15m"
 	flag.StringVar(&interval, "interval", interval, "backup frequency")
+	clientCAFile := ""
+	flag.StringVar(&clientCAFile, "client-ca-file", clientCAFile, "path to the ca certificate")
+	clientCertFile := ""
+	flag.StringVar(&clientCertFile, "client-cert-file", clientCertFile, "path to the client tls certificate")
+	clientKeyFile := ""
+	flag.StringVar(&clientKeyFile, "client-key-file", clientKeyFile, "path to the client tls cert key")
 
 	flag.Parse()
 
@@ -65,8 +73,28 @@ func main() {
 
 	ctx := context.TODO()
 
-	// TODO
 	var etcdClientTLSConfig *tls.Config
+	if (clientCertFile != "") && (clientKeyFile != "") && (clientCAFile != "") {
+		cert, err := tls.LoadX509KeyPair(clientCertFile, clientKeyFile)
+		if err != nil {
+			glog.Fatalf("error creating keypair from provided etcd certificate and key files: %v", err)
+			os.Exit(1)
+		}
+
+		raw, err := ioutil.ReadFile(clientCAFile)
+		if err != nil {
+			glog.Fatalf("error loading etcd ca cert file: %v", err)
+			os.Exit(1)
+		}
+		roots := x509.NewCertPool()
+		ok := roots.AppendCertsFromPEM(raw)
+		if !ok {
+			glog.Fatalf("error parsing etcd ca cert file")
+			os.Exit(1)
+		}
+
+		etcdClientTLSConfig = &tls.Config{Certificates: []tls.Certificate{cert}, RootCAs: roots}
+	}
 
 	backupStore, err := backup.NewStore(backupStorePath)
 	if err != nil {
