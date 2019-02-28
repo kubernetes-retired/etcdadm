@@ -5,6 +5,8 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
+	"net"
+	"net/http"
 	"strings"
 	"time"
 
@@ -82,13 +84,27 @@ func IsV3(etcdVersion string) bool {
 
 // ServerVersion attempts to find the version of etcd
 // If you already have a client, prefer calling ServerVersion on that
-func ServerVersion(ctx context.Context, endpoints []string) (string, error) {
+func ServerVersion(ctx context.Context, endpoints []string, tlsConfig *tls.Config) (string, error) {
 	if len(endpoints) == 0 {
 		return "", fmt.Errorf("no endpoints provided")
 	}
+
+	var transport etcd_client_v2.CancelableTransport = etcd_client_v2.DefaultTransport
+	if tlsConfig != nil {
+		transport = &http.Transport{
+			Proxy: http.ProxyFromEnvironment,
+			Dial: (&net.Dialer{
+				Timeout:   30 * time.Second,
+				KeepAlive: 30 * time.Second,
+			}).Dial,
+			TLSClientConfig:     tlsConfig,
+			TLSHandshakeTimeout: 10 * time.Second,
+		}
+	}
+
 	cfg := etcd_client_v2.Config{
 		Endpoints:               endpoints,
-		Transport:               etcd_client_v2.DefaultTransport,
+		Transport:               transport,
 		HeaderTimeoutPerRequest: 10 * time.Second,
 	}
 	etcdClient, err := etcd_client_v2.New(cfg)
