@@ -26,7 +26,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/platform9/etcdadm/constants"
+	"sigs.k8s.io/etcdadm/constants"
 	uuid "github.com/satori/go.uuid"
 
 	netutil "k8s.io/apimachinery/pkg/util/net"

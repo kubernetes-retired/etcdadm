@@ -19,10 +19,10 @@ package preflight
 import (
 	"fmt"
 
-	log "github.com/platform9/etcdadm/pkg/logrus"
+	log "sigs.k8s.io/etcdadm/pkg/logrus"
 
-	"github.com/platform9/etcdadm/apis"
-	"github.com/platform9/etcdadm/service"
+	"sigs.k8s.io/etcdadm/apis"
+	"sigs.k8s.io/etcdadm/service"
 )
 
 // Mandatory runs the mandatory pre-flight checks, returning an error if any

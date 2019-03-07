@@ -25,7 +25,7 @@ etcdadm is a command-line tool for operating an etcd cluster. It makes it easy t
 ### Building
 
 ```
-go get -u github.com/platform9/etcdadm
+go get -u sigs.k8s.io/etcdadm
 ```
 
 ### Creating a new cluster

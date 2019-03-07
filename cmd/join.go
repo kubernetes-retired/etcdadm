@@ -21,17 +21,17 @@ import (
 	"net/url"
 	"os"
 
-	log "github.com/platform9/etcdadm/pkg/logrus"
+	log "sigs.k8s.io/etcdadm/pkg/logrus"
 
 	"github.com/coreos/etcd/etcdserver/etcdserverpb"
 
 	"github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes"
-	"github.com/platform9/etcdadm/apis"
-	"github.com/platform9/etcdadm/binary"
-	"github.com/platform9/etcdadm/certs"
-	"github.com/platform9/etcdadm/constants"
-	"github.com/platform9/etcdadm/etcd"
-	"github.com/platform9/etcdadm/service"
+	"sigs.k8s.io/etcdadm/apis"
+	"sigs.k8s.io/etcdadm/binary"
+	"sigs.k8s.io/etcdadm/certs"
+	"sigs.k8s.io/etcdadm/constants"
+	"sigs.k8s.io/etcdadm/etcd"
+	"sigs.k8s.io/etcdadm/service"
 
 	"github.com/spf13/cobra"
 )

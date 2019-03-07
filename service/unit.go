@@ -22,8 +22,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/platform9/etcdadm/apis"
-	"github.com/platform9/etcdadm/constants"
+	"sigs.k8s.io/etcdadm/apis"
+	"sigs.k8s.io/etcdadm/constants"
 )
 
 // WriteEnvironmentFile writes the environment file used by the etcd service unit

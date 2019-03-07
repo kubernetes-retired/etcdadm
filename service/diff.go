@@ -27,10 +27,10 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/platform9/etcdadm/util"
+	"sigs.k8s.io/etcdadm/util"
 
-	"github.com/platform9/etcdadm/apis"
-	"github.com/platform9/etcdadm/constants"
+	"sigs.k8s.io/etcdadm/apis"
+	"sigs.k8s.io/etcdadm/constants"
 )
 
 var (

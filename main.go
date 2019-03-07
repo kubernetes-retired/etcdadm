@@ -16,7 +16,7 @@
 
 package main
 
-import "github.com/platform9/etcdadm/cmd"
+import "sigs.k8s.io/etcdadm/cmd"
 
 func main() {
 	cmd.Execute()
