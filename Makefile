@@ -1,5 +1,5 @@
 # Copyright (c) 2018 Platform9 Systems, Inc.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -20,7 +20,7 @@
 SHELL := /usr/bin/env bash
 CWD := $(shell pwd)
 BIN := etcdadm
-PACKAGE_GOPATH := /go/src/github.com/platform9/$(BIN)
+PACKAGE_GOPATH := /go/src/sigs.k8s.io/$(BIN)
 LDFLAGS := $(shell source ./version.sh ; KUBE_ROOT=. ; KUBE_GIT_VERSION=${VERSION_OVERRIDE} ; kube::version::ldflags)
 GIT_STORAGE_MOUNT := $(shell source ./git_utils.sh; container_git_storage_mount)
 

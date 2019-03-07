@@ -26,7 +26,7 @@ import (
 	"github.com/coreos/etcd/pkg/transport"
 	"github.com/coreos/etcd/snapshot"
 
-	"github.com/platform9/etcdadm/apis"
+	"sigs.k8s.io/etcdadm/apis"
 )
 
 // ClientForEndpoint returns an etcd client that will use the given etcd endpoint.

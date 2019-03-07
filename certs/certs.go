@@ -26,11 +26,11 @@ import (
 	"crypto/x509"
 	"fmt"
 
-	log "github.com/platform9/etcdadm/pkg/logrus"
+	log "sigs.k8s.io/etcdadm/pkg/logrus"
 
-	"github.com/platform9/etcdadm/apis"
-	"github.com/platform9/etcdadm/certs/pkiutil"
-	"github.com/platform9/etcdadm/constants"
+	"sigs.k8s.io/etcdadm/apis"
+	"sigs.k8s.io/etcdadm/certs/pkiutil"
+	"sigs.k8s.io/etcdadm/constants"
 	certutil "k8s.io/client-go/util/cert"
 )
 

@@ -25,10 +25,10 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/platform9/etcdadm/pkg/logrus"
+	log "sigs.k8s.io/etcdadm/pkg/logrus"
 
-	"github.com/platform9/etcdadm/constants"
-	"github.com/platform9/etcdadm/util"
+	"sigs.k8s.io/etcdadm/constants"
+	"sigs.k8s.io/etcdadm/util"
 )
 
 // IsInstalled method check if required etcd binaries are installed

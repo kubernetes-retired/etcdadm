@@ -17,11 +17,11 @@
 package cmd
 
 import (
-	log "github.com/platform9/etcdadm/pkg/logrus"
+	log "sigs.k8s.io/etcdadm/pkg/logrus"
 
-	"github.com/platform9/etcdadm/apis"
-	"github.com/platform9/etcdadm/binary"
-	"github.com/platform9/etcdadm/constants"
+	"sigs.k8s.io/etcdadm/apis"
+	"sigs.k8s.io/etcdadm/binary"
+	"sigs.k8s.io/etcdadm/constants"
 	"github.com/spf13/cobra"
 )
 
