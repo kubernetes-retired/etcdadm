@@ -30,8 +30,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/platform9/etcdadm/apis"
-	"github.com/platform9/etcdadm/constants"
+	"sigs.k8s.io/etcdadm/apis"
+	"sigs.k8s.io/etcdadm/constants"
 	"k8s.io/apimachinery/pkg/util/validation"
 	certutil "k8s.io/client-go/util/cert"
 )

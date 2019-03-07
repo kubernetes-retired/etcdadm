@@ -15,7 +15,7 @@
 
 # -----------------------------------------------------------------------------
 # Source: https://raw.githubusercontent.com/kubernetes/kubernetes/release-1.10/hack/lib/version.sh
-# Changes: Updated location of version to  github.com/platform9/etcdadm/vendor/k8s.io/kubernetes/pkg/version
+# Changes: Updated location of version to  sigs.k8s.io/etcdadm/vendor/k8s.io/kubernetes/pkg/version
 # Version management helpers.  These functions help to set, save and load the
 # following variables:
 #
@@ -135,7 +135,7 @@ kube::version::ldflag() {
 
   # If you update these, also update the list pkg/version/def.bzl.
 
-  echo "-X github.com/platform9/etcdadm/vendor/k8s.io/kubernetes/pkg/version.${key}=${val}"
+  echo "-X sigs.k8s.io/etcdadm/vendor/k8s.io/kubernetes/pkg/version.${key}=${val}"
 }
 
 # Prints the value that needs to be passed to the -ldflags parameter of go build

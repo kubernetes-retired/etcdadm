@@ -30,7 +30,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/platform9/etcdadm/apis"
+	"sigs.k8s.io/etcdadm/apis"
 	certutil "k8s.io/client-go/util/cert"
 )
 

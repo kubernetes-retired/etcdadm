@@ -20,7 +20,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	log "github.com/platform9/etcdadm/pkg/logrus"
+	log "sigs.k8s.io/etcdadm/pkg/logrus"
 
 	"github.com/ghodss/yaml"
 	"github.com/spf13/cobra"

@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/platform9/etcdadm/apis"
-	log "github.com/platform9/etcdadm/pkg/logrus"
+	"sigs.k8s.io/etcdadm/apis"
+	log "sigs.k8s.io/etcdadm/pkg/logrus"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
