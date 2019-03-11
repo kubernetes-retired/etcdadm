@@ -79,6 +79,11 @@ Etcdadm must be run on the machine that is being added or removed. As a conseque
 On its own, etcdadm does not automate cluster operation, but a cluster orchestrator can delegate all the above tasks to etcdadm.
 
 <a name="questions"></a>
+
+## Options
+
+*  `--listen-address`, `--advertise-address`: specify an IP if you'd like something different than the auto-discovery. Regardless of this, you can also specify an alternative advertised address (for a floating IP for example).
+
 ## Questions?
 
 For more information reach out to [etcdadm slack channel](https://kubernetes.slack.com/messages/CEM0AT9GW)

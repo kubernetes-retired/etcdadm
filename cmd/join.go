@@ -201,4 +201,6 @@ func init() {
 	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.ReleaseURL, "release-url", constants.DefaultReleaseURL, "URL used to download etcd")
 	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.CertificatesDir, "certs-dir", constants.DefaultCertificateDir, "certificates directory")
 	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.InstallDir, "install-dir", constants.DefaultInstallDir, "install directory")
+	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.ListenAddress, "listen-address", "", "IP to bind to")
+	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.AdvertiseAddress, "advertise-address", "", "IP to advertise")
 }

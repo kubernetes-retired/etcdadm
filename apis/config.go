@@ -69,6 +69,9 @@ type EtcdAdmConfig struct {
 
 	LoopbackClientURL url.URL
 
+	ListenAddress       string
+	AdvertiseAddress    string
+
 	// ServerCertSANs sets extra Subject Alternative Names for the etcd server signing cert.
 	ServerCertSANs []string
 	// PeerCertSANs sets extra Subject Alternative Names for the etcd peer signing cert.
@@ -239,7 +242,7 @@ func DefaultClientURLs(cfg *EtcdAdmConfig) error {
 }
 
 func DefaultInitialAdvertisePeerURLs(cfg *EtcdAdmConfig) error {
-	externalAddress, err := defaultExternalAddress()
+	externalAddress, err := defaultAdvertiseAddress(cfg)
 	if err != nil {
 		return fmt.Errorf("failed to set default InitialAdvertisePeerURLs: %s", err)
 	}
@@ -251,7 +254,14 @@ func DefaultInitialAdvertisePeerURLs(cfg *EtcdAdmConfig) error {
 }
 
 func DefaultListenPeerURLs(cfg *EtcdAdmConfig) error {
-	cfg.ListenPeerURLs = cfg.InitialAdvertisePeerURLs
+	externalAddress, err := defaultListenAddress(cfg)
+	if err != nil {
+		return fmt.Errorf("failed to set default ListenPeerURLs: %s", err)
+	}
+	cfg.ListenPeerURLs = append(cfg.ListenPeerURLs, url.URL{
+		Scheme: "https",
+		Host:   fmt.Sprintf("%s:%d", externalAddress.String(), constants.DefaultPeerPort),
+	})
 	return nil
 }
 
@@ -263,13 +273,20 @@ func DefaultLoopbackClientURL(cfg *EtcdAdmConfig) {
 }
 
 func DefaultListenClientURLs(cfg *EtcdAdmConfig) error {
-	cfg.ListenClientURLs = cfg.AdvertiseClientURLs
+	externalAddress, err := defaultListenAddress(cfg)
+	if err != nil {
+		return fmt.Errorf("failed to set default ListenClientURLs: %s", err)
+	}
+	cfg.ListenClientURLs = append(cfg.ListenClientURLs, url.URL{
+		Scheme: "https",
+		Host: fmt.Sprintf("%s:%d", externalAddress.String(), constants.DefaultClientPort),
+	})
 	cfg.ListenClientURLs = append(cfg.ListenClientURLs, cfg.LoopbackClientURL)
 	return nil
 }
 
 func DefaultAdvertiseClientURLs(cfg *EtcdAdmConfig) error {
-	externalAddress, err := defaultExternalAddress()
+	externalAddress, err := defaultAdvertiseAddress(cfg)
 	if err != nil {
 		return fmt.Errorf("failed to set default AdvertiseClientURLs: %s", err)
 	}
@@ -287,4 +304,20 @@ func defaultExternalAddress() (net.IP, error) {
 		return nil, fmt.Errorf("failed to find a default external address: %s", err)
 	}
 	return ip, nil
+}
+
+func defaultListenAddress(cfg *EtcdAdmConfig) (net.IP, error) {
+	if cfg.ListenAddress == "" {
+		return defaultExternalAddress()
+	} else {
+		return netutil.ChooseBindAddress(net.ParseIP(cfg.ListenAddress))
+	}
+}
+
+func defaultAdvertiseAddress(cfg *EtcdAdmConfig) (net.IP, error) {
+	if cfg.AdvertiseAddress == "" {
+		return defaultExternalAddress()
+	} else {
+		return netutil.ChooseBindAddress(net.ParseIP(cfg.AdvertiseAddress))
+	}
 }
