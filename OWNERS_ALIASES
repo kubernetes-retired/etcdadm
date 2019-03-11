@@ -3,7 +3,6 @@
 aliases:
   sig-cluster-lifecycle-leads:
     - luxas
-    - roberthbailey
     - timothysc
   etcdadm-admins:
     - dlipovetsky
