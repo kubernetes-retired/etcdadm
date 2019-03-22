@@ -20,19 +20,17 @@ import (
 	"context"
 	"os"
 
-	log "sigs.k8s.io/etcdadm/pkg/logrus"
-
 	"github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes"
-	"sigs.k8s.io/etcdadm/etcd"
+	"github.com/spf13/cobra"
 
 	"sigs.k8s.io/etcdadm/apis"
 	"sigs.k8s.io/etcdadm/binary"
 	"sigs.k8s.io/etcdadm/certs"
 	"sigs.k8s.io/etcdadm/constants"
-	"sigs.k8s.io/etcdadm/util"
-
+	"sigs.k8s.io/etcdadm/etcd"
+	log "sigs.k8s.io/etcdadm/pkg/logrus"
 	"sigs.k8s.io/etcdadm/service"
-	"github.com/spf13/cobra"
+	"sigs.k8s.io/etcdadm/util"
 )
 
 var initCmd = &cobra.Command{
@@ -79,7 +77,7 @@ var initCmd = &cobra.Command{
 			log.Fatalf("[install] Artifact could not be installed from cache: %s", err)
 		}
 		if !inCache {
-			log.Printf("[install] Artifact not found in cache. Trying to fetch from upstream: %s", err)
+			log.Printf("[install] Artifact not found in cache. Trying to fetch from upstream: %s", etcdAdmConfig.ReleaseURL)
 			if err = binary.Download(etcdAdmConfig.ReleaseURL, etcdAdmConfig.Version, etcdAdmConfig.CacheDir); err != nil {
 				log.Fatalf("[install] Unable to fetch artifact from upstream: %s", err)
 			}
