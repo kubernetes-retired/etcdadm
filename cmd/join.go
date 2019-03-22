@@ -139,7 +139,7 @@ var joinCmd = &cobra.Command{
 			log.Fatalf("[install] Artifact could not be installed from cache: %s", err)
 		}
 		if !inCache {
-			log.Printf("[install] Artifact not found in cache. Trying to fetch from upstream: %s", err)
+			log.Printf("[install] Artifact not found in cache. Trying to fetch from upstream: %s", etcdAdmConfig.ReleaseURL)
 			if err = binary.Download(etcdAdmConfig.ReleaseURL, etcdAdmConfig.Version, etcdAdmConfig.CacheDir); err != nil {
 				log.Fatalf("[install] Unable to fetch artifact from upstream: %s", err)
 			}
