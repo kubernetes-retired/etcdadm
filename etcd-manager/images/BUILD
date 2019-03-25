@@ -82,7 +82,6 @@ container_push(
     image = ":etcd-manager",
     registry = "{STABLE_DOCKER_REGISTRY}",
     repository = "{STABLE_DOCKER_IMAGE_PREFIX}etcd-manager",
-    stamp = True,
     tag = "{STABLE_DOCKER_TAG}",
 )
 
@@ -101,7 +100,6 @@ container_push(
     image = ":etcd-dump",
     registry = "{STABLE_DOCKER_REGISTRY}",
     repository = "{STABLE_DOCKER_IMAGE_PREFIX}etcd-dump",
-    stamp = True,
     tag = "{STABLE_DOCKER_TAG}",
 )
 
@@ -120,6 +118,5 @@ container_push(
     image = ":etcd-backup",
     registry = "{STABLE_DOCKER_REGISTRY}",
     repository = "{STABLE_DOCKER_IMAGE_PREFIX}etcd-backup",
-    stamp = True,
     tag = "{STABLE_DOCKER_TAG}",
 )

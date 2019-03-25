@@ -64,7 +64,7 @@ func (m *BackupController) Run(ctx context.Context) {
 func (m *BackupController) run(ctx context.Context) error {
 	glog.V(2).Infof("starting backup controller iteration")
 
-	etcdVersion, err := etcdclient.ServerVersion(ctx, m.clientUrls)
+	etcdVersion, err := etcdclient.ServerVersion(ctx, m.clientUrls, m.etcdClientTLSConfig)
 	if err != nil {
 		return fmt.Errorf("unable to find server version of etcd on %s: %v", m.clientUrls, err)
 	}
