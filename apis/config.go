@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"sigs.k8s.io/etcdadm/constants"
+
 	uuid "github.com/satori/go.uuid"
 
 	netutil "k8s.io/apimachinery/pkg/util/net"
@@ -165,7 +166,6 @@ func setDynamicDefaults(cfg *EtcdAdmConfig) error {
 		cfg.Name = name
 	}
 
-	cfg.CacheDir = filepath.Join(constants.DefaultCacheBaseDir, "etcd", fmt.Sprintf("v%s", cfg.Version))
 	cfg.EtcdExecutable = filepath.Join(cfg.InstallDir, "etcd")
 	cfg.EtcdctlExecutable = filepath.Join(cfg.InstallDir, "etcdctl")
 	cfg.EtcdctlShellWrapper = filepath.Join(cfg.InstallDir, "etcdctl.sh")
