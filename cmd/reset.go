@@ -23,12 +23,12 @@ import (
 	log "sigs.k8s.io/etcdadm/pkg/logrus"
 
 	"github.com/coreos/etcd/etcdserver/etcdserverpb"
+	"github.com/spf13/cobra"
 	"sigs.k8s.io/etcdadm/apis"
 	"sigs.k8s.io/etcdadm/binary"
 	"sigs.k8s.io/etcdadm/constants"
 	"sigs.k8s.io/etcdadm/etcd"
 	"sigs.k8s.io/etcdadm/service"
-	"github.com/spf13/cobra"
 )
 
 var skipRemoveMember bool
@@ -90,14 +90,9 @@ var resetCmd = &cobra.Command{
 				log.Fatalf("[reset] Error stopping existing etcd service: %s", err)
 			}
 		}
-		enabled, err := service.Enabled(constants.UnitFileBaseName)
-		if err != nil {
-			log.Fatalf("[reset] Error checking if etcd service is enabled: %s", err)
-		}
-		if enabled {
-			if err := service.Disable(constants.UnitFileBaseName); err != nil {
-				log.Fatalf("[reset] Error disabling existing etcd service: %s", err)
-			}
+		// Cleanup etcd's systemd related configurations
+		if err := service.CleanEtcdConfig(); err != nil {
+			log.Fatalf("[reset] Error deleting existing etcd service: %s", err)
 		}
 		// Remove etcd datastore
 		if err = os.RemoveAll(etcdAdmConfig.DataDir); err != nil {
@@ -105,15 +100,6 @@ var resetCmd = &cobra.Command{
 		}
 		// Remove configuration files
 		if err = os.RemoveAll(etcdAdmConfig.CertificatesDir); err != nil {
-			log.Print(err)
-		}
-		if err = os.Remove(etcdAdmConfig.UnitFile); err != nil {
-			log.Print(err)
-		}
-		if err = os.Remove(etcdAdmConfig.EnvironmentFile); err != nil {
-			log.Print(err)
-		}
-		if err = os.Remove(etcdAdmConfig.EtcdctlEnvFile); err != nil {
 			log.Print(err)
 		}
 		// Remove binaries

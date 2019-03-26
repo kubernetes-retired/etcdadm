@@ -18,7 +18,11 @@ package service
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
+
+	"sigs.k8s.io/etcdadm/constants"
 )
 
 func reloadSystemd() error {
@@ -122,4 +126,34 @@ func Enabled(service string) (bool, error) {
 		}
 	}
 	return true, nil
+}
+
+// DeleteUnitFile deletes systemd unit file
+func DeleteUnitFile(file string) error {
+	service := filepath.Base(file)
+	if len(service) > 0 {
+		if err := DisableAndStopService(service); err != nil {
+			return err
+		}
+	}
+	if err := os.Remove(file); err != nil {
+		return fmt.Errorf("failed to remove unit file")
+	}
+	return nil
+}
+
+// CleanEtcdConfig properly stop,disable and remove etcd's systemd service and related Env files.
+func CleanEtcdConfig() error {
+	if err := DeleteUnitFile(constants.UnitFile); err != nil {
+		return err
+	}
+
+	if err := os.Remove(constants.EnvironmentFile); err != nil {
+		return fmt.Errorf("Failed to remove %s: ", constants.EnvironmentFile, err)
+	}
+
+	if err := os.Remove(constants.EtcdctlEnvFile); err != nil {
+		return fmt.Errorf("Failed to remove %s: ", constants.EtcdctlEnvFile, err)
+	}
+	return nil
 }
