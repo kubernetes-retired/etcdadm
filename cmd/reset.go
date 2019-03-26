@@ -26,6 +26,7 @@ import (
 	"github.com/spf13/cobra"
 	"sigs.k8s.io/etcdadm/apis"
 	"sigs.k8s.io/etcdadm/binary"
+	"sigs.k8s.io/etcdadm/certs"
 	"sigs.k8s.io/etcdadm/constants"
 	"sigs.k8s.io/etcdadm/etcd"
 	"sigs.k8s.io/etcdadm/service"
@@ -98,8 +99,8 @@ var resetCmd = &cobra.Command{
 		if err = os.RemoveAll(etcdAdmConfig.DataDir); err != nil {
 			log.Print(err)
 		}
-		// Remove configuration files
-		if err = os.RemoveAll(etcdAdmConfig.CertificatesDir); err != nil {
+		// Destroy PKI assets
+		if err = certs.DestroyPKIAssets(etcdAdmConfig); err != nil {
 			log.Print(err)
 		}
 		// Remove binaries

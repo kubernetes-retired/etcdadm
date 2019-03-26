@@ -25,13 +25,14 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"fmt"
+	"os"
 
 	log "sigs.k8s.io/etcdadm/pkg/logrus"
 
+	certutil "k8s.io/client-go/util/cert"
 	"sigs.k8s.io/etcdadm/apis"
 	"sigs.k8s.io/etcdadm/certs/pkiutil"
 	"sigs.k8s.io/etcdadm/constants"
-	certutil "k8s.io/client-go/util/cert"
 )
 
 // CreatePKIAssets will create and write to disk all PKI assets necessary to establish the control plane.
@@ -54,6 +55,15 @@ func CreatePKIAssets(cfg *apis.EtcdAdmConfig) error {
 	}
 
 	fmt.Printf("[certificates] valid certificates and keys now exist in %q\n", cfg.CertificatesDir)
+
+	return nil
+}
+
+// DestroyPKIAssets removes all PKI assets
+func DestroyPKIAssets(cfg apis.EtcdAdmConfig) error {
+	if err := os.RemoveAll(cfg.CertificatesDir); err != nil {
+		return fmt.Errorf("Failed to remove PKI assests from %s: %s", cfg.CertificatesDir, err)
+	}
 
 	return nil
 }
