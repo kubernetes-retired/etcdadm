@@ -44,6 +44,7 @@ import (
 	"kope.io/etcd-manager/pkg/volumes"
 	"kope.io/etcd-manager/pkg/volumes/aws"
 	"kope.io/etcd-manager/pkg/volumes/gce"
+	"kope.io/etcd-manager/pkg/volumes/openstack"
 )
 
 type stringSliceFlag []string
@@ -220,6 +221,16 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 
 			volumeProvider = gceVolumeProvider
 			discoveryProvider = gceVolumeProvider
+
+		case "openstack":
+			osVolumeProvider, err := openstack.NewOpenstackVolumes(o.ClusterName, o.VolumeTags, o.NameTag)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%v\n", err)
+				os.Exit(1)
+			}
+
+			volumeProvider = osVolumeProvider
+			discoveryProvider = osVolumeProvider
 
 		default:
 			fmt.Fprintf(os.Stderr, "unknown volume-provider %q\n", o.VolumeProviderID)

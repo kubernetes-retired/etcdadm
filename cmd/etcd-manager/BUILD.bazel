@@ -23,6 +23,7 @@ go_library(
         "//pkg/volumes:go_default_library",
         "//pkg/volumes/aws:go_default_library",
         "//pkg/volumes/gce:go_default_library",
+        "//pkg/volumes/openstack:go_default_library",
         "//vendor/github.com/golang/glog:go_default_library",
         "//vendor/k8s.io/kops/util/pkg/vfs:go_default_library",
     ],
