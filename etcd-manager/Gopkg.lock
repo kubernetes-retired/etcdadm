@@ -137,11 +137,17 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:904273e755c15a07aeffa1fa4ca233f7e37c10982e23db1399bc08c14ae180ba"
+  branch = "master"
+  digest = "1:975cffe143d31990859433426f8ae9e2590e129417e19d2c6f05d39bdcb67ada"
   name = "github.com/gophercloud/gophercloud"
   packages = [
     ".",
     "openstack",
+    "openstack/blockstorage/v2/volumes",
+    "openstack/compute/v2/extensions/volumeattach",
+    "openstack/compute/v2/flavors",
+    "openstack/compute/v2/images",
+    "openstack/compute/v2/servers",
     "openstack/identity/v2/tenants",
     "openstack/identity/v2/tokens",
     "openstack/identity/v3/tokens",
@@ -442,6 +448,11 @@
     "github.com/golang/glog",
     "github.com/golang/protobuf/jsonpb",
     "github.com/golang/protobuf/proto",
+    "github.com/gophercloud/gophercloud",
+    "github.com/gophercloud/gophercloud/openstack",
+    "github.com/gophercloud/gophercloud/openstack/blockstorage/v2/volumes",
+    "github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/volumeattach",
+    "github.com/gophercloud/gophercloud/openstack/compute/v2/servers",
     "golang.org/x/net/context",
     "golang.org/x/oauth2/google",
     "google.golang.org/api/compute/v0.beta",
