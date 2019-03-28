@@ -165,15 +165,21 @@ func ImportExistingEtcd(baseDir string, etcdNodeConfiguration *protoetcd.EtcdNod
 					return nil, fmt.Errorf("unexpected peer url for %s: %q", k, peerURL)
 				}
 
-				if !strings.HasPrefix(peerURL, "http://") {
+				if strings.HasPrefix(peerURL, "http://") {
+					clientURL := "http://0.0.0.0" + clientSuffix
+					quarantineURL := "http://0.0.0.0" + quarantineSuffix
+
+					node.ClientUrls = append(node.ClientUrls, clientURL)
+					node.QuarantinedClientUrls = append(node.QuarantinedClientUrls, quarantineURL)
+				} else if strings.HasPrefix(peerURL, "https://") {
+					clientURL := "https://0.0.0.0" + clientSuffix
+					quarantineURL := "https://0.0.0.0" + quarantineSuffix
+
+					node.ClientUrls = append(node.ClientUrls, clientURL)
+					node.QuarantinedClientUrls = append(node.QuarantinedClientUrls, quarantineURL)
+				} else {
 					return nil, fmt.Errorf("scheme not yet implemented: %q", peerURL)
 				}
-
-				clientURL := "http://0.0.0.0" + clientSuffix
-				quarantineURL := "http://0.0.0.0" + quarantineSuffix
-
-				node.ClientUrls = append(node.ClientUrls, clientURL)
-				node.QuarantinedClientUrls = append(node.QuarantinedClientUrls, quarantineURL)
 			}
 
 			state.Cluster.Nodes = append(state.Cluster.Nodes, node)
