@@ -1,0 +1,22 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "discovery.go",
+        "util.go",
+        "volumes.go",
+    ],
+    importpath = "kope.io/etcd-manager/pkg/volumes/openstack",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/privateapi/discovery:go_default_library",
+        "//pkg/volumes:go_default_library",
+        "//vendor/github.com/golang/glog:go_default_library",
+        "//vendor/github.com/gophercloud/gophercloud:go_default_library",
+        "//vendor/github.com/gophercloud/gophercloud/openstack:go_default_library",
+        "//vendor/github.com/gophercloud/gophercloud/openstack/blockstorage/v2/volumes:go_default_library",
+        "//vendor/github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/volumeattach:go_default_library",
+        "//vendor/github.com/gophercloud/gophercloud/openstack/compute/v2/servers:go_default_library",
+    ],
+)
