@@ -469,6 +469,25 @@
   revision = "b1b29978270dc22fecc592ac55d903350454310a"
   version = "v1.11.1"
 
+[[projects]]
+  digest = "1:79d51f200ba48e1fa7fb12c93c167f44b694d9e2a1de13df78d8efc731f8d115"
+  name = "sigs.k8s.io/etcdadm"
+  packages = [
+    "apis",
+    "binary",
+    "certs",
+    "certs/pkiutil",
+    "cmd",
+    "constants",
+    "etcd",
+    "pkg/logrus",
+    "service",
+    "util",
+  ]
+  pruneopts = "UT"
+  revision = "41750460eede1970095ebbac6cfc04d9928fd59e"
+  version = "v0.1.1"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
@@ -487,6 +506,16 @@
     "k8s.io/apimachinery/pkg/version",
     "k8s.io/client-go/util/cert",
     "k8s.io/kubernetes/pkg/version",
+    "sigs.k8s.io/etcdadm/apis",
+    "sigs.k8s.io/etcdadm/binary",
+    "sigs.k8s.io/etcdadm/certs",
+    "sigs.k8s.io/etcdadm/certs/pkiutil",
+    "sigs.k8s.io/etcdadm/cmd",
+    "sigs.k8s.io/etcdadm/constants",
+    "sigs.k8s.io/etcdadm/etcd",
+    "sigs.k8s.io/etcdadm/pkg/logrus",
+    "sigs.k8s.io/etcdadm/service",
+    "sigs.k8s.io/etcdadm/util",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

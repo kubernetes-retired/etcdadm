@@ -24,12 +24,22 @@ PACKAGE_GOPATH := /go/src/sigs.k8s.io/$(BIN)
 LDFLAGS := $(shell source ./version.sh ; KUBE_ROOT=. ; KUBE_GIT_VERSION=${VERSION_OVERRIDE} ; kube::version::ldflags)
 GIT_STORAGE_MOUNT := $(shell source ./git_utils.sh; container_git_storage_mount)
 
-.PHONY: clean container-build default ensure
+.PHONY: clean container-build default ensure set_os
 
 default: $(BIN)
 
-container-build:
-	docker run --rm -e VERSION_OVERRIDE=${VERSION_OVERRIDE} -v $(PWD):$(PACKAGE_GOPATH) -w $(PACKAGE_GOPATH) $(GIT_STORAGE_MOUNT) golang:1.10 /bin/bash -c "make ensure && make"
+set_os:
+UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Linux)
+       GOOS?=linux
+    endif
+    ifeq ($(UNAME_S),Darwin)
+       GOOS?=darwin
+    endif
+
+container-build: set_os
+	docker run --rm -e VERSION_OVERRIDE=${VERSION_OVERRIDE} -v $(PWD):$(PACKAGE_GOPATH) -w $(PACKAGE_GOPATH) $(GIT_STORAGE_MOUNT) -e GOOS=$(GOOS) -e GOARCH=amd64 golang:1.10 /bin/bash -c "make ensure && make"
+
 
 $(BIN):
 	go build -ldflags "$(LDFLAGS)"
