@@ -57,10 +57,10 @@ func main() {
 		fmt.Print("\n\nThese are the supported commands: (If no command is specified 'get' will be called.)\n\n")
 		fmt.Print(`get				Shows Cluster Spec
 configure-cluster		Sets cluster spec based on -member-count and -etcd-version args specified.
-list-backups			List backups avaliable in the -backup-store
+list-backups			List backups available in the -backup-store
 list-commands			List commands in queue for cluster to execute.
 delete-command			Deletes a command from the clusters queue
-restore-backup			Restores the backup specified. Pass the backup timestamp shown by list-backup as paramater. 
+restore-backup			Restores the backup specified. Pass the backup timestamp shown by list-backup as parameter. 
 				eg. etcd-ctl -backup-store=s3://mybackupstore/ restore-backup 2019-05-07T18:28:01Z-000977
 `)
 	}
