@@ -50,8 +50,22 @@ func main() {
 	flag.IntVar(&o.MemberCount, "member-count", o.MemberCount, "initial cluster size; cluster won't start until we have a quorum of this size")
 	flag.StringVar(&o.BackupStorePath, "backup-store", o.BackupStorePath, "backup store location")
 	flag.StringVar(&o.EtcdVersion, "etcd-version", o.EtcdVersion, "etcd version")
-
+	flag.Usage = func() {
+		fmt.Fprintf(flag.CommandLine.Output(), "Usage: %s [<args>] [<command>]\n", os.Args[0])
+		fmt.Print("\n\nThese are the supported args:\n\n")
+		flag.PrintDefaults()
+		fmt.Print("\n\nThese are the supported commands: (If no command is specified 'get' will be called.)\n\n")
+		fmt.Print(`get				Shows Cluster Spec
+configure-cluster		Sets cluster spec based on -member-count and -etcd-version args specified.
+list-backups			List backups available in the -backup-store
+list-commands			List commands in queue for cluster to execute.
+delete-command			Deletes a command from the clusters queue
+restore-backup			Restores the backup specified. Pass the backup timestamp shown by list-backup as parameter. 
+				eg. etcd-ctl -backup-store=s3://mybackupstore/ restore-backup 2019-05-07T18:28:01Z-000977
+`)
+	}
 	flag.Parse()
+	fmt.Printf("Backup Store: %v\n", o.BackupStorePath)
 
 	command := ""
 	args := flag.Args()
