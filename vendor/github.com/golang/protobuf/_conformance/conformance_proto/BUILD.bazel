@@ -13,6 +13,6 @@ go_library(
         "//vendor/github.com/golang/protobuf/ptypes/struct:go_default_library",
         "//vendor/github.com/golang/protobuf/ptypes/timestamp:go_default_library",
         "//vendor/github.com/golang/protobuf/ptypes/wrappers:go_default_library",
-        "//vendor/google.golang.org/genproto/protobuf:go_default_library",
+        "@org_golang_google_genproto//protobuf:go_default_library",
     ],
 )
