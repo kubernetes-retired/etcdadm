@@ -17,6 +17,7 @@ limitations under the License.
 package hosts
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -78,7 +79,7 @@ func (h *Provider) update() error {
 		}
 	}
 
-	glog.Infof("hosts update: primary%v, fallbacks=%v, final=%v", h.primary, h.fallbacks, addrToHosts)
+	glog.Infof("hosts update: primary=%v, fallbacks=%v, final=%v", h.primary, h.fallbacks, addrToHosts)
 	return updateHostsFileWithRecords("/etc/hosts", h.Key, addrToHosts)
 }
 
@@ -97,7 +98,7 @@ func updateHostsFileWithRecords(p string, key string, addrToHosts map[string][]s
 	guardEnd := strings.Replace(GUARD_END_TEMPLATE, "__key__", key, -1)
 
 	var out []string
-	depth := 0
+	inGuardBlock := false
 	skipBlank := false
 	for _, line := range strings.Split(string(data), "\n") {
 		k := strings.TrimSpace(line)
@@ -109,15 +110,24 @@ func updateHostsFileWithRecords(p string, key string, addrToHosts map[string][]s
 		skipBlank = false
 
 		if k == guardBegin {
-			depth++
+			if inGuardBlock {
+				glog.Warningf("/etc/hosts guard-block begin seen while in guard block; will ignore")
+			}
+			inGuardBlock = true
 		}
 
-		if depth <= 0 {
+		if !inGuardBlock {
 			out = append(out, line)
 		}
 
 		if k == guardEnd {
-			depth--
+			if !inGuardBlock {
+				glog.Warningf("/etc/hosts guard-block end seen before guard-block start; will ignore end")
+				// Don't output the line
+				out = out[:len(out)-1]
+			}
+
+			inGuardBlock = false
 
 			// Avoid problem where we build up lots of whitespace - clean up our blank line
 			skipBlank = true
@@ -164,10 +174,16 @@ func updateHostsFileWithRecords(p string, key string, addrToHosts map[string][]s
 	out = append(out, guardEnd)
 	out = append(out, "")
 
+	updated := []byte(strings.Join(out, "\n"))
+	if bytes.Equal(updated, data) {
+		glog.V(2).Infof("skipping update of unchanged /etc/hosts")
+		return nil
+	}
+
 	// Note that because we are bind mounting /etc/hosts, we can't do a normal atomic file write
 	// (where we write a temp file and rename it)
 	// TODO: We should just hold the file open while we read & write it
-	err = ioutil.WriteFile(p, []byte(strings.Join(out, "\n")), stat.Mode().Perm())
+	err = ioutil.WriteFile(p, updated, stat.Mode().Perm())
 	if err != nil {
 		return fmt.Errorf("error writing file %q: %v", p, err)
 	}
