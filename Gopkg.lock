@@ -125,8 +125,7 @@
   revision = "925541529c1fa6821df4e44ce2723319eb2be768"
 
 [[projects]]
-  branch = "master"
-  digest = "1:ba8796b3d336ef3cb61583a8b03a6e5361deed8c7b7cc1c89c32d71fe401e9c1"
+  digest = "1:904273e755c15a07aeffa1fa4ca233f7e37c10982e23db1399bc08c14ae180ba"
   name = "github.com/gophercloud/gophercloud"
   packages = [
     ".",
@@ -141,7 +140,7 @@
     "pagination",
   ]
   pruneopts = "UT"
-  revision = "4a3f5ae58624b68283375060dad06a214b05a32b"
+  revision = "dcc6e84aef1b6713accea7d7d7252ad2bc0e7034"
 
 [[projects]]
   digest = "1:e22af8c7518e1eab6f2eab2b7d7558927f816262586cd6ed9f349c97a6c285c4"
@@ -373,15 +372,15 @@
   version = "v0.1.0"
 
 [[projects]]
-  digest = "1:8a335574b2ecf993b2520eed2035e5f9d6ed562d2d0c659f0ca510686fc239e2"
+  digest = "1:5150b7e30f3bd379c9329339a3da210a948e6fafb861cb68d904eec96d3d5e3c"
   name = "k8s.io/kops"
   packages = [
+    "pkg/try",
     "util/pkg/hashing",
     "util/pkg/vfs",
   ]
   pruneopts = "UT"
-  revision = "8b52ea6d1cac6913cb2fa8edda6e054a6fdc5f27"
-  version = "1.10.0"
+  revision = "24206f04f5eb8e1565b3e7edfbf40f84d5511e20"
 
 [[projects]]
   digest = "1:54f05d2b09982c6ce153e2157eef013d98133cfea437a992a1a40d702a8770e4"
