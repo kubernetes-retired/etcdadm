@@ -77,6 +77,12 @@ http_file(
     urls = ["https://github.com/coreos/etcd/releases/download/v3.2.24/etcd-v3.2.24-linux-amd64.tar.gz"],
 )
 
+http_file(
+    name = "etcd_3_3_10_tar",
+    sha256 = "1620a59150ec0a0124a65540e23891243feb2d9a628092fb1edcc23974724a45",
+    urls = ["https://github.com/coreos/etcd/releases/download/v3.3.10/etcd-v3.3.10-linux-amd64.tar.gz"],
+)
+
 #=============================================================================
 # Build etcd from source
 # This picks up a number of critical bug fixes, for example:
