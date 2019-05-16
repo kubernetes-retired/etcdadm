@@ -110,7 +110,15 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 		return nil, fmt.Errorf("error restoring backup: %v", err)
 	}
 
-	binDir, err := BindirForEtcdVersion(backupInfo.EtcdVersion, "etcd")
+	etcdVersion := backupInfo.EtcdVersion
+	// A few known-safe restore-from-backup options
+	switch etcdVersion {
+	case "3.1.11":
+		glog.Warningf("restoring backup from etcd 3.1.11, will restore with 3.1.12")
+		etcdVersion = "3.1.12"
+	}
+
+	binDir, err := BindirForEtcdVersion(etcdVersion, "etcd")
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +138,7 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 		CreateNewCluster: true,
 		ForceNewCluster:  true,
 		BinDir:           binDir,
-		EtcdVersion:      backupInfo.EtcdVersion,
+		EtcdVersion:      etcdVersion,
 		DataDir:          dataDir,
 		Cluster: &protoetcd.EtcdCluster{
 			ClusterToken: clusterToken,
