@@ -24,8 +24,7 @@ PACKAGE_GOPATH := /go/src/sigs.k8s.io/$(BIN)
 LDFLAGS := $(shell source ./version.sh ; KUBE_ROOT=. ; KUBE_GIT_VERSION=${VERSION_OVERRIDE} ; kube::version::ldflags)
 GIT_STORAGE_MOUNT := $(shell source ./git_utils.sh; container_git_storage_mount)
 
-
-.PHONY: clean container-build default ensure
+.PHONY: clean container-build default ensure diagrams
 
 default: $(BIN)
 
@@ -36,4 +35,10 @@ $(BIN):
 	GO111MODULE=on go build -ldflags "$(LDFLAGS)"
 
 clean:
-	rm -f $(BIN)
+	rm -f $(BIN) plantuml.jar
+
+diagrams: plantuml.jar
+	java -jar plantuml.jar docs/diagrams/*.md
+
+plantuml.jar:
+	wget -O plantuml.jar http://sourceforge.net/projects/plantuml/files/plantuml.1.2019.6.jar/download
