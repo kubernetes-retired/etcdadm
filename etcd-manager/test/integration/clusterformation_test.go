@@ -17,7 +17,7 @@ func init() {
 	flag.Parse()
 }
 
-var AllEtcdVersions = []string{"2.2.1", "3.1.12", "3.2.18", "3.2.24"}
+var AllEtcdVersions = []string{"2.2.1", "3.1.12", "3.2.18", "3.2.24", "3.3.10"}
 
 func TestClusterWithOneMember(t *testing.T) {
 	for _, etcdVersion := range AllEtcdVersions {
