@@ -2,3 +2,4 @@ bin
 .vscode
 .DS_Store
 etcdadm
+plantuml.jar

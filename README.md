@@ -82,6 +82,10 @@ Etcdadm must be run on the machine that is being added or removed. As a conseque
 
 On its own, etcdadm does not automate cluster operation, but a cluster orchestrator can delegate all the above tasks to etcdadm.
 
+### Sequence Diagrams
+
+See `docs/diagrams` for sequence diagrams of init, join, and reset.
+
 <a name="questions"></a>
 ## Questions?
 
