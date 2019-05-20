@@ -1,0 +1,19 @@
+services:
+  - docker
+
+dist: xenial
+sudo: required
+language: go
+env:
+  - GO111MODULE=on
+go:
+  - 1.11.x
+
+scripts:
+  - make
+
+deploy:
+  provider: script
+  script: ./scripts/release.sh
+  on:
+    tags: true
