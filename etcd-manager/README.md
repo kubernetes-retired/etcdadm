@@ -12,7 +12,7 @@ Cluster changes that are not normally supported can be done safely through etcd 
 
 The format of the backup store, which is intended to be project-neutral is [here](docs/backupstructure.md).
 
-## Walkthough
+## Walkthrough
 
 We'll now do a walkthrough to get going with local development.  In production you likely would run this using
 a packaged docker container, but this walkthrough lets you see what's going on here.
