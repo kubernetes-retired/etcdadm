@@ -42,7 +42,7 @@ etcdadm init
 1. Copy the CA certificate and key from any machine in the cluster to the machine being added.
 
 ```
-rsync /etc/etcd/pki/ca.* <Member IP address>:/etc/etcd/pki/
+rsync -avR /etc/etcd/pki/ca.* <Member IP address>:/
 ```
 2. Choose a cluster endpoint (i.e. client URL of some member) and run
 
