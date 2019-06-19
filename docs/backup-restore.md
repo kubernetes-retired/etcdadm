@@ -9,7 +9,7 @@ In a `etcd` cluster managed by `etcd-manager`, a peer has two different client U
 - `client_urls`: URL used by external clients to connect to the `etcd` cluster
 - `quarantined_client_urls`: URL used to temporarily run the `etcd` node in a quarantined state, where external clients can't connect (because configured with the `client_urls`) but the other `etcd-manager` peers can eventually connect via the quarantined urls
 
-On a normal condition, `etcd-manager` will start the `etcd` server listening on `client_urls`, where external clients will connect to. However, during special operations, `etcd-manager` can start the `etcd` server in a **quarantined** state and it will listen on `quarantined_client_urls` (different ports) so that external clients will not be able to connect. This tecnique is used to introduce a sort of fence at network level during special operations executed by `etcd-manager`, like version upgrade or backups restore.
+On a normal condition, `etcd-manager` will start the `etcd` server listening on `client_urls`, where external clients will connect to. However, during special operations, `etcd-manager` can start the `etcd` server in a **quarantined** state and it will listen on `quarantined_client_urls` (different ports) so that external clients will not be able to connect. This technique is used to introduce a sort of fence at network level during special operations executed by `etcd-manager`, like version upgrade or backups restore.
 
 
 ## How the backup restore works
@@ -21,7 +21,7 @@ I0619 10:54:59.700623    9271 controller.go:380] got restore-backup command: tim
 I0619 10:54:59.700669    9271 controller.go:389] insufficient peers in our gossip group to build a cluster of size 3
 ```
 
-Once the last `etcd-manager` will start and will join the cluster peers, it will get the leadership (the last node to join gets the leadership), will read the `restore-backup` command from storage and will run it. To restore a backup, `etcd-manager` does:
+Once the last `etcd-manager` starts and joins the cluster peers, it will get the leadership (the last node to join gets the leadership), will read the `restore-backup` command from storage and will run it. To restore a backup, `etcd-manager` does:
 
 1. Stops `etcd` on other peers (but not self)
    - Sends a `StopEtcd` gPRC command
@@ -91,8 +91,8 @@ The `etcd-manager` peer which has received the `DoRestore` command:
     ```
 
 At this point, the `etcd-manager` leader which has issued the `DoRestore` command will receive the `DoRestoreResponse` and:
-1. Deletes the `restore-backup` command from storage (ir. S3) to avoid the command will be executed again
-2. Triggers a buckup of current cluster (on the leader node the `etcd` server is still running on the pre-restore data because the cluster token has not been switched yet)
+1. Deletes the `restore-backup` command from storage (ie. S3) to avoid the command will be executed again
+2. Triggers a backup of current cluster (on the leader node the `etcd` server is still running on the pre-restore data because the cluster token has not been switched yet)
 3. Sends a `Reconfigure` gRPC command to all peers to exit quarantine. This command will be also received by the leader node itself
     ```
     I0619 10:56:09.158178   11192 restore.go:82] Setting quarantined state to false
@@ -108,4 +108,4 @@ At this point, the `etcd-manager` leader which has issued the `DoRestore` comman
     I0619 10:56:10.193554   11192 restore.go:100] ReconfigureResponse:
     ```
 
-Finally, the `etcd-manager` node which has executed the backup restore will have the new data, which will be synched to the other `etcd` nodes (having an empty data store because the procedure has created a new cluster).
+Finally, the `etcd-manager` node which has executed the backup restore will have the new data, which will be synced to the other `etcd` nodes (having an empty data store because the procedure has created a new cluster).
