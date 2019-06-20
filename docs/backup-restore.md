@@ -14,7 +14,7 @@ On a normal condition, `etcd-manager` will start the `etcd` server listening on 
 
 ## How the backup restore works
 
-The `etcd-manager` continuously runs a reconcile loop. If the node has the leadership across peers and has read a `restore-backup` command from the storage, it tries to run it. However, until the required number of peers is not reached, the command won't be executed and will log:
+The `etcd-manager` continuously runs a reconcile loop. If the node has the leadership across peers and has read a `restore-backup` command from the storage, it tries to run it. However, until the required number of peers is reached, the command won't be executed and will log:
 
 ```
 I0619 10:54:59.700623    9271 controller.go:380] got restore-backup command: timestamp:TIME restore_backup:DATA
