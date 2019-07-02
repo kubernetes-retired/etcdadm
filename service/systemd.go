@@ -28,6 +28,7 @@ func reloadSystemd() error {
 	return nil
 }
 
+// Start a service
 func Start(service string) error {
 	// Before we try to start any service, make sure that systemd is ready
 	if err := reloadSystemd(); err != nil {
@@ -40,6 +41,7 @@ func Start(service string) error {
 	return nil
 }
 
+// Stop a service
 func Stop(service string) error {
 	// Before we try to start any service, make sure that systemd is ready
 	if err := reloadSystemd(); err != nil {
@@ -52,6 +54,7 @@ func Stop(service string) error {
 	return nil
 }
 
+// Enable a service
 func Enable(service string) error {
 	// Before we try to enable any service, make sure that systemd is ready
 	if err := reloadSystemd(); err != nil {
@@ -64,6 +67,7 @@ func Enable(service string) error {
 	return nil
 }
 
+// Disable a service
 func Disable(service string) error {
 	// Before we try to disable any service, make sure that systemd is ready
 	if err := reloadSystemd(); err != nil {

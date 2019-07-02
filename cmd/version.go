@@ -29,6 +29,7 @@ import (
 	"k8s.io/kubernetes/pkg/version"
 )
 
+// Version TODO: add description
 type Version struct {
 	ClientVersion *apimachineryversion.Info `json:"clientVersion,omitempty"`
 }

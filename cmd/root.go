@@ -20,13 +20,15 @@ import (
 	"fmt"
 	"os"
 
-	"sigs.k8s.io/etcdadm/apis"
-	log "sigs.k8s.io/etcdadm/pkg/logrus"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"sigs.k8s.io/etcdadm/apis"
+	log "sigs.k8s.io/etcdadm/pkg/logrus"
 )
 
 var etcdAdmConfig apis.EtcdAdmConfig
+
+// LogLevel sets the log level for the logger
 var LogLevel string
 
 var (
@@ -43,6 +45,7 @@ var (
 	}
 )
 
+// Execute executes the root command
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
