@@ -23,10 +23,10 @@ import (
 
 	log "sigs.k8s.io/etcdadm/pkg/logrus"
 
+	"github.com/spf13/cobra"
 	"sigs.k8s.io/etcdadm/apis"
 	"sigs.k8s.io/etcdadm/constants"
 	"sigs.k8s.io/etcdadm/etcd"
-	"github.com/spf13/cobra"
 )
 
 var infoCmd = &cobra.Command{

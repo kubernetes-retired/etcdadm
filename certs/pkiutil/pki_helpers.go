@@ -30,10 +30,10 @@ import (
 	"path/filepath"
 	"time"
 
-	"sigs.k8s.io/etcdadm/apis"
-	"sigs.k8s.io/etcdadm/constants"
 	"k8s.io/apimachinery/pkg/util/validation"
 	certutil "k8s.io/client-go/util/cert"
+	"sigs.k8s.io/etcdadm/apis"
+	"sigs.k8s.io/etcdadm/constants"
 )
 
 // NewCertificateAuthority creates new certificate and private key for the certificate authority
