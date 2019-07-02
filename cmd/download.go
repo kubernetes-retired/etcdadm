@@ -19,10 +19,10 @@ package cmd
 import (
 	log "sigs.k8s.io/etcdadm/pkg/logrus"
 
+	"github.com/spf13/cobra"
 	"sigs.k8s.io/etcdadm/apis"
 	"sigs.k8s.io/etcdadm/binary"
 	"sigs.k8s.io/etcdadm/constants"
-	"github.com/spf13/cobra"
 )
 
 var downloadCmd = &cobra.Command{
