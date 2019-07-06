@@ -120,7 +120,7 @@ func ImportExistingEtcd(baseDir string, etcdNodeConfiguration *protoetcd.EtcdNod
 		// Extract version from image
 		{
 			tokens := strings.Split(etcdContainer.Image, ":")
-			if len(tokens) != 2 {
+			if len(tokens) != 2 && len(tokens) != 3 {
 				return nil, fmt.Errorf("unexpected etcd image %q", etcdContainer.Image)
 			}
 			state.EtcdVersion = tokens[1]
