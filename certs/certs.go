@@ -28,10 +28,10 @@ import (
 
 	log "sigs.k8s.io/etcdadm/pkg/logrus"
 
+	certutil "k8s.io/client-go/util/cert"
 	"sigs.k8s.io/etcdadm/apis"
 	"sigs.k8s.io/etcdadm/certs/pkiutil"
 	"sigs.k8s.io/etcdadm/constants"
-	certutil "k8s.io/client-go/util/cert"
 )
 
 // CreatePKIAssets will create and write to disk all PKI assets necessary to establish the control plane.

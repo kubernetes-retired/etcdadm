@@ -1,18 +1,18 @@
-/**
- *   Copyright 2018 The etcdadm authors
- *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
- */
+/*
+Copyright 2018 The Kubernetes Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 
 package service
 
@@ -28,6 +28,7 @@ func reloadSystemd() error {
 	return nil
 }
 
+// Start a service
 func Start(service string) error {
 	// Before we try to start any service, make sure that systemd is ready
 	if err := reloadSystemd(); err != nil {
@@ -40,6 +41,7 @@ func Start(service string) error {
 	return nil
 }
 
+// Stop a service
 func Stop(service string) error {
 	// Before we try to start any service, make sure that systemd is ready
 	if err := reloadSystemd(); err != nil {
@@ -52,6 +54,7 @@ func Stop(service string) error {
 	return nil
 }
 
+// Enable a service
 func Enable(service string) error {
 	// Before we try to enable any service, make sure that systemd is ready
 	if err := reloadSystemd(); err != nil {
@@ -64,6 +67,7 @@ func Enable(service string) error {
 	return nil
 }
 
+// Disable a service
 func Disable(service string) error {
 	// Before we try to disable any service, make sure that systemd is ready
 	if err := reloadSystemd(); err != nil {
