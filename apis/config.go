@@ -1,18 +1,18 @@
-/**
- *   Copyright 2018 The etcdadm authors
- *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
- */
+/*
+Copyright 2018 The Kubernetes Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 
 package apis
 
@@ -26,8 +26,8 @@ import (
 	"strings"
 	"time"
 
-	"sigs.k8s.io/etcdadm/constants"
 	uuid "github.com/satori/go.uuid"
+	"sigs.k8s.io/etcdadm/constants"
 
 	netutil "k8s.io/apimachinery/pkg/util/net"
 )
@@ -86,11 +86,14 @@ type EtcdAdmConfig struct {
 	SkipHashCheck bool
 }
 
+// EndpointStatus TODO: add description
 type EndpointStatus struct {
 	EtcdMember
 	// TODO(dlipovetsky) See https://github.com/coreos/etcd/blob/52ae578922ee3d63b23c797b61beba041573ce1a/etcdctl/ctlv3/command/ep_command.go#L117
 	// Health string `json:"health,omitempty"`
 }
+
+// EtcdMember TODO: add description
 type EtcdMember struct {
 	// ID is the member ID for this member.
 	ID uint64 `json:"ID,omitempty"`
@@ -101,6 +104,8 @@ type EtcdMember struct {
 	// clientURLs is the list of URLs the member exposes to clients for communication. If the member is not started, clientURLs will be empty.
 	ClientURLs []string `json:"clientURLs,omitempty"`
 }
+
+// URLList TODO: add description
 type URLList []url.URL
 
 func (l URLList) String() string {
@@ -108,6 +113,7 @@ func (l URLList) String() string {
 	return strings.Join(stringURLs, ",")
 }
 
+// StringSlice TODO: add description
 func (l URLList) StringSlice() []string {
 	stringURLs := make([]string, len(l))
 	for i, url := range l {
@@ -194,6 +200,7 @@ func setDynamicDefaults(cfg *EtcdAdmConfig) error {
 	return nil
 }
 
+// DefaultServerCertSANs TODO: add description
 func DefaultServerCertSANs(cfg *EtcdAdmConfig) {
 	cfg.ServerCertSANs = append(cfg.ServerCertSANs, cfg.Name)
 
@@ -204,11 +211,12 @@ func DefaultServerCertSANs(cfg *EtcdAdmConfig) {
 	for _, url := range cfg.ListenClientURLs {
 		uniqueSANs[url.Hostname()] = 0
 	}
-	for san, _ := range uniqueSANs {
+	for san := range uniqueSANs {
 		cfg.ServerCertSANs = append(cfg.ServerCertSANs, san)
 	}
 }
 
+// DefaultPeerCertSANs TODO: add description
 func DefaultPeerCertSANs(cfg *EtcdAdmConfig) {
 	cfg.PeerCertSANs = append(cfg.PeerCertSANs, cfg.Name)
 
@@ -219,11 +227,12 @@ func DefaultPeerCertSANs(cfg *EtcdAdmConfig) {
 	for _, url := range cfg.ListenPeerURLs {
 		uniqueSANs[url.Hostname()] = 0
 	}
-	for san, _ := range uniqueSANs {
+	for san := range uniqueSANs {
 		cfg.PeerCertSANs = append(cfg.PeerCertSANs, san)
 	}
 }
 
+// DefaultPeerURLs TODO: add description
 func DefaultPeerURLs(cfg *EtcdAdmConfig) error {
 	if err := DefaultInitialAdvertisePeerURLs(cfg); err != nil {
 		return err
@@ -231,6 +240,7 @@ func DefaultPeerURLs(cfg *EtcdAdmConfig) error {
 	return DefaultListenPeerURLs(cfg)
 }
 
+// DefaultClientURLs TODO: add description
 func DefaultClientURLs(cfg *EtcdAdmConfig) error {
 	DefaultLoopbackClientURL(cfg)
 	DefaultAdvertiseClientURLs(cfg)
@@ -238,6 +248,7 @@ func DefaultClientURLs(cfg *EtcdAdmConfig) error {
 	return nil
 }
 
+// DefaultInitialAdvertisePeerURLs TODO: add description
 func DefaultInitialAdvertisePeerURLs(cfg *EtcdAdmConfig) error {
 	externalAddress, err := defaultExternalAddress()
 	if err != nil {
@@ -250,11 +261,13 @@ func DefaultInitialAdvertisePeerURLs(cfg *EtcdAdmConfig) error {
 	return nil
 }
 
+// DefaultListenPeerURLs TODO: add description
 func DefaultListenPeerURLs(cfg *EtcdAdmConfig) error {
 	cfg.ListenPeerURLs = cfg.InitialAdvertisePeerURLs
 	return nil
 }
 
+// DefaultLoopbackClientURL TODO: add description
 func DefaultLoopbackClientURL(cfg *EtcdAdmConfig) {
 	cfg.LoopbackClientURL = url.URL{
 		Scheme: "https",
@@ -262,12 +275,14 @@ func DefaultLoopbackClientURL(cfg *EtcdAdmConfig) {
 	}
 }
 
+// DefaultListenClientURLs TODO: add description
 func DefaultListenClientURLs(cfg *EtcdAdmConfig) error {
 	cfg.ListenClientURLs = cfg.AdvertiseClientURLs
 	cfg.ListenClientURLs = append(cfg.ListenClientURLs, cfg.LoopbackClientURL)
 	return nil
 }
 
+// DefaultAdvertiseClientURLs TODO: add description
 func DefaultAdvertiseClientURLs(cfg *EtcdAdmConfig) error {
 	externalAddress, err := defaultExternalAddress()
 	if err != nil {
