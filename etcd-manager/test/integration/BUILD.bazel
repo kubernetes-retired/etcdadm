@@ -2,7 +2,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_test")
 
 go_test(
     name = "go_default_test",
-    size = "large",  # Takes more than 300 seconds to run on travis
+    size = "enormous",  # Takes more than 900 seconds to run on travis
     srcs = [
         "clusterformation_test.go",
         "datapersists_test.go",
