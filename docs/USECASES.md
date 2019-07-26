@@ -27,3 +27,4 @@ As a Kubernetes cluster administrator:
 ## Diverse Environments
 
 0. I want to use etcdadm in an offline environment.
+
