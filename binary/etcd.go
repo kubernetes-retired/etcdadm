@@ -107,13 +107,20 @@ func extract(extractDir, archive string) error {
 	return nil
 }
 
-// Download installs the etcd binaries in the directory specified by locationDir
+// Download downloads the etcd binaries in the directory specified by locationDir
 func Download(releaseURL, version, locationDir string) error {
+	archive := filepath.Join(locationDir, releaseFile(version))
+	// if desired version is already downloaded, do nothing
+	if exists, err := util.Exists(archive); err == nil && exists {
+		log.Printf("[install] etcd archive found locally in %s, not downloading again\n", locationDir)
+		return nil
+	}
+
 	log.Printf("[install] Downloading & installing etcd %s from %s to %s\n", releaseURL, version, locationDir)
 	if err := os.MkdirAll(locationDir, 0755); err != nil {
 		return fmt.Errorf("unable to create install directory: %s", err)
 	}
-	archive := filepath.Join(locationDir, releaseFile(version))
+
 	url := downloadURL(releaseURL, version)
 	if err := get(url, archive); err != nil {
 		return fmt.Errorf("unable to download etcd: %s", err)
