@@ -28,7 +28,7 @@ import (
 	"sigs.k8s.io/etcdadm/binary"
 	"sigs.k8s.io/etcdadm/constants"
 	"sigs.k8s.io/etcdadm/etcd"
-	"sigs.k8s.io/etcdadm/service"
+	"sigs.k8s.io/etcdadm/initsystem"
 )
 
 var skipRemoveMember bool
@@ -44,7 +44,12 @@ var resetCmd = &cobra.Command{
 			log.Fatalf("[defaults] Error: %s", err)
 		}
 
-		active, err := service.Active(constants.UnitFileBaseName)
+		initSystem, err := initsystem.GetInitSystem()
+		if err != nil {
+			log.Fatalf("[initsystem] Error detecting the init system: %s", err)
+		}
+
+		active, err := initSystem.IsActive(constants.UnitFileBaseName)
 		if err != nil {
 			log.Fatalf("[reset] Error checking if etcd service is active: %s", err)
 		}
@@ -86,16 +91,16 @@ var resetCmd = &cobra.Command{
 				}
 			}
 			// Disable etcd service
-			if err := service.Stop(constants.UnitFileBaseName); err != nil {
+			if err := initSystem.Stop(constants.UnitFileBaseName); err != nil {
 				log.Fatalf("[reset] Error stopping existing etcd service: %s", err)
 			}
 		}
-		enabled, err := service.Enabled(constants.UnitFileBaseName)
+		enabled, err := initSystem.IsEnabled(constants.UnitFileBaseName)
 		if err != nil {
 			log.Fatalf("[reset] Error checking if etcd service is enabled: %s", err)
 		}
 		if enabled {
-			if err := service.Disable(constants.UnitFileBaseName); err != nil {
+			if err := initSystem.Disable(constants.UnitFileBaseName); err != nil {
 				log.Fatalf("[reset] Error disabling existing etcd service: %s", err)
 			}
 		}

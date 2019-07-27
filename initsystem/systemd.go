@@ -14,14 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package initsystem
 
 import (
 	"fmt"
 	"os/exec"
 )
 
-func reloadSystemd() error {
+// SystemdInitSystem defines systemd init system
+type SystemdInitSystem struct{}
+
+func (s SystemdInitSystem) reloadSystemd() error {
 	if err := exec.Command("systemctl", "daemon-reload").Run(); err != nil {
 		return fmt.Errorf("failed to reload systemd: %v", err)
 	}
@@ -29,9 +32,9 @@ func reloadSystemd() error {
 }
 
 // Start a service
-func Start(service string) error {
+func (s SystemdInitSystem) Start(service string) error {
 	// Before we try to start any service, make sure that systemd is ready
-	if err := reloadSystemd(); err != nil {
+	if err := s.reloadSystemd(); err != nil {
 		return err
 	}
 	args := []string{"start", service}
@@ -42,9 +45,9 @@ func Start(service string) error {
 }
 
 // Stop a service
-func Stop(service string) error {
+func (s SystemdInitSystem) Stop(service string) error {
 	// Before we try to start any service, make sure that systemd is ready
-	if err := reloadSystemd(); err != nil {
+	if err := s.reloadSystemd(); err != nil {
 		return err
 	}
 	args := []string{"stop", service}
@@ -55,9 +58,9 @@ func Stop(service string) error {
 }
 
 // Enable a service
-func Enable(service string) error {
+func (s SystemdInitSystem) Enable(service string) error {
 	// Before we try to enable any service, make sure that systemd is ready
-	if err := reloadSystemd(); err != nil {
+	if err := s.reloadSystemd(); err != nil {
 		return err
 	}
 	args := []string{"enable", service}
@@ -68,9 +71,9 @@ func Enable(service string) error {
 }
 
 // Disable a service
-func Disable(service string) error {
+func (s SystemdInitSystem) Disable(service string) error {
 	// Before we try to disable any service, make sure that systemd is ready
-	if err := reloadSystemd(); err != nil {
+	if err := s.reloadSystemd(); err != nil {
 		return err
 	}
 	args := []string{"disable", service}
@@ -81,23 +84,23 @@ func Disable(service string) error {
 }
 
 // EnableAndStartService enables and starts the etcd service
-func EnableAndStartService(service string) error {
-	if err := Enable(service); err != nil {
+func (s SystemdInitSystem) EnableAndStartService(service string) error {
+	if err := s.Enable(service); err != nil {
 		return err
 	}
-	return Start(service)
+	return s.Start(service)
 }
 
 // DisableAndStopService disables and stops the etcd service
-func DisableAndStopService(service string) error {
-	if err := Disable(service); err != nil {
+func (s SystemdInitSystem) DisableAndStopService(service string) error {
+	if err := s.Disable(service); err != nil {
 		return err
 	}
-	return Stop(service)
+	return s.Stop(service)
 }
 
-// Active checks if the systemd unit is active
-func Active(service string) (bool, error) {
+// IsActive checks if the systemd unit is active
+func (s SystemdInitSystem) IsActive(service string) (bool, error) {
 	args := []string{"is-active", service}
 	if err := exec.Command("systemctl", args...).Run(); err != nil {
 		switch v := err.(type) {
@@ -112,8 +115,8 @@ func Active(service string) (bool, error) {
 	return true, nil
 }
 
-// Enabled checks if the systemd unit is enabled
-func Enabled(service string) (bool, error) {
+// IsEnabled checks if the systemd unit is enabled
+func (s SystemdInitSystem) IsEnabled(service string) (bool, error) {
 	args := []string{"is-enabled", service}
 	if err := exec.Command("systemctl", args...).Run(); err != nil {
 		switch v := err.(type) {
