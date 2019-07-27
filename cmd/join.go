@@ -31,6 +31,7 @@ import (
 	"sigs.k8s.io/etcdadm/certs"
 	"sigs.k8s.io/etcdadm/constants"
 	"sigs.k8s.io/etcdadm/etcd"
+	"sigs.k8s.io/etcdadm/initsystem"
 	"sigs.k8s.io/etcdadm/service"
 
 	"github.com/spf13/cobra"
@@ -51,22 +52,27 @@ var joinCmd = &cobra.Command{
 			log.Fatalf("[defaults] Error: %s", err)
 		}
 
-		active, err := service.Active(constants.UnitFileBaseName)
+		initSystem, err := initsystem.GetInitSystem()
+		if err != nil {
+			log.Fatalf("[initsystem] Error detecting the init system: %s", err)
+		}
+
+		active, err := initSystem.IsActive(constants.UnitFileBaseName)
 		if err != nil {
 			log.Fatalf("[start] Error checking if etcd service is active: %s", err)
 		}
 		if active {
-			if err := service.Stop(constants.UnitFileBaseName); err != nil {
+			if err := initSystem.Stop(constants.UnitFileBaseName); err != nil {
 				log.Fatalf("[start] Error stopping existing etcd service: %s", err)
 			}
 		}
 
-		enabled, err := service.Enabled(constants.UnitFileBaseName)
+		enabled, err := initSystem.IsEnabled(constants.UnitFileBaseName)
 		if err != nil {
 			log.Fatalf("[start] Error checking if etcd service is enabled: %s", err)
 		}
 		if enabled {
-			if err := service.Disable(constants.UnitFileBaseName); err != nil {
+			if err := initSystem.Disable(constants.UnitFileBaseName); err != nil {
 				log.Fatalf("[start] Error disabling existing etcd service: %s", err)
 			}
 		}
@@ -166,7 +172,7 @@ var joinCmd = &cobra.Command{
 		if err := service.WriteUnitFile(&etcdAdmConfig); err != nil {
 			log.Fatalf("[configure] Error: %s", err)
 		}
-		if err := service.EnableAndStartService(constants.UnitFileBaseName); err != nil {
+		if err := initSystem.EnableAndStartService(constants.UnitFileBaseName); err != nil {
 			log.Fatalf("[start] Error: %s", err)
 		}
 		if err := service.WriteEtcdctlEnvFile(&etcdAdmConfig); err != nil {
