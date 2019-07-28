@@ -41,14 +41,13 @@ load(
 
 container_repositories()
 
-# Use a kubernetes base image which includes ca-certificates (so we can talk to google for OAuth)
-# Some potential here: https://github.com/GoogleCloudPlatform/base-images-docker
+# Use a base image which includes ca-certificates (so we can talk to google / aws)
 container_pull(
-    name = "debian_base_amd64",
-    digest = "sha256:cc782ed16599000ca4c85d47ec6264753747ae1e77520894dca84b104a7621e2",
+    name = "distroless_base",
+    digest = "sha256:e37cf3289c1332c5123cbf419a1657c8dad0811f2f8572433b668e13747718f8",
     registry = "gcr.io",
-    repository = "google-containers/debian-hyperkube-base-amd64",
-    tag = "0.10",
+    repository = "distroless/base",
+    tag = "e37cf3289c13",
 )
 
 #=============================================================================
