@@ -61,6 +61,7 @@ type EtcdAdmConfig struct {
 	EtcdctlExecutable   string
 	EtcdctlEnvFile      string
 	EtcdctlShellWrapper string
+	EtcdDiskPriorities  []string
 
 	InitialAdvertisePeerURLs URLList
 	ListenPeerURLs           URLList
