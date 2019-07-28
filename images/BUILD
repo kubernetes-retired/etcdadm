@@ -77,7 +77,7 @@ container_layer(
 
 container_image(
     name = "etcd-manager-base",
-    base = "@debian_base_amd64//image",
+    base = "@distroless_base//image",
     directory = "/opt",
     layers = [
         "etcd-2-2-1-layer",
