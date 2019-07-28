@@ -76,6 +76,9 @@ type etcdProcess struct {
 
 	// ListenAddress is the address we bind to
 	ListenAddress string
+
+	// ListenMetricsURLs is the set of urls we should listen for metrics on
+	ListenMetricsURLs []string
 }
 
 func (p *etcdProcess) ExitState() (error, *os.ProcessState) {
@@ -188,6 +191,11 @@ func (p *etcdProcess) Start() error {
 	env["ETCD_LISTEN_CLIENT_URLS"] = strings.Join(changeHost(clientUrls, p.ListenAddress), ",")
 	env["ETCD_ADVERTISE_CLIENT_URLS"] = strings.Join(clientUrls, ",")
 	env["ETCD_INITIAL_ADVERTISE_PEER_URLS"] = strings.Join(me.PeerUrls, ",")
+
+	// This is only supported in 3.3 and later, but by using an env var it simply won't be picked up
+	if len(p.ListenMetricsURLs) != 0 {
+		env["ETCD_LISTEN_METRICS_URLS"] = strings.Join(p.ListenMetricsURLs, ",")
+	}
 
 	if p.CreateNewCluster {
 		env["ETCD_INITIAL_CLUSTER_STATE"] = "new"
