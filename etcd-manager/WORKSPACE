@@ -9,7 +9,6 @@ http_archive(
     sha256 = "8df59f11fb697743cbb3f26cfb8750395f30471e9eabde0d174c3aebc7a1cd39",
 )
 
-
 http_archive(
     name = "bazel_gazelle",
     urls = [
@@ -48,13 +47,16 @@ load(
 
 container_repositories()
 
-# Use a base image which includes ca-certificates (so we can talk to google / aws)
-# Note that we use the _debug_ version, so that we have a shell & tar
+# Note: We can't (easily) use distroless because we need: fsck, blkid, mount, others? to mount disks
+# We also have to use debian-hyperkube-base because we need nsenter / fsck
+
 container_pull(
-    name = "distroless_base_debug",
-    digest = "sha256:f989df6099c5efb498021c7f01b74f484b46d2f5e1cdb862e508569d87569f2b",
-    registry = "gcr.io",
-    repository = "distroless/base",
+    name = "debian-hyperkube-base-amd64",
+    architecture = "amd64",
+    digest = "sha256:5d4ea2fb5fbe9a9a9da74f67cf2faefc881968bc39f2ac5d62d9167e575812a1",
+    registry = "k8s.gcr.io",
+    repository = "debian-hyperkube-base",
+    tag = "0.12.1",  # ignored, but kept here for documentation
 )
 
 #=============================================================================
