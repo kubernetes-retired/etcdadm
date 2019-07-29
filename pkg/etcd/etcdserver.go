@@ -44,6 +44,9 @@ type EtcdServer struct {
 
 	etcdClientsCA *pki.Keypair
 	etcdPeersCA   *pki.Keypair
+
+	// listenMetricsURLs is the set of URLs where etcd should listen for metrics
+	listenMetricsURLs []string
 }
 
 type preparedState struct {
@@ -51,7 +54,7 @@ type preparedState struct {
 	clusterToken string
 }
 
-func NewEtcdServer(baseDir string, clusterName string, listenAddress string, etcdNodeConfiguration *protoetcd.EtcdNode, peerServer *privateapi.Server, dnsProvider dns.Provider, etcdClientsCA *pki.Keypair, etcdPeersCA *pki.Keypair) (*EtcdServer, error) {
+func NewEtcdServer(baseDir string, clusterName string, listenAddress string, listenMetricsURLs []string, etcdNodeConfiguration *protoetcd.EtcdNode, peerServer *privateapi.Server, dnsProvider dns.Provider, etcdClientsCA *pki.Keypair, etcdPeersCA *pki.Keypair) (*EtcdServer, error) {
 	s := &EtcdServer{
 		baseDir:               baseDir,
 		clusterName:           clusterName,
@@ -61,6 +64,7 @@ func NewEtcdServer(baseDir string, clusterName string, listenAddress string, etc
 		etcdNodeConfiguration: etcdNodeConfiguration,
 		etcdClientsCA:         etcdClientsCA,
 		etcdPeersCA:           etcdPeersCA,
+		listenMetricsURLs:     listenMetricsURLs,
 	}
 
 	// Make sure we have read state from disk before serving
@@ -565,10 +569,11 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 			ClusterToken: state.Cluster.ClusterToken,
 			Nodes:        state.Cluster.Nodes,
 		},
-		Quarantined:   state.Quarantined,
-		MyNodeName:    s.etcdNodeConfiguration.Name,
-		ListenAddress: s.listenAddress,
-		DisableTLS:    !meNode.TlsEnabled,
+		Quarantined:       state.Quarantined,
+		MyNodeName:        s.etcdNodeConfiguration.Name,
+		ListenAddress:     s.listenAddress,
+		DisableTLS:        !meNode.TlsEnabled,
+		ListenMetricsURLs: s.listenMetricsURLs,
 	}
 
 	// We always generate the keypairs, as this allows us to switch to TLS without a restart
