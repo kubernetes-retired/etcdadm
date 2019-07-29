@@ -9,6 +9,7 @@ go_library(
     deps = [
         "//vendor/github.com/golang/protobuf/proto:go_default_library",
         "//vendor/github.com/golang/protobuf/protoc-gen-go/descriptor:go_default_library",
+        "//vendor/github.com/golang/protobuf/protoc-gen-go/generator/internal/remap:go_default_library",
         "//vendor/github.com/golang/protobuf/protoc-gen-go/plugin:go_default_library",
     ],
 )
