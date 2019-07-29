@@ -76,19 +76,8 @@ container_layer(
 )
 
 container_image(
-    name = "base",
-    base = "@distroless_base_debug//image",
-    # Put the most crucial symlinks in the more obvious place
-    # (they are currently in /busybox)
-    symlinks = {
-        "/bin/sh": "/busybox/busybox",
-        "/bin/tar": "/busybox/busybox",
-    },
-)
-
-container_image(
     name = "etcd-manager-base",
-    base = "base",
+    base = "@debian-hyperkube-base-amd64//image",
     directory = "/opt",
     layers = [
         "etcd-2-2-1-layer",
