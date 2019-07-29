@@ -4,10 +4,11 @@ import (
 	"testing"
 
 	"kope.io/etcd-manager/pkg/etcd"
+	"kope.io/etcd-manager/pkg/etcdversions"
 )
 
 func TestEtcdInstalled(t *testing.T) {
-	for _, etcdVersion := range AllEtcdVersions {
+	for _, etcdVersion := range etcdversions.AllEtcdVersions {
 		t.Run("etcdVersion="+etcdVersion, func(t *testing.T) {
 			{
 				bindir, err := etcd.BindirForEtcdVersion(etcdVersion, "etcd")

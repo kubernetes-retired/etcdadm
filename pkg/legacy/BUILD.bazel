@@ -8,6 +8,7 @@ go_library(
     deps = [
         "//pkg/apis/etcd:go_default_library",
         "//pkg/commands:go_default_library",
+        "//pkg/etcdversions:go_default_library",
         "//vendor/github.com/golang/glog:go_default_library",
         "//vendor/gopkg.in/yaml.v2:go_default_library",
     ],
