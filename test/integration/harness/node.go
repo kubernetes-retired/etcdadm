@@ -44,6 +44,8 @@ type TestHarnessNode struct {
 	etcdController *controller.EtcdController
 
 	etcdClientTLSConfig *tls.Config
+
+	ListenMetricsURLs []string
 }
 
 func (n *TestHarnessNode) Init() error {
@@ -75,6 +77,8 @@ func (n *TestHarnessNode) Init() error {
 	} else {
 		n.ClientURL = "https://" + n.Address + ":4001"
 	}
+
+	n.ListenMetricsURLs = []string{"https://" + n.Address + ":8080"}
 
 	return nil
 }
@@ -192,7 +196,7 @@ func (n *TestHarnessNode) Run() {
 		etcdPeersCA = nil
 	}
 
-	etcdServer, err := etcd.NewEtcdServer(n.NodeDir, n.TestHarness.ClusterName, n.Address, me, peerServer, dnsProvider, etcdClientsCA, etcdPeersCA)
+	etcdServer, err := etcd.NewEtcdServer(n.NodeDir, n.TestHarness.ClusterName, n.Address, n.ListenMetricsURLs, me, peerServer, dnsProvider, etcdClientsCA, etcdPeersCA)
 	if err != nil {
 		t.Fatalf("error building EtcdServer: %v", err)
 	}
