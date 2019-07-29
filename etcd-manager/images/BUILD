@@ -65,9 +65,19 @@ container_layer(
     ],
 )
 
+# Layer for etcd 3.3.13, updated recommendation for k8s 1.14 and later
+container_layer(
+    name = "etcd-3-3-13-layer",
+    directory = "/opt/etcd-v3.3.13-linux-amd64/",
+    files = [
+        "//:etcd-v3.3.13-linux-amd64_etcdctl",
+        "//:etcd-v3.3.13-linux-amd64_etcd",
+    ],
+)
+
 container_image(
     name = "etcd-manager-base",
-    base = "@debian_base_amd64//image",
+    base = "@distroless_base//image",
     directory = "/opt",
     layers = [
         "etcd-2-2-1-layer",
@@ -75,6 +85,7 @@ container_image(
         "etcd-3-2-18-layer",
         "etcd-3-2-24-layer",
         "etcd-3-3-10-layer",
+        "etcd-3-3-13-layer",
     ],
 )
 
