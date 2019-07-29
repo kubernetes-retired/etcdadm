@@ -10,7 +10,7 @@
   version = "v0.18.0"
 
 [[projects]]
-  digest = "1:b751c7329d8af62faeb0007a6552aa0fa309749fb6ce2902a29e92d3725ff73e"
+  digest = "1:7de37a299fddabcc0201818892f48d7ac41029c61b8b8a13c69bc1d296d82ce5"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -41,6 +41,7 @@
     "private/protocol/ec2query",
     "private/protocol/eventstream",
     "private/protocol/eventstream/eventstreamapi",
+    "private/protocol/json/jsonutil",
     "private/protocol/query",
     "private/protocol/query/queryutil",
     "private/protocol/rest",
@@ -49,10 +50,11 @@
     "service/ec2",
     "service/s3",
     "service/sts",
+    "service/sts/stsiface",
   ]
   pruneopts = "UT"
-  revision = "7af38b557a7f85c5654031c504ed84ff3fb411f0"
-  version = "v1.19.31"
+  revision = "ba829de1f3457a55eddf7ed693f36fe9069e39c4"
+  version = "v1.21.6"
 
 [[projects]]
   digest = "1:705c40022f5c03bf96ffeb6477858d88565064485a513abcd0f11a0911546cb6"
@@ -118,7 +120,7 @@
   revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
 
 [[projects]]
-  digest = "1:fe378ac3a0aebfb0d5f4a98df1f888480a19ac01a047d19f656e8fa4a747db9c"
+  digest = "1:a2ecb56e5053d942aafc86738915fb94c9131bac848c543b8b6764365fd69080"
   name = "github.com/golang/protobuf"
   packages = [
     "jsonpb",
@@ -131,7 +133,8 @@
     "ptypes/timestamp",
   ]
   pruneopts = "T"
-  revision = "925541529c1fa6821df4e44ce2723319eb2be768"
+  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
+  version = "v1.2.0"
 
 [[projects]]
   digest = "1:904273e755c15a07aeffa1fa4ca233f7e37c10982e23db1399bc08c14ae180ba"
@@ -310,22 +313,31 @@
   revision = "11c7f9e547da6db876260ce49ea7536985904c9b"
 
 [[projects]]
-  digest = "1:1f493ec91c49250f673525e93c296ff3dd576582d52cdcea9a24311a6066a009"
+  digest = "1:8f56475624fb72854d06ca16c2f7032e3cea14a63074e9c199ba8d46431c1127"
   name = "google.golang.org/grpc"
   packages = [
     ".",
     "balancer",
     "balancer/base",
     "balancer/roundrobin",
+    "binarylog/grpc_binarylog_v1",
     "codes",
     "connectivity",
     "credentials",
+    "credentials/internal",
     "encoding",
     "encoding/proto",
-    "grpclb/grpc_lb_v1/messages",
     "grpclog",
     "health/grpc_health_v1",
     "internal",
+    "internal/backoff",
+    "internal/binarylog",
+    "internal/channelz",
+    "internal/envconfig",
+    "internal/grpcrand",
+    "internal/grpcsync",
+    "internal/syscall",
+    "internal/transport",
     "keepalive",
     "metadata",
     "naming",
@@ -336,10 +348,10 @@
     "stats",
     "status",
     "tap",
-    "transport",
   ]
   pruneopts = "UT"
-  revision = "8e4536a86ab602859c20df5ebfd0bd4228d08655"
+  revision = "df014850f6dee74ba2fc94874043a9f3f75fbfd8"
+  version = "v1.17.0"
 
 [[projects]]
   digest = "1:342378ac4dcb378a5448dd723f0784ae519383532f5e70ade24132c4c8693202"

@@ -17,7 +17,8 @@ unused-packages = true
 
 [[constraint]]
   name = "github.com/golang/protobuf"
-  revision = "925541529c1fa6821df4e44ce2723319eb2be768" # v1.0.0, as of 2018-02-16
+  #revision = "925541529c1fa6821df4e44ce2723319eb2be768" # v1.0.0, as of 2018-02-16
+  version = "v1.2.0"
 
 [[constraint]]
   name = "golang.org/x/net"
@@ -25,7 +26,8 @@ unused-packages = true
 
 [[constraint]]
   name = "google.golang.org/grpc"
-  revision = "8e4536a86ab602859c20df5ebfd0bd4228d08655"  # v1.10.0, latest as of 2018-02-16
+#  revision = "8e4536a86ab602859c20df5ebfd0bd4228d08655"  # v1.10.0, latest as of 2018-02-16
+  version = "v1.12.1"
 
 [[constraint]]
   name = "k8s.io/kops"
@@ -41,4 +43,4 @@ unused-packages = true
 
 [[constraint]]
   name = "github.com/aws/aws-sdk-go"
-  version = "1.19.31"
+  version = "1.21.6"
