@@ -95,6 +95,7 @@ container_image(
     entrypoint = ["/etcd-manager"],
     files = [
         "//cmd/etcd-manager",
+        "//cmd/etcd-manager-ctl",
     ],
 )
 
@@ -131,6 +132,7 @@ container_image(
     entrypoint = ["/etcd-backup"],
     files = [
         "//cmd/etcd-backup",
+        "//cmd/etcd-backup-ctl",
     ],
 )
 
