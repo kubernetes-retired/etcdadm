@@ -120,10 +120,15 @@ func ImportExistingEtcd(baseDir string, etcdNodeConfiguration *protoetcd.EtcdNod
 		// Extract version from image
 		{
 			tokens := strings.Split(etcdContainer.Image, ":")
-			if len(tokens) != 2 {
+			if len(tokens) == 2 {
+				state.EtcdVersion = tokens[1]
+			} else if len(tokens) == 3 {
+				// This is valid when pulling from proxies/mirrors with ports
+				// localhost:8000/etcd:3.3.3
+				state.EtcdVersion = tokens[2]
+			} else {
 				return nil, fmt.Errorf("unexpected etcd image %q", etcdContainer.Image)
 			}
-			state.EtcdVersion = tokens[1]
 		}
 
 		etcdName := strings.TrimSpace(etcdContainer.FindEnv("ETCD_NAME"))
