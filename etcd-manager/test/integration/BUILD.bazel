@@ -28,6 +28,7 @@ go_test(
     deps = [
         "//pkg/apis/etcd:go_default_library",
         "//pkg/etcd:go_default_library",
+        "//pkg/etcdversions:go_default_library",
         "//test/integration/harness:go_default_library",
         "//vendor/github.com/golang/glog:go_default_library",
     ],

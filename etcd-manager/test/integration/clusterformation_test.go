@@ -8,6 +8,7 @@ import (
 
 	"github.com/golang/glog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
+	"kope.io/etcd-manager/pkg/etcdversions"
 	"kope.io/etcd-manager/test/integration/harness"
 )
 
@@ -17,10 +18,8 @@ func init() {
 	flag.Parse()
 }
 
-var AllEtcdVersions = []string{"2.2.1", "3.1.12", "3.2.18", "3.2.24", "3.3.10", "3.3.13"}
-
 func TestClusterWithOneMember(t *testing.T) {
-	for _, etcdVersion := range AllEtcdVersions {
+	for _, etcdVersion := range etcdversions.AllEtcdVersions {
 		t.Run("etcdVersion="+etcdVersion, func(t *testing.T) {
 			ctx := context.TODO()
 			ctx, cancel := context.WithTimeout(ctx, time.Second*30)
