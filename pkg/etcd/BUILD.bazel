@@ -18,6 +18,7 @@ go_library(
         "//pkg/contextutil:go_default_library",
         "//pkg/dns:go_default_library",
         "//pkg/etcdclient:go_default_library",
+        "//pkg/etcdversions:go_default_library",
         "//pkg/legacy:go_default_library",
         "//pkg/pki:go_default_library",
         "//pkg/privateapi:go_default_library",

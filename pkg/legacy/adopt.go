@@ -12,6 +12,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/commands"
+	"kope.io/etcd-manager/pkg/etcdversions"
 )
 
 type legacyManifest struct {
@@ -224,6 +225,12 @@ func ImportExistingEtcd(baseDir string, etcdNodeConfiguration *protoetcd.EtcdNod
 		}
 		if err := os.Rename(legacyDir, newDataDir); err != nil {
 			return nil, fmt.Errorf("error renaming directory %s -> %s: %v", legacyDir, newDataDir, err)
+		}
+
+		adoptAs := etcdversions.EtcdVersionForAdoption(state.EtcdVersion)
+		if adoptAs != "" && adoptAs != state.EtcdVersion {
+			glog.Warningf("adopting from etcd %q, will adopt with %q", state.EtcdVersion, adoptAs)
+			state.EtcdVersion = adoptAs
 		}
 
 		glog.Infof("imported etcd state: %v", state.String())

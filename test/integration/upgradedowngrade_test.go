@@ -7,12 +7,13 @@ import (
 
 	"github.com/golang/glog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
+	"kope.io/etcd-manager/pkg/etcdversions"
 	"kope.io/etcd-manager/test/integration/harness"
 )
 
 func TestUpgradeDowngrade(t *testing.T) {
-	for _, fromVersion := range AllEtcdVersions {
-		for _, toVersion := range AllEtcdVersions {
+	for _, fromVersion := range etcdversions.AllEtcdVersions {
+		for _, toVersion := range etcdversions.AllEtcdVersions {
 			if fromVersion == toVersion {
 				continue
 			}

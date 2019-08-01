@@ -13,6 +13,7 @@ import (
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/etcdclient"
+	"kope.io/etcd-manager/pkg/etcdversions"
 	"kope.io/etcd-manager/pkg/pki"
 )
 
@@ -112,10 +113,12 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 
 	etcdVersion := backupInfo.EtcdVersion
 	// A few known-safe restore-from-backup options
-	switch etcdVersion {
-	case "3.1.11":
-		glog.Warningf("restoring backup from etcd 3.1.11, will restore with 3.1.12")
-		etcdVersion = "3.1.12"
+	{
+		restoreWith := etcdversions.EtcdVersionForRestore(etcdVersion)
+		if restoreWith != "" && restoreWith != etcdVersion {
+			glog.Warningf("restoring backup from etcd %q, will restore with %q", etcdVersion, restoreWith)
+			etcdVersion = restoreWith
+		}
 	}
 
 	binDir, err := BindirForEtcdVersion(etcdVersion, "etcd")

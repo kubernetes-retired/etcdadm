@@ -7,11 +7,12 @@ import (
 
 	"github.com/golang/glog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
+	"kope.io/etcd-manager/pkg/etcdversions"
 	"kope.io/etcd-manager/test/integration/harness"
 )
 
 func TestResizeCluster(t *testing.T) {
-	for _, etcdVersion := range AllEtcdVersions {
+	for _, etcdVersion := range etcdversions.AllEtcdVersions {
 		t.Run("etcdVersion="+etcdVersion, func(t *testing.T) {
 			ctx := context.TODO()
 			ctx, cancel := context.WithTimeout(ctx, time.Second*180)
