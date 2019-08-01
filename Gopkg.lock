@@ -104,6 +104,14 @@
   revision = "ed76a3738861ab34fc2964fa33fe27b78a26d3ae"
 
 [[projects]]
+  digest = "1:adfc05f2fa24c72ad3c30f436946e98a6f1b59af7fdf3698f2c25a54ea31e2ad"
+  name = "github.com/digitalocean/godo"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "2f819072fe121a1233aa8f312abd57e366855f7c"
+  version = "v1.19.0"
+
+[[projects]]
   digest = "1:50772cf1f376b08cb57b4e8e9225775d9f9f4aad8487313afcb66846ceaa5d4c"
   name = "github.com/go-ini/ini"
   packages = ["."]
@@ -466,6 +474,7 @@
     "github.com/coreos/etcd/clientv3",
     "github.com/coreos/etcd/pkg/pathutil",
     "github.com/coreos/etcd/version",
+    "github.com/digitalocean/godo",
     "github.com/golang/glog",
     "github.com/golang/protobuf/jsonpb",
     "github.com/golang/protobuf/proto",

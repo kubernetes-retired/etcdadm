@@ -1,0 +1,16 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "discovery.go",
+        "volumes.go",
+    ],
+    importpath = "kope.io/etcd-manager/pkg/volumes/do",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/privateapi/discovery:go_default_library",
+        "//pkg/volumes:go_default_library",
+        "//vendor/github.com/digitalocean/godo:go_default_library",
+    ],
+)
