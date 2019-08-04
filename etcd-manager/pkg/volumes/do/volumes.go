@@ -17,6 +17,7 @@ limitations under the License.
 package do
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"golang.org/x/oauth2"
@@ -24,15 +25,11 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-
-	// "path/filepath"
-	// "strings"
-	// "sync"
-	// "time"
+	"strings"
+	"time"
 
 	"github.com/digitalocean/godo"
-	//"k8s.io/kops/pkg/resources/digitalocean"
-	// "github.com/golang/glog"
+	"github.com/golang/glog"
 
 	"kope.io/etcd-manager/pkg/volumes"
 )
@@ -112,21 +109,100 @@ func NewDOVolumes(clusterName string, volumeTags []string, nameTag string) (*DOV
 }
 
 func (a *DOVolumes) FindVolumes() ([]*volumes.Volume, error) {
-	return nil, nil
+	doVolumes, err := getAllVolumesByRegion(a.DigiCloud, a.region)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list volumes: %s", err)
+	}
+
+	var myvolumes []*volumes.Volume
+	for _, doVolume := range doVolumes {
+
+		glog.V(2).Infof("Fetched DO Volume with name %s and ID %s", doVolume.Name, doVolume.ID)
+
+		// determine if this volume belongs to this cluster
+		// check for string a.ClusterName but with strings "." replaced with "-"
+		if !strings.Contains(doVolume.Name, strings.Replace(a.ClusterName, ".", "-", -1)) {
+			continue
+		}
+
+		vol := &volumes.Volume{
+			ProviderID: doVolume.ID,
+			Info: volumes.VolumeInfo{
+				Description: doVolume.Description,
+			},
+		}
+
+		if len(doVolume.DropletIDs) == 1 {
+			vol.AttachedTo = strconv.Itoa(doVolume.DropletIDs[0])
+			vol.LocalDevice = getLocalDeviceName(&doVolume)
+		}
+
+		// Todo Sri - fill mountname and etcd name.
+		// etcdClusterSpec, err := d.getEtcdClusterSpec(doVolume)
+		// if err != nil {
+		// 	return nil, fmt.Errorf("failed to get etcd cluster spec: %s", err)
+		// }
+
+		// vol.Info.EtcdClusters = append(vol.Info.EtcdClusters, etcdClusterSpec)
+		myvolumes = append(myvolumes, vol)
+	}
+
+	return myvolumes, nil
 }
 
 // FindMountedVolume implements Volumes::FindMountedVolume
 func (a *DOVolumes) FindMountedVolume(volume *volumes.Volume) (string, error) {
-	return "", nil
+	device := volume.LocalDevice
+
+	_, err := os.Stat(volumes.PathFor(device))
+	if err == nil {
+		return device, nil
+	}
+
+	if !os.IsNotExist(err) {
+		return "", fmt.Errorf("error checking for device %q: %v", device, err)
+	}
+
+	return "", fmt.Errorf("error checking for device %q: %v", device, err)
 }
 
 // AttachVolume attaches the specified volume to this instance, returning the mountpoint & nil if successful
 func (a *DOVolumes) AttachVolume(volume *volumes.Volume) error {
-	return nil
+	for {
+		action, _, err := a.DigiCloud.Client.StorageActions.Attach(context.TODO(), volume.ProviderID, a.dropletID)
+		if err != nil {
+			return fmt.Errorf("error attaching volume: %s", err)
+		}
+
+		if action.Status != godo.ActionInProgress && action.Status != godo.ActionCompleted {
+			return fmt.Errorf("invalid status for digitalocean volume: %s", volume.ProviderID)
+		}
+
+		doVolume, err := getVolumeByID(a.DigiCloud, volume.ProviderID)
+		if err != nil {
+			return fmt.Errorf("error getting volume status: %s", err)
+		}
+
+		if len(doVolume.DropletIDs) == 1 {
+			if doVolume.DropletIDs[0] != a.dropletID {
+				return fmt.Errorf("digitalocean volume %s is attached to another droplet", doVolume.ID)
+			}
+
+			volume.LocalDevice = getLocalDeviceName(doVolume)
+			return nil
+		}
+
+		time.Sleep(10 * time.Second)
+	}
 }
 
 func (a *DOVolumes) MyIP() (string, error) {
-	return "", nil
+	addr, err := getMetadata(dropletInternalIPMetadataURL)
+	if err != nil {
+		return "", err
+	}
+
+	return addr, nil
 }
 
 func getMetadataRegion() (string, error) {
@@ -180,4 +256,46 @@ func NewCloud(region string) (*DigiCloud, error) {
 		Client: client,
 		Region: region,
 	}, nil
+}
+
+func getAllVolumesByRegion(cloud *DigiCloud, region string) ([]godo.Volume, error) {
+	allVolumes := []godo.Volume{}
+
+	opt := &godo.ListOptions{}
+	for {
+		volumes, resp, err := cloud.Client.Storage.ListVolumes(context.TODO(), &godo.ListVolumeParams{
+			Region:      region,
+			ListOptions: opt,
+		})
+
+		if err != nil {
+			return nil, err
+		}
+
+		allVolumes = append(allVolumes, volumes...)
+
+		if resp.Links == nil || resp.Links.IsLastPage() {
+			break
+		}
+
+		page, err := resp.Links.CurrentPage()
+		if err != nil {
+			return nil, err
+		}
+
+		opt.Page = page + 1
+	}
+
+	return allVolumes, nil
+
+}
+
+func getLocalDeviceName(vol *godo.Volume) string {
+	return localDevicePrefix + vol.Name
+}
+
+func getVolumeByID(cloud *DigiCloud, id string) (*godo.Volume, error) {
+	vol, _, err := cloud.Client.Storage.GetVolume(context.TODO(), id)
+	return vol, err
+
 }
