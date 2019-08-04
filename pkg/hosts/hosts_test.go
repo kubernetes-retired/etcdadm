@@ -96,9 +96,9 @@ func runTest(t *testing.T, in string, expected string) {
 	p := filepath.Join(dir, "hosts")
 	key := "etcd-manager[etcd]"
 	addrToHosts := map[string][]string{
-		"a": []string{"10.0.1.2", "10.0.1.1"},
-		"b": []string{"10.0.2.1"},
-		"c": []string{},
+		"a": {"10.0.1.2", "10.0.1.1"},
+		"b": {"10.0.2.1"},
+		"c": {},
 	}
 
 	if err := ioutil.WriteFile(p, []byte(in), 0755); err != nil {
