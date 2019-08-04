@@ -43,8 +43,8 @@ import (
 	"kope.io/etcd-manager/pkg/urls"
 	"kope.io/etcd-manager/pkg/volumes"
 	"kope.io/etcd-manager/pkg/volumes/aws"
-	"kope.io/etcd-manager/pkg/volumes/gce"
 	"kope.io/etcd-manager/pkg/volumes/do"
+	"kope.io/etcd-manager/pkg/volumes/gce"
 )
 
 type stringSliceFlag []string
