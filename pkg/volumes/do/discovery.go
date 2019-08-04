@@ -24,7 +24,7 @@ import (
 	// "github.com/digitalocean/godo"
 
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
-	// "kope.io/etcd-manager/pkg/volumes"
+    "kope.io/etcd-manager/pkg/volumes"
 )
 
 // DO Volumes also allows us to discover our peer nodes
@@ -33,17 +33,17 @@ var _ discovery.Interface = &DOVolumes{}
 func (a *DOVolumes) Poll() (map[string]discovery.Node, error) {
 	nodes := make(map[string]discovery.Node)
 
-	// allVolumes, err := a.findVolumes(false)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	allVolumes, err := a.findVolumes(false)
+	if err != nil {
+		return nil, err
+	}
 
-	// instanceToVolumeMap := make(map[string]*volumes.Volume)
-	// for _, v := range allVolumes {
-	// 	if v.AttachedTo != "" {
-	// 		instanceToVolumeMap[v.AttachedTo] = v
-	// 	}
-	// }
+	instanceToVolumeMap := make(map[string]*volumes.Volume)
+	for _, v := range allVolumes {
+		if v.AttachedTo != "" {
+			instanceToVolumeMap[v.AttachedTo] = v
+		}
+	}
 
 	// if len(instanceToVolumeMap) != 0 {
 	// 	request := &ec2.DescribeInstancesInput{}

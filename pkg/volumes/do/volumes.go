@@ -109,7 +109,11 @@ func NewDOVolumes(clusterName string, volumeTags []string, nameTag string) (*DOV
 }
 
 func (a *DOVolumes) FindVolumes() ([]*volumes.Volume, error) {
-	doVolumes, err := getAllVolumesByRegion(a.DigiCloud, a.region)
+	return a.findVolumes(true)
+}
+
+func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) {
+	doVolumes, err := getAllVolumesByRegion(a.DigiCloud, a.region, filterByRegion)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list volumes: %s", err)
 	}
@@ -258,32 +262,59 @@ func NewCloud(region string) (*DigiCloud, error) {
 	}, nil
 }
 
-func getAllVolumesByRegion(cloud *DigiCloud, region string) ([]godo.Volume, error) {
+func getAllVolumesByRegion(cloud *DigiCloud, region string, filterByRegion bool) ([]godo.Volume, error) {
 	allVolumes := []godo.Volume{}
 
 	opt := &godo.ListOptions{}
 	for {
-		volumes, resp, err := cloud.Client.Storage.ListVolumes(context.TODO(), &godo.ListVolumeParams{
-			Region:      region,
-			ListOptions: opt,
-		})
+		if (filterByRegion) {
+			volumes, resp, err := cloud.Client.Storage.ListVolumes(context.TODO(), &godo.ListVolumeParams{
+				Region:      region,
+				ListOptions: opt,
+			})
 
-		if err != nil {
-			return nil, err
+			if err != nil {
+				return nil, err
+			}
+
+			allVolumes = append(allVolumes, volumes...)
+
+			if resp.Links == nil || resp.Links.IsLastPage() {
+				break
+			}
+	
+			page, err := resp.Links.CurrentPage()
+			if err != nil {
+				return nil, err
+			}
+	
+			opt.Page = page + 1
+
+		} else {
+			volumes, resp, err := cloud.Client.Storage.ListVolumes(context.TODO(), &godo.ListVolumeParams{
+				ListOptions: opt,
+			})
+
+			if err != nil {
+				return nil, err
+			}
+
+			allVolumes = append(allVolumes, volumes...)
+
+			if resp.Links == nil || resp.Links.IsLastPage() {
+				break
+			}
+	
+			page, err := resp.Links.CurrentPage()
+			if err != nil {
+				return nil, err
+			}
+	
+			opt.Page = page + 1
 		}
+		
 
-		allVolumes = append(allVolumes, volumes...)
 
-		if resp.Links == nil || resp.Links.IsLastPage() {
-			break
-		}
-
-		page, err := resp.Links.CurrentPage()
-		if err != nil {
-			return nil, err
-		}
-
-		opt.Page = page + 1
 	}
 
 	return allVolumes, nil
