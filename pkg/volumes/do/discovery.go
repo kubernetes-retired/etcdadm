@@ -23,7 +23,7 @@ import (
 
 	// "github.com/digitalocean/godo"
 
-	 "kope.io/etcd-manager/pkg/privateapi/discovery"
+	"kope.io/etcd-manager/pkg/privateapi/discovery"
 	// "kope.io/etcd-manager/pkg/volumes"
 )
 
