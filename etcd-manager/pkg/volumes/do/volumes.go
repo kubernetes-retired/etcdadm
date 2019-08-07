@@ -267,7 +267,7 @@ func getAllVolumesByRegion(cloud *DigiCloud, region string, filterByRegion bool)
 
 	opt := &godo.ListOptions{}
 	for {
-		if (filterByRegion) {
+		if filterByRegion {
 			volumes, resp, err := cloud.Client.Storage.ListVolumes(context.TODO(), &godo.ListVolumeParams{
 				Region:      region,
 				ListOptions: opt,
@@ -282,12 +282,12 @@ func getAllVolumesByRegion(cloud *DigiCloud, region string, filterByRegion bool)
 			if resp.Links == nil || resp.Links.IsLastPage() {
 				break
 			}
-	
+
 			page, err := resp.Links.CurrentPage()
 			if err != nil {
 				return nil, err
 			}
-	
+
 			opt.Page = page + 1
 
 		} else {
@@ -304,16 +304,14 @@ func getAllVolumesByRegion(cloud *DigiCloud, region string, filterByRegion bool)
 			if resp.Links == nil || resp.Links.IsLastPage() {
 				break
 			}
-	
+
 			page, err := resp.Links.CurrentPage()
 			if err != nil {
 				return nil, err
 			}
-	
+
 			opt.Page = page + 1
 		}
-		
-
 
 	}
 
