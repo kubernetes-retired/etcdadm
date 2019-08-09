@@ -147,22 +147,21 @@ func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) 
 			vol := &volumes.Volume{
 				ProviderID: doVolume.ID,
 				Info: volumes.VolumeInfo{
-					Description: doVolume.Description,
+					Description: a.nameTag,
 				},
-				MountName:  "master-" + doVolume.ID,
-				EtcdName:   a.ClusterName + "-" + clusterKey,
+				MountName: "master-" + doVolume.ID,
+				EtcdName:  a.ClusterName + "-" + clusterKey,
 			}
-	
+
 			if len(doVolume.DropletIDs) == 1 {
 				vol.AttachedTo = strconv.Itoa(doVolume.DropletIDs[0])
 				vol.LocalDevice = getLocalDeviceName(&doVolume)
 			}
-	
+
 			glog.V(2).Infof("Filling DO Volume with name %s and ID %s etcd name=%s mount name=%s", doVolume.Name, doVolume.ID, vol.EtcdName, vol.MountName)
-	
+
 			myvolumes = append(myvolumes, vol)
 		}
-
 
 	}
 

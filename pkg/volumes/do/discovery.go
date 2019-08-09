@@ -21,8 +21,6 @@ import (
 
 	// "github.com/golang/glog"
 
-	// "github.com/digitalocean/godo"
-
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 	"kope.io/etcd-manager/pkg/volumes"
 )
@@ -41,48 +39,20 @@ func (a *DOVolumes) Poll() (map[string]discovery.Node, error) {
 	instanceToVolumeMap := make(map[string]*volumes.Volume)
 	for _, v := range allVolumes {
 		if v.AttachedTo != "" {
-			instanceToVolumeMap[v.AttachedTo] = v
+			if a.nameTag == v.Info.Description {
+				instanceToVolumeMap[v.AttachedTo] = v
+
+				// We use the etcd node ID as the persistent identifier, because the data determines who we are
+				node := discovery.Node{
+					ID: v.EtcdName,
+				}
+
+				var myIP, _ = a.MyIP()
+				node.Endpoints = append(node.Endpoints, discovery.NodeEndpoint{IP: myIP})
+				nodes[node.ID] = node
+			}
 		}
 	}
-
-	// if len(instanceToVolumeMap) != 0 {
-	// 	request := &ec2.DescribeInstancesInput{}
-	// 	for id := range instanceToVolumeMap {
-	// 		request.InstanceIds = append(request.InstanceIds, aws.String(id))
-	// 	}
-
-	// 	response, err := a.ec2.DescribeInstances(request)
-	// 	if err != nil {
-	// 		return nil, fmt.Errorf("error from AWS DescribeInstances: %v", err)
-	// 	}
-
-	// 	for _, reservation := range response.Reservations {
-	// 		for _, instance := range reservation.Instances {
-	// 			volume := instanceToVolumeMap[aws.StringValue(instance.InstanceId)]
-	// 			if volume == nil {
-	// 				// unexpected ... we constructed the request from the map!
-	// 				glog.Errorf("instance not found: %q", aws.StringValue(instance.InstanceId))
-	// 				continue
-	// 			}
-
-	// 			// We use the etcd node ID as the persistent identifier, because the data determines who we are
-	// 			node := discovery.Node{
-	// 				ID: volume.EtcdName,
-	// 			}
-	// 			if aws.StringValue(instance.PrivateIpAddress) != "" {
-	// 				ip := aws.StringValue(instance.PrivateIpAddress)
-	// 				node.Endpoints = append(node.Endpoints, discovery.NodeEndpoint{IP: ip})
-	// 			}
-	// 			for _, ni := range instance.NetworkInterfaces {
-	// 				if aws.StringValue(ni.PrivateIpAddress) != "" {
-	// 					ip := aws.StringValue(ni.PrivateIpAddress)
-	// 					node.Endpoints = append(node.Endpoints, discovery.NodeEndpoint{IP: ip})
-	// 				}
-	// 			}
-	// 			nodes[node.ID] = node
-	// 		}
-	// 	}
-	// }
 
 	return nodes, nil
 }
