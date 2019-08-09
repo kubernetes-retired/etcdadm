@@ -69,6 +69,7 @@ type DOVolumes struct {
 	region      string
 	dropletName string
 	dropletID   int
+	nameTag     string
 }
 
 var _ volumes.Volumes = &DOVolumes{}
@@ -105,6 +106,7 @@ func NewDOVolumes(clusterName string, volumeTags []string, nameTag string) (*DOV
 		dropletID:   dropletIDInt,
 		dropletName: dropletName,
 		region:      region,
+		nameTag:     nameTag,
 	}, nil
 }
 
@@ -121,34 +123,47 @@ func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) 
 	var myvolumes []*volumes.Volume
 	for _, doVolume := range doVolumes {
 
-		glog.V(2).Infof("Fetched DO Volume with name %s and ID %s", doVolume.Name, doVolume.ID)
+		glog.V(2).Infof("srikanth - Fetched DO Volume with name %s and ID %s", doVolume.Name, doVolume.ID)
 
 		// determine if this volume belongs to this cluster
 		// check for string a.ClusterName but with strings "." replaced with "-"
+		// example volume name will be like kops-1-etcd-events-dev5-techthreads-co-in
 		if !strings.Contains(doVolume.Name, strings.Replace(a.ClusterName, ".", "-", -1)) {
 			continue
 		}
 
-		vol := &volumes.Volume{
-			ProviderID: doVolume.ID,
-			Info: volumes.VolumeInfo{
-				Description: doVolume.Description,
-			},
+		var clusterKey string
+		if strings.Contains(doVolume.Name, "etcd-main") {
+			clusterKey = "main"
+		} else if strings.Contains(doVolume.Name, "etcd-events") {
+			clusterKey = "events"
+		} else {
+			clusterKey = ""
+			glog.V(2).Infof("could not determine etcd cluster type for volume: %s", doVolume.Name)
 		}
 
-		if len(doVolume.DropletIDs) == 1 {
-			vol.AttachedTo = strconv.Itoa(doVolume.DropletIDs[0])
-			vol.LocalDevice = getLocalDeviceName(&doVolume)
+		if strings.Contains(a.nameTag, clusterKey) {
+			glog.V(2).Infof("Found a matching nameTag=%s", a.nameTag)
+			vol := &volumes.Volume{
+				ProviderID: doVolume.ID,
+				Info: volumes.VolumeInfo{
+					Description: doVolume.Description,
+				},
+				MountName:  "master-" + doVolume.ID,
+				EtcdName:   a.ClusterName + "-" + clusterKey,
+			}
+	
+			if len(doVolume.DropletIDs) == 1 {
+				vol.AttachedTo = strconv.Itoa(doVolume.DropletIDs[0])
+				vol.LocalDevice = getLocalDeviceName(&doVolume)
+			}
+	
+			glog.V(2).Infof("Filling DO Volume with name %s and ID %s etcd name=%s mount name=%s", doVolume.Name, doVolume.ID, vol.EtcdName, vol.MountName)
+	
+			myvolumes = append(myvolumes, vol)
 		}
 
-		// Todo Sri - fill mountname and etcd name.
-		// etcdClusterSpec, err := d.getEtcdClusterSpec(doVolume)
-		// if err != nil {
-		// 	return nil, fmt.Errorf("failed to get etcd cluster spec: %s", err)
-		// }
 
-		// vol.Info.EtcdClusters = append(vol.Info.EtcdClusters, etcdClusterSpec)
-		myvolumes = append(myvolumes, vol)
 	}
 
 	return myvolumes, nil
