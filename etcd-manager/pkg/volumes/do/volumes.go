@@ -38,7 +38,6 @@ import (
 type DigiCloud struct {
 	Client *godo.Client
 	Region string
-	tags   map[string]string
 }
 
 const (
@@ -123,7 +122,7 @@ func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) 
 	var myvolumes []*volumes.Volume
 	for _, doVolume := range doVolumes {
 
-		glog.V(2).Infof("srikanth - Fetched DO Volume with name %s and ID %s", doVolume.Name, doVolume.ID)
+		glog.V(2).Infof("Iterating DO Volume with name=%s and ID=%s", doVolume.Name, doVolume.ID)
 
 		// determine if this volume belongs to this cluster
 		// check for string a.ClusterName but with strings "." replaced with "-"
@@ -132,6 +131,8 @@ func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) 
 			continue
 		}
 
+		// Todo - Utilize volume tags once the change is done on the KOPS side. This still works since we specify a unique
+		// volume name when creating a volume via kOPS.
 		var clusterKey string
 		if strings.Contains(doVolume.Name, "etcd-main") {
 			clusterKey = "main"
@@ -158,7 +159,7 @@ func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) 
 				vol.LocalDevice = getLocalDeviceName(&doVolume)
 			}
 
-			glog.V(2).Infof("Filling DO Volume with name %s and ID %s etcd name=%s mount name=%s", doVolume.Name, doVolume.ID, vol.EtcdName, vol.MountName)
+			glog.V(2).Infof("Matching DO Volume found with name=%s ID=%s etcdname=%s mountname=%s", doVolume.Name, doVolume.ID, vol.EtcdName, vol.MountName)
 
 			myvolumes = append(myvolumes, vol)
 		}
