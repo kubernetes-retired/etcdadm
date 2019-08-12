@@ -3,6 +3,7 @@ package etcd
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"flag"
 	"fmt"
 	"net/url"
 	"os"
@@ -28,6 +29,10 @@ var isTest = false
 func init() {
 	// For bazel
 	// TODO: Use a flag?
+
+	// used to fix glog parse error.
+	flag.CommandLine.Parse([]string{})
+
 	if os.Getenv("TEST_SRCDIR") != "" && os.Getenv("TEST_WORKSPACE") != "" {
 		d := filepath.Join(os.Getenv("TEST_SRCDIR"), os.Getenv("TEST_WORKSPACE"))
 		glog.Infof("found bazel binary location: %s", d)
