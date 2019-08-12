@@ -40,11 +40,10 @@ func (os *OpenstackVolumes) Poll() (map[string]discovery.Node, error) {
 			instanceToVolumeMap[v.AttachedTo] = v
 		}
 	}
-
 	for i, volume := range instanceToVolumeMap {
 		server, err := servers.Get(os.computeClient, i).Extract()
 		if err != nil {
-			glog.Warningf("Could not find server %s: %v", server.Name, err)
+			glog.Warningf("Could not find server with id '%s': %v", i, err)
 			continue
 		}
 
@@ -52,7 +51,7 @@ func (os *OpenstackVolumes) Poll() (map[string]discovery.Node, error) {
 		node := discovery.Node{
 			ID: volume.EtcdName,
 		}
-		address, err := GetServerFixedIP(server)
+		address, err := GetServerFixedIP(server.Addresses, server.Name)
 		if err != nil {
 			glog.Warningf("Could not find servers fixed ip %s: %v", server.Name, err)
 			continue

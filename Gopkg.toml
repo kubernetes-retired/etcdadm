@@ -37,6 +37,10 @@ unused-packages = true
   name = "k8s.io/kubernetes"
   version = "v1.12.1"
 
+[[constraint]]
+  name = "gopkg.in/gcfg.v1"
+  version = "v1.2.3"
+
 [[override]]
   name = "github.com/gophercloud/gophercloud"
   revision = "dcc6e84aef1b6713accea7d7d7252ad2bc0e7034"

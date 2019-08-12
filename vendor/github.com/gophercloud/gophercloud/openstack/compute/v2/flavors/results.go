@@ -59,13 +59,16 @@ type Flavor struct {
 	RxTxFactor float64 `json:"rxtx_factor"`
 
 	// Swap is the amount of swap space, measured in MB.
-	Swap int `json:"swap"`
+	Swap int `json:"-"`
 
 	// VCPUs indicates how many (virtual) CPUs are available for this flavor.
 	VCPUs int `json:"vcpus"`
 
 	// IsPublic indicates whether the flavor is public.
 	IsPublic bool `json:"os-flavor-access:is_public"`
+
+	// Ephemeral is the amount of ephemeral disk space, measured in GB.
+	Ephemeral int `json:"OS-FLV-EXT-DATA:ephemeral"`
 }
 
 func (r *Flavor) UnmarshalJSON(b []byte) error {
