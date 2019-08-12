@@ -281,52 +281,39 @@ func getAllVolumesByRegion(cloud *DigiCloud, region string, filterByRegion bool)
 	allVolumes := []godo.Volume{}
 
 	opt := &godo.ListOptions{}
-	for {
-		if filterByRegion {
-			volumes, resp, err := cloud.Client.Storage.ListVolumes(context.TODO(), &godo.ListVolumeParams{
-				Region:      region,
-				ListOptions: opt,
-			})
 
-			if err != nil {
-				return nil, err
-			}
+	listvolumeParams := &godo.ListVolumeParams{}
 
-			allVolumes = append(allVolumes, volumes...)
-
-			if resp.Links == nil || resp.Links.IsLastPage() {
-				break
-			}
-
-			page, err := resp.Links.CurrentPage()
-			if err != nil {
-				return nil, err
-			}
-
-			opt.Page = page + 1
-
-		} else {
-			volumes, resp, err := cloud.Client.Storage.ListVolumes(context.TODO(), &godo.ListVolumeParams{
-				ListOptions: opt,
-			})
-
-			if err != nil {
-				return nil, err
-			}
-
-			allVolumes = append(allVolumes, volumes...)
-
-			if resp.Links == nil || resp.Links.IsLastPage() {
-				break
-			}
-
-			page, err := resp.Links.CurrentPage()
-			if err != nil {
-				return nil, err
-			}
-
-			opt.Page = page + 1
+	if filterByRegion {
+		listvolumeParams = &godo.ListVolumeParams{
+			Region:      region,
+			ListOptions: opt,
 		}
+	} else {
+		listvolumeParams = &godo.ListVolumeParams{
+			ListOptions: opt,
+		}
+	}
+
+	for {
+		volumes, resp, err := cloud.Client.Storage.ListVolumes(context.TODO(), listvolumeParams)
+
+		if err != nil {
+			return nil, err
+		}
+
+		allVolumes = append(allVolumes, volumes...)
+
+		if resp.Links == nil || resp.Links.IsLastPage() {
+			break
+		}
+
+		page, err := resp.Links.CurrentPage()
+		if err != nil {
+			return nil, err
+		}
+
+		opt.Page = page + 1
 
 	}
 
