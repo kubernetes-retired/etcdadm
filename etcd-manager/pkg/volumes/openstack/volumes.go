@@ -29,6 +29,7 @@ import (
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
 	cinderv2 "github.com/gophercloud/gophercloud/openstack/blockstorage/v2/volumes"
+	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/availabilityzones"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/volumeattach"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
 	"kope.io/etcd-manager/pkg/volumes"
@@ -58,6 +59,8 @@ type OpenstackVolumes struct {
 	instanceName  string
 	internalIP    net.IP
 	nameTag       string
+	zone          string
+	ignoreAZ      bool
 }
 
 var _ volumes.Volumes = &OpenstackVolumes{}
@@ -71,7 +74,10 @@ func NewOpenstackVolumes(clusterName string, volumeTags []string, nameTag string
 	}
 
 	stack := &OpenstackVolumes{
-		meta: metadata,
+		clusterName: clusterName,
+		meta:        metadata,
+		matchTags:   make(map[string]string),
+		nameTag:     nameTag,
 	}
 
 	for _, volumeTag := range volumeTags {
@@ -83,17 +89,10 @@ func NewOpenstackVolumes(clusterName string, volumeTags []string, nameTag string
 		}
 	}
 
-	compute, err := getComputeClient()
+	err = stack.getClients()
 	if err != nil {
 		return nil, fmt.Errorf("Could not build OpenstackVolumes: %v", err)
 	}
-	stack.computeClient = compute
-
-	volume, err := getVolumeClient()
-	if err != nil {
-		return nil, fmt.Errorf("Could not build OpenstackVolumes: %v", err)
-	}
-	stack.volumeClient = volume
 
 	err = stack.discoverTags()
 	if err != nil {
@@ -127,53 +126,62 @@ func getLocalMetadata() (*InstanceMetadata, error) {
 	return nil, err
 }
 
-func getCredential() (*gophercloud.AuthOptions, error) {
-
-	// prioritize environment config
-	env, enverr := openstack.AuthOptionsFromEnv()
-	if enverr != nil {
-		return nil, fmt.Errorf("Could not initialize openstack from environment: %v", enverr)
+func getCredential() (gophercloud.AuthOptions, string, bool, error) {
+	configFile, err := os.Open("/rootfs/etc/kubernetes/cloud.config")
+	if err != nil {
+		return gophercloud.AuthOptions{}, "", false, err
 	}
-	return &env, nil
 
+	cfg, err := ReadConfig(configFile)
+	if err != nil {
+		return gophercloud.AuthOptions{}, "", false, err
+	}
+
+	return gophercloud.AuthOptions{
+		IdentityEndpoint: cfg.Global.AuthURL,
+		Username:         cfg.Global.Username,
+		UserID:           cfg.Global.UserID,
+		Password:         cfg.Global.Password,
+		TenantID:         cfg.Global.TenantID,
+		TenantName:       cfg.Global.TenantName,
+		DomainID:         cfg.Global.DomainID,
+		DomainName:       cfg.Global.DomainName,
+		AllowReauth:      true,
+	}, cfg.Global.Region, cfg.BlockStorage.IgnoreVolumeAZ, nil
 }
 
-func getVolumeClient() (*gophercloud.ServiceClient, error) {
-	authOption, err := getCredential()
+func (stack *OpenstackVolumes) getClients() error {
+	authOption, region, ignoreAZ, err := getCredential()
 	if err != nil {
-		return nil, fmt.Errorf("error building openstack storage client: %v", err)
+		return fmt.Errorf("error building openstack credentials: %v", err)
 	}
+	stack.ignoreAZ = ignoreAZ
 	provider, err := openstack.NewClient(authOption.IdentityEndpoint)
 	if err != nil {
-		return nil, fmt.Errorf("error building openstack storage client: %v", err)
+		return fmt.Errorf("error building openstack storage client: %v", err)
 	}
+	err = openstack.Authenticate(provider, authOption)
+	if err != nil {
+		return fmt.Errorf("error authenticating openstack client: %v", err)
+	}
+
 	cinderClient, err := openstack.NewBlockStorageV2(provider, gophercloud.EndpointOpts{
 		Type:   "volumev2",
-		Region: os.Getenv("OS_REGION_NAME"),
+		Region: region,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error building storage client: %v", err)
-	}
-	return cinderClient, nil
-}
-
-func getComputeClient() (*gophercloud.ServiceClient, error) {
-	authOption, err := getCredential()
-	if err != nil {
-		return nil, fmt.Errorf("error building openstack compute client: %v", err)
-	}
-	provider, err := openstack.NewClient(authOption.IdentityEndpoint)
-	if err != nil {
-		return nil, fmt.Errorf("error building openstack compute client: %v", err)
+		return fmt.Errorf("error building storage client: %v", err)
 	}
 	computeClient, err := openstack.NewComputeV2(provider, gophercloud.EndpointOpts{
 		Type:   "compute",
-		Region: os.Getenv("OS_REGION_NAME"),
+		Region: region,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error building compute client: %v", err)
+		return fmt.Errorf("error building compute client: %v", err)
 	}
-	return computeClient, nil
+	stack.volumeClient = cinderClient
+	stack.computeClient = computeClient
+	return nil
 }
 
 // InternalIP implements Volumes InternalIP
@@ -192,8 +200,6 @@ func (stack *OpenstackVolumes) discoverTags() error {
 		glog.Infof("Found project=%q", stack.project)
 	}
 
-	//TODO: Availability zones
-
 	// Instance Name
 	{
 		stack.instanceName = strings.TrimSpace(stack.meta.Name)
@@ -203,19 +209,25 @@ func (stack *OpenstackVolumes) discoverTags() error {
 		glog.Infof("Found instanceName=%q", stack.instanceName)
 	}
 
-	// Internal IP
+	// Internal IP & zone
 	{
 
-		server, err := servers.Get(stack.computeClient, strings.TrimSpace(stack.meta.ServerID)).Extract()
+		var extendedServer struct {
+			servers.Server
+			availabilityzones.ServerAvailabilityZoneExt
+		}
+		err := servers.Get(stack.computeClient, strings.TrimSpace(stack.meta.ServerID)).ExtractInto(&extendedServer)
 		if err != nil {
 			return fmt.Errorf("Failed to retrieve server information from cloud: %v", err)
 		}
-		ip, err := GetServerFixedIP(server)
+		ip, err := GetServerFixedIP(extendedServer.Addresses, extendedServer.Name)
 		if err != nil {
 			return fmt.Errorf("error querying InternalIP from name: %v", err)
 		}
 		stack.internalIP = net.ParseIP(ip)
-		glog.Infof("Found internalIP=%q", stack.internalIP)
+		stack.zone = extendedServer.AvailabilityZone
+		glog.Infof("Found internalIP=%q and zone=%q", stack.internalIP, stack.zone)
+
 	}
 
 	return nil
@@ -237,7 +249,7 @@ func (stack *OpenstackVolumes) buildOpenstackVolume(d *cinderv2.Volume) (*volume
 	}
 
 	vol := &volumes.Volume{
-		ProviderID: stack.meta.ServerID,
+		ProviderID: d.ID,
 		MountName:  fmt.Sprintf("master-%s", d.Name),
 		EtcdName:   etcdName,
 		Info: volumes.VolumeInfo{
@@ -247,7 +259,7 @@ func (stack *OpenstackVolumes) buildOpenstackVolume(d *cinderv2.Volume) (*volume
 	}
 
 	for _, attachedTo := range d.Attachments {
-		vol.AttachedTo = attachedTo.HostName
+		vol.AttachedTo = attachedTo.ServerID
 		if attachedTo.ServerID == stack.meta.ServerID {
 			vol.LocalDevice = attachedTo.Device
 		}
@@ -267,6 +279,13 @@ func (stack *OpenstackVolumes) matchesTags(d *cinderv2.Volume) bool {
 	for k, v := range stack.matchTags {
 		a, found := d.Metadata[k]
 		if !found || a != v {
+			return false
+		}
+	}
+
+	// find volume az matching compute az
+	if !stack.ignoreAZ {
+		if d.AvailabilityZone != stack.zone {
 			return false
 		}
 	}

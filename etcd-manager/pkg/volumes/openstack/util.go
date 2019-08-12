@@ -18,7 +18,6 @@ package openstack
 
 import (
 	"fmt"
-	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
 )
 
 const (
@@ -27,8 +26,8 @@ const (
 	openstackAddress        = "addr"
 )
 
-func GetServerFixedIP(server *servers.Server) (poolAddress string, err error) {
-	for _, address := range server.Addresses {
+func GetServerFixedIP(addrs map[string]interface{}, name string) (poolAddress string, err error) {
+	for _, address := range addrs {
 		if addresses, ok := address.([]interface{}); ok {
 			for _, addr := range addresses {
 				addrMap := addr.(map[string]interface{})
@@ -42,5 +41,5 @@ func GetServerFixedIP(server *servers.Server) (poolAddress string, err error) {
 			}
 		}
 	}
-	return "", fmt.Errorf("Failed to find Fixed IP address for server %s", server.Name)
+	return "", fmt.Errorf("Failed to find Fixed IP address for server %s", name)
 }
