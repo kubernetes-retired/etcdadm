@@ -137,13 +137,13 @@
   version = "v1.2.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:975cffe143d31990859433426f8ae9e2590e129417e19d2c6f05d39bdcb67ada"
+  digest = "1:84fd7130c51fb480fa568164133d067f23f5681b7b59680b2ae146f2e142bddc"
   name = "github.com/gophercloud/gophercloud"
   packages = [
     ".",
     "openstack",
     "openstack/blockstorage/v2/volumes",
+    "openstack/compute/v2/extensions/availabilityzones",
     "openstack/compute/v2/extensions/volumeattach",
     "openstack/compute/v2/flavors",
     "openstack/compute/v2/images",
@@ -360,6 +360,27 @@
   version = "v1.17.0"
 
 [[projects]]
+  digest = "1:38cb4759428493e0b02eade2f8d2920eb55a8fb35acb45de3247f0fbeab81b78"
+  name = "gopkg.in/gcfg.v1"
+  packages = [
+    ".",
+    "scanner",
+    "token",
+    "types",
+  ]
+  pruneopts = "UT"
+  revision = "61b2c08bc8f6068f7c5ca684372f9a6cb1c45ebe"
+  version = "v1.2.3"
+
+[[projects]]
+  digest = "1:78d374b493e747afa9fbb2119687e3740a7fb8d0ebabddfef0a012593aaecbb3"
+  name = "gopkg.in/warnings.v0"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "ec4a0fea49c7b46c2aeb0b51aac55779c607e52b"
+  version = "v0.1.2"
+
+[[projects]]
   digest = "1:342378ac4dcb378a5448dd723f0784ae519383532f5e70ade24132c4c8693202"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
@@ -451,6 +472,7 @@
     "github.com/gophercloud/gophercloud",
     "github.com/gophercloud/gophercloud/openstack",
     "github.com/gophercloud/gophercloud/openstack/blockstorage/v2/volumes",
+    "github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/availabilityzones",
     "github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/volumeattach",
     "github.com/gophercloud/gophercloud/openstack/compute/v2/servers",
     "golang.org/x/net/context",
@@ -460,6 +482,7 @@
     "google.golang.org/grpc",
     "google.golang.org/grpc/connectivity",
     "google.golang.org/grpc/credentials",
+    "gopkg.in/gcfg.v1",
     "gopkg.in/yaml.v2",
     "k8s.io/apimachinery/pkg/util/wait",
     "k8s.io/client-go/util/cert",
