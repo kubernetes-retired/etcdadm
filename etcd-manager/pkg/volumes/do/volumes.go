@@ -148,7 +148,7 @@ func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) 
 			vol := &volumes.Volume{
 				ProviderID: doVolume.ID,
 				Info: volumes.VolumeInfo{
-					Description: a.nameTag,
+					Description: a.ClusterName + "-" + a.nameTag,
 				},
 				MountName: "master-" + doVolume.ID,
 				EtcdName:  a.ClusterName + "-" + clusterKey,
