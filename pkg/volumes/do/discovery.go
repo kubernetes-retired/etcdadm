@@ -32,13 +32,16 @@ func (a *DOVolumes) Poll() (map[string]discovery.Node, error) {
 
 	glog.V(2).Infof("Polling all DO Volumes")
 
+	var mytag = a.ClusterName + "-" + a.nameTag
+
 	allVolumes, err := a.findVolumes(false)
 	if err != nil {
 		return nil, fmt.Errorf("failed to discover any volumes: %s", err)
 	}
 
 	// Iterate over every volume. By the time this is called, the instance should have the volume mounted
-	// When mounting a volume to an instance, the internal DOVolume object's Info's Description is set to the name tag
+	// When mounting a volume to an instance, the internal DOVolume object's Info's Description is set to the
+	// clustername_name tag
 	// which would either be k8s.io/etcd/main OR k8s.io/etcd/events.
 	// This name tag is passed as a command parameter to this container and the same is updated in DOVolumes
 	// Verify if the volume we are iterating matches the nameTag.
@@ -46,7 +49,7 @@ func (a *DOVolumes) Poll() (map[string]discovery.Node, error) {
 	instanceToVolumeMap := make(map[string]*volumes.Volume)
 	for _, v := range allVolumes {
 		if v.AttachedTo != "" {
-			if a.nameTag == v.Info.Description {
+			if mytag == v.Info.Description {
 
 				var myIP, _ = a.MyIP()
 
