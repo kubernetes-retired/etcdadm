@@ -63,12 +63,14 @@ func (t *TokenSource) Token() (*oauth2.Token, error) {
 
 // DOVolumes defines the digital ocean's volume implementation
 type DOVolumes struct {
-	ClusterName string
-	DigiCloud   *DigiCloud
-	region      string
-	dropletName string
-	dropletID   int
-	nameTag     string
+	ClusterName  string
+	DigiCloud    *DigiCloud
+	region       string
+	dropletName  string
+	dropletID    int
+	nameTag      string
+	matchTagKeys []string
+	matchTags    map[string]string
 }
 
 var _ volumes.Volumes = &DOVolumes{}
@@ -99,14 +101,26 @@ func NewDOVolumes(clusterName string, volumeTags []string, nameTag string) (*DOV
 		return nil, fmt.Errorf("failed to initialize digitalocean cloud: %s", err)
 	}
 
-	return &DOVolumes{
+	a := &DOVolumes{
 		DigiCloud:   cloud,
 		ClusterName: clusterName,
 		dropletID:   dropletIDInt,
 		dropletName: dropletName,
 		region:      region,
 		nameTag:     nameTag,
-	}, nil
+		matchTags:   make(map[string]string),
+	}
+
+	for _, volumeTag := range volumeTags {
+		tokens := strings.SplitN(volumeTag, "=", 2)
+		if len(tokens) == 1 {
+			a.matchTagKeys = append(a.matchTagKeys, tokens[0])
+		} else {
+			a.matchTags[tokens[0]] = tokens[1]
+		}
+	}
+
+	return a, nil
 }
 
 func (a *DOVolumes) FindVolumes() ([]*volumes.Volume, error) {
@@ -127,7 +141,10 @@ func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) 
 		// determine if this volume belongs to this cluster
 		// check for string a.ClusterName but with strings "." replaced with "-"
 		// example volume name will be like kops-1-etcd-events-dev5-techthreads-co-in
-		if !strings.Contains(doVolume.Name, strings.Replace(a.ClusterName, ".", "-", -1)) {
+		var k8sclusterName = a.matchTags["kubernetes.io/cluster"]
+
+		if !strings.Contains(doVolume.Name, strings.Replace(k8sclusterName, ".", "-", -1)) {
+			glog.V(2).Infof("DO Volume with name=%s does not match our cluster name=%s", doVolume.Name, k8sclusterName)
 			continue
 		}
 
@@ -144,7 +161,7 @@ func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) 
 		}
 
 		if strings.Contains(a.nameTag, clusterKey) {
-			glog.V(2).Infof("Found a matching nameTag=%s", a.nameTag)
+			glog.V(2).Infof("Found a matching nameTag=%s for cluster key=%s with etcd cluster name = %s and k8s cluster name=%s", a.nameTag, clusterKey, a.ClusterName, k8sclusterName)
 			vol := &volumes.Volume{
 				ProviderID: doVolume.ID,
 				Info: volumes.VolumeInfo{
