@@ -42,10 +42,11 @@ gazelle:
 	#rm vendor/github.com/golang/protobuf/protoc-gen-go/testdata/multi/BUILD.bazel
 
 .PHONY: dep-ensure
-dep-ensure:
-	dep ensure -v
+dep-ensure: vendor
+
+.PHONY: vendor
+vendor:
+	go mod vendor
 	find vendor/ -name "BUILD" -delete
 	find vendor/ -name "BUILD.bazel" -delete
 	bazel run //:gazelle
-	rm -f vendor/github.com/coreos/etcd/cmd/etcd
-	rm -rf vendor/github.com/golang/protobuf/protoc-gen-go/testdata
