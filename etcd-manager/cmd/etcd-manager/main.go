@@ -43,6 +43,7 @@ import (
 	"kope.io/etcd-manager/pkg/urls"
 	"kope.io/etcd-manager/pkg/volumes"
 	"kope.io/etcd-manager/pkg/volumes/aws"
+	"kope.io/etcd-manager/pkg/volumes/do"
 	"kope.io/etcd-manager/pkg/volumes/gce"
 	"kope.io/etcd-manager/pkg/volumes/openstack"
 )
@@ -229,8 +230,18 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 				os.Exit(1)
 			}
 
-			volumeProvider = osVolumeProvider
+      volumeProvider = osVolumeProvider
 			discoveryProvider = osVolumeProvider
+
+    case "do":
+			doVolumeProvider, err := do.NewDOVolumes(o.ClusterName, o.VolumeTags, o.NameTag)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%v\n", err)
+				os.Exit(1)
+			}
+
+			volumeProvider = doVolumeProvider
+			discoveryProvider = doVolumeProvider
 
 		default:
 			fmt.Fprintf(os.Stderr, "unknown volume-provider %q\n", o.VolumeProviderID)
