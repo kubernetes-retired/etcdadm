@@ -98,9 +98,9 @@ Restart=on-failure
 RestartSec=5s
 
 LimitNOFILE=65536
-Nice=-10
-IOSchedulingClass=best-effort
-IOSchedulingPriority=2
+{{- range .EtcdDiskPriorities }}
+{{ . }}
+{{- end }}
 MemoryLow=200M
 
 [Install]
@@ -158,3 +158,10 @@ fi
 "{{ .EtcdctlExecutable }}" "$@"
 `
 )
+
+// DefaultEtcdDiskPriorities defines the default etcd disk priority.
+var DefaultEtcdDiskPriorities = []string{
+	"Nice=-10",
+	"IOSchedulingClass=best-effort",
+	"IOSchedulingPriority=2",
+}
