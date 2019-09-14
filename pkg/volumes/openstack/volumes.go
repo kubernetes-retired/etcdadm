@@ -342,7 +342,7 @@ func GetDevicePath(volumeID string) string {
 		for _, c := range candidateDeviceNodes {
 			if c == f.Name() {
 				glog.V(4).Infof("Found disk attached as %q; full devicepath: %s\n", f.Name(), path.Join(volumes.PathFor("/dev/disk/by-id/"), f.Name()))
-				return path.Join(volumes.PathFor("/dev/disk/by-id/"), f.Name())
+				return path.Join("/dev/disk/by-id/", f.Name())
 			}
 		}
 	}
@@ -354,6 +354,9 @@ func GetDevicePath(volumeID string) string {
 // FindMountedVolume implements Volumes::FindMountedVolume
 func (_ *OpenstackVolumes) FindMountedVolume(volume *volumes.Volume) (string, error) {
 	device := GetDevicePath(volume.ProviderID)
+	if device == "" {
+		return "", fmt.Errorf("failed to find device path for volume")
+	}
 
 	_, err := os.Stat(volumes.PathFor(device))
 	if err == nil {
