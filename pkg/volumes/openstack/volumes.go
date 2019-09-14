@@ -23,6 +23,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/golang/glog"
@@ -324,9 +325,35 @@ func (stack *OpenstackVolumes) FindVolumes() ([]*volumes.Volume, error) {
 	return volumes, nil
 }
 
+func GetDevicePath(volumeID string) string {
+	// Build a list of candidate device paths
+	candidateDeviceNodes := []string{
+		// KVM
+		fmt.Sprintf("virtio-%s", volumeID[:20]),
+		// KVM virtio-scsi
+		fmt.Sprintf("scsi-0QEMU_QEMU_HARDDISK_%s", volumeID[:20]),
+		// ESXi
+		fmt.Sprintf("wwn-0x%s", strings.Replace(volumeID, "-", "", -1)),
+	}
+
+	files, _ := ioutil.ReadDir(volumes.PathFor("/dev/disk/by-id/"))
+
+	for _, f := range files {
+		for _, c := range candidateDeviceNodes {
+			if c == f.Name() {
+				glog.V(4).Infof("Found disk attached as %q; full devicepath: %s\n", f.Name(), path.Join(volumes.PathFor("/dev/disk/by-id/"), f.Name()))
+				return path.Join(volumes.PathFor("/dev/disk/by-id/"), f.Name())
+			}
+		}
+	}
+
+	glog.Warningf("Failed to find device for the volumeID: %q\n", volumeID)
+	return ""
+}
+
 // FindMountedVolume implements Volumes::FindMountedVolume
 func (_ *OpenstackVolumes) FindMountedVolume(volume *volumes.Volume) (string, error) {
-	device := volume.LocalDevice
+	device := GetDevicePath(volume.ProviderID)
 
 	_, err := os.Stat(volumes.PathFor(device))
 	if err == nil {
