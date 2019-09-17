@@ -72,7 +72,6 @@ type DOVolumes struct {
 	nameTag      string
 	matchTagKeys []string
 	matchTags    map[string]string
-	//kopsClusterName string
 	dropletTags []string
 }
 
