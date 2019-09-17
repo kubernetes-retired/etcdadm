@@ -44,6 +44,7 @@ const (
 	dropletRegionMetadataURL     = "http://169.254.169.254/metadata/v1/region"
 	dropletNameMetadataURL       = "http://169.254.169.254/metadata/v1/hostname"
 	dropletIDMetadataURL         = "http://169.254.169.254/metadata/v1/id"
+	dropletIDMetadataTags        = "http://169.254.169.254/metadata/v1/tags"
 	dropletInternalIPMetadataURL = "http://169.254.169.254/metadata/v1/interfaces/private/0/ipv4/address"
 	localDevicePrefix            = "/dev/disk/by-id/scsi-0DO_Volume_"
 )
@@ -71,10 +72,16 @@ type DOVolumes struct {
 	nameTag      string
 	matchTagKeys []string
 	matchTags    map[string]string
+	//kopsClusterName string
+	dropletTags []string
 }
 
 var _ volumes.Volumes = &DOVolumes{}
 
+// ex: nametag - etcdcluster-main OR etcdcluster-events
+// ex: volume tag array - kubernetescluster=mycluster; etcdCluster-events OR etcdCluster-main; k8s-index
+// any droplet where this is running will have the tags - k8s-index:1; kubernetescluster:mycluster
+// any volume that is created will have the tags - etcdcluster-main:1 OR etcdcluster-events:1; kubernetescluster:mycluster; k8s-index:1
 func NewDOVolumes(clusterName string, volumeTags []string, nameTag string) (*DOVolumes, error) {
 	region, err := getMetadataRegion()
 	if err != nil {
@@ -96,6 +103,11 @@ func NewDOVolumes(clusterName string, volumeTags []string, nameTag string) (*DOV
 		return nil, fmt.Errorf("failed to get droplet name: %s", err)
 	}
 
+	dropletTags, err := getMetadataDropletTags()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get droplet tags: %s", err)
+	}
+
 	cloud, err := NewCloud(region)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize digitalocean cloud: %s", err)
@@ -109,6 +121,7 @@ func NewDOVolumes(clusterName string, volumeTags []string, nameTag string) (*DOV
 		region:      region,
 		nameTag:     nameTag,
 		matchTags:   make(map[string]string),
+		dropletTags: dropletTags,
 	}
 
 	for _, volumeTag := range volumeTags {
@@ -127,6 +140,13 @@ func (a *DOVolumes) FindVolumes() ([]*volumes.Volume, error) {
 	return a.findVolumes(true)
 }
 
+// ex: nametag - etcdcluster-main OR etcdcluster-events
+// volumetag array - kubernetescluster=mycluster; k8s-index
+// any droplet where this is running will have the tags - k8s-index:1; kubernetescluster:mycluster
+// any volume that is created will have the tags - kubernetescluster:mycluster; k8s-index:1
+// matchTags for kubernetescluster=clustername
+// matchTagKeys for k8s-index - ensure the value is same in droplets and the volume tags.
+// also check for nameTag if it is contained in the volume name (for etcd-main or etcd-events)
 func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) {
 	doVolumes, err := getAllVolumesByRegion(a.DigiCloud, a.region, filterByRegion)
 	if err != nil {
@@ -136,54 +156,136 @@ func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) 
 	var myvolumes []*volumes.Volume
 	for _, doVolume := range doVolumes {
 
-		glog.V(2).Infof("Iterating DO Volume with name=%s and ID=%s", doVolume.Name, doVolume.ID)
+		glog.V(2).Infof("Iterating DO Volume with name=%s ID=%s, nametag=%s", doVolume.Name, doVolume.ID, a.nameTag)
 
-		// determine if this volume belongs to this cluster
-		// check for string a.ClusterName but with strings "." replaced with "-"
-		// example volume name will be like kops-1-etcd-events-dev5-techthreads-co-in
-		var k8sclusterName = a.matchTags["kubernetes.io/cluster"]
-
-		if !strings.Contains(doVolume.Name, strings.Replace(k8sclusterName, ".", "-", -1)) {
-			glog.V(2).Infof("DO Volume with name=%s does not match our cluster name=%s", doVolume.Name, k8sclusterName)
-			continue
+		for _, volumeTag := range doVolume.Tags {
+			glog.V(2).Infof("Iterating all Volume tags for volume name=%s volumetag=%s", doVolume.Name, volumeTag)
 		}
 
-		// Todo - Utilize volume tags once the change is done on the KOPS side. This still works since we specify a unique
-		// volume name when creating a volume via kOPS.
-		var clusterKey string
-		if strings.Contains(doVolume.Name, "etcd-main") {
-			clusterKey = "main"
-		} else if strings.Contains(doVolume.Name, "etcd-events") {
-			clusterKey = "events"
-		} else {
-			clusterKey = ""
-			glog.V(2).Infof("could not determine etcd cluster type for volume: %s", doVolume.Name)
+		for _, dropletTag := range a.dropletTags {
+			glog.V(2).Infof("Iterating all droplet tags for droplet name=%s dropletTag=%s", a.dropletName, dropletTag)
 		}
 
-		if strings.Contains(a.nameTag, clusterKey) {
-			glog.V(2).Infof("Found a matching nameTag=%s for cluster key=%s with etcd cluster name = %s and k8s cluster name=%s", a.nameTag, clusterKey, a.ClusterName, k8sclusterName)
-			vol := &volumes.Volume{
-				ProviderID: doVolume.ID,
-				Info: volumes.VolumeInfo{
-					Description: a.ClusterName + "-" + a.nameTag,
-				},
-				MountName: "master-" + doVolume.ID,
-				EtcdName:  a.ClusterName + "-" + clusterKey,
+		// make sure dropletTags match the volumeTags for the keys mentioned in matchTags
+		tagFound := a.matchesTags(&doVolume)
+
+		if tagFound {
+
+			glog.V(2).Infof("Tag Matched for droplet name=%s and volume name=%s", a.dropletName, doVolume.Name)
+
+			var clusterKey string
+			if strings.Contains(doVolume.Name, "etcd-main") {
+				clusterKey = "main"
+			} else if strings.Contains(doVolume.Name, "etcd-events") {
+				clusterKey = "events"
+			} else {
+				clusterKey = ""
+				glog.V(2).Infof("could not determine etcd cluster type for volume: %s", doVolume.Name)
 			}
 
-			if len(doVolume.DropletIDs) == 1 {
-				vol.AttachedTo = strconv.Itoa(doVolume.DropletIDs[0])
-				vol.LocalDevice = getLocalDeviceName(&doVolume)
+			if strings.Contains(a.nameTag, clusterKey) {
+				vol := &volumes.Volume{
+					ProviderID: doVolume.ID,
+					Info: volumes.VolumeInfo{
+						Description: a.ClusterName + "-" + a.nameTag,
+					},
+					MountName: "master-" + doVolume.ID,
+					EtcdName:  doVolume.Name,
+				}
+
+				if len(doVolume.DropletIDs) == 1 {
+					vol.AttachedTo = strconv.Itoa(doVolume.DropletIDs[0])
+					vol.LocalDevice = getLocalDeviceName(&doVolume)
+				}
+
+				glog.V(2).Infof("Found a matching nameTag=%s for cluster key=%s with etcd cluster name = %s; volume name = %s", a.nameTag, clusterKey, a.ClusterName, doVolume.Name)
+
+				myvolumes = append(myvolumes, vol)
 			}
-
-			glog.V(2).Infof("Matching DO Volume found with name=%s ID=%s etcdname=%s mountname=%s", doVolume.Name, doVolume.ID, vol.EtcdName, vol.MountName)
-
-			myvolumes = append(myvolumes, vol)
 		}
-
 	}
 
 	return myvolumes, nil
+}
+
+func (a *DOVolumes) matchesTags(volume *godo.Volume) bool {
+	for k, v := range a.matchTags {
+		// In DO, we don't have tags with key value pairs. So we are storing them separating by a ":"
+		// Create a string like "k:v" and check if they match.
+		doTag := k + ":" + v
+
+		glog.V(2).Infof("Check for matching volume tag - doTag=%s for volume name = %s", strings.ToUpper(doTag), volume.Name)
+
+		volumeTagfound := a.Contains(volume.Tags, doTag)
+		if !volumeTagfound {
+			return false
+		} else {
+			glog.V(2).Infof("Matching tag found for doTag=%s in volume name = %s", strings.ToUpper(doTag), volume.Name)
+		}
+
+		glog.V(2).Infof("Check for matching droplet tag - doTag=%s for droplet name = %s", strings.ToUpper(doTag), a.dropletName)
+
+		// Also check if this tag is seen in the droplet.
+		dropletTagfound := a.Contains(a.dropletTags, doTag)
+		if !dropletTagfound {
+			return false
+		} else {
+			glog.V(2).Infof("Matching tag found for doTag=%s in droplet name = %s", strings.ToUpper(doTag), a.dropletName)
+		}
+	}
+
+	matchingTagCount := 0
+	// now that the tags are matched, check tagkeys if it exists in both volume and droplet tags, and ensure the key values in the volume and droplet tags match.
+	for _, matchTag := range a.matchTagKeys {
+		for _, volumeTag := range volume.Tags {
+			vt := strings.SplitN(volumeTag, ":", -1)
+			vtKey := vt[0]
+			vtValue := vt[1]
+
+			glog.V(2).Infof("Matching tag keys for vtKey=%s; vtValue = %s; matchTagKey = %s", strings.ToUpper(vtKey), strings.ToUpper(vtValue), strings.ToUpper(matchTag))
+
+			if strings.ToUpper(matchTag) == strings.ToUpper(vtKey) {
+				glog.V(2).Infof("Match found for tag keys for vtKey=%s; vtValue = %s; matchTagKey = %s", strings.ToUpper(vtKey), strings.ToUpper(vtValue), strings.ToUpper(matchTag))
+
+				// match found, verify if this tag exists in dropletTags and find a matching value.
+				for _, dropletTag := range a.dropletTags {
+					dt := strings.SplitN(dropletTag, ":", -1)
+					dtKey := dt[0]
+					dtValue := dt[1]
+
+					glog.V(2).Infof("Matching droplet tag keys for dtKey=%s; dtValue = %s; matchTagKey = %s", strings.ToUpper(dtKey), strings.ToUpper(dtValue), strings.ToUpper(matchTag))
+
+					if strings.ToUpper(matchTag) == strings.ToUpper(dtKey) {
+						glog.V(2).Infof("Matching droplet key FOUND for dtKey=%s; dtValue = %s; matchTagKey = %s", strings.ToUpper(dtKey), strings.ToUpper(dtValue), strings.ToUpper(matchTag))
+
+						// droplet tag also matched, check if the value matches.
+						if strings.ToUpper(dtValue) == strings.ToUpper(vtValue) {
+							glog.V(2).Infof("Everything matched for matchTagKey = %s", strings.ToUpper(matchTag))
+
+							matchingTagCount++
+						}
+					}
+				}
+			}
+
+		}
+	}
+
+	if len(a.matchTagKeys) == matchingTagCount {
+		return true
+	}
+
+	return false
+}
+
+// Contains tells whether a contains x.
+func (a *DOVolumes) Contains(tags []string, x string) bool {
+	for _, n := range tags {
+		if strings.ToUpper(x) == strings.ToUpper(n) {
+			return true
+		}
+	}
+	return false
 }
 
 // FindMountedVolume implements Volumes::FindMountedVolume
@@ -251,6 +353,13 @@ func getMetadataDropletName() (string, error) {
 
 func getMetadataDropletID() (string, error) {
 	return getMetadata(dropletIDMetadataURL)
+}
+
+func getMetadataDropletTags() ([]string, error) {
+
+	tagString, error := getMetadata(dropletIDMetadataTags)
+	dropletTags := strings.Split(tagString, "\n")
+	return dropletTags, error
 }
 
 func getMetadata(url string) (string, error) {
