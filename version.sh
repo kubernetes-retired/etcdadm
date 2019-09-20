@@ -16,7 +16,7 @@
 
 # -----------------------------------------------------------------------------
 # Source: https://raw.githubusercontent.com/kubernetes/kubernetes/release-1.11/hack/lib/version.sh
-# Changes: Updated location of version to  k8s.io/kubernetes/pkg/version
+# Changes: Updated location of version to  k8s.io/kubernetes/pkg/version, factored out kube::version::valid
 # Version management helpers.  These functions help to set, save and load the
 # following variables:
 #
@@ -100,10 +100,10 @@ kube::version::get_version_vars() {
       fi
 
       # If KUBE_GIT_VERSION is not a valid Semantic Version, then refuse to build.
-      if ! [[ "${KUBE_GIT_VERSION}" =~ ^v([0-9]+)\.([0-9]+)(\.[0-9]+)?(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
-          echo "KUBE_GIT_VERSION should be a valid Semantic Version. Current value: ${KUBE_GIT_VERSION}"
-          echo "Please see more details here: https://semver.org"
-          exit 1
+      if ! kube::version::valid "${KUBE_GIT_VERSION}"; then
+        echo "KUBE_GIT_VERSION should be a valid Semantic Version. Current value: ${KUBE_GIT_VERSION}"
+        echo "Please see more details here: https://semver.org"
+        exit 1
       fi
     fi
   fi
@@ -173,4 +173,9 @@ kube::version::ldflags() {
 
   # The -ldflags parameter takes a single string, so join the output.
   echo "${ldflags[*]-}"
+}
+
+kube::version::valid() {
+  local version=$1
+  [[ "${version}" =~ ^v([0-9]+)\.([0-9]+)(\.[0-9]+)?(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]
 }
