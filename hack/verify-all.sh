@@ -83,6 +83,12 @@ if [[ "${VERIFY_BUILD:-true}" == "true" ]]; then
   cd "${REPO_PATH}"
 fi
 
+if [[ "${VERIFY_VERSION:-true}" == "true" ]]; then
+  echo "[*] Verifying version..."
+  hack/verify-version.sh || res=1
+  cd "${REPO_PATH}"
+fi
+
 # exit based on verify scripts
 if [[ "${res}" = 0 ]]; then
   echo ""

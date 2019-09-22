@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 # Copyright 2014 The Kubernetes Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,8 +15,8 @@
 # limitations under the License.
 
 # -----------------------------------------------------------------------------
-# Source: https://raw.githubusercontent.com/kubernetes/kubernetes/release-1.10/hack/lib/version.sh
-# Changes: Updated location of version to  sigs.k8s.io/etcdadm/vendor/k8s.io/kubernetes/pkg/version
+# Source: https://raw.githubusercontent.com/kubernetes/kubernetes/release-1.11/hack/lib/version.sh
+# Changes: Updated location of version to  k8s.io/kubernetes/pkg/version, factored out kube::version::valid
 # Version management helpers.  These functions help to set, save and load the
 # following variables:
 #
@@ -63,7 +64,7 @@ kube::version::get_version_vars() {
       fi
     fi
 
-    # Use git describe to find the version based on annotated tags.
+    # Use git describe to find the version based on tags.
     if [[ -n ${KUBE_GIT_VERSION-} ]] || KUBE_GIT_VERSION=$("${git[@]}" describe --tags --abbrev=14 "${KUBE_GIT_COMMIT}^{commit}" 2>/dev/null); then
       # This translates the "git describe" to an actual semver.org
       # compatible semantic version that looks something like this:
@@ -96,6 +97,13 @@ kube::version::get_version_vars() {
         if [[ -n "${BASH_REMATCH[4]}" ]]; then
           KUBE_GIT_MINOR+="+"
         fi
+      fi
+
+      # If KUBE_GIT_VERSION is not a valid Semantic Version, then refuse to build.
+      if ! kube::version::valid "${KUBE_GIT_VERSION}"; then
+        echo "KUBE_GIT_VERSION should be a valid Semantic Version. Current value: ${KUBE_GIT_VERSION}"
+        echo "Please see more details here: https://semver.org"
+        exit 1
       fi
     fi
   fi
@@ -134,8 +142,7 @@ kube::version::ldflag() {
   local val=${2}
 
   # If you update these, also update the list pkg/version/def.bzl.
-
-  echo "-X sigs.k8s.io/etcdadm/vendor/k8s.io/kubernetes/pkg/version.${key}=${val}"
+  echo "-X 'k8s.io/kubernetes/pkg/version.${key}=${val}'"
 }
 
 # Prints the value that needs to be passed to the -ldflags parameter of go build
@@ -166,4 +173,9 @@ kube::version::ldflags() {
 
   # The -ldflags parameter takes a single string, so join the output.
   echo "${ldflags[*]-}"
+}
+
+kube::version::valid() {
+  local version=$1
+  [[ "${version}" =~ ^v([0-9]+)\.([0-9]+)(\.[0-9]+)?(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]
 }
