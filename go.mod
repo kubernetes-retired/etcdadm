@@ -1,5 +1,7 @@
 module sigs.k8s.io/etcdadm
 
+go 1.12
+
 require (
 	github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973 // indirect
 	github.com/coreos/bbolt v1.3.1-coreos.6 // indirect
