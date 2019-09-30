@@ -325,7 +325,7 @@ func (stack *OpenstackVolumes) FindVolumes() ([]*volumes.Volume, error) {
 	return volumes, nil
 }
 
-func GetDevicePath(volumeID string) string {
+func GetDevicePath(volumeID string) (string, error) {
 	// Build a list of candidate device paths
 	candidateDeviceNodes := []string{
 		// KVM
@@ -336,29 +336,33 @@ func GetDevicePath(volumeID string) string {
 		fmt.Sprintf("wwn-0x%s", strings.Replace(volumeID, "-", "", -1)),
 	}
 
-	files, _ := ioutil.ReadDir(volumes.PathFor("/dev/disk/by-id/"))
-
+	files, err := ioutil.ReadDir(volumes.PathFor("/dev/disk/by-id/"))
+	if err != nil {
+		return "", err
+	}
 	for _, f := range files {
 		for _, c := range candidateDeviceNodes {
 			if c == f.Name() {
 				glog.V(4).Infof("Found disk attached as %q; full devicepath: %s\n", f.Name(), path.Join(volumes.PathFor("/dev/disk/by-id/"), f.Name()))
-				return path.Join("/dev/disk/by-id/", f.Name())
+				return path.Join("/dev/disk/by-id/", f.Name()), nil
 			}
 		}
 	}
 
-	glog.Warningf("Failed to find device for the volumeID: %q\n", volumeID)
-	return ""
+	return "", fmt.Errorf("Failed to find device for the volumeID: %q", volumeID)
 }
 
 // FindMountedVolume implements Volumes::FindMountedVolume
 func (_ *OpenstackVolumes) FindMountedVolume(volume *volumes.Volume) (string, error) {
-	device := GetDevicePath(volume.ProviderID)
+	device, err := GetDevicePath(volume.ProviderID)
+	if err != nil {
+		return "", err
+	}
 	if device == "" {
 		return "", fmt.Errorf("failed to find device path for volume")
 	}
 
-	_, err := os.Stat(volumes.PathFor(device))
+	_, err = os.Stat(volumes.PathFor(device))
 	if err == nil {
 		return device, nil
 	}
