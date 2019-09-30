@@ -362,7 +362,7 @@ func (_ *OpenstackVolumes) FindMountedVolume(volume *volumes.Volume) (string, er
 		return "", fmt.Errorf("failed to find device path for volume")
 	}
 
-	_, err := os.Stat(volumes.PathFor(device))
+	_, err = os.Stat(volumes.PathFor(device))
 	if err == nil {
 		return device, nil
 	}
