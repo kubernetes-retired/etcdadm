@@ -72,7 +72,7 @@ type DOVolumes struct {
 	nameTag      string
 	matchTagKeys []string
 	matchTags    map[string]string
-	dropletTags []string
+	dropletTags  []string
 }
 
 var _ volumes.Volumes = &DOVolumes{}
@@ -139,6 +139,76 @@ func (a *DOVolumes) FindVolumes() ([]*volumes.Volume, error) {
 	return a.findVolumes(true)
 }
 
+func (a *DOVolumes) matchDropletTags(volume *godo.Volume) bool {
+	for k, v := range a.matchTags {
+		// In DO, we don't have tags with key value pairs. So we are storing them separating by a ":"
+		// Create a string like "k:v" and check if they match.
+		doTag := k + ":" + v
+
+		glog.V(2).Infof("Check for matching volume tag - doTag=%s for volume name = %s", strings.ToUpper(doTag), volume.Name)
+
+		volumeTagfound := a.Contains(volume.Tags, doTag)
+		if !volumeTagfound {
+			return false
+		} else {
+			glog.V(2).Infof("Matching tag found for doTag=%s in volume name = %s", strings.ToUpper(doTag), volume.Name)
+		}
+
+		glog.V(2).Infof("Check for matching droplet tag - doTag=%s for droplet name = %s", strings.ToUpper(doTag), a.dropletName)
+
+		// Also check if this tag is seen in the droplet.
+		dropletTagfound := a.Contains(a.dropletTags, doTag)
+		if !dropletTagfound {
+			return false
+		} else {
+			glog.V(2).Infof("Matching tag found for doTag=%s in droplet name = %s", strings.ToUpper(doTag), a.dropletName)
+		}
+	}
+
+	return true
+}
+
+func (a *DOVolumes) findAllVolumes(filterByRegion bool) ([]*volumes.Volume, error) {
+	doVolumes, err := getAllVolumesByRegion(a.DigiCloud, a.region, filterByRegion)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list volumes: %s", err)
+	}
+
+	var myvolumes []*volumes.Volume
+	for _, doVolume := range doVolumes {
+
+		glog.V(2).Infof("Iterating DO Volume with name=%s ID=%s, nametag=%s", doVolume.Name, doVolume.ID, a.nameTag)
+
+		// make sure dropletTags match the volumeTags for the keys mentioned in matchTags
+		tagFound := a.matchDropletTags(&doVolume)
+
+		if tagFound {
+
+			glog.V(2).Infof("Tag Matched for droplet name=%s and volume name=%s", a.dropletName, doVolume.Name)
+
+			vol := &volumes.Volume{
+				ProviderID: doVolume.ID,
+				Info: volumes.VolumeInfo{
+					Description: a.ClusterName + "-" + a.nameTag,
+				},
+				MountName: "master-" + doVolume.ID,
+				EtcdName:  doVolume.Name,
+			}
+
+			if len(doVolume.DropletIDs) == 1 {
+				vol.AttachedTo = strconv.Itoa(doVolume.DropletIDs[0])
+				vol.LocalDevice = getLocalDeviceName(&doVolume)
+			}
+
+			glog.V(2).Infof("Found a matching nameTag=%s with etcd cluster name = %s; volume name = %s", a.nameTag, a.ClusterName, doVolume.Name)
+
+			myvolumes = append(myvolumes, vol)
+		}
+	}
+
+	return myvolumes, nil
+}
+
 // ex: nametag - etcdcluster-main OR etcdcluster-events
 // volumetag array - kubernetescluster=mycluster; k8s-index
 // any droplet where this is running will have the tags - k8s-index:1; kubernetescluster:mycluster
@@ -155,15 +225,9 @@ func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) 
 	var myvolumes []*volumes.Volume
 	for _, doVolume := range doVolumes {
 
-		glog.V(2).Infof("Iterating DO Volume with name=%s ID=%s, nametag=%s", doVolume.Name, doVolume.ID, a.nameTag)
+		glog.V(2).Infof("DO Volume name=%s, Volume ID=%s, nametag=%s", doVolume.Name, doVolume.ID, a.nameTag)
 
-		for _, volumeTag := range doVolume.Tags {
-			glog.V(2).Infof("Iterating all Volume tags for volume name=%s volumetag=%s", doVolume.Name, volumeTag)
-		}
-
-		for _, dropletTag := range a.dropletTags {
-			glog.V(2).Infof("Iterating all droplet tags for droplet name=%s dropletTag=%s", a.dropletName, dropletTag)
-		}
+		glog.V(2).Infof("Iterating all Volume tags for volume %q,  tags %v, droplet tags %v", doVolume.Name, doVolume.Tags, a.dropletTags)
 
 		// make sure dropletTags match the volumeTags for the keys mentioned in matchTags
 		tagFound := a.matchesTags(&doVolume)
@@ -356,9 +420,13 @@ func getMetadataDropletID() (string, error) {
 
 func getMetadataDropletTags() ([]string, error) {
 
-	tagString, error := getMetadata(dropletIDMetadataTags)
+	tagString, err := getMetadata(dropletIDMetadataTags)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching droplet tags: %v", err)
+	}
+
 	dropletTags := strings.Split(tagString, "\n")
-	return dropletTags, error
+	return dropletTags, nil
 }
 
 func getMetadata(url string) (string, error) {
