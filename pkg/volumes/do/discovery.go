@@ -17,11 +17,12 @@ limitations under the License.
 package do
 
 import (
+	"context"
 	"fmt"
-
 	"github.com/golang/glog"
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 	"kope.io/etcd-manager/pkg/volumes"
+	"strconv"
 )
 
 // DO Volumes also allows us to discover our peer nodes
@@ -32,7 +33,7 @@ func (a *DOVolumes) Poll() (map[string]discovery.Node, error) {
 
 	glog.V(2).Infof("Polling all DO Volumes")
 
-	allVolumes, err := a.findVolumes(false)
+	allVolumes, err := a.findAllVolumes(false)
 	if err != nil {
 		return nil, fmt.Errorf("failed to discover any volumes: %s", err)
 	}
@@ -45,16 +46,34 @@ func (a *DOVolumes) Poll() (map[string]discovery.Node, error) {
 	}
 
 	for _, volume := range instanceToVolumeMap {
-		var myIP, _ = a.MyIP()
+		var dropletID, err = strconv.Atoi(volume.AttachedTo)
 
-		glog.V(2).Infof("Discovered a matching DO Volume for this instance with instanceid=%s volumename=%s nameTag=%s myIP=%s etcdName=%s", volume.AttachedTo, volume.ProviderID, a.nameTag, myIP, volume.EtcdName)
+		if err != nil {
+			return nil, fmt.Errorf("failed to retrieve dropletid from volume = %s", volume.MountName)
+		}
+
+		ctx := context.TODO()
+
+		droplet, _, err := a.DigiCloud.Client.Droplets.Get(ctx, dropletID)
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to retrieve droplet via api for dropletid = %d", dropletID)
+		}
+
+		var dropletIP, e = droplet.PrivateIPv4()
+
+		if e != nil {
+			return nil, fmt.Errorf("failed to retrieve droplet private IP for dropletid = %d", dropletID)
+		}
+
+		glog.V(2).Infof("Discovered a matching DO Volume for this instance with instanceid=%s volumename=%s nameTag=%s myIP=%s etcdName=%s", volume.AttachedTo, volume.ProviderID, a.nameTag, dropletIP, volume.EtcdName)
 
 		// We use the etcd node ID as the persistent identifier, because the data determines who we are
 		node := discovery.Node{
 			ID: volume.EtcdName,
 		}
 
-		node.Endpoints = append(node.Endpoints, discovery.NodeEndpoint{IP: myIP})
+		node.Endpoints = append(node.Endpoints, discovery.NodeEndpoint{IP: dropletIP})
 		nodes[node.ID] = node
 	}
 
