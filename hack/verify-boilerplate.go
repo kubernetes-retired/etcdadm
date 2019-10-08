@@ -141,7 +141,7 @@ func verifyFile(filePath string) error {
 	}
 
 	if !isSupportedFileExtension(filePath) {
-		fmt.Printf("skipping %q: unsupported file type\n", filePath)
+		log.Printf("skipping %q: unsupported file type\n", filePath)
 		return nil
 	}
 
@@ -164,7 +164,7 @@ func main() {
 	hasErr := false
 	for _, filePath := range os.Args[1:] {
 		if err := verifyFile(filePath); err != nil {
-			fmt.Printf("error validating %q: %v\n", filePath, err)
+			log.Printf("error validating %q: %v\n", filePath, err)
 			hasErr = true
 		}
 	}

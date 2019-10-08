@@ -34,6 +34,8 @@ import (
 	certutil "k8s.io/client-go/util/cert"
 	"sigs.k8s.io/etcdadm/apis"
 	"sigs.k8s.io/etcdadm/constants"
+
+	log "sigs.k8s.io/etcdadm/pkg/logrus"
 )
 
 // NewCertificateAuthority creates new certificate and private key for the certificate authority
@@ -288,7 +290,7 @@ func appendSANsToAltNames(altNames *certutil.AltNames, SANs []string, certName s
 		} else if len(validation.IsDNS1123Subdomain(altname)) == 0 {
 			altNames.DNSNames = append(altNames.DNSNames, altname)
 		} else {
-			fmt.Printf(
+			log.Printf(
 				"[certificates] WARNING: '%s' was not added to the '%s' SAN, because it is not a valid IP or RFC-1123 compliant DNS entry\n",
 				altname,
 				certName,

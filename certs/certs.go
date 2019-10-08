@@ -53,7 +53,7 @@ func CreatePKIAssets(cfg *apis.EtcdAdmConfig) error {
 		}
 	}
 
-	fmt.Printf("[certificates] valid certificates and keys now exist in %q\n", cfg.CertificatesDir)
+	log.Printf("[certificates] valid certificates and keys now exist in %q\n", cfg.CertificatesDir)
 
 	return nil
 }
@@ -289,7 +289,7 @@ func writeCertificateAuthorithyFilesIfNotExist(pkiDir string, baseName string, c
 		// kubeadm doesn't validate the existing certificate Authority more than this;
 		// Basically, if we find a certificate file with the same path; and it is a CA
 		// kubeadm thinks those files are equal and doesn't bother writing a new file
-		fmt.Printf("[certificates] Using the existing %s certificate and key.\n", baseName)
+		log.Printf("[certificates] Using the existing %s certificate and key.\n", baseName)
 	} else {
 
 		// Write .crt and .key files to disk
@@ -297,7 +297,7 @@ func writeCertificateAuthorithyFilesIfNotExist(pkiDir string, baseName string, c
 			return fmt.Errorf("failure while saving %s certificate and key: %v", baseName, err)
 		}
 
-		fmt.Printf("[certificates] Generated %s certificate and key.\n", baseName)
+		log.Printf("[certificates] Generated %s certificate and key.\n", baseName)
 	}
 	return nil
 }
@@ -325,7 +325,7 @@ func writeCertificateFilesIfNotExist(pkiDir string, baseName string, signingCert
 		// Basically, if we find a certificate file with the same path; and it is signed by
 		// the expected certificate authority, kubeadm thinks those files are equal and
 		// doesn't bother writing a new file
-		fmt.Printf("[certificates] Using the existing %s certificate and key.\n", baseName)
+		log.Printf("[certificates] Using the existing %s certificate and key.\n", baseName)
 	} else {
 
 		// Write .crt and .key files to disk
@@ -333,9 +333,9 @@ func writeCertificateFilesIfNotExist(pkiDir string, baseName string, signingCert
 			return fmt.Errorf("failure while saving %s certificate and key: %v", baseName, err)
 		}
 
-		fmt.Printf("[certificates] Generated %s certificate and key.\n", baseName)
+		log.Printf("[certificates] Generated %s certificate and key.\n", baseName)
 		if pkiutil.HasServerAuth(cert) {
-			fmt.Printf("[certificates] %s serving cert is signed for DNS names %v and IPs %v\n", baseName, cert.DNSNames, cert.IPAddresses)
+			log.Printf("[certificates] %s serving cert is signed for DNS names %v and IPs %v\n", baseName, cert.DNSNames, cert.IPAddresses)
 		}
 	}
 
@@ -360,7 +360,7 @@ func writeKeyFilesIfNotExist(pkiDir string, baseName string, key *rsa.PrivateKey
 		// kubeadm doesn't validate the existing certificate key more than this;
 		// Basically, if we find a key file with the same path kubeadm thinks those files
 		// are equal and doesn't bother writing a new file
-		fmt.Printf("[certificates] Using the existing %s key.\n", baseName)
+		log.Printf("[certificates] Using the existing %s key.\n", baseName)
 	} else {
 
 		// Write .key and .pub files to disk
@@ -371,7 +371,7 @@ func writeKeyFilesIfNotExist(pkiDir string, baseName string, key *rsa.PrivateKey
 		if err := pkiutil.WritePublicKey(pkiDir, baseName, &key.PublicKey); err != nil {
 			return fmt.Errorf("failure while saving %s public key: %v", baseName, err)
 		}
-		fmt.Printf("[certificates] Generated %s key and public key.\n", baseName)
+		log.Printf("[certificates] Generated %s key and public key.\n", baseName)
 	}
 
 	return nil
