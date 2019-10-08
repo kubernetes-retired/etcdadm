@@ -135,7 +135,7 @@ var joinCmd = &cobra.Command{
 			etcdAdmConfig.InitialCluster = etcd.InitialClusterFromMembers(desiredMembers)
 		} else {
 			log.Println("[membership] Member was started")
-			log.Printf("[membership] Keeping existing data dir %q", etcdAdmConfig.DataDir)
+			log.Printf("[membership] Keeping existing data dir %q\n", etcdAdmConfig.DataDir)
 			etcdAdmConfig.InitialCluster = etcd.InitialClusterFromMembers(members)
 		}
 

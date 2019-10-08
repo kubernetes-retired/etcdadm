@@ -19,6 +19,7 @@ package cmd
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	log "sigs.k8s.io/etcdadm/pkg/logrus"
 
@@ -55,7 +56,7 @@ var infoCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalf("[info] Error parsing member information: %s", err)
 		}
-		log.Println(string(localMemberJSON))
+		fmt.Println(string(localMemberJSON))
 	},
 }
 

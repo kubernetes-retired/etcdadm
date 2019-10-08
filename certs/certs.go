@@ -53,7 +53,7 @@ func CreatePKIAssets(cfg *apis.EtcdAdmConfig) error {
 		}
 	}
 
-	log.Printf("[certificates] valid certificates and keys now exist in %q\n", cfg.CertificatesDir)
+	log.Printf("[certificates] Valid certificates and keys now exist in %q\n", cfg.CertificatesDir)
 
 	return nil
 }
@@ -63,7 +63,7 @@ func CreatePKIAssets(cfg *apis.EtcdAdmConfig) error {
 // This is a separate CA, so that kubernetes client identities cannot connect to etcd directly or peer with the etcd cluster.
 // If the etcd CA certificate and key files already exists in the target folder, they are used only if evaluated equals; otherwise an error is returned.
 func CreateEtcdCACertAndKeyFiles(cfg *apis.EtcdAdmConfig) error {
-	log.Print("creating a self signed etcd CA certificate and key files")
+	log.Print("[certificates] Creating a self signed etcd CA certificate and key files")
 	etcdCACert, etcdCAKey, err := NewEtcdCACertAndKey()
 	if err != nil {
 		return err
@@ -81,7 +81,7 @@ func CreateEtcdCACertAndKeyFiles(cfg *apis.EtcdAdmConfig) error {
 // If the etcd serving certificate and key file already exist in the target folder, they are used only if evaluated equal; otherwise an error is returned.
 // It assumes the etcd CA certificate and key file exist in the CertificatesDir
 func CreateEtcdServerCertAndKeyFiles(cfg *apis.EtcdAdmConfig) error {
-	log.Println("creating a new server certificate and key files for etcd")
+	log.Println("[certificates] Creating a new server certificate and key files for etcd")
 	etcdCACert, etcdCAKey, err := loadCertificateAuthority(cfg.CertificatesDir, constants.EtcdCACertAndKeyBaseName)
 	if err != nil {
 		return err
@@ -105,7 +105,7 @@ func CreateEtcdServerCertAndKeyFiles(cfg *apis.EtcdAdmConfig) error {
 // If the etcd peer certificate and key file already exist in the target folder, they are used only if evaluated equal; otherwise an error is returned.
 // It assumes the etcd CA certificate and key file exist in the CertificatesDir
 func CreateEtcdPeerCertAndKeyFiles(cfg *apis.EtcdAdmConfig) error {
-	log.Println("creating a new certificate and key files for etcd peering")
+	log.Println("[certificates] Creating a new certificate and key files for etcd peering")
 	etcdCACert, etcdCAKey, err := loadCertificateAuthority(cfg.CertificatesDir, constants.EtcdCACertAndKeyBaseName)
 	if err != nil {
 		return err
@@ -129,7 +129,7 @@ func CreateEtcdPeerCertAndKeyFiles(cfg *apis.EtcdAdmConfig) error {
 // If the etcdctl-client certificate and key file already exist in the target folder, they are used only if evaluated equal; otherwise an error is returned.
 // It assumes the etcd CA certificate and key file exist in the CertificatesDir
 func CreateEtcdctlClientCertAndKeyFiles(cfg *apis.EtcdAdmConfig) error {
-	log.Println("creating a new client certificate for the etcdctl")
+	log.Println("[certificates] Creating a new client certificate for the etcdctl")
 	etcdCACert, etcdCAKey, err := loadCertificateAuthority(cfg.CertificatesDir, constants.EtcdCACertAndKeyBaseName)
 	if err != nil {
 		return err
@@ -155,7 +155,7 @@ func CreateEtcdctlClientCertAndKeyFiles(cfg *apis.EtcdAdmConfig) error {
 // If the apiserver-etcd-client certificate and key file already exist in the target folder, they are used only if evaluated equal; otherwise an error is returned.
 // It assumes the etcd CA certificate and key file exist in the CertificatesDir
 func CreateAPIServerEtcdClientCertAndKeyFiles(cfg *apis.EtcdAdmConfig) error {
-	log.Println("creating a new client certificate for the apiserver calling etcd")
+	log.Println("[certificates] Creating a new client certificate for the apiserver calling etcd")
 	etcdCACert, etcdCAKey, err := loadCertificateAuthority(cfg.CertificatesDir, constants.EtcdCACertAndKeyBaseName)
 	if err != nil {
 		return err

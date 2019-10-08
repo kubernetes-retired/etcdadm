@@ -18,6 +18,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes"
@@ -70,7 +71,7 @@ var initCmd = &cobra.Command{
 
 		exists, err := util.Exists(etcdAdmConfig.DataDir)
 		if err != nil {
-			log.Fatalf("Unable to verify whether data dir exists: %v", err)
+			log.Fatalf("[install] Unable to verify whether data dir exists: %v", err)
 		}
 		if exists {
 			log.Printf("[install] Removing existing data dir %q", etcdAdmConfig.DataDir)
@@ -146,8 +147,8 @@ var initCmd = &cobra.Command{
 
 		// Output etcdadm join command
 		// TODO print all advertised client URLs (first, join must parse than one endpoint)
-		log.Println("To add another member to the cluster, copy the CA cert/key to its certificate dir and run:")
-		log.Printf(`	etcdadm join %s`, etcdAdmConfig.AdvertiseClientURLs[0].String())
+		fmt.Println("To add another member to the cluster, copy the CA cert/key to its certificate dir and run:")
+		fmt.Printf(`	etcdadm join %s`, etcdAdmConfig.AdvertiseClientURLs[0].String())
 	},
 }
 
