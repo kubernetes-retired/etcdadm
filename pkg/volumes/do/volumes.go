@@ -78,7 +78,7 @@ type DOVolumes struct {
 var _ volumes.Volumes = &DOVolumes{}
 
 // ex: nametag - etcdcluster-main OR etcdcluster-events
-// ex: volume tag array - kubernetescluster=mycluster; etcdCluster-events OR etcdCluster-main; k8s-index
+// ex: volume tag array - kubernetescluster=mycluster; k8s-index
 // any droplet where this is running will have the tags - k8s-index:1; kubernetescluster:mycluster
 // any volume that is created will have the tags - etcdcluster-main:1 OR etcdcluster-events:1; kubernetescluster:mycluster; k8s-index:1
 func NewDOVolumes(clusterName string, volumeTags []string, nameTag string) (*DOVolumes, error) {
@@ -186,23 +186,35 @@ func (a *DOVolumes) findAllVolumes(filterByRegion bool) ([]*volumes.Volume, erro
 
 			glog.V(2).Infof("Tag Matched for droplet name=%s and volume name=%s", a.dropletName, doVolume.Name)
 
-			vol := &volumes.Volume{
-				ProviderID: doVolume.ID,
-				Info: volumes.VolumeInfo{
-					Description: a.ClusterName + "-" + a.nameTag,
-				},
-				MountName: "master-" + doVolume.ID,
-				EtcdName:  doVolume.Name,
+			var clusterKey string
+			if strings.Contains(doVolume.Name, "etcd-main") {
+				clusterKey = "main"
+			} else if strings.Contains(doVolume.Name, "etcd-events") {
+				clusterKey = "events"
+			} else {
+				clusterKey = ""
+				glog.V(2).Infof("could not determine etcd cluster type for volume: %s", doVolume.Name)
 			}
 
-			if len(doVolume.DropletIDs) == 1 {
-				vol.AttachedTo = strconv.Itoa(doVolume.DropletIDs[0])
-				vol.LocalDevice = getLocalDeviceName(&doVolume)
+			if strings.Contains(a.nameTag, clusterKey) {
+				vol := &volumes.Volume{
+					ProviderID: doVolume.ID,
+					Info: volumes.VolumeInfo{
+						Description: a.ClusterName + "-" + a.nameTag,
+					},
+					MountName: "master-" + doVolume.ID,
+					EtcdName:  doVolume.Name,
+				}
+
+				if len(doVolume.DropletIDs) == 1 {
+					vol.AttachedTo = strconv.Itoa(doVolume.DropletIDs[0])
+					vol.LocalDevice = getLocalDeviceName(&doVolume)
+				}
+
+				glog.V(2).Infof("Found a matching nameTag=%s with etcd cluster name = %s; volume name = %s", a.nameTag, a.ClusterName, doVolume.Name)
+
+				myvolumes = append(myvolumes, vol)
 			}
-
-			glog.V(2).Infof("Found a matching nameTag=%s with etcd cluster name = %s; volume name = %s", a.nameTag, a.ClusterName, doVolume.Name)
-
-			myvolumes = append(myvolumes, vol)
 		}
 	}
 
