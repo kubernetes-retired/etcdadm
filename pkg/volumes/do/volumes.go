@@ -20,13 +20,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"golang.org/x/oauth2"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"golang.org/x/oauth2"
 
 	"github.com/digitalocean/godo"
 	"github.com/golang/glog"
@@ -139,35 +140,6 @@ func (a *DOVolumes) FindVolumes() ([]*volumes.Volume, error) {
 	return a.findVolumes(true)
 }
 
-func (a *DOVolumes) matchDropletTags(volume *godo.Volume) bool {
-	for k, v := range a.matchTags {
-		// In DO, we don't have tags with key value pairs. So we are storing them separating by a ":"
-		// Create a string like "k:v" and check if they match.
-		doTag := k + ":" + v
-
-		glog.V(2).Infof("Check for matching volume tag - doTag=%s for volume name = %s", strings.ToUpper(doTag), volume.Name)
-
-		volumeTagfound := a.Contains(volume.Tags, doTag)
-		if !volumeTagfound {
-			return false
-		} else {
-			glog.V(2).Infof("Matching tag found for doTag=%s in volume name = %s", strings.ToUpper(doTag), volume.Name)
-		}
-
-		glog.V(2).Infof("Check for matching droplet tag - doTag=%s for droplet name = %s", strings.ToUpper(doTag), a.dropletName)
-
-		// Also check if this tag is seen in the droplet.
-		dropletTagfound := a.Contains(a.dropletTags, doTag)
-		if !dropletTagfound {
-			return false
-		} else {
-			glog.V(2).Infof("Matching tag found for doTag=%s in droplet name = %s", strings.ToUpper(doTag), a.dropletName)
-		}
-	}
-
-	return true
-}
-
 func (a *DOVolumes) findAllVolumes(filterByRegion bool) ([]*volumes.Volume, error) {
 	doVolumes, err := getAllVolumesByRegion(a.DigiCloud, a.region, filterByRegion)
 	if err != nil {
@@ -192,7 +164,6 @@ func (a *DOVolumes) findAllVolumes(filterByRegion bool) ([]*volumes.Volume, erro
 			} else if strings.Contains(doVolume.Name, "etcd-events") {
 				clusterKey = "events"
 			} else {
-				clusterKey = ""
 				glog.V(2).Infof("could not determine etcd cluster type for volume: %s", doVolume.Name)
 			}
 
@@ -206,7 +177,7 @@ func (a *DOVolumes) findAllVolumes(filterByRegion bool) ([]*volumes.Volume, erro
 					EtcdName:  doVolume.Name,
 				}
 
-				if len(doVolume.DropletIDs) == 1 {
+				if len(doVolume.DropletIDs) > 0 {
 					vol.AttachedTo = strconv.Itoa(doVolume.DropletIDs[0])
 					vol.LocalDevice = getLocalDeviceName(&doVolume)
 				}
@@ -254,7 +225,6 @@ func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) 
 			} else if strings.Contains(doVolume.Name, "etcd-events") {
 				clusterKey = "events"
 			} else {
-				clusterKey = ""
 				glog.V(2).Infof("could not determine etcd cluster type for volume: %s", doVolume.Name)
 			}
 
@@ -268,7 +238,7 @@ func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) 
 					EtcdName:  doVolume.Name,
 				}
 
-				if len(doVolume.DropletIDs) == 1 {
+				if len(doVolume.DropletIDs) > 0 {
 					vol.AttachedTo = strconv.Itoa(doVolume.DropletIDs[0])
 					vol.LocalDevice = getLocalDeviceName(&doVolume)
 				}
@@ -283,7 +253,7 @@ func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) 
 	return myvolumes, nil
 }
 
-func (a *DOVolumes) matchesTags(volume *godo.Volume) bool {
+func (a *DOVolumes) matchDropletTags(volume *godo.Volume) bool {
 	for k, v := range a.matchTags {
 		// In DO, we don't have tags with key value pairs. So we are storing them separating by a ":"
 		// Create a string like "k:v" and check if they match.
@@ -309,11 +279,28 @@ func (a *DOVolumes) matchesTags(volume *godo.Volume) bool {
 		}
 	}
 
+	return true
+}
+
+func (a *DOVolumes) matchesTags(volume *godo.Volume) bool {
+
+	tagFound := a.matchDropletTags(volume)
+
+	// Check if match is Found, otherwise, just return if nothing found.
+	if !tagFound {
+		return false
+	}
+
 	matchingTagCount := 0
 	// now that the tags are matched, check tagkeys if it exists in both volume and droplet tags, and ensure the key values in the volume and droplet tags match.
 	for _, matchTag := range a.matchTagKeys {
 		for _, volumeTag := range volume.Tags {
 			vt := strings.SplitN(volumeTag, ":", -1)
+			if len(vt) < 1 {
+				// not interested in this tag.
+				continue
+			}
+
 			vtKey := vt[0]
 			vtValue := vt[1]
 
@@ -396,7 +383,12 @@ func (a *DOVolumes) AttachVolume(volume *volumes.Volume) error {
 			return fmt.Errorf("error getting volume status: %s", err)
 		}
 
-		if len(doVolume.DropletIDs) == 1 {
+		if len(doVolume.DropletIDs) > 0 {
+
+			if len(doVolume.DropletIDs) > 1 {
+				return fmt.Errorf("multiple attachments found for volume %q", doVolume.Name)
+			}
+
 			if doVolume.DropletIDs[0] != a.dropletID {
 				return fmt.Errorf("digitalocean volume %s is attached to another droplet", doVolume.ID)
 			}
