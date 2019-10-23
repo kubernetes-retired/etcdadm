@@ -321,9 +321,9 @@ func (a *DOVolumes) matchesTags(volume *godo.Volume) bool {
 	return len(a.matchTagKeys) == matchingTagCount
 }
 
-// Contains tells whether a contains x.
-func (a *DOVolumes) Contains(tags []string, x string) bool {
-	for _, n := range tags {
+// Contains tells whether dotags contains x.
+func (a *DOVolumes) Contains(dotags []string, x string) bool {
+	for _, n := range dotags {
 		if strings.ToUpper(x) == strings.ToUpper(n) {
 			return true
 		}
