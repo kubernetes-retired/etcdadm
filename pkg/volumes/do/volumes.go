@@ -27,11 +27,9 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/oauth2"
-
 	"github.com/digitalocean/godo"
 	"github.com/golang/glog"
-
+	"golang.org/x/oauth2"
 	"kope.io/etcd-manager/pkg/volumes"
 )
 
@@ -152,40 +150,10 @@ func (a *DOVolumes) findAllVolumes(filterByRegion bool) ([]*volumes.Volume, erro
 		glog.V(2).Infof("Iterating DO Volume with name=%s ID=%s, nametag=%s", doVolume.Name, doVolume.ID, a.nameTag)
 
 		// make sure dropletTags match the volumeTags for the keys mentioned in matchTags
-		tagFound := a.matchDropletTags(&doVolume)
+		tagFound := a.matchesDropletTags(&doVolume)
 
 		if tagFound {
-
-			glog.V(2).Infof("Tag Matched for droplet name=%s and volume name=%s", a.dropletName, doVolume.Name)
-
-			var clusterKey string
-			if strings.Contains(doVolume.Name, "etcd-main") {
-				clusterKey = "main"
-			} else if strings.Contains(doVolume.Name, "etcd-events") {
-				clusterKey = "events"
-			} else {
-				glog.V(2).Infof("could not determine etcd cluster type for volume: %s", doVolume.Name)
-			}
-
-			if strings.Contains(a.nameTag, clusterKey) {
-				vol := &volumes.Volume{
-					ProviderID: doVolume.ID,
-					Info: volumes.VolumeInfo{
-						Description: a.ClusterName + "-" + a.nameTag,
-					},
-					MountName: "master-" + doVolume.ID,
-					EtcdName:  doVolume.Name,
-				}
-
-				if len(doVolume.DropletIDs) > 0 {
-					vol.AttachedTo = strconv.Itoa(doVolume.DropletIDs[0])
-					vol.LocalDevice = getLocalDeviceName(&doVolume)
-				}
-
-				glog.V(2).Infof("Found a matching nameTag=%s with etcd cluster name = %s; volume name = %s", a.nameTag, a.ClusterName, doVolume.Name)
-
-				myvolumes = append(myvolumes, vol)
-			}
+			myvolumes = a.appendMatchedVolume(&doVolume)
 		}
 	}
 
@@ -216,44 +184,49 @@ func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) 
 		tagFound := a.matchesTags(&doVolume)
 
 		if tagFound {
-
-			glog.V(2).Infof("Tag Matched for droplet name=%s and volume name=%s", a.dropletName, doVolume.Name)
-
-			var clusterKey string
-			if strings.Contains(doVolume.Name, "etcd-main") {
-				clusterKey = "main"
-			} else if strings.Contains(doVolume.Name, "etcd-events") {
-				clusterKey = "events"
-			} else {
-				glog.V(2).Infof("could not determine etcd cluster type for volume: %s", doVolume.Name)
-			}
-
-			if strings.Contains(a.nameTag, clusterKey) {
-				vol := &volumes.Volume{
-					ProviderID: doVolume.ID,
-					Info: volumes.VolumeInfo{
-						Description: a.ClusterName + "-" + a.nameTag,
-					},
-					MountName: "master-" + doVolume.ID,
-					EtcdName:  doVolume.Name,
-				}
-
-				if len(doVolume.DropletIDs) > 0 {
-					vol.AttachedTo = strconv.Itoa(doVolume.DropletIDs[0])
-					vol.LocalDevice = getLocalDeviceName(&doVolume)
-				}
-
-				glog.V(2).Infof("Found a matching nameTag=%s for cluster key=%s with etcd cluster name = %s; volume name = %s", a.nameTag, clusterKey, a.ClusterName, doVolume.Name)
-
-				myvolumes = append(myvolumes, vol)
-			}
+			myvolumes = a.appendMatchedVolume(&doVolume)
 		}
 	}
 
 	return myvolumes, nil
 }
 
-func (a *DOVolumes) matchDropletTags(volume *godo.Volume) bool {
+func (a *DOVolumes) appendMatchedVolume(doVolume *godo.Volume) []*volumes.Volume {
+	var myvolumes []*volumes.Volume
+
+	glog.V(2).Infof("Tag Matched for droplet name=%s and volume name=%s", a.dropletName, doVolume.Name)
+
+	var clusterKey string
+	if strings.Contains(doVolume.Name, "etcd-main") {
+		clusterKey = "main"
+	} else if strings.Contains(doVolume.Name, "etcd-events") {
+		clusterKey = "events"
+	}
+
+	if strings.Contains(a.nameTag, clusterKey) {
+		vol := &volumes.Volume{
+			ProviderID: doVolume.ID,
+			Info: volumes.VolumeInfo{
+				Description: a.ClusterName + "-" + a.nameTag,
+			},
+			MountName: "master-" + doVolume.ID,
+			EtcdName:  doVolume.Name,
+		}
+
+		if len(doVolume.DropletIDs) > 0 {
+			vol.AttachedTo = strconv.Itoa(doVolume.DropletIDs[0])
+			vol.LocalDevice = getLocalDeviceName(doVolume)
+		}
+
+		glog.V(2).Infof("Found a matching nameTag=%s for cluster key=%s with etcd cluster name = %s; volume name = %s", a.nameTag, clusterKey, a.ClusterName, doVolume.Name)
+
+		myvolumes = append(myvolumes, vol)
+	}
+
+	return myvolumes
+}
+
+func (a *DOVolumes) matchesDropletTags(volume *godo.Volume) bool {
 	for k, v := range a.matchTags {
 		// In DO, we don't have tags with key value pairs. So we are storing them separating by a ":"
 		// Create a string like "k:v" and check if they match.
@@ -274,8 +247,6 @@ func (a *DOVolumes) matchDropletTags(volume *godo.Volume) bool {
 		dropletTagfound := a.Contains(a.dropletTags, doTag)
 		if !dropletTagfound {
 			return false
-		} else {
-			glog.V(2).Infof("Matching tag found for doTag=%s in droplet name = %s", strings.ToUpper(doTag), a.dropletName)
 		}
 	}
 
@@ -284,7 +255,7 @@ func (a *DOVolumes) matchDropletTags(volume *godo.Volume) bool {
 
 func (a *DOVolumes) matchesTags(volume *godo.Volume) bool {
 
-	tagFound := a.matchDropletTags(volume)
+	tagFound := a.matchesDropletTags(volume)
 
 	// Check if match is Found, otherwise, just return if nothing found.
 	if !tagFound {
@@ -296,7 +267,7 @@ func (a *DOVolumes) matchesTags(volume *godo.Volume) bool {
 	for _, matchTag := range a.matchTagKeys {
 		for _, volumeTag := range volume.Tags {
 			vt := strings.SplitN(volumeTag, ":", -1)
-			if len(vt) < 1 {
+			if len(vt) < 2 {
 				// not interested in this tag.
 				continue
 			}
@@ -306,38 +277,43 @@ func (a *DOVolumes) matchesTags(volume *godo.Volume) bool {
 
 			glog.V(2).Infof("Matching tag keys for vtKey=%s; vtValue = %s; matchTagKey = %s", strings.ToUpper(vtKey), strings.ToUpper(vtValue), strings.ToUpper(matchTag))
 
-			if strings.ToUpper(matchTag) == strings.ToUpper(vtKey) {
-				glog.V(2).Infof("Match found for tag keys for vtKey=%s; vtValue = %s; matchTagKey = %s", strings.ToUpper(vtKey), strings.ToUpper(vtValue), strings.ToUpper(matchTag))
-
-				// match found, verify if this tag exists in dropletTags and find a matching value.
-				for _, dropletTag := range a.dropletTags {
-					dt := strings.SplitN(dropletTag, ":", -1)
-					dtKey := dt[0]
-					dtValue := dt[1]
-
-					glog.V(2).Infof("Matching droplet tag keys for dtKey=%s; dtValue = %s; matchTagKey = %s", strings.ToUpper(dtKey), strings.ToUpper(dtValue), strings.ToUpper(matchTag))
-
-					if strings.ToUpper(matchTag) == strings.ToUpper(dtKey) {
-						glog.V(2).Infof("Matching droplet key FOUND for dtKey=%s; dtValue = %s; matchTagKey = %s", strings.ToUpper(dtKey), strings.ToUpper(dtValue), strings.ToUpper(matchTag))
-
-						// droplet tag also matched, check if the value matches.
-						if strings.ToUpper(dtValue) == strings.ToUpper(vtValue) {
-							glog.V(2).Infof("Everything matched for matchTagKey = %s", strings.ToUpper(matchTag))
-
-							matchingTagCount++
-						}
-					}
-				}
+			if strings.ToUpper(matchTag) != strings.ToUpper(vtKey) {
+				continue
 			}
 
+			glog.V(2).Infof("Match found for tag keys for vtKey=%s; vtValue = %s; matchTagKey = %s", strings.ToUpper(vtKey), strings.ToUpper(vtValue), strings.ToUpper(matchTag))
+
+			// match found, verify if this tag exists in dropletTags and find a matching value.
+			for _, dropletTag := range a.dropletTags {
+				dt := strings.SplitN(dropletTag, ":", 2)
+				if len(dt) < 2 {
+					// not interested in this tag.
+					continue
+				}
+				dtKey := dt[0]
+				dtValue := dt[1]
+
+				glog.V(2).Infof("Matching droplet tag keys for dtKey=%s; dtValue = %s; matchTagKey = %s", strings.ToUpper(dtKey), strings.ToUpper(dtValue), strings.ToUpper(matchTag))
+
+				if strings.ToUpper(matchTag) != strings.ToUpper(dtKey) {
+					continue
+				}
+
+				glog.V(2).Infof("Matching droplet key FOUND for dtKey=%s; dtValue = %s; matchTagKey = %s", strings.ToUpper(dtKey), strings.ToUpper(dtValue), strings.ToUpper(matchTag))
+
+				// droplet tag also matched, check if the value matches.
+				if strings.ToUpper(dtValue) != strings.ToUpper(vtValue) {
+					continue
+				}
+
+				// Finally everything matched.. Increment the matchingTagCount.
+				glog.V(2).Infof("Everything matched for matchTagKey = %s", strings.ToUpper(matchTag))
+				matchingTagCount++
+			}
 		}
 	}
 
-	if len(a.matchTagKeys) == matchingTagCount {
-		return true
-	}
-
-	return false
+	return len(a.matchTagKeys) == matchingTagCount
 }
 
 // Contains tells whether a contains x.
