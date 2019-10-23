@@ -138,6 +138,10 @@ func (a *DOVolumes) FindVolumes() ([]*volumes.Volume, error) {
 	return a.findVolumes(true)
 }
 
+// This gets called during the discovery phase. It needs to return all volumes that matches the droplet tags.
+// Iterates through all the volumes across all regions, and then checks if the volume tags matches with the droplet tags.
+// Note - no check for the tag keys (they are only used in the other function findVolumes to associate a volume to a droplet.)
+// This function is basically used for seeding all the available volumes for the given cluster.
 func (a *DOVolumes) findAllVolumes(filterByRegion bool) ([]*volumes.Volume, error) {
 	doVolumes, err := getAllVolumesByRegion(a.DigiCloud, a.region, filterByRegion)
 	if err != nil {
@@ -166,7 +170,6 @@ func (a *DOVolumes) findAllVolumes(filterByRegion bool) ([]*volumes.Volume, erro
 // any volume that is created will have the tags - kubernetescluster:mycluster; k8s-index:1
 // matchTags for kubernetescluster=clustername
 // matchTagKeys for k8s-index - ensure the value is same in droplets and the volume tags.
-// also check for nameTag if it is contained in the volume name (for etcd-main or etcd-events)
 func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) {
 	doVolumes, err := getAllVolumesByRegion(a.DigiCloud, a.region, filterByRegion)
 	if err != nil {
@@ -191,6 +194,8 @@ func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) 
 	return myvolumes, nil
 }
 
+// check for nameTag if it is contained in the volume name (for etcd-main or etcd-events)
+// if the nameTag matches the volume (etcd-main or etcd-events) add them to the volume list.
 func (a *DOVolumes) appendMatchedVolume(doVolume *godo.Volume) []*volumes.Volume {
 	var myvolumes []*volumes.Volume
 
@@ -266,7 +271,7 @@ func (a *DOVolumes) matchesTags(volume *godo.Volume) bool {
 	// now that the tags are matched, check tagkeys if it exists in both volume and droplet tags, and ensure the key values in the volume and droplet tags match.
 	for _, matchTag := range a.matchTagKeys {
 		for _, volumeTag := range volume.Tags {
-			vt := strings.SplitN(volumeTag, ":", -1)
+			vt := strings.SplitN(volumeTag, ":", 2)
 			if len(vt) < 2 {
 				// not interested in this tag.
 				continue
