@@ -19,10 +19,11 @@ package do
 import (
 	"context"
 	"fmt"
+	"strconv"
+
 	"github.com/golang/glog"
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 	"kope.io/etcd-manager/pkg/volumes"
-	"strconv"
 )
 
 // DO Volumes also allows us to discover our peer nodes
@@ -46,10 +47,10 @@ func (a *DOVolumes) Poll() (map[string]discovery.Node, error) {
 	}
 
 	for _, volume := range instanceToVolumeMap {
-		var dropletID, err = strconv.Atoi(volume.AttachedTo)
+		dropletID, err := strconv.Atoi(volume.AttachedTo)
 
 		if err != nil {
-			return nil, fmt.Errorf("failed to retrieve dropletid from volume = %s", volume.MountName)
+			return nil, fmt.Errorf("failed to convert %s to integer for volume %s: Error = %v", volume.AttachedTo, volume.MountName, err)
 		}
 
 		ctx := context.TODO()
@@ -57,13 +58,13 @@ func (a *DOVolumes) Poll() (map[string]discovery.Node, error) {
 		droplet, _, err := a.DigiCloud.Client.Droplets.Get(ctx, dropletID)
 
 		if err != nil {
-			return nil, fmt.Errorf("failed to retrieve droplet via api for dropletid = %d", dropletID)
+			return nil, fmt.Errorf("failed to retrieve droplet via api for dropletid = %d. Error = %v", dropletID, err)
 		}
 
-		var dropletIP, e = droplet.PrivateIPv4()
+		dropletIP, err := droplet.PrivateIPv4()
 
-		if e != nil {
-			return nil, fmt.Errorf("failed to retrieve droplet private IP for dropletid = %d", dropletID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to retrieve droplet private IP for dropletid = %d. Error=%v", dropletID, err)
 		}
 
 		glog.V(2).Infof("Discovered a matching DO Volume for this instance with instanceid=%s volumename=%s nameTag=%s myIP=%s etcdName=%s", volume.AttachedTo, volume.ProviderID, a.nameTag, dropletIP, volume.EtcdName)
