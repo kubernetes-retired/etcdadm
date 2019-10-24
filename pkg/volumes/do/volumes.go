@@ -157,7 +157,10 @@ func (a *DOVolumes) findAllVolumes(filterByRegion bool) ([]*volumes.Volume, erro
 		tagFound := a.matchesDropletTags(&doVolume)
 
 		if tagFound {
-			myvolumes = a.appendMatchedVolume(&doVolume)
+			vol := a.appendMatchedVolume(&doVolume)
+			if vol != nil {
+				myvolumes = append(myvolumes, vol)
+			}
 		}
 	}
 
@@ -187,7 +190,10 @@ func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) 
 		tagFound := a.matchesTags(&doVolume)
 
 		if tagFound {
-			myvolumes = a.appendMatchedVolume(&doVolume)
+			vol := a.appendMatchedVolume(&doVolume)
+			if vol != nil {
+				myvolumes = append(myvolumes, vol)
+			}
 		}
 	}
 
@@ -196,11 +202,11 @@ func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) 
 
 // check for nameTag if it is contained in the volume name (for etcd-main or etcd-events)
 // if the nameTag matches the volume (etcd-main or etcd-events) add them to the volume list.
-func (a *DOVolumes) appendMatchedVolume(doVolume *godo.Volume) []*volumes.Volume {
-	var myvolumes []*volumes.Volume
+func (a *DOVolumes) appendMatchedVolume(doVolume *godo.Volume) *volumes.Volume {
 
 	glog.V(2).Infof("Tag Matched for droplet name=%s and volume name=%s", a.dropletName, doVolume.Name)
 
+	var retvol *volumes.Volume = nil
 	var clusterKey string
 	if strings.Contains(doVolume.Name, "etcd-main") {
 		clusterKey = "main"
@@ -224,11 +230,10 @@ func (a *DOVolumes) appendMatchedVolume(doVolume *godo.Volume) []*volumes.Volume
 		}
 
 		glog.V(2).Infof("Found a matching nameTag=%s for cluster key=%s with etcd cluster name = %s; volume name = %s", a.nameTag, clusterKey, a.ClusterName, doVolume.Name)
-
-		myvolumes = append(myvolumes, vol)
+		retvol = vol
 	}
 
-	return myvolumes
+	return retvol
 }
 
 func (a *DOVolumes) matchesDropletTags(volume *godo.Volume) bool {
