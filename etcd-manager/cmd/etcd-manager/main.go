@@ -230,10 +230,10 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 				os.Exit(1)
 			}
 
-      volumeProvider = osVolumeProvider
+			volumeProvider = osVolumeProvider
 			discoveryProvider = osVolumeProvider
 
-    case "do":
+		case "do":
 			doVolumeProvider, err := do.NewDOVolumes(o.ClusterName, o.VolumeTags, o.NameTag)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err)
