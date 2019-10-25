@@ -5,11 +5,11 @@ PLATFORMS="linux_amd64 darwin_amd64 windows_amd64"
 CMDS="etcd-manager-ctl"
 
 # Ensure the dist folder exists and is clean
-rm -fr dist/${VERSION} && mkdir -p dist/${VERSION}
+rm -fr dist/ && mkdir -p dist/
 
 for CMD in ${CMDS}; do
     for PLATFORM in ${PLATFORMS}; do
-        CMD_DIST_PATH="dist/${VERSION}/${CMD}-${PLATFORM/_/-}"
+        CMD_DIST_PATH="dist/${CMD}-${PLATFORM/_/-}"
 
         # Get the expected binary file extension
         if [[ "${PLATFORM}" =~ "windows" ]]; then
