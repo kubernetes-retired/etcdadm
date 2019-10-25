@@ -31,7 +31,7 @@ foo 1.2.3.4
 `
 
 	expected := `
-foo 10.2.3.4
+foo 1.2.3.4
 
 # Begin host entries managed by etcd-manager[etcd] - do not edit
 a\t10.0.1.1 10.0.1.2
@@ -67,6 +67,7 @@ bar 10.1.2.3
 
 	expected := `
 foo 10.2.3.4
+
 bar 10.1.2.3
 
 # Begin host entries managed by etcd-manager[etcd] - do not edit
@@ -117,7 +118,7 @@ func runTest(t *testing.T, in string, expected string) {
 
 		actual := string(b)
 		if actual != expected {
-			t.Errorf("unexpected output.  expected=%q, actual=%q", expected, actual)
+			t.Errorf("unexpected output.\n  expected=%q\n    actual=%q", expected, actual)
 		}
 	}
 }
