@@ -4,11 +4,11 @@ all: test
 
 .PHONY: test
 test:
-	bazel test //test/... --test_output=streamed
+	bazel test //... --test_output=streamed
 
 .PHONY: stress-test
 stress-test:
-	bazel test //test/... --test_output=streamed --runs_per_test=10
+	bazel test //... --test_output=streamed --runs_per_test=10
 
 .PHONY: gofmt
 gofmt:
