@@ -355,10 +355,10 @@ func GetDevicePath(volumeID string) (string, error) {
 
 // FindMountedVolume implements Volumes::FindMountedVolume
 func (_ *OpenstackVolumes) FindMountedVolume(volume *volumes.Volume) (string, error) {
-	// wait for 1.5min is the volume attached and path found
+	// wait for 2.5min is the volume attached and path found
 	var backoff = volumes.Backoff{
 		Duration: 6 * time.Second,
-		Steps:    15,
+		Steps:    25,
 	}
 
 	device := ""
