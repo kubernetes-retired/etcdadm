@@ -7,6 +7,7 @@ go_library(
         "interfaces.go",
         "mounter.go",
         "nsenter_exec.go",
+        "retry.go",
     ],
     importpath = "kope.io/etcd-manager/pkg/volumes",
     visibility = ["//visibility:public"],

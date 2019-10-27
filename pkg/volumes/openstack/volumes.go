@@ -25,6 +25,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/golang/glog"
 	"github.com/gophercloud/gophercloud"
@@ -354,11 +355,28 @@ func GetDevicePath(volumeID string) (string, error) {
 
 // FindMountedVolume implements Volumes::FindMountedVolume
 func (_ *OpenstackVolumes) FindMountedVolume(volume *volumes.Volume) (string, error) {
-	device, err := GetDevicePath(volume.ProviderID)
-	if err != nil {
-		return "", err
+	// wait for 1.5min is the volume attached and path found
+	var backoff = volumes.Backoff{
+		Duration: 6 * time.Second,
+		Steps:    15,
 	}
-	if device == "" {
+
+	device := ""
+	err := volumes.SleepUntil(backoff, func() (bool, error) {
+		devpath, err := GetDevicePath(volume.ProviderID)
+		if err != nil {
+			glog.V(2).Infof("%v... retrying", err)
+			return false, nil
+		}
+		if devpath == "" {
+			glog.V(2).Infof("Could not find device path for volume... retrying")
+			return false, nil
+		}
+		device = devpath
+		return true, nil
+	})
+	if err != nil || device == "" {
+		// TODO: in this case we must make ensure that the volume is not attached to machine?
 		return "", fmt.Errorf("failed to find device path for volume")
 	}
 
