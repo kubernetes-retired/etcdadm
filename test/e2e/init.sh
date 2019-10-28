@@ -26,8 +26,12 @@ cd_root_path
 export GO111MODULE=on
 go build
 
+# Prepare container
+trap "docker rm -f etcdadm-0" EXIT
+docker run --name etcdadm-0 --detach --privileged --security-opt seccomp=unconfined --tmpfs /tmp --tmpfs /run  --volume ${PWD}:/etcdadm kindest/node:v1.16.2
+
 # Run init
-./etcdadm init
+docker exec etcdadm-0  /etcdadm/etcdadm init
 
 # Verify that all endpoints are healthy
-/opt/bin/etcdctl.sh endpoint health
+docker exec etcdadm-0 /opt/bin/etcdctl.sh endpoint health
