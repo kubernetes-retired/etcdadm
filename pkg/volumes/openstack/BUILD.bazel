@@ -21,5 +21,6 @@ go_library(
         "//vendor/github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/volumeattach:go_default_library",
         "//vendor/github.com/gophercloud/gophercloud/openstack/compute/v2/servers:go_default_library",
         "//vendor/gopkg.in/gcfg.v1:go_default_library",
+        "//vendor/k8s.io/utils/exec:go_default_library",
     ],
 )
