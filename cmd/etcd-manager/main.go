@@ -241,7 +241,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 
 		case "external":
 			volumeDir := volumes.PathFor("/mnt/disks")
-			externalVolumeProvider, err := external.NewExternalVolumes(o.ClusterName, volumeDir)
+			externalVolumeProvider, err := external.NewExternalVolumes(o.ClusterName, volumeDir, o.VolumeTags)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				os.Exit(1)
@@ -250,7 +250,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 
 			// TODO: Allow this to be customized
 			seedDir := volumes.PathFor("/etc/kubernetes/etcd-manager/seeds")
-			discoveryProvider = external.NewExternalDiscovery(seedDir)
+			discoveryProvider = external.NewExternalDiscovery(seedDir, externalVolumeProvider)
 
 		default:
 			fmt.Fprintf(os.Stderr, "unknown volume-provider %q\n", o.VolumeProviderID)

@@ -23,6 +23,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 
 	"github.com/golang/glog"
 
@@ -34,21 +35,30 @@ type ExternalVolumes struct {
 	basedir     string
 	clusterName string
 	localIP     net.IP
+
+	// volumeTags filter the volumes we see.
+	// These are the required prefix of the volume names
+	volumeTags []string
 }
 
 var _ volumes.Volumes = &ExternalVolumes{}
 
 // NewExternalVolumes returns a new external volume provider
-func NewExternalVolumes(clusterName string, basedir string) (*ExternalVolumes, error) {
+func NewExternalVolumes(clusterName string, basedir string, volumeTags []string) (*ExternalVolumes, error) {
 	localIP, err := findLocalIP()
 	if err != nil {
 		return nil, err
+	}
+
+	if len(volumeTags) != 1 {
+		return nil, fmt.Errorf("baremetal expected a single volume tag (the prefix to use)")
 	}
 
 	a := &ExternalVolumes{
 		basedir:     basedir,
 		clusterName: clusterName,
 		localIP:     localIP,
+		volumeTags:  volumeTags,
 	}
 
 	return a, nil
@@ -92,7 +102,6 @@ func findLocalIP() (net.IP, error) {
 	}
 
 	if len(ips) > 1 {
-
 		sort.Slice(ips, func(i, j int) bool {
 			ipI := ips[i]
 			ipJ := ips[j]
@@ -117,10 +126,6 @@ func findLocalIP() (net.IP, error) {
 }
 
 func (a *ExternalVolumes) FindVolumes() ([]*volumes.Volume, error) {
-	return a.findVolumes(true)
-}
-
-func (a *ExternalVolumes) findVolumes(filterByAZ bool) ([]*volumes.Volume, error) {
 	files, err := ioutil.ReadDir(a.basedir)
 	if err != nil {
 		return nil, fmt.Errorf("error reading %s: %v", a.basedir, err)
@@ -129,6 +134,18 @@ func (a *ExternalVolumes) findVolumes(filterByAZ bool) ([]*volumes.Volume, error
 	var allVolumes []*volumes.Volume
 	for _, f := range files {
 		if !f.IsDir() {
+			continue
+		}
+
+		match := true
+		for _, tag := range a.volumeTags {
+			if strings.HasPrefix(f.Name(), tag) {
+				match = false
+			}
+		}
+
+		if !match {
+			glog.V(2).Infof("volume %s did not match tags %v, skipping", f.Name(), a.volumeTags)
 			continue
 		}
 
