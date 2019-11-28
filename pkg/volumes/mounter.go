@@ -62,6 +62,13 @@ func (k *VolumeMountController) mountMasterVolumes() ([]*Volume, error) {
 			continue
 		}
 
+		// Handle the case of volumes that are premounted on the filesystem
+		if v.Mountpoint != "" {
+			glog.V(2).Infof("Master volume %q is pre-mounted at %q", v.ProviderID, v.Mountpoint)
+			k.mounted[v.ProviderID] = v
+			continue
+		}
+
 		glog.V(2).Infof("Master volume %q is attached at %q", v.ProviderID, v.LocalDevice)
 
 		mountpoint := "/mnt/" + v.MountName
@@ -291,8 +298,8 @@ func (k *VolumeMountController) attachMasterVolumes() ([]*Volume, error) {
 			// We are racing with other instances here; this can happen
 			glog.Warningf("Error attaching volume %q: %v", v.ProviderID, err)
 		} else {
-			if v.LocalDevice == "" {
-				glog.Fatalf("AttachVolume did not set LocalDevice")
+			if v.LocalDevice == "" && v.Mountpoint == "" {
+				glog.Fatalf("AttachVolume did not set LocalDevice or Mountpoint")
 			}
 			attached = append(attached, v)
 		}
