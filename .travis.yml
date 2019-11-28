@@ -11,6 +11,7 @@ env:
   - BAZEL_VERSION=0.29.1
   - BAZEL_VERSION=1.0.1
   - BAZEL_VERSION=1.1.0
+  - BAZEL_VERSION=1.2.1
 
 before_install:
   - pwd
