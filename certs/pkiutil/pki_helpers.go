@@ -22,23 +22,44 @@ modified to work independently of kubeadm internals like the configuration.
 package pkiutil
 
 import (
+	"crypto"
+	cryptorand "crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"crypto/x509/pkix"
+	"encoding/pem"
 	"fmt"
 	"net"
 	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/util/validation"
 	certutil "k8s.io/client-go/util/cert"
+	"k8s.io/client-go/util/keyutil"
+	"math"
+	"math/big"
 	"sigs.k8s.io/etcdadm/apis"
 	"sigs.k8s.io/etcdadm/constants"
 )
 
+const (
+	// PrivateKeyBlockType is a possible value for pem.Block.Type.
+	PrivateKeyBlockType = "PRIVATE KEY"
+	// PublicKeyBlockType is a possible value for pem.Block.Type.
+	PublicKeyBlockType = "PUBLIC KEY"
+	// CertificateBlockType is a possible value for pem.Block.Type.
+	CertificateBlockType = "CERTIFICATE"
+	// RSAPrivateKeyBlockType is a possible value for pem.Block.Type.
+	RSAPrivateKeyBlockType = "RSA PRIVATE KEY"
+	rsaKeySize             = 2048
+	certificateValidity    = time.Hour * 24 * 365
+)
+
 // NewCertificateAuthority creates new certificate and private key for the certificate authority
 func NewCertificateAuthority() (*x509.Certificate, *rsa.PrivateKey, error) {
-	key, err := certutil.NewPrivateKey()
+	key, err := NewPrivateKey()
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to create private key [%v]", err)
 	}
@@ -56,12 +77,12 @@ func NewCertificateAuthority() (*x509.Certificate, *rsa.PrivateKey, error) {
 
 // NewCertAndKey creates new certificate and key by passing the certificate authority certificate and key
 func NewCertAndKey(caCert *x509.Certificate, caKey *rsa.PrivateKey, config certutil.Config) (*x509.Certificate, *rsa.PrivateKey, error) {
-	key, err := certutil.NewPrivateKey()
+	key, err := NewPrivateKey()
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to create private key [%v]", err)
 	}
 
-	cert, err := certutil.NewSignedCert(config, key, caCert, caKey)
+	cert, err := NewSignedCert(&config, key, caCert, caKey)
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to sign certificate [%v]", err)
 	}
@@ -95,7 +116,7 @@ func WriteCert(pkiPath, name string, cert *x509.Certificate) error {
 	}
 
 	certificatePath := pathForCert(pkiPath, name)
-	if err := certutil.WriteCert(certificatePath, certutil.EncodeCertPEM(cert)); err != nil {
+	if err := certutil.WriteCert(certificatePath, EncodeCertPEM(cert)); err != nil {
 		return fmt.Errorf("unable to write certificate to file %q: [%v]", certificatePath, err)
 	}
 
@@ -109,7 +130,7 @@ func WriteKey(pkiPath, name string, key *rsa.PrivateKey) error {
 	}
 
 	privateKeyPath := pathForKey(pkiPath, name)
-	if err := certutil.WriteKey(privateKeyPath, certutil.EncodePrivateKeyPEM(key)); err != nil {
+	if err := keyutil.WriteKey(privateKeyPath, EncodePrivateKeyPEM(key)); err != nil {
 		return fmt.Errorf("unable to write private key to file %q: [%v]", privateKeyPath, err)
 	}
 
@@ -122,12 +143,12 @@ func WritePublicKey(pkiPath, name string, key *rsa.PublicKey) error {
 		return fmt.Errorf("public key cannot be nil when writing to file")
 	}
 
-	publicKeyBytes, err := certutil.EncodePublicKeyPEM(key)
+	publicKeyBytes, err := EncodePublicKeyPEM(key)
 	if err != nil {
 		return err
 	}
 	publicKeyPath := pathForPublicKey(pkiPath, name)
-	if err := certutil.WriteKey(publicKeyPath, publicKeyBytes); err != nil {
+	if err := keyutil.WriteKey(publicKeyPath, publicKeyBytes); err != nil {
 		return fmt.Errorf("unable to write public key to file %q: [%v]", publicKeyPath, err)
 	}
 
@@ -194,7 +215,7 @@ func TryLoadKeyFromDisk(pkiPath, name string) (*rsa.PrivateKey, error) {
 	privateKeyPath := pathForKey(pkiPath, name)
 
 	// Parse the private key from a file
-	privKey, err := certutil.PrivateKeyFromFile(privateKeyPath)
+	privKey, err := keyutil.PrivateKeyFromFile(privateKeyPath)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't load the private key file %s: %v", privateKeyPath, err)
 	}
@@ -216,7 +237,7 @@ func TryLoadPrivatePublicKeyFromDisk(pkiPath, name string) (*rsa.PrivateKey, *rs
 	privateKeyPath := pathForKey(pkiPath, name)
 
 	// Parse the private key from a file
-	privKey, err := certutil.PrivateKeyFromFile(privateKeyPath)
+	privKey, err := keyutil.PrivateKeyFromFile(privateKeyPath)
 	if err != nil {
 		return nil, nil, fmt.Errorf("couldn't load the private key file %s: %v", privateKeyPath, err)
 	}
@@ -224,7 +245,7 @@ func TryLoadPrivatePublicKeyFromDisk(pkiPath, name string) (*rsa.PrivateKey, *rs
 	publicKeyPath := pathForPublicKey(pkiPath, name)
 
 	// Parse the public key from a file
-	pubKeys, err := certutil.PublicKeysFromFile(publicKeyPath)
+	pubKeys, err := keyutil.PublicKeysFromFile(publicKeyPath)
 	if err != nil {
 		return nil, nil, fmt.Errorf("couldn't load the public key file %s: %v", publicKeyPath, err)
 	}
@@ -295,4 +316,73 @@ func appendSANsToAltNames(altNames *certutil.AltNames, SANs []string, certName s
 			)
 		}
 	}
+}
+
+// NewPrivateKey creates an RSA private key
+func NewPrivateKey() (*rsa.PrivateKey, error) {
+	return rsa.GenerateKey(cryptorand.Reader, rsaKeySize)
+}
+
+// NewSignedCert creates a signed certificate using the given CA certificate and key
+func NewSignedCert(cfg *certutil.Config, key crypto.Signer, caCert *x509.Certificate, caKey crypto.Signer) (*x509.Certificate, error) {
+	serial, err := cryptorand.Int(cryptorand.Reader, new(big.Int).SetInt64(math.MaxInt64))
+	if err != nil {
+		return nil, err
+	}
+	if len(cfg.CommonName) == 0 {
+		return nil, errors.New("must specify a CommonName")
+	}
+	if len(cfg.Usages) == 0 {
+		return nil, errors.New("must specify at least one ExtKeyUsage")
+	}
+
+	certTmpl := x509.Certificate{
+		Subject: pkix.Name{
+			CommonName:   cfg.CommonName,
+			Organization: cfg.Organization,
+		},
+		DNSNames:     cfg.AltNames.DNSNames,
+		IPAddresses:  cfg.AltNames.IPs,
+		SerialNumber: serial,
+		NotBefore:    caCert.NotBefore,
+		NotAfter:     time.Now().Add(certificateValidity).UTC(),
+		KeyUsage:     x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
+		ExtKeyUsage:  cfg.Usages,
+	}
+	certDERBytes, err := x509.CreateCertificate(cryptorand.Reader, &certTmpl, caCert, key.Public(), caKey)
+	if err != nil {
+		return nil, err
+	}
+	return x509.ParseCertificate(certDERBytes)
+}
+
+// EncodeCertPEM returns PEM-endcoded certificate data
+func EncodeCertPEM(cert *x509.Certificate) []byte {
+	block := pem.Block{
+		Type:  CertificateBlockType,
+		Bytes: cert.Raw,
+	}
+	return pem.EncodeToMemory(&block)
+}
+
+// EncodePublicKeyPEM returns PEM-encoded public data
+func EncodePublicKeyPEM(key crypto.PublicKey) ([]byte, error) {
+	der, err := x509.MarshalPKIXPublicKey(key)
+	if err != nil {
+		return []byte{}, err
+	}
+	block := pem.Block{
+		Type:  PublicKeyBlockType,
+		Bytes: der,
+	}
+	return pem.EncodeToMemory(&block), nil
+}
+
+// EncodePrivateKeyPEM returns PEM-encoded private key data
+func EncodePrivateKeyPEM(key *rsa.PrivateKey) []byte {
+	block := pem.Block{
+		Type:  RSAPrivateKeyBlockType, // "RSA PRIVATE KEY"
+		Bytes: x509.MarshalPKCS1PrivateKey(key),
+	}
+	return pem.EncodeToMemory(&block)
 }

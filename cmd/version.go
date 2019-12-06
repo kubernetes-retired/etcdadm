@@ -26,7 +26,7 @@ import (
 	"github.com/spf13/cobra"
 
 	apimachineryversion "k8s.io/apimachinery/pkg/version"
-	"k8s.io/kubernetes/pkg/version"
+	"k8s.io/component-base/version"
 )
 
 // Version TODO: add description
