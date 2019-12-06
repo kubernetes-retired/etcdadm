@@ -298,7 +298,7 @@ func DefaultAdvertiseClientURLs(cfg *EtcdAdmConfig) error {
 
 // Returns the address associated with the host's default interface.
 func defaultExternalAddress() (net.IP, error) {
-	ip, err := netutil.ChooseBindAddress(net.ParseIP("0.0.0.0"))
+	ip, err := netutil.ResolveBindAddress(net.ParseIP("0.0.0.0"))
 	if err != nil {
 		return nil, fmt.Errorf("failed to find a default external address: %s", err)
 	}

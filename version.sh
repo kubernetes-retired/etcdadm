@@ -142,7 +142,7 @@ kube::version::ldflag() {
   local val=${2}
 
   # If you update these, also update the list pkg/version/def.bzl.
-  echo "-X 'k8s.io/kubernetes/pkg/version.${key}=${val}'"
+  echo "-X 'k8s.io/component-base/version.${key}=${val}'"
 }
 
 # Prints the value that needs to be passed to the -ldflags parameter of go build
