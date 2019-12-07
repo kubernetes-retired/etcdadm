@@ -27,12 +27,12 @@ import (
 	"time"
 
 	"github.com/denverdino/aliyungo/oss"
-	"github.com/golang/glog"
 	"github.com/gophercloud/gophercloud"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
 	storage "google.golang.org/api/storage/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/klog"
 )
 
 // VFSContext is a 'context' for VFS, that is normally a singleton
@@ -56,11 +56,36 @@ var Context = VFSContext{
 	k8sContext: NewKubernetesContext(),
 }
 
+type vfsOptions struct {
+	backoff wait.Backoff
+}
+
+type VFSOption func(options *vfsOptions)
+
+// WithBackoff specifies a custom VFS backoff policy
+func WithBackoff(backoff wait.Backoff) VFSOption {
+	return func(options *vfsOptions) {
+		options.backoff = backoff
+	}
+}
+
 // ReadLocation reads a file from a vfs URL
 // It supports additional schemes which don't (yet) have full VFS implementations:
 //   metadata: reads from instance metadata on GCE/AWS
 //   http / https: reads from HTTP
-func (c *VFSContext) ReadFile(location string) ([]byte, error) {
+func (c *VFSContext) ReadFile(location string, options ...VFSOption) ([]byte, error) {
+	var opts vfsOptions
+	// Exponential backoff, starting with 500 milliseconds, doubling each time, 5 steps
+	opts.backoff = wait.Backoff{
+		Duration: 500 * time.Millisecond,
+		Factor:   2,
+		Steps:    5,
+	}
+
+	for _, option := range options {
+		option(&opts)
+	}
+
 	if strings.Contains(location, "://") && !strings.HasPrefix(location, "file://") {
 		// Handle our special case schemas
 		u, err := url.Parse(location)
@@ -75,20 +100,20 @@ func (c *VFSContext) ReadFile(location string) ([]byte, error) {
 				httpURL := "http://169.254.169.254/computeMetadata/v1/instance/attributes/" + u.Path
 				httpHeaders := make(map[string]string)
 				httpHeaders["Metadata-Flavor"] = "Google"
-				return c.readHttpLocation(httpURL, httpHeaders)
+				return c.readHttpLocation(httpURL, httpHeaders, opts)
 			case "aws":
 				httpURL := "http://169.254.169.254/latest/" + u.Path
-				return c.readHttpLocation(httpURL, nil)
+				return c.readHttpLocation(httpURL, nil, opts)
 			case "digitalocean":
 				httpURL := "http://169.254.169.254/metadata/v1" + u.Path
-				return c.readHttpLocation(httpURL, nil)
+				return c.readHttpLocation(httpURL, nil, opts)
 
 			default:
 				return nil, fmt.Errorf("unknown metadata type: %q in %q", u.Host, location)
 			}
 
 		case "http", "https":
-			return c.readHttpLocation(location, nil)
+			return c.readHttpLocation(location, nil, opts)
 		}
 	}
 
@@ -145,18 +170,11 @@ func (c *VFSContext) BuildVfsPath(p string) (Path, error) {
 // readHttpLocation reads an http (or https) url.
 // It returns the contents, or an error on any non-200 response.  On a 404, it will return os.ErrNotExist
 // It will retry a few times on a 500 class error
-func (c *VFSContext) readHttpLocation(httpURL string, httpHeaders map[string]string) ([]byte, error) {
-	// Exponential backoff, starting with 500 milliseconds, doubling each time, 5 steps
-	backoff := wait.Backoff{
-		Duration: 500 * time.Millisecond,
-		Factor:   2,
-		Steps:    5,
-	}
-
+func (c *VFSContext) readHttpLocation(httpURL string, httpHeaders map[string]string, opts vfsOptions) ([]byte, error) {
 	var body []byte
 
-	done, err := RetryWithBackoff(backoff, func() (bool, error) {
-		glog.V(4).Infof("Performing HTTP request: GET %s", httpURL)
+	done, err := RetryWithBackoff(opts.backoff, func() (bool, error) {
+		klog.V(4).Infof("Performing HTTP request: GET %s", httpURL)
 		req, err := http.NewRequest("GET", httpURL, nil)
 		if err != nil {
 			return false, err
@@ -224,11 +242,11 @@ func RetryWithBackoff(backoff wait.Backoff, condition func() (bool, error)) (boo
 		}
 		noMoreRetries := i >= backoff.Steps
 		if !noMoreRetries && err != nil {
-			glog.V(2).Infof("retrying after error %v", err)
+			klog.V(2).Infof("retrying after error %v", err)
 		}
 
 		if noMoreRetries {
-			glog.Infof("hit maximum retries %d with error %v", i, err)
+			klog.Infof("hit maximum retries %d with error %v", i, err)
 			return done, err
 		}
 	}

@@ -14,5 +14,12 @@ go_library(
     importmap = "kope.io/etcd-manager/vendor/golang.org/x/crypto/internal/chacha20",
     importpath = "golang.org/x/crypto/internal/chacha20",
     visibility = ["//vendor/golang.org/x/crypto:__subpackages__"],
-    deps = ["//vendor/golang.org/x/crypto/internal/subtle:go_default_library"],
+    deps = [
+        "//vendor/golang.org/x/crypto/internal/subtle:go_default_library",
+    ] + select({
+        "@io_bazel_rules_go//go/platform:s390x": [
+            "//vendor/golang.org/x/sys/cpu:go_default_library",
+        ],
+        "//conditions:default": [],
+    }),
 )
