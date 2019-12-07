@@ -25,6 +25,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/golang/glog"
 	"github.com/gophercloud/gophercloud"
@@ -33,6 +34,7 @@ import (
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/availabilityzones"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/volumeattach"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
+	utilexec "k8s.io/utils/exec"
 	"kope.io/etcd-manager/pkg/volumes"
 )
 
@@ -352,13 +354,58 @@ func GetDevicePath(volumeID string) (string, error) {
 	return "", fmt.Errorf("Failed to find device for the volumeID: %q", volumeID)
 }
 
+// probeVolume probes volume in compute
+// see issue https://github.com/kubernetes/cloud-provider-openstack/issues/705
+func probeVolume() error {
+	// rescan scsi bus
+	scsiPath := "/sys/class/scsi_host/"
+	if dirs, err := ioutil.ReadDir(scsiPath); err == nil {
+		for _, f := range dirs {
+			name := scsiPath + f.Name() + "/scan"
+			data := []byte("- - -")
+			ioutil.WriteFile(name, data, 0666)
+		}
+	}
+
+	executor := utilexec.New()
+	args := []string{"trigger"}
+	cmd := executor.Command("udevadm", args...)
+	_, err := cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // FindMountedVolume implements Volumes::FindMountedVolume
 func (_ *OpenstackVolumes) FindMountedVolume(volume *volumes.Volume) (string, error) {
-	device, err := GetDevicePath(volume.ProviderID)
-	if err != nil {
-		return "", err
+	// wait for 2.5min is the volume attached and path found
+	var backoff = volumes.Backoff{
+		Duration: 6 * time.Second,
+		Steps:    25,
 	}
-	if device == "" {
+
+	device := ""
+	err := volumes.SleepUntil(backoff, func() (bool, error) {
+		devpath, err := GetDevicePath(volume.ProviderID)
+		if err != nil {
+			glog.V(2).Infof("%v... retrying", err)
+			return false, nil
+		}
+		if devpath == "" {
+			perr := probeVolume()
+			if perr != nil {
+				glog.V(2).Infof("Could not find device path and error probing for volume %v... retrying", perr)
+			} else {
+				glog.V(2).Infof("Could not find device path for volume... retrying")
+			}
+			return false, nil
+		}
+		device = devpath
+		return true, nil
+	})
+	if err != nil || device == "" {
+		// TODO: in this case we must make ensure that the volume is not attached to machine?
 		return "", fmt.Errorf("failed to find device path for volume")
 	}
 
