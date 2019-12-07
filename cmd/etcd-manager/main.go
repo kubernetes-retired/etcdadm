@@ -71,7 +71,7 @@ func main() {
 	flag.StringVar(&o.Address, "address", o.Address, "local address to use")
 	flag.StringVar(&o.PeerUrls, "peer-urls", o.PeerUrls, "peer-urls to use")
 	flag.IntVar(&o.GrpcPort, "grpc-port", o.GrpcPort, "grpc-port to use")
-	flag.StringVar(&o.ListenMetricsURLs, "listen-metric-urls", o.ListenMetricsURLs, "listen-metric-urls configure etcd dedicated metrics URL endpoints")
+	flag.StringVar(&o.ListenMetricsURLs, "listen-metrics-urls", o.ListenMetricsURLs, "listen-metrics-urls configure etcd dedicated metrics URL endpoints")
 	flag.StringVar(&o.ClientUrls, "client-urls", o.ClientUrls, "client-urls to use for normal operation")
 	flag.StringVar(&o.QuarantineClientUrls, "quarantine-client-urls", o.QuarantineClientUrls, "client-urls to use when etcd should be quarantined e.g. when offline")
 	flag.StringVar(&o.ClusterName, "cluster-name", o.ClusterName, "name of cluster")
