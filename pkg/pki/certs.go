@@ -29,11 +29,11 @@ func EnsureKeypair(store MutableKeypair, config certutil.Config, signer *Keypair
 
 	mutator := func(keypair *Keypair) error {
 		if keypair.PrivateKey == nil {
-			privateKey, err := certutil.NewPrivateKey()
+			privateKey, err := NewPrivateKey()
 			if err != nil {
 				return fmt.Errorf("unable to create private key %q: %v", p, err)
 			}
-			b := certutil.EncodePrivateKeyPEM(privateKey)
+			b := EncodePrivateKeyPEM(privateKey)
 			keypair.PrivateKey = privateKey
 			keypair.PrivateKeyPEM = b
 		}
@@ -104,7 +104,7 @@ func EnsureKeypair(store MutableKeypair, config certutil.Config, signer *Keypair
 			var cert *x509.Certificate
 			var err error
 			if signer != nil {
-				cert, err = certutil.NewSignedCert(config, keypair.PrivateKey, signer.Certificate, signer.PrivateKey)
+				cert, err = NewSignedCert(&config, keypair.PrivateKey, signer.Certificate, signer.PrivateKey)
 			} else {
 				cert, err = certutil.NewSelfSignedCACert(config, keypair.PrivateKey)
 			}
@@ -113,7 +113,7 @@ func EnsureKeypair(store MutableKeypair, config certutil.Config, signer *Keypair
 				return fmt.Errorf("error signing certificate for %q: %v", p, err)
 			}
 
-			b := certutil.EncodeCertPEM(cert)
+			b := EncodeCertPEM(cert)
 			keypair.Certificate = cert
 			keypair.CertificatePEM = b
 		}

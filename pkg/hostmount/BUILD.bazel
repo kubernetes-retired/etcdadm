@@ -2,18 +2,11 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "go_default_library",
-    srcs = [
-        "boot.go",
-        "interfaces.go",
-        "mounter.go",
-        "retry.go",
-    ],
-    importpath = "kope.io/etcd-manager/pkg/volumes",
+    srcs = ["nsenter.go"],
+    importpath = "kope.io/etcd-manager/pkg/hostmount",
     visibility = ["//visibility:public"],
     deps = [
-        "//pkg/hostmount:go_default_library",
         "//vendor/github.com/golang/glog:go_default_library",
-        "//vendor/k8s.io/utils/exec:go_default_library",
         "//vendor/k8s.io/utils/mount:go_default_library",
         "//vendor/k8s.io/utils/nsenter:go_default_library",
     ],
