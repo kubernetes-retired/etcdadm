@@ -349,7 +349,8 @@ func (a *DOVolumes) FindMountedVolume(volume *volumes.Volume) (string, error) {
 		return "", fmt.Errorf("error checking for device %q: %v", device, err)
 	}
 
-	return "", fmt.Errorf("error checking for device %q: %v", device, err)
+	// When not found, the interface says we return ("", nil)
+	return "", nil
 }
 
 // AttachVolume attaches the specified volume to this instance, returning the mountpoint & nil if successful

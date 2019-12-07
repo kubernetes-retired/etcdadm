@@ -17,30 +17,36 @@ limitations under the License.
 package volumes
 
 import (
-	"fmt"
 	"time"
+
+	"github.com/golang/glog"
 )
 
 // Backoff ...
 type Backoff struct {
 	Duration time.Duration
-	Steps    int
+	Attempts int
 }
 
 type conditionFunc func() (done bool, err error)
 
 // SleepUntil is for retrying functions
-func SleepUntil(backoff Backoff, condition conditionFunc) error {
-	for backoff.Steps > 0 {
-		if ok, err := condition(); err != nil || ok {
-			return err
+// It calls condition repeatedly, with backoff.
+// When condition returns done==true or a err != nil; this function returns those values.
+// If first we exhaust the backoff Attempts; we return false, nil
+func SleepUntil(backoff Backoff, condition conditionFunc) (done bool, err error) {
+	for backoff.Attempts > 0 {
+		if done, err := condition(); err != nil || done {
+			return done, err
 		}
-		if backoff.Steps == 1 {
+		backoff.Attempts--
+		if backoff.Attempts == 0 {
 			break
 		}
-		backoff.Steps--
+		if err != nil {
+			glog.Infof("retrying after error: %v", err)
+		}
 		time.Sleep(backoff.Duration)
-
 	}
-	return fmt.Errorf("Timed out waiting for the condition")
+	return false, nil
 }
