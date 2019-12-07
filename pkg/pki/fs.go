@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	certutil "k8s.io/client-go/util/cert"
+	"k8s.io/client-go/util/keyutil"
 	"k8s.io/klog"
 )
 
@@ -134,7 +134,7 @@ func loadPrivateKey(privateKeyPath string, keypair *Keypair) error {
 	}
 
 	if privateKeyBytes != nil {
-		key, err := certutil.ParsePrivateKeyPEM(privateKeyBytes)
+		key, err := keyutil.ParsePrivateKeyPEM(privateKeyBytes)
 		if err != nil {
 			return fmt.Errorf("unable to parse private key %q: %v", privateKeyPath, err)
 		}
