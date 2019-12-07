@@ -167,10 +167,6 @@ func (c *V2Client) copySubtree(ctx context.Context, p string, dest NodeSink) (in
 		return count, fmt.Errorf("error reading %q: %v", p, err)
 	}
 
-	if err != nil {
-		return count, fmt.Errorf("error reading %q: %v", string(p), err)
-	}
-
 	if response.Node == nil {
 		return count, fmt.Errorf("node %q not found", p)
 	}
