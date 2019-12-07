@@ -328,6 +328,7 @@ func (g *GCEVolumes) FindMountedVolume(volume *volumes.Volume) (string, error) {
 		return device, nil
 	}
 	if os.IsNotExist(err) {
+		// When not found, the interface says we return ("", nil)
 		return "", nil
 	}
 	return "", fmt.Errorf("error checking for device %q: %v", device, err)
