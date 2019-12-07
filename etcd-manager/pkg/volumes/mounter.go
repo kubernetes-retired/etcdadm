@@ -97,7 +97,7 @@ func (k *VolumeMountController) mountMasterVolumes() ([]*Volume, error) {
 }
 
 func (k *VolumeMountController) safeFormatAndMount(volume *Volume, mountpoint string, fstype string) error {
-	// Wait for the device to show up
+	// Wait for the device to show up; we currently wait forever with naive retry logic
 	device := ""
 	for {
 		found, err := k.provider.FindMountedVolume(volume)
@@ -111,6 +111,7 @@ func (k *VolumeMountController) safeFormatAndMount(volume *Volume, mountpoint st
 		}
 
 		glog.Infof("Waiting for volume %q to be mounted", volume.ProviderID)
+		// TODO: Some form of backoff?
 		time.Sleep(1 * time.Second)
 	}
 	glog.Infof("Found volume %q mounted at device %q", volume.ProviderID, device)
