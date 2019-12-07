@@ -250,6 +250,7 @@ func (a *AWSVolumes) FindMountedVolume(volume *volumes.Volume) (string, error) {
 		glog.V(2).Infof("volume %s not mounted at %s", volume.ProviderID, expected)
 	}
 
+	// When not found, the interface says we return ("", nil)
 	return "", nil
 }
 

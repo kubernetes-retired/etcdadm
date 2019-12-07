@@ -327,7 +327,7 @@ func (stack *OpenstackVolumes) FindVolumes() ([]*volumes.Volume, error) {
 	return volumes, nil
 }
 
-func GetDevicePath(volumeID string) (string, error) {
+func findDevicePath(volumeID string) (string, error) {
 	// Build a list of candidate device paths
 	candidateDeviceNodes := []string{
 		// KVM
@@ -351,7 +351,7 @@ func GetDevicePath(volumeID string) (string, error) {
 		}
 	}
 
-	return "", fmt.Errorf("Failed to find device for the volumeID: %q", volumeID)
+	return "", nil
 }
 
 // probeVolume probes volume in compute
@@ -379,44 +379,50 @@ func probeVolume() error {
 
 // FindMountedVolume implements Volumes::FindMountedVolume
 func (_ *OpenstackVolumes) FindMountedVolume(volume *volumes.Volume) (string, error) {
-	// wait for 2.5min is the volume attached and path found
+	// wait for 2.5min max for the volume to be attached and path found
 	var backoff = volumes.Backoff{
 		Duration: 6 * time.Second,
-		Steps:    25,
+		Attempts: 25,
 	}
 
 	device := ""
-	err := volumes.SleepUntil(backoff, func() (bool, error) {
-		devpath, err := GetDevicePath(volume.ProviderID)
+	done, err := volumes.SleepUntil(backoff, func() (bool, error) {
+		devpath, err := findDevicePath(volume.ProviderID)
 		if err != nil {
-			glog.V(2).Infof("%v... retrying", err)
-			return false, nil
+			return false, err
 		}
-		if devpath == "" {
-			perr := probeVolume()
-			if perr != nil {
-				glog.V(2).Infof("Could not find device path and error probing for volume %v... retrying", perr)
-			} else {
-				glog.V(2).Infof("Could not find device path for volume... retrying")
-			}
-			return false, nil
+		if devpath != "" {
+			device = devpath
+			return true, nil
 		}
-		device = devpath
-		return true, nil
+
+		glog.V(2).Infof("Could not find device path for volume; scanning buses")
+		if err := probeVolume(); err != nil {
+			glog.V(2).Infof("Error scanning buses: %v", err)
+		}
+
+		return false, nil
 	})
-	if err != nil || device == "" {
+	if err != nil {
 		// TODO: in this case we must make ensure that the volume is not attached to machine?
-		return "", fmt.Errorf("failed to find device path for volume")
+		return "", fmt.Errorf("failed to find device path for volume %q: %v", volume.ProviderID, err)
 	}
 
-	_, err = os.Stat(volumes.PathFor(device))
-	if err == nil {
-		return device, nil
-	}
-	if os.IsNotExist(err) {
+	// If we didn't find the volume, the contract says we should return "", nil
+	if !done || device == "" {
 		return "", nil
 	}
-	return "", fmt.Errorf("error checking for device %q: %v", device, err)
+
+	if _, err := os.Stat(volumes.PathFor(device)); err != nil {
+		if os.IsNotExist(err) {
+			// Unexpected, but treat as not-found
+			glog.Warningf("did not find device %q at expected path %q", device, volumes.PathFor(device))
+			return "", nil
+		}
+		return "", fmt.Errorf("error checking for device %q: %v", device, err)
+	}
+
+	return device, nil
 }
 
 // AttachVolume attaches the specified volume to this instance, returning the mountpoint & nil if successful
