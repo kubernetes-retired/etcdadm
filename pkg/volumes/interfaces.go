@@ -21,8 +21,9 @@ type Volumes interface {
 	FindVolumes() ([]*Volume, error)
 
 	// FindMountedVolume returns the device (e.g. /dev/sda) where the volume is mounted
-	// If not found, it returns "", nil
-	// On error, it returns "", err
+	// If not found, it returns "", nil (it should not return an error)
+	// On other errors, it returns "", err
+	// FindMountedVolume is used by calling it in a retry loop until the volume is attached
 	FindMountedVolume(volume *Volume) (device string, err error)
 
 	// MyIP returns the current node's IP address
