@@ -29,7 +29,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	"kope.io/etcd-manager/pkg/dns"
 )
 
@@ -81,7 +81,7 @@ func (h *Provider) update() error {
 		}
 	}
 
-	glog.Infof("hosts update: primary=%v, fallbacks=%v, final=%v", h.primary, h.fallbacks, addrToHosts)
+	klog.Infof("hosts update: primary=%v, fallbacks=%v, final=%v", h.primary, h.fallbacks, addrToHosts)
 	return updateHostsFileWithRecords("/etc/hosts", h.Key, addrToHosts)
 }
 
@@ -113,7 +113,7 @@ func updateHostsFileWithRecords(p string, key string, addrToHosts map[string][]s
 
 		if k == guardBegin {
 			if inGuardBlock {
-				glog.Warningf("/etc/hosts guard-block begin seen while in guard block; will ignore")
+				klog.Warningf("/etc/hosts guard-block begin seen while in guard block; will ignore")
 			}
 			inGuardBlock = true
 		}
@@ -124,7 +124,7 @@ func updateHostsFileWithRecords(p string, key string, addrToHosts map[string][]s
 
 		if k == guardEnd {
 			if !inGuardBlock {
-				glog.Warningf("/etc/hosts guard-block end seen before guard-block start; will ignore end")
+				klog.Warningf("/etc/hosts guard-block end seen before guard-block start; will ignore end")
 				// Don't output the line
 				out = out[:len(out)-1]
 			}
@@ -178,7 +178,7 @@ func updateHostsFileWithRecords(p string, key string, addrToHosts map[string][]s
 
 	updated := []byte(strings.Join(out, "\n"))
 	if bytes.Equal(updated, data) {
-		glog.V(2).Infof("skipping update of unchanged /etc/hosts")
+		klog.V(2).Infof("skipping update of unchanged /etc/hosts")
 		return nil
 	}
 
@@ -208,7 +208,7 @@ func pseudoAtomicWrite(p string, b []byte, mode os.FileMode) error {
 		}
 
 		if err := ioutil.WriteFile(p, b, mode); err != nil {
-			glog.Warningf("error writing file %q: %v", p, err)
+			klog.Warningf("error writing file %q: %v", p, err)
 			continue
 		}
 
@@ -217,7 +217,7 @@ func pseudoAtomicWrite(p string, b []byte, mode os.FileMode) error {
 
 		contents, err := ioutil.ReadFile(p)
 		if err != nil {
-			glog.Warningf("error re-reading file %q: %v", p, err)
+			klog.Warningf("error re-reading file %q: %v", p, err)
 			continue
 		}
 
@@ -225,7 +225,7 @@ func pseudoAtomicWrite(p string, b []byte, mode os.FileMode) error {
 			return nil
 		}
 
-		glog.Warningf("detected concurrent write to file %q, will retry", p)
+		klog.Warningf("detected concurrent write to file %q, will retry", p)
 	}
 }
 
@@ -243,13 +243,13 @@ func atomicWriteFile(filename string, data []byte, perm os.FileMode) error {
 	defer func() {
 		if mustClose {
 			if err := tempFile.Close(); err != nil {
-				glog.Warningf("error closing temp file: %v", err)
+				klog.Warningf("error closing temp file: %v", err)
 			}
 		}
 
 		if mustRemove {
 			if err := os.Remove(tempFile.Name()); err != nil {
-				glog.Warningf("error removing temp file %q: %v", tempFile.Name(), err)
+				klog.Warningf("error removing temp file %q: %v", tempFile.Name(), err)
 			}
 		}
 	}()

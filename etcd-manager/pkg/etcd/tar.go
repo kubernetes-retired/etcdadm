@@ -10,7 +10,7 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 )
 
 func createTgz(tgzFile string, srcdir string) error {
@@ -118,7 +118,7 @@ func (g *gzFile) expand(destFile string) error {
 	if err != nil {
 		return fmt.Errorf("error expanding file: %v", err)
 	}
-	glog.V(2).Infof("expanded snapshot file, size=%d bytes", n)
+	klog.V(2).Infof("expanded snapshot file, size=%d bytes", n)
 
 	if err := gz.Close(); err != nil {
 		return fmt.Errorf("error completing file expansion: %v", err)

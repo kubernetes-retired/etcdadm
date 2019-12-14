@@ -26,7 +26,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/etcd"
 	"kope.io/etcd-manager/pkg/etcd/dump"
@@ -34,7 +34,7 @@ import (
 )
 
 func main() {
-	flag.Set("logtostderr", "true")
+	klog.InitFlags(nil)
 
 	datadir := ""
 	flag.StringVar(&datadir, "data-dir", datadir, "data dir location")
@@ -79,7 +79,7 @@ func runDump(backupFile string, out string) error {
 
 	defer func() {
 		if err := os.RemoveAll(tempDir); err != nil {
-			glog.Warningf("error cleaning up tempdir %q: %v", tempDir, err)
+			klog.Warningf("error cleaning up tempdir %q: %v", tempDir, err)
 		}
 	}()
 
@@ -89,10 +89,10 @@ func runDump(backupFile string, out string) error {
 	}
 
 	defer func() {
-		glog.Infof("stopping etcd that was reading backup")
+		klog.Infof("stopping etcd that was reading backup")
 		err := process.Stop()
 		if err != nil {
-			glog.Warningf("unable to stop etcd process that was started for dump: %v", err)
+			klog.Warningf("unable to stop etcd process that was started for dump: %v", err)
 		}
 	}()
 
@@ -121,7 +121,7 @@ func runDump(backupFile string, out string) error {
 		if err == nil {
 			break
 		}
-		glog.Infof("Waiting for etcd to start (%v)", err)
+		klog.Infof("Waiting for etcd to start (%v)", err)
 		time.Sleep(time.Second)
 	}
 
@@ -129,7 +129,7 @@ func runDump(backupFile string, out string) error {
 	if n, err := sourceClient.CopyTo(ctx, nodeSink); err != nil {
 		return fmt.Errorf("error copying keys to sink: %v", err)
 	} else {
-		glog.Infof("read %d keys", n)
+		klog.Infof("read %d keys", n)
 	}
 
 	if err := nodeSink.Close(); err != nil {

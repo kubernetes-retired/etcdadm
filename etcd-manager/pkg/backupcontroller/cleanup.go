@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 
 	"kope.io/etcd-manager/pkg/backup"
 )
@@ -55,7 +55,7 @@ func (m *BackupCleanup) MaybeDoBackupMaintenance(ctx context.Context) error {
 		// Time parsing uses the same layout values as `Format`.
 		i := parseBackupNameInfo(backup)
 		if i == nil {
-			glog.Warningf("ignoring unparseable backup %q", backup)
+			klog.Warningf("ignoring unparseable backup %q", backup)
 			ignore[backup] = true
 			continue
 		}
@@ -96,24 +96,24 @@ func (m *BackupCleanup) MaybeDoBackupMaintenance(ctx context.Context) error {
 	removedCount := 0
 	for _, backup := range backupNames {
 		if retain[backup] {
-			glog.V(4).Infof("retaining backup %q", backup)
+			klog.V(4).Infof("retaining backup %q", backup)
 			continue
 		}
 		if ignore[backup] {
-			glog.V(4).Infof("ignoring backup %q", backup)
+			klog.V(4).Infof("ignoring backup %q", backup)
 			continue
 		}
-		glog.V(4).Infof("removing backup %q", backup)
+		klog.V(4).Infof("removing backup %q", backup)
 		if err := m.backupStore.RemoveBackup(backup); err != nil {
-			glog.Warningf("failed to remove backup %q: %v", backup, err)
+			klog.Warningf("failed to remove backup %q: %v", backup, err)
 		} else {
-			glog.V(2).Infof("removed backup %q", backup)
+			klog.V(2).Infof("removed backup %q", backup)
 			removedCount++
 		}
 	}
 
 	if removedCount != 0 {
-		glog.Infof("Removed %d old backups", removedCount)
+		klog.Infof("Removed %d old backups", removedCount)
 	}
 
 	m.lastBackupCleanup = now
