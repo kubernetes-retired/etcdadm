@@ -18,7 +18,8 @@ package hostmount
 
 import (
 	"fmt"
-	"github.com/golang/glog"
+
+	"k8s.io/klog"
 	"k8s.io/utils/mount"
 	"k8s.io/utils/nsenter"
 )
@@ -66,11 +67,11 @@ func (n *Mounter) Mount(source string, target string, fstype string, options []s
 // doNsenterMount nsenters the host's mount namespace and performs the
 // requested mount.
 func (n *Mounter) doNsenterMount(source, target, fstype string, options []string) error {
-	glog.V(5).Infof("nsenter mount %s %s %s %v", source, target, fstype, options)
+	klog.V(5).Infof("nsenter mount %s %s %s %v", source, target, fstype, options)
 	cmd, args := n.makeNsenterArgs(source, target, fstype, options)
 	outputBytes, err := n.ne.Exec(cmd, args).CombinedOutput()
 	if len(outputBytes) != 0 {
-		glog.V(5).Infof("Output of mounting %s to %s: %v", source, target, string(outputBytes))
+		klog.V(5).Infof("Output of mounting %s to %s: %v", source, target, string(outputBytes))
 	}
 	return err
 }

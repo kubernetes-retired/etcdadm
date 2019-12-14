@@ -17,8 +17,8 @@ limitations under the License.
 package openstack
 
 import (
-	"github.com/golang/glog"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
+	"k8s.io/klog"
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 	"kope.io/etcd-manager/pkg/volumes"
 )
@@ -43,7 +43,7 @@ func (os *OpenstackVolumes) Poll() (map[string]discovery.Node, error) {
 	for i, volume := range instanceToVolumeMap {
 		server, err := servers.Get(os.computeClient, i).Extract()
 		if err != nil {
-			glog.Warningf("Could not find server with id '%s': %v", i, err)
+			klog.Warningf("Could not find server with id '%s': %v", i, err)
 			continue
 		}
 
@@ -53,7 +53,7 @@ func (os *OpenstackVolumes) Poll() (map[string]discovery.Node, error) {
 		}
 		address, err := GetServerFixedIP(server.Addresses, server.Name)
 		if err != nil {
-			glog.Warningf("Could not find servers fixed ip %s: %v", server.Name, err)
+			klog.Warningf("Could not find servers fixed ip %s: %v", server.Name, err)
 			continue
 		}
 		node.Endpoints = append(node.Endpoints, discovery.NodeEndpoint{IP: address})

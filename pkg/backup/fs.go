@@ -10,7 +10,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	"kope.io/etcd-manager/pkg/apis/etcd"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/ioutils"
@@ -92,7 +92,7 @@ func (s *filesystemStore) ListBackups() ([]string, error) {
 	var backups []string
 	for _, f := range files {
 		if !f.IsDir() {
-			glog.Infof("skipping non-directory %s", filepath.Join(s.backupsBase, f.Name()))
+			klog.Infof("skipping non-directory %s", filepath.Join(s.backupsBase, f.Name()))
 			continue
 		}
 
@@ -154,7 +154,7 @@ func (s *filesystemStore) SeedNewCluster(spec *protoetcd.ClusterSpec) error {
 	defer func() {
 		err := os.RemoveAll(tmpdir)
 		if err != nil {
-			glog.Warningf("error deleting backup temp directory %q: %v", tmpdir, err)
+			klog.Warningf("error deleting backup temp directory %q: %v", tmpdir, err)
 		}
 	}()
 
@@ -166,7 +166,7 @@ func (s *filesystemStore) SeedNewCluster(spec *protoetcd.ClusterSpec) error {
 	if err != nil {
 		return err
 	}
-	glog.Infof("created seed backup with name %q", name)
+	klog.Infof("created seed backup with name %q", name)
 
 	return nil
 }

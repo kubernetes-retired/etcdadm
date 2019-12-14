@@ -16,7 +16,7 @@ import (
 
 	etcd_client_v3 "github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/version"
-	"github.com/golang/glog"
+	"k8s.io/klog"
 )
 
 type V3Client struct {
@@ -79,25 +79,25 @@ func (c *V3Client) ServerVersion(ctx context.Context) (string, error) {
 
 		req, err := http.NewRequest("GET", u, nil)
 		if err != nil {
-			glog.Warningf("failed to fetch %s: %v", u, err)
+			klog.Warningf("failed to fetch %s: %v", u, err)
 			continue
 		}
 
 		resp, err := httpClient.Do(req)
 		if err != nil {
-			glog.Warningf("failed to fetch %s: %v", u, err)
+			klog.Warningf("failed to fetch %s: %v", u, err)
 			continue
 		}
 		body, err := ioutil.ReadAll(resp.Body)
 		resp.Body.Close()
 		if err != nil {
-			glog.Warningf("failed to read %s: %v", u, err)
+			klog.Warningf("failed to read %s: %v", u, err)
 			continue
 		}
 
 		v := &version.Versions{}
 		if err := json.Unmarshal(body, v); err != nil {
-			glog.Warningf("failed to parse %s %s: %v", u, string(body), err)
+			klog.Warningf("failed to parse %s %s: %v", u, string(body), err)
 			continue
 		}
 
@@ -142,7 +142,7 @@ func (c *V3Client) Put(ctx context.Context, key string, value []byte) error {
 	if err != nil {
 		return err
 	}
-	glog.V(4).Infof("put %s response %v", key, response)
+	klog.V(4).Infof("put %s response %v", key, response)
 	return nil
 }
 
@@ -169,7 +169,7 @@ func (c *V3Client) CopyTo(ctx context.Context, dest NodeSink) (int, error) {
 				continue
 			}
 			gotMore = true
-			glog.Infof("copying key %q", key)
+			klog.Infof("copying key %q", key)
 			if err := dest.Put(ctx, key, kv.Value); err != nil {
 				return count, fmt.Errorf("error writing key %q to destination: %v", key, err)
 			}

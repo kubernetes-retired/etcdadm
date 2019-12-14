@@ -25,7 +25,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	"k8s.io/kops/util/pkg/vfs"
 	apis_etcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
@@ -62,7 +62,7 @@ func (v *stringSliceFlag) Set(value string) error {
 }
 
 func main() {
-	flag.Set("logtostderr", "true")
+	klog.InitFlags(nil)
 
 	flag.BoolVar(&volumes.Containerized, "containerized", volumes.Containerized, "set if we are running containerized")
 
@@ -271,7 +271,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 		boot := &volumes.Boot{}
 		boot.Init(volumeProvider)
 
-		glog.Infof("Mounting available etcd volumes matching tags %v; nameTag=%s", o.VolumeTags, o.NameTag)
+		klog.Infof("Mounting available etcd volumes matching tags %v; nameTag=%s", o.VolumeTags, o.NameTag)
 		volumes := boot.WaitForVolumes()
 		if len(volumes) == 0 {
 			return fmt.Errorf("no volumes were mounted")
@@ -286,12 +286,12 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 			return err
 		}
 		o.Address = address
-		glog.Infof("discovered IP address: %s", o.Address)
+		klog.Infof("discovered IP address: %s", o.Address)
 
 		o.DataDir = volumes[0].Mountpoint
 		myPeerId = privateapi.PeerId(volumes[0].EtcdName)
 
-		glog.Infof("Setting data dir to %s", o.DataDir)
+		klog.Infof("Setting data dir to %s", o.DataDir)
 	}
 
 	if err := os.MkdirAll(o.DataDir, 0755); err != nil {
@@ -307,7 +307,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 	}
 
 	if o.Address == "" {
-		glog.Infof("using 127.0.0.1 for address")
+		klog.Infof("using 127.0.0.1 for address")
 		o.Address = "127.0.0.1"
 	}
 
@@ -323,7 +323,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 			Port: o.GrpcPort,
 		})
 
-		glog.Warningf("Using fake discovery manager")
+		klog.Warningf("Using fake discovery manager")
 		p, err := vfs.Context.BuildVfsPath("file:///tmp/discovery")
 		if err != nil {
 			return fmt.Errorf("error parsing vfs path: %v", err)
@@ -422,11 +422,11 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 
 	commandStore, err := commands.NewStore(o.BackupStorePath)
 	if err != nil {
-		glog.Fatalf("error initializing command store: %v", err)
+		klog.Fatalf("error initializing command store: %v", err)
 	}
 
 	if _, err := legacy.ScanForExisting(o.DataDir, commandStore); err != nil {
-		glog.Fatalf("error performing scan for legacy data: %v", err)
+		klog.Fatalf("error performing scan for legacy data: %v", err)
 	}
 
 	listenMetricsURLs := expandUrls(o.ListenMetricsURLs, o.Address, name)

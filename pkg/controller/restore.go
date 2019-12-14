@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/golang/glog"
 	"github.com/golang/protobuf/proto"
+	"k8s.io/klog"
 
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/commands"
@@ -51,7 +51,7 @@ func (m *EtcdController) restoreBackupAndLiftQuarantine(parentContext context.Co
 	if err != nil {
 		return false, fmt.Errorf("error restoring backup on peer %v: %v", peer.peer, err)
 	}
-	glog.V(2).Infof("DoRestoreResponse: %s", response)
+	klog.V(2).Infof("DoRestoreResponse: %s", response)
 
 	// Write cluster spec to etcd - we may have written over it with the restore
 	{
@@ -79,7 +79,7 @@ func (m *EtcdController) writeClusterSpec(ctx context.Context, clusterState *etc
 }
 
 func (m *EtcdController) updateQuarantine(ctx context.Context, clusterState *etcdClusterState, quarantined bool) (bool, error) {
-	glog.Infof("Setting quarantined state to %t", quarantined)
+	klog.Infof("Setting quarantined state to %t", quarantined)
 	changed := false
 	for peerId, p := range clusterState.peers {
 		member := clusterState.FindMember(peerId)
@@ -97,7 +97,7 @@ func (m *EtcdController) updateQuarantine(ctx context.Context, clusterState *etc
 			return changed, fmt.Errorf("error reconfiguring peer %v to not be quarantined: %v", p.peer, err)
 		}
 		changed = true
-		glog.V(2).Infof("ReconfigureResponse: %s", response)
+		klog.V(2).Infof("ReconfigureResponse: %s", response)
 	}
 	return changed, nil
 }

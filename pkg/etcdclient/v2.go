@@ -10,7 +10,7 @@ import (
 	"time"
 
 	etcd_client_v2 "github.com/coreos/etcd/client"
-	"github.com/golang/glog"
+	"k8s.io/klog"
 )
 
 // V2Client is a client for the etcd v2 API, implementing EtcdClient
@@ -161,7 +161,7 @@ func (c *V2Client) copySubtree(ctx context.Context, p string, dest NodeSink) (in
 		Quorum: false,
 		// We don't do Recursive: true, to avoid huge responses
 	}
-	glog.V(4).Infof("listing keys under %s", p)
+	klog.V(4).Infof("listing keys under %s", p)
 	response, err := c.keys.Get(ctx, p, opts)
 	if err != nil {
 		return count, fmt.Errorf("error reading %q: %v", p, err)

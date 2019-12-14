@@ -9,10 +9,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang/glog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
+	"k8s.io/klog"
 	"kope.io/etcd-manager/pkg/contextutil"
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 )
@@ -59,14 +59,14 @@ func (s *Server) runDiscovery(ctx context.Context) {
 	contextutil.Forever(ctx, s.DiscoveryPollInterval, func() {
 		err := s.runDiscoveryOnce()
 		if err != nil {
-			glog.Warningf("unexpected error from peer intercommunications: %v", err)
+			klog.Warningf("unexpected error from peer intercommunications: %v", err)
 		}
 	})
 }
 
 func (s *Server) updateFromPingRequest(request *PingRequest) {
 	if request.Info == nil || request.Info.Id == "" {
-		glog.Warningf("ignoring ping with no id: %s", request)
+		klog.Warningf("ignoring ping with no id: %s", request)
 		return
 	}
 	id := PeerId(request.Info.Id)
@@ -76,7 +76,7 @@ func (s *Server) updateFromPingRequest(request *PingRequest) {
 
 	existing := s.peers[id]
 	if existing == nil {
-		glog.Infof("found new candidate peer from ping: %s %v", id, request.Info)
+		klog.Infof("found new candidate peer from ping: %s %v", id, request.Info)
 		existing = &peer{
 			server: s,
 			id:     id,
@@ -98,7 +98,7 @@ func (s *Server) updateFromDiscovery(discoveryNode discovery.Node) {
 
 	existing := s.peers[id]
 	if existing == nil {
-		glog.Infof("found new candidate peer from discovery: %s %v", id, discoveryNode.Endpoints)
+		klog.Infof("found new candidate peer from discovery: %s %v", id, discoveryNode.Endpoints)
 		existing = &peer{
 			server:      s,
 			id:          id,
@@ -138,14 +138,14 @@ func (s *Server) runDiscoveryOnce() error {
 				if ip != nil {
 					ips = append(ips, ip)
 				} else {
-					glog.Warningf("skipping endpoint that cannot be parsed as IP: %q", e.IP)
+					klog.Warningf("skipping endpoint that cannot be parsed as IP: %q", e.IP)
 				}
 			}
 			dnsFallbacks[dnsName] = ips
 		}
 
 		if err := s.dnsProvider.AddFallbacks(dnsFallbacks); err != nil {
-			glog.Warningf("error registering dns fallbacks: %v", err)
+			klog.Warningf("error registering dns fallbacks: %v", err)
 		}
 	}
 
@@ -165,7 +165,7 @@ func (p *peer) updatePeerInfo(peerInfo *PeerInfo) {
 
 	if PeerId(peerInfo.Id) != p.id {
 		// TODO: We should probably keep a map by ip & socket
-		glog.Warningf("ignoring peer info with unexpected identity: %q vs %q", peerInfo.Id, p.id)
+		klog.Warningf("ignoring peer info with unexpected identity: %q vs %q", peerInfo.Id, p.id)
 		return
 	}
 
@@ -180,7 +180,7 @@ func (p *peer) updatePeerInfo(peerInfo *PeerInfo) {
 			newEndpoints[endpoint] = true
 		}
 		if !reflect.DeepEqual(oldEndpoints, newEndpoints) {
-			glog.Infof("peer %s changed endpoints; will invalidate connection", peerInfo.Id)
+			klog.Infof("peer %s changed endpoints; will invalidate connection", peerInfo.Id)
 			if p.conn != nil {
 				p.conn.Close()
 				p.conn = nil
@@ -212,7 +212,7 @@ func (p *peer) Run(ctx context.Context, pingInterval time.Duration) {
 	contextutil.Forever(ctx, pingInterval, func() {
 		err := p.sendPings(ctx, pingInterval)
 		if err != nil {
-			glog.Warningf("unexpected error from peer intercommunications: %v", err)
+			klog.Warningf("unexpected error from peer intercommunications: %v", err)
 		}
 	})
 }
@@ -237,7 +237,7 @@ func (p *peer) sendPings(ctx context.Context, pingInterval time.Duration) error 
 			Info: &p.server.myInfo,
 		}
 		response, err := client.Ping(context, request)
-		glog.V(8).Infof("got ping response from %s: %v", p.id, response)
+		klog.V(8).Infof("got ping response from %s: %v", p.id, response)
 		if err != nil {
 			return fmt.Errorf("error pinging %s: %v", p.id, err)
 		}
@@ -257,7 +257,7 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 			state := p.conn.GetState()
 			switch state {
 			case connectivity.TransientFailure, connectivity.Shutdown:
-				glog.Warningf("closing grpc connection to peer %s in state %s", p.id, state)
+				klog.Warningf("closing grpc connection to peer %s in state %s", p.id, state)
 				p.conn.Close()
 				p.conn = nil
 			default:
@@ -278,11 +278,11 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 		cfg.ServerName = "etcd-manager-server-" + string(p.id)
 		creds := credentials.NewTLS(cfg)
 
-		glog.Infof("connecting to peer %q with TLS policy, servername=%q", p.id, cfg.ServerName)
+		klog.Infof("connecting to peer %q with TLS policy, servername=%q", p.id, cfg.ServerName)
 
 		opts = append(opts, grpc.WithTransportCredentials(creds))
 	} else {
-		glog.Warningf("connecting to peer %q insecurely", p.id)
+		klog.Warningf("connecting to peer %q insecurely", p.id)
 		opts = append(opts, grpc.WithInsecure())
 	}
 
@@ -311,7 +311,7 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 	for endpoint := range endpoints {
 		conn, err := grpc.Dial(endpoint, opts...)
 		if err != nil {
-			glog.Warningf("unable to connect to discovered peer %s: %v", endpoint, err)
+			klog.Warningf("unable to connect to discovered peer %s: %v", endpoint, err)
 			continue
 		}
 
@@ -322,12 +322,12 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 		}
 		response, err := client.Ping(context, request)
 		if err != nil {
-			glog.Warningf("unable to grpc-ping discovered peer %s: %v", endpoint, err)
+			klog.Warningf("unable to grpc-ping discovered peer %s: %v", endpoint, err)
 			conn.Close()
 			continue
 		}
 
-		glog.V(8).Infof("got ping response from %s: %v", p.id, response)
+		klog.V(8).Infof("got ping response from %s: %v", p.id, response)
 		p.updatePeerInfo(response.Info)
 
 		{
@@ -344,7 +344,7 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 		return conn, nil
 	}
 
-	glog.Infof("was not able to connect to peer %s: %v", p.discoveryNode.ID, endpoints)
+	klog.Infof("was not able to connect to peer %s: %v", p.discoveryNode.ID, endpoints)
 	return nil, nil
 }
 

@@ -15,8 +15,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang/glog"
 	certutil "k8s.io/client-go/util/cert"
+	"k8s.io/klog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/etcdclient"
@@ -35,7 +35,7 @@ func init() {
 
 	if os.Getenv("TEST_SRCDIR") != "" && os.Getenv("TEST_WORKSPACE") != "" {
 		d := filepath.Join(os.Getenv("TEST_SRCDIR"), os.Getenv("TEST_WORKSPACE"))
-		glog.Infof("found bazel binary location: %s", d)
+		klog.Infof("found bazel binary location: %s", d)
 		baseDirs = append(baseDirs, d)
 
 		isTest = true
@@ -95,13 +95,13 @@ func (p *etcdProcess) ExitState() (error, *os.ProcessState) {
 
 func (p *etcdProcess) Stop() error {
 	if p.cmd == nil {
-		glog.Warningf("received Stop when process not running")
+		klog.Warningf("received Stop when process not running")
 		return nil
 	}
 	if err := p.cmd.Process.Kill(); err != nil {
 		p.mutex.Lock()
 		if p.exitState != nil {
-			glog.Infof("Exited etcd: %v", p.exitState)
+			klog.Infof("Exited etcd: %v", p.exitState)
 			return nil
 		}
 		p.mutex.Unlock()
@@ -109,12 +109,12 @@ func (p *etcdProcess) Stop() error {
 	}
 
 	for {
-		glog.Infof("Waiting for etcd to exit")
+		klog.Infof("Waiting for etcd to exit")
 		p.mutex.Lock()
 		if p.exitState != nil {
 			exitState := p.exitState
 			p.mutex.Unlock()
-			glog.Infof("Exited etcd: %v", exitState)
+			klog.Infof("Exited etcd: %v", exitState)
 			return nil
 		}
 		p.mutex.Unlock()
@@ -177,7 +177,7 @@ func (p *etcdProcess) Start() error {
 	if p.ForceNewCluster {
 		c.Args = append(c.Args, "--force-new-cluster")
 	}
-	glog.Infof("executing command %s %s", c.Path, c.Args)
+	klog.Infof("executing command %s %s", c.Path, c.Args)
 
 	me := p.findMyNode()
 	if me == nil {
@@ -231,7 +231,7 @@ func (p *etcdProcess) Start() error {
 		env["ETCD_PEER_CERT_FILE"] = filepath.Join(p.PKIPeersDir, "me.crt")
 		env["ETCD_PEER_KEY_FILE"] = filepath.Join(p.PKIPeersDir, "me.key")
 	} else {
-		glog.Warningf("using insecure configuration for etcd peers")
+		klog.Warningf("using insecure configuration for etcd peers")
 	}
 
 	if p.PKIClientsDir != "" {
@@ -240,7 +240,7 @@ func (p *etcdProcess) Start() error {
 		env["ETCD_CERT_FILE"] = filepath.Join(p.PKIClientsDir, "server.crt")
 		env["ETCD_KEY_FILE"] = filepath.Join(p.PKIClientsDir, "server.key")
 	} else {
-		glog.Warningf("using insecure configuration for etcd clients")
+		klog.Warningf("using insecure configuration for etcd clients")
 	}
 
 	for k, v := range env {
@@ -257,7 +257,7 @@ func (p *etcdProcess) Start() error {
 	go func() {
 		processState, err := p.cmd.Process.Wait()
 		if err != nil {
-			glog.Warningf("etcd exited with error: %v", err)
+			klog.Warningf("etcd exited with error: %v", err)
 		}
 		p.mutex.Lock()
 		p.exitState = processState
@@ -273,7 +273,7 @@ func changeHost(urls []string, host string) []string {
 	for _, s := range urls {
 		u, err := url.Parse(s)
 		if err != nil {
-			glog.Warningf("error parsing url %q", s)
+			klog.Warningf("error parsing url %q", s)
 			remapped = append(remapped, s)
 			continue
 		}
@@ -338,7 +338,7 @@ func (p *etcdProcess) NewClient() (etcdclient.EtcdClient, error) {
 // isV2 checks if this is etcd v2
 func (p *etcdProcess) isV2() bool {
 	if p.EtcdVersion == "" {
-		glog.Fatalf("EtcdVersion not set")
+		klog.Fatalf("EtcdVersion not set")
 	}
 	return etcdclient.IsV2(p.EtcdVersion)
 }
@@ -381,7 +381,7 @@ func (p *etcdProcess) RestoreV3Snapshot(snapshotFile string) error {
 	c.Args = append(c.Args, "--initial-cluster-token", p.Cluster.ClusterToken)
 	c.Args = append(c.Args, "--initial-advertise-peer-urls", strings.Join(me.PeerUrls, ","))
 	c.Args = append(c.Args, "--data-dir", p.DataDir)
-	glog.Infof("executing command %s %s", c.Path, c.Args)
+	klog.Infof("executing command %s %s", c.Path, c.Args)
 
 	env := make(map[string]string)
 	env["ETCDCTL_API"] = "3"
@@ -402,6 +402,6 @@ func (p *etcdProcess) RestoreV3Snapshot(snapshotFile string) error {
 		return fmt.Errorf("etcdctl snapshot restore returned a non-zero exit code")
 	}
 
-	glog.Infof("snapshot restore complete")
+	klog.Infof("snapshot restore complete")
 	return nil
 }

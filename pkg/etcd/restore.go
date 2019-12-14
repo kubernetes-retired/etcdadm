@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/etcdclient"
@@ -53,7 +53,7 @@ func (s *EtcdServer) DoRestore(ctx context.Context, request *protoetcd.DoRestore
 
 	defer func() {
 		if err := os.RemoveAll(tempDir); err != nil {
-			glog.Warningf("error cleaning up tempdir %q: %v", tempDir, err)
+			klog.Warningf("error cleaning up tempdir %q: %v", tempDir, err)
 		}
 	}()
 
@@ -63,10 +63,10 @@ func (s *EtcdServer) DoRestore(ctx context.Context, request *protoetcd.DoRestore
 	}
 
 	defer func() {
-		glog.Infof("stopping etcd that was reading backup")
+		klog.Infof("stopping etcd that was reading backup")
 		err := p.Stop()
 		if err != nil {
-			glog.Warningf("unable to stop etcd process that was started for restore: %v", err)
+			klog.Warningf("unable to stop etcd process that was started for restore: %v", err)
 		}
 	}()
 
@@ -106,7 +106,7 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 		downloadFile = filepath.Join(basedir, "download", "snapshot.db.gz")
 	}
 
-	glog.Infof("Downloading backup %q to %s", backupName, downloadFile)
+	klog.Infof("Downloading backup %q to %s", backupName, downloadFile)
 	if err := backupStore.DownloadBackup(backupName, downloadFile); err != nil {
 		return nil, fmt.Errorf("error restoring backup: %v", err)
 	}
@@ -116,7 +116,7 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 	{
 		restoreWith := etcdversions.EtcdVersionForRestore(etcdVersion)
 		if restoreWith != "" && restoreWith != etcdVersion {
-			glog.Warningf("restoring backup from etcd %q, will restore with %q", etcdVersion, restoreWith)
+			klog.Warningf("restoring backup from etcd %q, will restore with %q", etcdVersion, restoreWith)
 			etcdVersion = restoreWith
 		}
 	}
@@ -195,7 +195,7 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 		}
 	}
 	if !isV2 {
-		glog.Infof("restoring snapshot")
+		klog.Infof("restoring snapshot")
 
 		snapshotFile := filepath.Join(basedir, "download", "snapshot.db")
 		archive := &gzFile{File: downloadFile}
@@ -208,7 +208,7 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 		}
 	}
 
-	glog.Infof("starting etcd to read backup")
+	klog.Infof("starting etcd to read backup")
 	if err := p.Start(); err != nil {
 		return nil, fmt.Errorf("error starting etcd: %v", err)
 	}
@@ -229,16 +229,16 @@ func copyEtcd(source *etcdProcess, dest etcdclient.NodeSink) error {
 		if err == nil {
 			break
 		}
-		glog.Infof("Waiting for etcd to start (%v)", err)
+		klog.Infof("Waiting for etcd to start (%v)", err)
 		time.Sleep(time.Second)
 	}
 
-	glog.Infof("copying etcd keys from backup-restore process to new cluster")
+	klog.Infof("copying etcd keys from backup-restore process to new cluster")
 	ctx := context.TODO()
 	if n, err := sourceClient.CopyTo(ctx, dest); err != nil {
 		return fmt.Errorf("error copying keys: %v", err)
 	} else {
-		glog.Infof("restored %d keys", n)
+		klog.Infof("restored %d keys", n)
 	}
 
 	return nil

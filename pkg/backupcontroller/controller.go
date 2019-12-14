@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/contextutil"
@@ -56,13 +56,13 @@ func (m *BackupController) Run(ctx context.Context) {
 		func() {
 			err := m.run(ctx)
 			if err != nil {
-				glog.Warningf("unexpected error running backup controller loop: %v", err)
+				klog.Warningf("unexpected error running backup controller loop: %v", err)
 			}
 		})
 }
 
 func (m *BackupController) run(ctx context.Context) error {
-	glog.V(2).Infof("starting backup controller iteration")
+	klog.V(2).Infof("starting backup controller iteration")
 
 	etcdVersion, err := etcdclient.ServerVersion(ctx, m.clientUrls, m.etcdClientTLSConfig)
 	if err != nil {
@@ -91,7 +91,7 @@ func (m *BackupController) run(ctx context.Context) error {
 	}
 
 	if !self.IsLeader {
-		glog.V(2).Infof("Not leader, won't backup")
+		klog.V(2).Infof("Not leader, won't backup")
 		return nil
 	}
 
@@ -111,11 +111,11 @@ func (m *BackupController) maybeBackup(ctx context.Context, etcdVersion string, 
 		return err
 	}
 
-	glog.Infof("took backup: %v", backup)
+	klog.Infof("took backup: %v", backup)
 	m.lastBackup = now
 
 	if err := m.backupCleanup.MaybeDoBackupMaintenance(ctx); err != nil {
-		glog.Warningf("error during backup cleanup: %v", err)
+		klog.Warningf("error during backup cleanup: %v", err)
 	}
 
 	return nil

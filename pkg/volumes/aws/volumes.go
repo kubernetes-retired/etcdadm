@@ -29,7 +29,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
-	"github.com/golang/glog"
+	"k8s.io/klog"
 
 	"kope.io/etcd-manager/pkg/volumes"
 )
@@ -82,7 +82,7 @@ func NewAWSVolumes(clusterName string, volumeTags []string, nameTag string) (*AW
 	}
 	s.Handlers.Send.PushFront(func(r *request.Request) {
 		// Log requests
-		glog.V(4).Infof("AWS API Request: %s/%s", r.ClientInfo.ServiceName, r.Operation.Name)
+		klog.V(4).Infof("AWS API Request: %s/%s", r.ClientInfo.ServiceName, r.Operation.Name)
 	})
 
 	a.metadata = ec2metadata.New(s, config)
@@ -183,7 +183,7 @@ func (a *AWSVolumes) describeVolumes(request *ec2.DescribeVolumesInput) ([]*volu
 			// never mount root volumes
 			// these are volumes that aws sets aside for root volumes mount points
 			if vol.LocalDevice == "/dev/sda1" || vol.LocalDevice == "/dev/xvda" {
-				glog.Warningf("Not mounting: %q, since it is a root volume", vol.LocalDevice)
+				klog.Warningf("Not mounting: %q, since it is a root volume", vol.LocalDevice)
 				continue
 			}
 
@@ -230,7 +230,7 @@ func (a *AWSVolumes) FindMountedVolume(volume *volumes.Volume) (string, error) {
 	if !os.IsNotExist(err) {
 		return "", fmt.Errorf("error checking for device %q: %v", device, err)
 	}
-	glog.V(2).Infof("volume %s not mounted at %s", volume.ProviderID, volumes.PathFor(device))
+	klog.V(2).Infof("volume %s not mounted at %s", volume.ProviderID, volumes.PathFor(device))
 
 	if volume.ProviderID != "" {
 		expected := volume.ProviderID
@@ -244,10 +244,10 @@ func (a *AWSVolumes) FindMountedVolume(volume *volumes.Volume) (string, error) {
 			return "", fmt.Errorf("error checking for nvme volume %q: %v", expected, err)
 		}
 		if device != "" {
-			glog.Infof("found nvme volume %q at %q", expected, device)
+			klog.Infof("found nvme volume %q at %q", expected, device)
 			return device, nil
 		}
-		glog.V(2).Infof("volume %s not mounted at %s", volume.ProviderID, expected)
+		klog.V(2).Infof("volume %s not mounted at %s", volume.ProviderID, expected)
 	}
 
 	// When not found, the interface says we return ("", nil)
@@ -259,14 +259,14 @@ func findNvmeVolume(findName string) (device string, err error) {
 	stat, err := os.Lstat(p)
 	if err != nil {
 		if os.IsNotExist(err) {
-			glog.V(4).Infof("nvme path not found %q", p)
+			klog.V(4).Infof("nvme path not found %q", p)
 			return "", nil
 		}
 		return "", fmt.Errorf("error getting stat of %q: %v", p, err)
 	}
 
 	if stat.Mode()&os.ModeSymlink != os.ModeSymlink {
-		glog.Warningf("nvme file %q found, but was not a symlink", p)
+		klog.Warningf("nvme file %q found, but was not a symlink", p)
 		return "", nil
 	}
 
@@ -309,7 +309,7 @@ func (a *AWSVolumes) releaseDevice(d string, volumeID string) {
 	defer a.mutex.Unlock()
 
 	if a.deviceMap[d] != volumeID {
-		glog.Fatalf("deviceMap logic error: %q -> %q, not %q", d, a.deviceMap[d], volumeID)
+		klog.Fatalf("deviceMap logic error: %q -> %q, not %q", d, a.deviceMap[d], volumeID)
 	}
 	a.deviceMap[d] = ""
 }
@@ -337,7 +337,7 @@ func (a *AWSVolumes) AttachVolume(volume *volumes.Volume) error {
 			return fmt.Errorf("Error attaching EBS volume %q: %v", volumeID, err)
 		}
 
-		glog.V(2).Infof("AttachVolume request returned %v", attachResponse)
+		klog.V(2).Infof("AttachVolume request returned %v", attachResponse)
 	}
 
 	// Wait (forever) for volume to attach or reach a failure-to-attach condition
@@ -374,7 +374,7 @@ func (a *AWSVolumes) AttachVolume(volume *volumes.Volume) error {
 
 		switch v.Status {
 		case "attaching":
-			glog.V(2).Infof("Waiting for volume %q to be attached (currently %q)", volumeID, v.Status)
+			klog.V(2).Infof("Waiting for volume %q to be attached (currently %q)", volumeID, v.Status)
 			// continue looping
 
 		default:

@@ -22,7 +22,7 @@ import (
 	"net"
 	"strings"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 )
@@ -54,7 +54,7 @@ func (a *ExternalDiscovery) Poll() (map[string]discovery.Node, error) {
 
 		ip := net.ParseIP(f.Name())
 		if ip == nil {
-			glog.Infof("ignoring unknown seed file %q (expected IP)", f.Name())
+			klog.Infof("ignoring unknown seed file %q (expected IP)", f.Name())
 			continue
 		}
 

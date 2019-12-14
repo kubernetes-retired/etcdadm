@@ -28,7 +28,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	"kope.io/etcd-manager/pkg/volumes"
 )
 
@@ -129,7 +129,7 @@ func (a *AlicloudVolumes) AttachVolume(volume *volumes.Volume) error {
 			return fmt.Errorf("Unable to attach volume %q: %v", volumeID, err)
 		}
 
-		glog.V(2).Infof("AttachVolume request returned %v", attachResponse)
+		klog.V(2).Infof("AttachVolume request returned %v", attachResponse)
 
 		// Attaching volume takes time.
 		time.Sleep(5)
@@ -166,7 +166,7 @@ func (a *AlicloudVolumes) AttachVolume(volume *volumes.Volume) error {
 
 		switch v.Status {
 		case "Attaching":
-			glog.V(2).Infof("Waiting for volume %q to be attached (currently %q)", volumeID, v.Status)
+			klog.V(2).Infof("Waiting for volume %q to be attached (currently %q)", volumeID, v.Status)
 			// continue looping
 
 		default:
@@ -218,7 +218,7 @@ func (a *AlicloudVolumes) describeVolumes(request *ecs.DescribeDisksRequest) ([]
 	var found []*volumes.Volume
 
 	for {
-		glog.V(4).Infof("describing Alicloud volumes page %v", request.PageNumber)
+		klog.V(4).Infof("describing Alicloud volumes page %v", request.PageNumber)
 		response, err := a.ecs.DescribeDisks(request)
 		if err != nil {
 			return nil, err

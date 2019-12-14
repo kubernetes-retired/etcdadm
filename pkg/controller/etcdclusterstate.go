@@ -6,7 +6,7 @@ import (
 	"crypto/tls"
 	"fmt"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/etcdclient"
 	"kope.io/etcd-manager/pkg/privateapi"
@@ -94,9 +94,9 @@ func (s *etcdClusterState) newEtcdClient(member *etcdclient.EtcdProcessMember) (
 		}
 	}
 	if node == nil {
-		glog.Warningf("unable to find node for member %q; using default clientURLs %v", member.Name, clientURLs)
+		klog.Warningf("unable to find node for member %q; using default clientURLs %v", member.Name, clientURLs)
 	} else if node.NodeConfiguration == nil {
-		glog.Warningf("unable to find node configuration for member %q; using default clientURLs %v", member.Name, clientURLs)
+		klog.Warningf("unable to find node configuration for member %q; using default clientURLs %v", member.Name, clientURLs)
 	} else {
 		clientURLs = node.NodeConfiguration.ClientUrls
 		if node.EtcdState != nil && node.EtcdState.Quarantined {
@@ -112,14 +112,14 @@ func (s *etcdClusterState) etcdAddMember(ctx context.Context, nodeInfo *protoetc
 	for _, member := range s.members {
 		etcdClient, err := s.newEtcdClient(member)
 		if err != nil {
-			glog.Warningf("unable to build client for member %s: %v", member.Name, err)
+			klog.Warningf("unable to build client for member %s: %v", member.Name, err)
 			continue
 		}
 
 		err = etcdClient.AddMember(ctx, nodeInfo.PeerUrls)
 		etcdclient.LoggedClose(etcdClient)
 		if err != nil {
-			glog.Warningf("unable to add member %s on peer %s: %v", nodeInfo.PeerUrls, member.Name, err)
+			klog.Warningf("unable to add member %s on peer %s: %v", nodeInfo.PeerUrls, member.Name, err)
 			continue
 		}
 
@@ -132,14 +132,14 @@ func (s *etcdClusterState) etcdRemoveMember(ctx context.Context, member *etcdcli
 	for id, member := range s.members {
 		etcdClient, err := s.newEtcdClient(member)
 		if err != nil {
-			glog.Warningf("unable to build client for member %s: %v", member.Name, err)
+			klog.Warningf("unable to build client for member %s: %v", member.Name, err)
 			continue
 		}
 
 		err = etcdClient.RemoveMember(ctx, member)
 		etcdclient.LoggedClose(etcdClient)
 		if err != nil {
-			glog.Warningf("Remove member call failed on %s: %v", id, err)
+			klog.Warningf("Remove member call failed on %s: %v", id, err)
 			continue
 		}
 		return nil
@@ -150,20 +150,20 @@ func (s *etcdClusterState) etcdRemoveMember(ctx context.Context, member *etcdcli
 func (s *etcdClusterState) etcdGet(ctx context.Context, key string) ([]byte, error) {
 	for _, member := range s.members {
 		if len(member.ClientURLs) == 0 {
-			glog.Warningf("skipping member with no ClientURLs: %v", member)
+			klog.Warningf("skipping member with no ClientURLs: %v", member)
 			continue
 		}
 
 		etcdClient, err := s.newEtcdClient(member)
 		if err != nil {
-			glog.Warningf("unable to build client for member %s: %v", member, err)
+			klog.Warningf("unable to build client for member %s: %v", member, err)
 			continue
 		}
 
 		response, err := etcdClient.Get(ctx, key, true)
 		etcdclient.LoggedClose(etcdClient)
 		if err != nil {
-			glog.Warningf("error reading from member %s: %v", member, err)
+			klog.Warningf("error reading from member %s: %v", member, err)
 			continue
 		}
 
@@ -176,13 +176,13 @@ func (s *etcdClusterState) etcdGet(ctx context.Context, key string) ([]byte, err
 func (s *etcdClusterState) etcdCreate(ctx context.Context, key string, value []byte) error {
 	for _, member := range s.members {
 		if len(member.ClientURLs) == 0 {
-			glog.Warningf("skipping member with no ClientURLs: %v", member)
+			klog.Warningf("skipping member with no ClientURLs: %v", member)
 			continue
 		}
 
 		etcdClient, err := s.newEtcdClient(member)
 		if err != nil {
-			glog.Warningf("unable to build client for member %s: %v", member.Name, err)
+			klog.Warningf("unable to build client for member %s: %v", member.Name, err)
 			continue
 		}
 

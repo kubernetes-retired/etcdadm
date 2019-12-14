@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/golang/glog"
 	yaml "gopkg.in/yaml.v2"
+	"k8s.io/klog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/commands"
 	"kope.io/etcd-manager/pkg/etcdversions"
@@ -61,7 +61,7 @@ func ScanForExisting(baseDir string, controlStore commands.Store) (bool, error) 
 		// Ignore empty files
 		{
 			if strings.TrimSpace(string(b)) == "" {
-				glog.Infof("ignoring empty file %s", p)
+				klog.Infof("ignoring empty file %s", p)
 				continue
 			}
 		}
@@ -90,12 +90,12 @@ func ImportExistingEtcd(baseDir string, etcdNodeConfiguration *protoetcd.EtcdNod
 		// Ignore empty files
 		{
 			if strings.TrimSpace(string(b)) == "" {
-				glog.Infof("ignoring empty file %s", p)
+				klog.Infof("ignoring empty file %s", p)
 				continue
 			}
 		}
 
-		glog.Infof("parsing legacy manifest %s", p)
+		klog.Infof("parsing legacy manifest %s", p)
 
 		m := &legacyManifest{}
 		if err := yaml.Unmarshal(b, m); err != nil {
@@ -212,14 +212,14 @@ func ImportExistingEtcd(baseDir string, etcdNodeConfiguration *protoetcd.EtcdNod
 			panic("unhandled legacy etcd")
 		}
 
-		glog.Infof("copying etcd data from %s -> %s", legacyDir, dataDir)
+		klog.Infof("copying etcd data from %s -> %s", legacyDir, dataDir)
 		if err := copyDir(legacyDir, dataDir); err != nil {
 			return nil, err
 		}
 
 		trashcanDir := filepath.Join(baseDir, "data-trashcan")
 		newDataDir := filepath.Join(trashcanDir, clusterToken)
-		glog.Infof("archiving etcd data directory %s -> %s", legacyDir, newDataDir)
+		klog.Infof("archiving etcd data directory %s -> %s", legacyDir, newDataDir)
 		if err := os.MkdirAll(trashcanDir, 0755); err != nil {
 			return nil, fmt.Errorf("error creating trashcan directory %s: %v", trashcanDir, err)
 		}
@@ -229,11 +229,11 @@ func ImportExistingEtcd(baseDir string, etcdNodeConfiguration *protoetcd.EtcdNod
 
 		adoptAs := etcdversions.EtcdVersionForAdoption(state.EtcdVersion)
 		if adoptAs != "" && adoptAs != state.EtcdVersion {
-			glog.Warningf("adopting from etcd %q, will adopt with %q", state.EtcdVersion, adoptAs)
+			klog.Warningf("adopting from etcd %q, will adopt with %q", state.EtcdVersion, adoptAs)
 			state.EtcdVersion = adoptAs
 		}
 
-		glog.Infof("imported etcd state: %v", state.String())
+		klog.Infof("imported etcd state: %v", state.String())
 		return state, nil
 	}
 
