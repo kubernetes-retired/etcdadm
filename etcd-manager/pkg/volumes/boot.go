@@ -42,6 +42,7 @@ func (b *Boot) WaitForVolumes() []*Volume {
 		info, err := b.tryMountVolumes()
 		if err != nil {
 			glog.Warningf("error during attempt to bootstrap (will sleep and retry): %v", err)
+			time.Sleep(1 * time.Second)
 			continue
 		} else if len(info) != 0 {
 			return info

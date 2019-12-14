@@ -44,6 +44,7 @@ import (
 	"kope.io/etcd-manager/pkg/volumes"
 	"kope.io/etcd-manager/pkg/volumes/aws"
 	"kope.io/etcd-manager/pkg/volumes/do"
+	"kope.io/etcd-manager/pkg/volumes/external"
 	"kope.io/etcd-manager/pkg/volumes/gce"
 	"kope.io/etcd-manager/pkg/volumes/openstack"
 )
@@ -242,6 +243,19 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 
 			volumeProvider = doVolumeProvider
 			discoveryProvider = doVolumeProvider
+
+		case "external":
+			volumeDir := volumes.PathFor("/mnt/disks")
+			externalVolumeProvider, err := external.NewExternalVolumes(o.ClusterName, volumeDir)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%v\n", err)
+				os.Exit(1)
+			}
+			volumeProvider = externalVolumeProvider
+
+			// TODO: Allow this to be customized
+			seedDir := volumes.PathFor("/etc/kubernetes/etcd-manager/seeds")
+			discoveryProvider = external.NewExternalDiscovery(seedDir)
 
 		default:
 			fmt.Fprintf(os.Stderr, "unknown volume-provider %q\n", o.VolumeProviderID)
