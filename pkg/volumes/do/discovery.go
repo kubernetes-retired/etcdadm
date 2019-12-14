@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 	"kope.io/etcd-manager/pkg/volumes"
 )
@@ -32,7 +32,7 @@ var _ discovery.Interface = &DOVolumes{}
 func (a *DOVolumes) Poll() (map[string]discovery.Node, error) {
 	nodes := make(map[string]discovery.Node)
 
-	glog.V(2).Infof("Polling all DO Volumes")
+	klog.V(2).Infof("Polling all DO Volumes")
 
 	allVolumes, err := a.findAllVolumes(false)
 	if err != nil {
@@ -67,7 +67,7 @@ func (a *DOVolumes) Poll() (map[string]discovery.Node, error) {
 			return nil, fmt.Errorf("failed to retrieve droplet private IP for dropletid = %d. Error=%v", dropletID, err)
 		}
 
-		glog.V(2).Infof("Discovered a matching DO Volume for this instance with instanceid=%s volumename=%s nameTag=%s myIP=%s etcdName=%s", volume.AttachedTo, volume.ProviderID, a.nameTag, dropletIP, volume.EtcdName)
+		klog.V(2).Infof("Discovered a matching DO Volume for this instance with instanceid=%s volumename=%s nameTag=%s myIP=%s etcdName=%s", volume.AttachedTo, volume.ProviderID, a.nameTag, dropletIP, volume.EtcdName)
 
 		// We use the etcd node ID as the persistent identifier, because the data determines who we are
 		node := discovery.Node{

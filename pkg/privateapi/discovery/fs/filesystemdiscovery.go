@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 )
@@ -39,7 +39,7 @@ func (d *FilesystemDiscovery) publish() error {
 		return fmt.Errorf("DiscoveryNode does not have ID set")
 	}
 
-	glog.Infof("publishing discovery record: %v", d.me)
+	klog.Infof("publishing discovery record: %v", d.me)
 
 	meJson, err := json.Marshal(d.me)
 	if err != nil {
@@ -47,7 +47,7 @@ func (d *FilesystemDiscovery) publish() error {
 	}
 
 	if err := os.MkdirAll(d.baseDir, 0755); err != nil {
-		glog.Warningf("unable to mkdir %s: %v", d.baseDir, err)
+		klog.Warningf("unable to mkdir %s: %v", d.baseDir, err)
 	}
 
 	p := filepath.Join(d.baseDir, string(d.me.ID))
@@ -59,7 +59,7 @@ func (d *FilesystemDiscovery) publish() error {
 }
 
 func (d *FilesystemDiscovery) Poll() (map[string]discovery.Node, error) {
-	glog.V(2).Infof("polling discovery directory: %s", d.baseDir)
+	klog.V(2).Infof("polling discovery directory: %s", d.baseDir)
 	nodes := make(map[string]discovery.Node)
 
 	files, err := ioutil.ReadDir(d.baseDir)
@@ -73,13 +73,13 @@ func (d *FilesystemDiscovery) Poll() (map[string]discovery.Node, error) {
 		p := filepath.Join(d.baseDir, id)
 		data, err := ioutil.ReadFile(p)
 		if err != nil {
-			glog.Warningf("error reading node discovery file %s: %v", p, err)
+			klog.Warningf("error reading node discovery file %s: %v", p, err)
 			continue
 		}
 
 		node := discovery.Node{}
 		if err := json.Unmarshal(data, &node); err != nil {
-			glog.Warningf("error parsing node discovery file %s: %v", p, err)
+			klog.Warningf("error parsing node discovery file %s: %v", p, err)
 			continue
 		}
 

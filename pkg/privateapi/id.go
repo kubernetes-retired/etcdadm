@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	"kope.io/etcd-manager/pkg/ioutils"
 )
 
@@ -18,7 +18,7 @@ func PersistentPeerId(basedir string) (PeerId, error) {
 	if err != nil {
 		if os.IsNotExist(err) {
 			token := randomToken()
-			glog.Infof("Self-assigned new identity: %q", token)
+			klog.Infof("Self-assigned new identity: %q", token)
 			b = []byte(token)
 
 			if err := os.MkdirAll(basedir, 0755); err != nil {

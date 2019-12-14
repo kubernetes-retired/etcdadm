@@ -11,7 +11,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 )
 
 type FSContentLock struct {
@@ -59,7 +59,7 @@ func (l *FSContentLock) Acquire(ctx context.Context, id string) (LockGuard, erro
 	fileBytes, err := ioutil.ReadAll(f)
 	if err != nil {
 		if errC := f.Close(); errC != nil {
-			glog.Fatalf("error closing lock file %q: %v", l.p, errC)
+			klog.Fatalf("error closing lock file %q: %v", l.p, errC)
 		}
 		return nil, fmt.Errorf("error reading lock file: %v", err)
 	}
@@ -71,24 +71,24 @@ func (l *FSContentLock) Acquire(ctx context.Context, id string) (LockGuard, erro
 			if string(fileBytes[0:firstLF]) == hex.EncodeToString(computedHash[:]) {
 				existing = &LockInfo{}
 				if errU := json.Unmarshal(fileBytes[firstLF+1:], existing); errU != nil {
-					glog.Warningf("error parsing json %q - will treat as lock not held: %v", string(fileBytes), errU)
+					klog.Warningf("error parsing json %q - will treat as lock not held: %v", string(fileBytes), errU)
 				} else {
 					if errC := f.Close(); errC != nil {
-						glog.Fatalf("error closing lock file %q: %v", l.p, errC)
+						klog.Fatalf("error closing lock file %q: %v", l.p, errC)
 					}
-					glog.Warningf("lock is already held %v", existing)
+					klog.Warningf("lock is already held %v", existing)
 					return nil, nil
 				}
 			} else {
-				glog.Warningf("hash in file %q did not match: %q", l.p, string(fileBytes))
+				klog.Warningf("hash in file %q did not match: %q", l.p, string(fileBytes))
 			}
 		} else {
-			glog.Warningf("file %q was corrupt: %q", l.p, string(fileBytes))
+			klog.Warningf("file %q was corrupt: %q", l.p, string(fileBytes))
 		}
 
 		if errT := f.Truncate(0); errT != nil {
 			if errC := f.Close(); errC != nil {
-				glog.Fatalf("error closing lock file %q: %v", l.p, errC)
+				klog.Fatalf("error closing lock file %q: %v", l.p, errC)
 			}
 			return nil, fmt.Errorf("failed to truncate file after failed read %q: %v", l.p, errT)
 		}
@@ -96,32 +96,32 @@ func (l *FSContentLock) Acquire(ctx context.Context, id string) (LockGuard, erro
 
 	_, err = f.WriteAt(lockBytes, 0)
 	if err != nil {
-		glog.Warningf("error writing file %q: %v", l.p, err)
+		klog.Warningf("error writing file %q: %v", l.p, err)
 	}
 
 	if err == nil {
 		err = f.Sync()
 		if err != nil {
-			glog.Warningf("failed to sync file: %v", err)
+			klog.Warningf("failed to sync file: %v", err)
 		}
 	}
 
 	if err != nil {
-		glog.Warningf("attempting to truncate file after failed write %q: %v", l.p, err)
+		klog.Warningf("attempting to truncate file after failed write %q: %v", l.p, err)
 		if errT := f.Truncate(0); errT != nil {
-			glog.Warningf("failed to truncate file after failed write %q: %v", l.p, errT)
+			klog.Warningf("failed to truncate file after failed write %q: %v", l.p, errT)
 		}
 	}
 
 	if errC := f.Close(); errC != nil {
-		glog.Fatalf("error closing lock file %q: %v", l.p, errC)
+		klog.Fatalf("error closing lock file %q: %v", l.p, errC)
 	}
 
 	if err != nil {
 		return nil, fmt.Errorf("error creating lock file %q: %v", l.p, err)
 	}
 
-	glog.Infof("Acquired FSLock on %s for %s", l.p, id)
+	klog.Infof("Acquired FSLock on %s for %s", l.p, id)
 
 	return &FSContentLockGuard{
 		p:    l.p,
@@ -140,23 +140,23 @@ func (l *FSContentLockGuard) Release() error {
 	fileBytes, errR := ioutil.ReadAll(f)
 	if errR != nil {
 		if errC := f.Close(); errC != nil {
-			glog.Fatalf("error closing lock file %q: %v", l.p, errC)
+			klog.Fatalf("error closing lock file %q: %v", l.p, errC)
 		}
 		return fmt.Errorf("error reading lock file: %v", errR)
 	}
 
 	if !bytes.Equal(fileBytes, l.data) {
 		if errC := f.Close(); errC != nil {
-			glog.Fatalf("error closing lock file %q: %v", l.p, errC)
+			klog.Fatalf("error closing lock file %q: %v", l.p, errC)
 		}
 		return fmt.Errorf("lock file %q changed", l.p)
 	}
 
 	if errT := f.Truncate(0); errT != nil {
-		glog.Warningf("failed to truncate file as part of lock release %q: %v", l.p, errT)
+		klog.Warningf("failed to truncate file as part of lock release %q: %v", l.p, errT)
 
 		if errC := f.Close(); errC != nil {
-			glog.Fatalf("error closing lock file %q: %v", l.p, errC)
+			klog.Fatalf("error closing lock file %q: %v", l.p, errC)
 		}
 
 		return fmt.Errorf("failed to truncate file after failed write %q: %v", l.p, errT)
@@ -166,7 +166,7 @@ func (l *FSContentLockGuard) Release() error {
 		return fmt.Errorf("error closing file as part of unlock %q: %v", l.p, errC)
 	}
 
-	glog.Infof("Released FSLock on %q for %s", l.p, l.id)
+	klog.Infof("Released FSLock on %q for %s", l.p, l.id)
 
 	return nil
 }

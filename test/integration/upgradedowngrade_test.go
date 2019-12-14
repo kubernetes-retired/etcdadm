@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/etcdversions"
 	"kope.io/etcd-manager/test/integration/harness"
@@ -50,7 +50,7 @@ func TestUpgradeDowngrade(t *testing.T) {
 					} else if len(members1) != 3 {
 						t.Errorf("members was not as expected: %v", members1)
 					} else {
-						glog.Infof("got members from #1: %v", members1)
+						klog.Infof("got members from #1: %v", members1)
 					}
 
 					if err := n1.Put(ctx, testKey, "worldv2"); err != nil {
@@ -63,7 +63,7 @@ func TestUpgradeDowngrade(t *testing.T) {
 				}
 
 				// Upgrade to new version
-				glog.Infof("upgrading to %s", toVersion)
+				klog.Infof("upgrading to %s", toVersion)
 				{
 					h.SetClusterSpec(&protoetcd.ClusterSpec{MemberCount: 3, EtcdVersion: toVersion})
 					h.InvalidateControlStore(n1, n2, n3)
@@ -83,7 +83,7 @@ func TestUpgradeDowngrade(t *testing.T) {
 					} else if len(members1) != 3 {
 						t.Errorf("members was not as expected: %v", members1)
 					} else {
-						glog.Infof("got members from #1: %v", members1)
+						klog.Infof("got members from #1: %v", members1)
 					}
 				}
 
@@ -107,7 +107,7 @@ func TestUpgradeDowngrade(t *testing.T) {
 				}
 
 				// Downgrade back to original version
-				glog.Infof("downgrading to " + fromVersion)
+				klog.Infof("downgrading to " + fromVersion)
 				{
 					h.SetClusterSpec(&protoetcd.ClusterSpec{MemberCount: 3, EtcdVersion: fromVersion})
 					h.InvalidateControlStore(n1, n2, n3)
@@ -127,7 +127,7 @@ func TestUpgradeDowngrade(t *testing.T) {
 					} else if len(members1) != 3 {
 						t.Errorf("members was not as expected: %v", members1)
 					} else {
-						glog.Infof("got members from #1: %v", members1)
+						klog.Infof("got members from #1: %v", members1)
 					}
 				}
 
@@ -146,7 +146,7 @@ func TestUpgradeDowngrade(t *testing.T) {
 					n3.AssertVersion(t, fromVersion)
 				}
 
-				glog.Infof("success!")
+				klog.Infof("success!")
 
 				cancel()
 				h.Close()

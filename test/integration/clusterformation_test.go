@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/etcdversions"
 	"kope.io/etcd-manager/test/integration/harness"
@@ -102,7 +102,7 @@ func TestClusterExpansion(t *testing.T) {
 	} else if len(members1) != 2 {
 		t.Fatalf("members was not as expected: %v", members1)
 	} else {
-		glog.Infof("got members from #1: %v", members1)
+		klog.Infof("got members from #1: %v", members1)
 	}
 
 	n2.WaitForListMembers(20 * time.Second)
@@ -112,7 +112,7 @@ func TestClusterExpansion(t *testing.T) {
 	} else if len(members2) != 2 {
 		t.Fatalf("members was not as expected: %v", members2)
 	} else {
-		glog.Infof("got members from #2: %v", members2)
+		klog.Infof("got members from #2: %v", members2)
 	}
 
 	n3 := h.NewNode("127.0.0.3")
@@ -125,7 +125,7 @@ func TestClusterExpansion(t *testing.T) {
 	} else if len(members3) != 3 {
 		t.Fatalf("members was not as expected: %v", members3)
 	} else {
-		glog.Infof("got members from #3: %v", members3)
+		klog.Infof("got members from #3: %v", members3)
 	}
 
 	cancel()
@@ -152,7 +152,7 @@ func TestWeOnlyFormASingleCluster(t *testing.T) {
 	} else if len(members1) != 1 {
 		t.Errorf("members was not as expected: %v", members1)
 	} else {
-		glog.Infof("got members from #1: %v", members1)
+		klog.Infof("got members from #1: %v", members1)
 	}
 
 	n2 := h.NewNode("127.0.0.2")

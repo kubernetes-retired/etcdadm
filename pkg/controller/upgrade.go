@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 )
 
@@ -51,24 +51,24 @@ func (m *EtcdController) stopForUpgrade(parentContext context.Context, clusterSp
 	}
 
 	// Force a backup, even before we start to do anything
-	glog.Infof("backing up cluster before quarantine")
+	klog.Infof("backing up cluster before quarantine")
 	if _, err := m.doClusterBackup(ctx, clusterSpec, clusterState); err != nil {
 		return false, fmt.Errorf("error doing backup before upgrade/downgrade: %v", err)
 	}
 
 	// We quarantine first, so that we don't have to get down to a single node before it is safe to do a backup
-	glog.Infof("quarantining cluster for upgrade")
+	klog.Infof("quarantining cluster for upgrade")
 	if _, err := m.updateQuarantine(ctx, clusterState, true); err != nil {
 		return false, err
 	}
 
 	// We do a backup
-	glog.Infof("backing up cluster after quarantine")
+	klog.Infof("backing up cluster after quarantine")
 	backupResponse, err := m.doClusterBackup(ctx, clusterSpec, clusterState)
 	if err != nil {
 		return false, err
 	}
-	glog.Infof("backed up cluster as %v", backupResponse)
+	klog.Infof("backed up cluster as %v", backupResponse)
 
 	// Schedule a restore of the backup onto the new cluster
 	{
@@ -90,7 +90,7 @@ func (m *EtcdController) stopForUpgrade(parentContext context.Context, clusterSp
 			if m.getRestoreBackupCommand() != nil {
 				break
 			}
-			glog.Warningf("waiting for restore-backup command to be visible")
+			klog.Warningf("waiting for restore-backup command to be visible")
 			time.Sleep(5 * time.Second)
 		}
 	}
@@ -110,7 +110,7 @@ func (m *EtcdController) stopForUpgrade(parentContext context.Context, clusterSp
 		if err != nil {
 			return false, fmt.Errorf("error stopping etcd peer %q: %v", peer.peer.Id, err)
 		}
-		glog.Infof("stopped etcd on peer %q: %v", peer.peer.Id, response)
+		klog.Infof("stopped etcd on peer %q: %v", peer.peer.Id, response)
 	}
 
 	// TODO: Enforce the upgrade sequence 2.2.1 2.3.7 3.0.17 3.1.11
@@ -123,7 +123,7 @@ func (m *EtcdController) upgradeInPlace(parentContext context.Context, clusterSp
 	// We start a new context - this is pretty critical-path
 	ctx := context.Background()
 
-	glog.Infof("doing in-place upgrade to %q", clusterSpec.EtcdVersion)
+	klog.Infof("doing in-place upgrade to %q", clusterSpec.EtcdVersion)
 
 	memberToPeer, err := m.prepareForUpgrade(clusterSpec, clusterState)
 	if err != nil {
@@ -143,12 +143,12 @@ func (m *EtcdController) upgradeInPlace(parentContext context.Context, clusterSp
 	}
 
 	// We do a backup
-	glog.Infof("backing up cluster before in-place upgrade")
+	klog.Infof("backing up cluster before in-place upgrade")
 	backupResponse, err := m.doClusterBackup(ctx, clusterSpec, clusterState)
 	if err != nil {
 		return false, err
 	}
-	glog.Infof("backup done: %v", backupResponse)
+	klog.Infof("backup done: %v", backupResponse)
 
 	for memberId := range clusterState.members {
 		peer := memberToPeer[memberId]
@@ -161,7 +161,7 @@ func (m *EtcdController) upgradeInPlace(parentContext context.Context, clusterSp
 			continue
 		}
 
-		glog.Infof("reconfiguring peer %q from %q -> %q", peer.peer.Id, peer.info.EtcdState.EtcdVersion, clusterSpec.EtcdVersion)
+		klog.Infof("reconfiguring peer %q from %q -> %q", peer.peer.Id, peer.info.EtcdState.EtcdVersion, clusterSpec.EtcdVersion)
 
 		request := &protoetcd.ReconfigureRequest{
 			Header:         m.buildHeader(),
@@ -173,12 +173,12 @@ func (m *EtcdController) upgradeInPlace(parentContext context.Context, clusterSp
 		if err != nil {
 			return false, fmt.Errorf("error reconfiguring etcd peer %q: %v", peer.peer.Id, err)
 		}
-		glog.Infof("reconfigured etcd on peer %q: %v", peer.peer.Id, response)
+		klog.Infof("reconfigured etcd on peer %q: %v", peer.peer.Id, response)
 
 		// We run one node per cycle so we can be sure we are fault tolerant
 		return true, nil
 	}
 
-	glog.Warningf("no nodes were upgraded")
+	klog.Warningf("no nodes were upgraded")
 	return false, nil
 }

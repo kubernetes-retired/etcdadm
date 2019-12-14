@@ -21,7 +21,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
-	"github.com/golang/glog"
+	"k8s.io/klog"
 
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 	"kope.io/etcd-manager/pkg/volumes"
@@ -61,7 +61,7 @@ func (a *AWSVolumes) Poll() (map[string]discovery.Node, error) {
 				volume := instanceToVolumeMap[aws.StringValue(instance.InstanceId)]
 				if volume == nil {
 					// unexpected ... we constructed the request from the map!
-					glog.Errorf("instance not found: %q", aws.StringValue(instance.InstanceId))
+					klog.Errorf("instance not found: %q", aws.StringValue(instance.InstanceId))
 					continue
 				}
 

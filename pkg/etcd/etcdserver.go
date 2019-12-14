@@ -9,9 +9,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang/glog"
 	"github.com/golang/protobuf/proto"
 	"golang.org/x/net/context"
+	"k8s.io/klog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/contextutil"
@@ -93,7 +93,7 @@ func (s *EtcdServer) Run(ctx context.Context) {
 	contextutil.Forever(ctx, time.Second*10, func() {
 		err := s.runOnce()
 		if err != nil {
-			glog.Warningf("error running etcd: %v", err)
+			klog.Warningf("error running etcd: %v", err)
 		}
 	})
 }
@@ -161,7 +161,7 @@ func (s *EtcdServer) runOnce() error {
 	if s.process != nil {
 		exitError, exitState := s.process.ExitState()
 		if exitError != nil || exitState != nil {
-			glog.Warningf("etcd process exited (error=%v, state=%v)", exitError, exitState)
+			klog.Warningf("etcd process exited (error=%v, state=%v)", exitError, exitState)
 
 			s.process = nil
 		}
@@ -223,9 +223,9 @@ func (s *EtcdServer) UpdateEndpoints(ctx context.Context, request *protoetcd.Upd
 		}
 
 		if len(addressToHosts) != 0 {
-			glog.Infof("updating hosts: %v", addressToHosts)
+			klog.Infof("updating hosts: %v", addressToHosts)
 			if err := s.dnsProvider.UpdateHosts(addressToHosts); err != nil {
-				glog.Warningf("error updating hosts: %v", err)
+				klog.Warningf("error updating hosts: %v", err)
 				return nil, err
 			}
 		}
@@ -246,19 +246,19 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 	if request.Phase == protoetcd.Phase_PHASE_CANCEL_PREPARE {
 		response := &protoetcd.JoinClusterResponse{}
 		if s.prepared == nil {
-			glog.Infof("cancelled prepare (already expired): %v", request)
+			klog.Infof("cancelled prepare (already expired): %v", request)
 			return response, nil
 		}
 		if s.prepared.clusterToken == request.ClusterToken {
 			s.prepared = nil
-			glog.Infof("cancelled prepare in response to request: %v", request)
+			klog.Infof("cancelled prepare in response to request: %v", request)
 			return response, nil
 		}
 		return nil, fmt.Errorf("concurrent prepare in progress %q", s.prepared.clusterToken)
 	}
 
 	if s.prepared != nil && time.Now().After(s.prepared.validUntil) {
-		glog.Infof("preparation %q expired", s.prepared.clusterToken)
+		klog.Infof("preparation %q expired", s.prepared.clusterToken)
 		s.prepared = nil
 	}
 
@@ -368,7 +368,7 @@ func (s *EtcdServer) Reconfigure(ctx context.Context, request *protoetcd.Reconfi
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	glog.Infof("Reconfigure request: %v", request)
+	klog.Infof("Reconfigure request: %v", request)
 
 	if err := s.validateHeader(request.Header); err != nil {
 		return nil, err
@@ -411,19 +411,19 @@ func (s *EtcdServer) Reconfigure(ctx context.Context, request *protoetcd.Reconfi
 		meNode.ClientUrls = urls.RewriteScheme(meNode.ClientUrls, "http://", "https://")
 	}
 
-	glog.Infof("Stopping etcd for reconfigure request: %v", request)
+	klog.Infof("Stopping etcd for reconfigure request: %v", request)
 	_, err = s.stopEtcdProcess()
 	if err != nil {
 		return nil, fmt.Errorf("error stoppping etcd process: %v", err)
 	}
 
 	s.state = state
-	glog.Infof("updated cluster state: %s", proto.CompactTextString(state))
+	klog.Infof("updated cluster state: %s", proto.CompactTextString(state))
 	if err := writeState(s.baseDir, s.state); err != nil {
 		return nil, err
 	}
 
-	glog.Infof("Starting etcd version %q", s.state.EtcdVersion)
+	klog.Infof("Starting etcd version %q", s.state.EtcdVersion)
 	if err := s.startEtcdProcess(s.state); err != nil {
 		return nil, err
 	}
@@ -436,7 +436,7 @@ func (s *EtcdServer) StopEtcd(ctx context.Context, request *protoetcd.StopEtcdRe
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	glog.Infof("StopEtcd request: %v", request)
+	klog.Infof("StopEtcd request: %v", request)
 
 	if err := s.validateHeader(request.Header); err != nil {
 		return nil, err
@@ -450,7 +450,7 @@ func (s *EtcdServer) StopEtcd(ctx context.Context, request *protoetcd.StopEtcdRe
 
 	response := &protoetcd.StopEtcdResponse{}
 
-	glog.Infof("Stopping etcd for stop request: %v", request)
+	klog.Infof("Stopping etcd for stop request: %v", request)
 	if _, err := s.stopEtcdProcess(); err != nil {
 		return nil, fmt.Errorf("error stoppping etcd process: %v", err)
 	}
@@ -464,14 +464,14 @@ func (s *EtcdServer) StopEtcd(ctx context.Context, request *protoetcd.StopEtcdRe
 	oldDataDir := filepath.Join(s.baseDir, "data", clusterToken)
 	trashcanDir := filepath.Join(s.baseDir, "data-trashcan")
 	if err := os.MkdirAll(trashcanDir, 0755); err != nil {
-		glog.Warningf("error creating trashcan directory %s: %v", trashcanDir, err)
+		klog.Warningf("error creating trashcan directory %s: %v", trashcanDir, err)
 	}
 
 	newDataDir := filepath.Join(trashcanDir, clusterToken)
-	glog.Infof("archiving etcd data directory %s -> %s", oldDataDir, newDataDir)
+	klog.Infof("archiving etcd data directory %s -> %s", oldDataDir, newDataDir)
 
 	if err := os.Rename(oldDataDir, newDataDir); err != nil {
-		glog.Warningf("error renaming directory %s -> %s: %v", oldDataDir, newDataDir, err)
+		klog.Warningf("error renaming directory %s -> %s: %v", oldDataDir, newDataDir, err)
 	}
 
 	return response, nil
@@ -516,22 +516,22 @@ func (s *EtcdServer) findSelfNode(state *protoetcd.EtcdState) (*protoetcd.EtcdNo
 	for _, node := range state.Cluster.Nodes {
 		if node.Name == s.etcdNodeConfiguration.Name {
 			if meNode != nil {
-				glog.Infof("Nodes: %v", state.Cluster.Nodes)
+				klog.Infof("Nodes: %v", state.Cluster.Nodes)
 				return nil, fmt.Errorf("multiple nodes matching local name %s included in cluster", node.Name)
 			}
 			meNode = node
 		}
 	}
 	if meNode == nil {
-		glog.Infof("unable to find node in cluster")
-		glog.Infof("self node: %v", s.etcdNodeConfiguration)
-		glog.Infof("cluster: %v", state.Cluster.Nodes)
+		klog.Infof("unable to find node in cluster")
+		klog.Infof("self node: %v", s.etcdNodeConfiguration)
+		klog.Infof("cluster: %v", state.Cluster.Nodes)
 	}
 	return meNode, nil
 }
 
 func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
-	glog.Infof("starting etcd with state %v", state)
+	klog.Infof("starting etcd with state %v", state)
 	if state.Cluster == nil {
 		return fmt.Errorf("cluster not configured, cannot start etcd")
 	}
@@ -540,7 +540,7 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 	}
 	dataDir := filepath.Join(s.baseDir, "data", state.Cluster.ClusterToken)
 	pkiDir := filepath.Join(s.baseDir, "pki", state.Cluster.ClusterToken)
-	glog.Infof("starting etcd with datadir %s", dataDir)
+	klog.Infof("starting etcd with datadir %s", dataDir)
 
 	state = proto.Clone(state).(*protoetcd.EtcdState)
 
@@ -554,11 +554,11 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 	}
 
 	if !reflect.DeepEqual(s.etcdNodeConfiguration.ClientUrls, meNode.ClientUrls) {
-		glog.Infof("overriding clientURLs with %v (state had %v)", s.etcdNodeConfiguration.ClientUrls, meNode.ClientUrls)
+		klog.Infof("overriding clientURLs with %v (state had %v)", s.etcdNodeConfiguration.ClientUrls, meNode.ClientUrls)
 		meNode.ClientUrls = s.etcdNodeConfiguration.ClientUrls
 	}
 	if !reflect.DeepEqual(s.etcdNodeConfiguration.QuarantinedClientUrls, meNode.QuarantinedClientUrls) {
-		glog.Infof("overriding quarantinedClientURLs with %v (state had %v)", s.etcdNodeConfiguration.QuarantinedClientUrls, meNode.QuarantinedClientUrls)
+		klog.Infof("overriding quarantinedClientURLs with %v (state had %v)", s.etcdNodeConfiguration.QuarantinedClientUrls, meNode.QuarantinedClientUrls)
 		meNode.QuarantinedClientUrls = s.etcdNodeConfiguration.QuarantinedClientUrls
 	}
 
@@ -615,7 +615,7 @@ func (s *EtcdServer) stopEtcdProcess() (bool, error) {
 		return false, nil
 	}
 
-	glog.Infof("killing etcd with datadir %s", s.process.DataDir)
+	klog.Infof("killing etcd with datadir %s", s.process.DataDir)
 	err := s.process.Stop()
 	if err != nil {
 		return true, fmt.Errorf("error killing etcd: %v", err)
@@ -627,7 +627,7 @@ func (s *EtcdServer) stopEtcdProcess() (bool, error) {
 // validateHeader checks the values in the CommonRequestHeader
 func (s *EtcdServer) validateHeader(header *protoetcd.CommonRequestHeader) error {
 	if header.ClusterName != s.clusterName {
-		glog.Infof("request had incorrect ClusterName.  ClusterName=%q but header=%q", s.clusterName, header)
+		klog.Infof("request had incorrect ClusterName.  ClusterName=%q but header=%q", s.clusterName, header)
 		return fmt.Errorf("ClusterName mismatch")
 	}
 

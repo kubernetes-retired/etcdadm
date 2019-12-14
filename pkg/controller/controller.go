@@ -13,8 +13,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang/glog"
 	"github.com/golang/protobuf/proto"
+	"k8s.io/klog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/backupcontroller"
@@ -132,7 +132,7 @@ func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, backup
 	}
 
 	if disableEtcdTLS {
-		glog.Warningf("not enabling TLS for etcd, this is insecure")
+		klog.Warningf("not enabling TLS for etcd, this is insecure")
 		m.disableEtcdTLS = true
 	}
 
@@ -146,7 +146,7 @@ func (m *EtcdController) Run(ctx context.Context) {
 		func() {
 			progress, err := m.run(ctx)
 			if err != nil {
-				glog.Warningf("unexpected error running etcd cluster reconciliation loop: %v", err)
+				klog.Warningf("unexpected error running etcd cluster reconciliation loop: %v", err)
 			}
 			if !progress {
 				contextutil.Sleep(ctx, m.CycleInterval)
@@ -154,13 +154,13 @@ func (m *EtcdController) Run(ctx context.Context) {
 		})
 
 	if err := m.releaseLeaderLock(); err != nil {
-		glog.Warningf("error releasing leader lock: %v", err)
+		klog.Warningf("error releasing leader lock: %v", err)
 	}
 }
 
 func (m *EtcdController) releaseLeaderLock() error {
 	if m.leaderLockGuard != nil {
-		glog.Infof("releasing leader lock")
+		klog.Infof("releasing leader lock")
 		if err := m.leaderLockGuard.Release(); err != nil {
 			return fmt.Errorf("failed to release leader lock guard: %v", err)
 		}
@@ -170,7 +170,7 @@ func (m *EtcdController) releaseLeaderLock() error {
 }
 
 func (m *EtcdController) run(ctx context.Context) (bool, error) {
-	glog.V(6).Infof("starting controller iteration")
+	klog.V(6).Infof("starting controller iteration")
 
 	// Get all (responsive) peers in the discovery cluster
 	var peers []*peer
@@ -180,7 +180,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	sort.SliceStable(peers, func(i, j int) bool {
 		return peers[i].Id < peers[j].Id
 	})
-	glog.V(8).Infof("peers: %s", peers)
+	klog.V(8).Infof("peers: %s", peers)
 
 	// Find self
 	var me *peer
@@ -195,7 +195,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 
 	// We only try to act as controller if we are the leader (lowest id)
 	if peers[0].Id != me.Id {
-		glog.V(4).Infof("we are not leader")
+		klog.V(4).Infof("we are not leader")
 
 		if err := m.releaseLeaderLock(); err != nil {
 			return false, err
@@ -212,7 +212,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 			return false, fmt.Errorf("error acquiring leader lock: %v", err)
 		}
 		if leaderLockGuard == nil {
-			glog.Infof("could not acquire leader lock")
+			klog.Infof("could not acquire leader lock")
 			return false, nil
 		}
 		m.leaderLockGuard = leaderLockGuard
@@ -256,7 +256,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	{
 		for _, peer := range peers {
 			if !m.leadership.acked[peer.Id] {
-				glog.Infof("peer %q has not acked our leadership; resigning leadership", peer)
+				klog.Infof("peer %q has not acked our leadership; resigning leadership", peer)
 				m.leadership = nil
 
 				// Wait one cycle after leadership changes
@@ -266,15 +266,15 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		}
 	}
 
-	glog.Infof("I am leader with token %q", m.leadership.token)
+	klog.Infof("I am leader with token %q", m.leadership.token)
 
 	// Query all our peers to try to find the actual state of etcd on each node
 	clusterState, err := m.updateClusterState(ctx, peers)
 	if err != nil {
 		return false, fmt.Errorf("error building cluster state: %v", err)
 	}
-	glog.Infof("etcd cluster state: %s", clusterState)
-	glog.V(2).Infof("etcd cluster members: %s", clusterState.members)
+	klog.Infof("etcd cluster state: %s", clusterState)
+	klog.V(2).Infof("etcd cluster members: %s", clusterState.members)
 
 	now := time.Now()
 
@@ -317,7 +317,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	{
 		memberMap := m.buildMemberMap(clusterState)
 		if errors := m.broadcastMemberMap(ctx, clusterState, memberMap); len(errors) != 0 {
-			glog.Warningf("error broadcasting member map: %v", errors)
+			klog.Warningf("error broadcasting member map: %v", errors)
 		}
 	}
 
@@ -330,7 +330,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		return false, fmt.Errorf("error checking control store: %v", err)
 	}
 	if isNewCluster {
-		glog.Infof("detected that there is no existing cluster")
+		klog.Infof("detected that there is no existing cluster")
 
 		if err := m.refreshControlStore(time.Duration(0)); err != nil {
 			return false, fmt.Errorf("error refreshing control store: %v", err)
@@ -343,7 +343,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 			}
 
 			if ackedPeerCount < quorumSize(int(clusterSpec.MemberCount)) {
-				glog.Infof("insufficient peers in our gossip group to build a cluster of size %d", clusterSpec.MemberCount)
+				klog.Infof("insufficient peers in our gossip group to build a cluster of size %d", clusterSpec.MemberCount)
 				return false, nil
 			}
 
@@ -363,10 +363,10 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 
 	clusterSpec := m.getControlClusterSpec()
 	if clusterSpec == nil {
-		glog.Infof("no cluster spec set - must seed new cluster")
+		klog.Infof("no cluster spec set - must seed new cluster")
 		return false, nil
 	}
-	glog.Infof("spec %v", clusterSpec)
+	klog.Infof("spec %v", clusterSpec)
 
 	desiredQuorumSize := quorumSize(int(clusterSpec.MemberCount))
 
@@ -377,16 +377,16 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		}
 
 		data := restoreBackupCommand.Data()
-		glog.Infof("got restore-backup command: %v", data.String())
+		klog.Infof("got restore-backup command: %v", data.String())
 
 		if data.RestoreBackup == nil || data.RestoreBackup.ClusterSpec == nil {
 			// Should be unreachable
-			glog.Warningf("restore-backup command had no data: %v", restoreBackupCommand)
+			klog.Warningf("restore-backup command had no data: %v", restoreBackupCommand)
 			return false, fmt.Errorf("RestoreBackup was not set: %v", restoreBackupCommand)
 		}
 
 		if ackedPeerCount < quorumSize(int(clusterSpec.MemberCount)) {
-			glog.Infof("insufficient peers in our gossip group to build a cluster of size %d", clusterSpec.MemberCount)
+			klog.Infof("insufficient peers in our gossip group to build a cluster of size %d", clusterSpec.MemberCount)
 			return false, nil
 		}
 
@@ -400,7 +400,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 
 	if len(clusterState.members) != 0 {
 		if err := m.maybeBackup(ctx, clusterSpec, clusterState); err != nil {
-			glog.Warningf("error during backup: %v", err)
+			klog.Warningf("error during backup: %v", err)
 		}
 	}
 
@@ -414,13 +414,13 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	{
 		for _, peer := range clusterState.peers {
 			if peer.info != nil && peer.info.EtcdState != nil && peer.info.EtcdState.EtcdVersion != clusterSpec.EtcdVersion {
-				glog.Infof("mismatched version for peer %v: want %q, have %q", peer.peer, clusterSpec.EtcdVersion, peer.info.EtcdState.EtcdVersion)
+				klog.Infof("mismatched version for peer %v: want %q, have %q", peer.peer, clusterSpec.EtcdVersion, peer.info.EtcdState.EtcdVersion)
 				versionMismatch = append(versionMismatch, peer)
 
 				if !etcdversions.UpgradeInPlaceSupported(peer.info.EtcdState.EtcdVersion, clusterSpec.EtcdVersion) {
 					// TODO: Automatic intermediate upgrades?  3.1 -> 3.2 -> 3.3 ?
 					if canUpgradeInPlace {
-						glog.Infof("can't do in-place upgrade from %q -> %q", peer.info.EtcdState.EtcdVersion, clusterSpec.EtcdVersion)
+						klog.Infof("can't do in-place upgrade from %q -> %q", peer.info.EtcdState.EtcdVersion, clusterSpec.EtcdVersion)
 
 						canUpgradeInPlace = false
 					}
@@ -436,14 +436,14 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 				// We're ready - lift quarantine
 				return m.updateQuarantine(ctx, clusterState, false)
 			} else {
-				glog.Infof("insufficient peers to lift quarantine")
+				klog.Infof("insufficient peers to lift quarantine")
 				return false, nil
 			}
 		}
 
 		// Ensure that if anyone is quarantined (and should be) that everyone is quarantined
 		if nonQuarantinedMembers > 0 {
-			glog.Infof("inconsistent quarantine state, will set all to quarantined")
+			klog.Infof("inconsistent quarantine state, will set all to quarantined")
 			return m.updateQuarantine(ctx, clusterState, true)
 		}
 	}
@@ -451,22 +451,22 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	if len(clusterState.members) < int(clusterSpec.MemberCount) {
 		if len(clusterState.members) == 0 {
 			if err := m.InvalidateControlStore(); err != nil {
-				glog.Warningf("error refreshing control store: %v", err)
+				klog.Warningf("error refreshing control store: %v", err)
 			}
 			return false, fmt.Errorf("etcd has 0 members registered; must issue restore-backup command to proceed")
 		}
 
-		glog.Infof("etcd has %d members registered, we want %d; will try to expand cluster", len(clusterState.members), clusterSpec.MemberCount)
+		klog.Infof("etcd has %d members registered, we want %d; will try to expand cluster", len(clusterState.members), clusterSpec.MemberCount)
 		if ackedPeerCount >= quorumSize(len(clusterState.members)) {
 			return m.addNodeToCluster(ctx, clusterSpec, clusterState)
 		} else {
-			glog.Infof("insufficient peers to expand cluster")
+			klog.Infof("insufficient peers to expand cluster")
 			return false, nil
 		}
 	}
 
 	if len(clusterState.members) == 0 {
-		glog.Warningf("no members are actually running")
+		klog.Warningf("no members are actually running")
 		return false, nil
 	}
 
@@ -474,7 +474,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		if ackedPeerCount >= quorumSize(configuredMembers) {
 			return m.removeNodeFromCluster(ctx, clusterSpec, clusterState, true)
 		} else {
-			glog.Infof("insufficient peers to remove nodes from cluster")
+			klog.Infof("insufficient peers to remove nodes from cluster")
 			return false, nil
 		}
 	}
@@ -486,16 +486,16 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		// We also only remove a member when there's a idle peer
 		idlePeers := clusterState.idlePeers()
 		if len(idlePeers) == 0 {
-			glog.Infof("etcd has unhealthy members, but no idle peers ready to join, so won't remove unhealthy members")
+			klog.Infof("etcd has unhealthy members, but no idle peers ready to join, so won't remove unhealthy members")
 		} else if len(clusterState.members) <= 2 {
-			glog.Infof("etcd has unhealthy members, but cluster size is not large enough to support safe removal")
+			klog.Infof("etcd has unhealthy members, but cluster size is not large enough to support safe removal")
 		} else if len(clusterState.members) <= int(clusterSpec.MemberCount) {
 			// TODO: Is this the right check?  What if we can't add because we can't get quorum?
-			glog.Infof("etcd has unhealthy members, but we already have a slot where we could add another member")
+			klog.Infof("etcd has unhealthy members, but we already have a slot where we could add another member")
 		} else if ackedPeerCount < quorumSize(int(clusterSpec.MemberCount)) {
-			glog.Infof("etcd has unhealthy members, but we don't have sufficient peers to remove members")
+			klog.Infof("etcd has unhealthy members, but we don't have sufficient peers to remove members")
 		} else {
-			glog.Infof("etcd has unhealthy members, an idle peer ready to join, and is at full cluster size; removing a member")
+			klog.Infof("etcd has unhealthy members, an idle peer ready to join, and is at full cluster size; removing a member")
 			// TODO: Remove and readd bad member to repair it
 			// TODO: Wait longer in case of a flake
 			// TODO: Still backup before mutating the cluster
@@ -514,7 +514,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	// Finally we can do the big one ... upgrade / downgrade etcd versions
 	// We do this last because we want everything else to be in a known state
 	if len(versionMismatch) != 0 {
-		glog.Infof("detected that we need to upgrade/downgrade etcd")
+		klog.Infof("detected that we need to upgrade/downgrade etcd")
 
 		if ackedPeerCount >= quorumSize(int(clusterSpec.MemberCount)) {
 			if canUpgradeInPlace {
@@ -523,12 +523,12 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 				return m.stopForUpgrade(ctx, clusterSpec, clusterState)
 			}
 		} else {
-			glog.Infof("upgrade/downgrade needed, but we don't have sufficient peers")
+			klog.Infof("upgrade/downgrade needed, but we don't have sufficient peers")
 			return false, nil
 		}
 	}
 
-	glog.Infof("controller loop complete")
+	klog.Infof("controller loop complete")
 
 	return false, nil
 }
@@ -547,11 +547,11 @@ func (m *EtcdController) maybeBackup(ctx context.Context, clusterSpec *protoetcd
 		return err
 	}
 
-	glog.Infof("took backup: %v", backup)
+	klog.Infof("took backup: %v", backup)
 	m.lastBackup = now
 
 	if err := m.backupCleanup.MaybeDoBackupMaintenance(ctx); err != nil {
-		glog.Warningf("error during backup cleanup: %v", err)
+		klog.Warningf("error during backup cleanup: %v", err)
 	}
 
 	return nil
@@ -561,7 +561,7 @@ func randomToken() string {
 	b := make([]byte, 16, 16)
 	_, err := io.ReadFull(crypto_rand.Reader, b)
 	if err != nil {
-		glog.Fatalf("error generating random token: %v", err)
+		klog.Fatalf("error generating random token: %v", err)
 	}
 	return base64.RawURLEncoding.EncodeToString(b)
 }
@@ -612,7 +612,7 @@ func (m *EtcdController) buildMemberMap(etcdClusterState *etcdClusterState) *pro
 
 func (m *EtcdController) broadcastMemberMap(ctx context.Context, etcdClusterState *etcdClusterState, memberMap *protoetcd.MemberMap) []error {
 	// TODO: optimize this
-	glog.Infof("sending member map to all peers: %v", memberMap)
+	klog.Infof("sending member map to all peers: %v", memberMap)
 
 	var errors []error
 	for _, peer := range etcdClusterState.peers {
@@ -622,7 +622,7 @@ func (m *EtcdController) broadcastMemberMap(ctx context.Context, etcdClusterStat
 
 		_, err := peer.peer.rpcUpdateEndpoints(ctx, updateEndpointsRequest)
 		if err != nil {
-			glog.Warningf("peer %s failed to broadcast endpoints to members: %v", peer.peer.Id, err)
+			klog.Warningf("peer %s failed to broadcast endpoints to members: %v", peer.peer.Id, err)
 			errors = append(errors, err)
 		}
 	}
@@ -672,13 +672,13 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 
 		etcdClient, err := etcdclient.NewClient(p.info.EtcdState.EtcdVersion, clientUrls, m.etcdClientTLSConfig)
 		if err != nil {
-			glog.Warningf("unable to reach member %s: %v", p, err)
+			klog.Warningf("unable to reach member %s: %v", p, err)
 			continue
 		}
 		members, err := etcdClient.ListMembers(ctx)
 		etcdclient.LoggedClose(etcdClient)
 		if err != nil {
-			glog.Warningf("unable to reach member for ListMembers %s: %v", p, err)
+			klog.Warningf("unable to reach member for ListMembers %s: %v", p, err)
 			continue
 		}
 
@@ -687,7 +687,7 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 			// Note that members don't necessarily have names, when they are added but not yet merged
 			memberID := EtcdMemberId(m.ID)
 			if memberID == "" {
-				glog.Fatalf("etcd member did not have ID: %v", m)
+				klog.Fatalf("etcd member did not have ID: %v", m)
 			}
 			clusterState.members[memberID] = m
 		}
@@ -700,7 +700,7 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 	for id, member := range clusterState.members {
 		etcdClient, err := clusterState.newEtcdClient(member)
 		if err != nil {
-			glog.Warningf("health-check unable to reach member %s: %v", id, err)
+			klog.Warningf("health-check unable to reach member %s: %v", id, err)
 			continue
 		}
 
@@ -711,7 +711,7 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 
 		etcdclient.LoggedClose(etcdClient)
 		if err != nil {
-			glog.Warningf("health-check unable to reach member %s on %v: %v", id, member.ClientURLs, err)
+			klog.Warningf("health-check unable to reach member %s on %v: %v", id, member.ClientURLs, err)
 			continue
 		}
 
@@ -768,11 +768,11 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterSpec *prot
 				return false, fmt.Errorf("failed to backup (before adding peer): %v", err)
 			}
 		} else {
-			glog.Warningf("unable to do backup before adding peer - no members")
+			klog.Warningf("unable to do backup before adding peer - no members")
 		}
 
 		peer := idlePeers[math_rand.Intn(len(idlePeers))]
-		glog.Infof("will try to start etcd on new peer: %v", peer)
+		klog.Infof("will try to start etcd on new peer: %v", peer)
 
 		clusterToken := ""
 		etcdVersion := ""
@@ -827,13 +827,13 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterSpec *prot
 			if err != nil {
 				return false, fmt.Errorf("error from JoinClusterRequest (prepare) from peer %q: %v", peer.peer.Id, err)
 			}
-			glog.V(2).Infof("JoinCluster returned %s", joinClusterResponse)
+			klog.V(2).Infof("JoinCluster returned %s", joinClusterResponse)
 		}
 
 		// We have to add the peer to etcd before starting it
 		// * because the node fails to start if it is not added to the cluster first
 		// * and because we want etcd to be our source of truth
-		glog.Infof("Adding member to cluster: %s", peer.info.NodeConfiguration)
+		klog.Infof("Adding member to cluster: %s", peer.info.NodeConfiguration)
 		_, err := clusterState.etcdAddMember(ctx, peer.info.NodeConfiguration)
 		if err != nil {
 			// Try to cancel prepare; best-effort, it will time out
@@ -844,13 +844,13 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterSpec *prot
 					ClusterToken: clusterToken,
 				}
 
-				glog.Infof("cancelling prepare: %v", cancelPrepareRequest)
+				klog.Infof("cancelling prepare: %v", cancelPrepareRequest)
 
 				cancelPrepareResponse, err := peer.peer.rpcJoinCluster(ctx, cancelPrepareRequest)
 				if err != nil {
-					glog.Infof("failed to cancel prepare: %v", err)
+					klog.Infof("failed to cancel prepare: %v", err)
 				} else {
-					glog.Infof("cancelled prepare: %v", cancelPrepareResponse)
+					klog.Infof("cancelled prepare: %v", cancelPrepareResponse)
 				}
 			}
 
@@ -870,14 +870,14 @@ func (m *EtcdController) addNodeToCluster(ctx context.Context, clusterSpec *prot
 			if err != nil {
 				return false, fmt.Errorf("error from JoinClusterRequest from peer %q: %v", peer.peer.Id, err)
 			}
-			glog.V(2).Infof("JoinCluster returned %s", joinClusterResponse)
+			klog.V(2).Infof("JoinCluster returned %s", joinClusterResponse)
 		}
 
 		// We made some progress here; give it a cycle to join & sync
 		return true, nil
 	}
 
-	glog.Infof("Want to expand cluster but no available nodes")
+	klog.Infof("Want to expand cluster but no available nodes")
 	return false, nil
 }
 
@@ -886,7 +886,7 @@ func (m *EtcdController) doClusterBackup(ctx context.Context, clusterSpec *proto
 	for _, member := range clusterState.healthyMembers {
 		peer := clusterState.FindPeer(member)
 		if peer == nil {
-			glog.Warningf("unable to find peer for member %v", member)
+			klog.Warningf("unable to find peer for member %v", member)
 			continue
 		}
 
@@ -901,9 +901,9 @@ func (m *EtcdController) doClusterBackup(ctx context.Context, clusterSpec *proto
 
 		doBackupResponse, err := peer.peer.rpcDoBackup(ctx, doBackupRequest)
 		if err != nil {
-			glog.Warningf("peer gave error while trying to do backup: %v", err)
+			klog.Warningf("peer gave error while trying to do backup: %v", err)
 		} else {
-			glog.V(2).Infof("backup response: %v", doBackupResponse)
+			klog.V(2).Infof("backup response: %v", doBackupResponse)
 			return doBackupResponse, nil
 		}
 	}
@@ -926,11 +926,11 @@ func (m *EtcdController) removeNodeFromCluster(ctx context.Context, clusterSpec 
 					// TODO: remove most unhealthy member?
 					peerState := m.peerState[privateapi.PeerId(id)]
 					if peerState == nil {
-						glog.Fatalf("peerState unexpectedly nil")
+						klog.Fatalf("peerState unexpectedly nil")
 					}
 					age := now.Sub(peerState.lastEtcdHealthy)
 					if age < removeUnhealthyDeadline {
-						glog.Infof("peer %v is unhealthy, but waiting for %s (currently %s)", member, removeUnhealthyDeadline, age)
+						klog.Infof("peer %v is unhealthy, but waiting for %s (currently %s)", member, removeUnhealthyDeadline, age)
 						continue
 					}
 
@@ -943,7 +943,7 @@ func (m *EtcdController) removeNodeFromCluster(ctx context.Context, clusterSpec 
 	}
 
 	if victim == nil && !removeHealthy {
-		glog.Infof("want to remove unhealthy members, but waiting to verify it doesn't recover")
+		klog.Infof("want to remove unhealthy members, but waiting to verify it doesn't recover")
 		return false, nil
 	}
 
@@ -968,7 +968,7 @@ func (m *EtcdController) removeNodeFromCluster(ctx context.Context, clusterSpec 
 		return false, fmt.Errorf("failed to backup (before adding peer): %v", err)
 	}
 
-	glog.Infof("removing node from etcd cluster: %v", victim)
+	klog.Infof("removing node from etcd cluster: %v", victim)
 
 	err := clusterState.etcdRemoveMember(ctx, victim)
 	if err != nil {
@@ -977,7 +977,7 @@ func (m *EtcdController) removeNodeFromCluster(ctx context.Context, clusterSpec 
 
 	// TODO: Need to look for peers that are running etcd but aren't in the cluster
 	// (we could do it here, but we want to do it as part of the control loop for safety)
-	glog.Errorf("TODO: Remove peers that aren't active in the cluster")
+	klog.Errorf("TODO: Remove peers that aren't active in the cluster")
 
 	return true, nil
 }
@@ -1005,7 +1005,7 @@ func (m *EtcdController) verifyEtcdVersion(clusterSpec *protoetcd.ClusterSpec) (
 
 	// New versions of etcd might introduce new management requirements
 	// If we aren't aware of the version, we don't proceed
-	glog.Warningf("we don't support etcd version requested, won't assume forward compatability: %v", clusterSpec)
+	klog.Warningf("we don't support etcd version requested, won't assume forward compatability: %v", clusterSpec)
 
 	return false, fmt.Errorf("can't act as leader for unknown etcd version %q", clusterSpec.EtcdVersion)
 }

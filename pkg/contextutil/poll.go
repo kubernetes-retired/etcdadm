@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 )
 
 func Sleep(ctx context.Context, duration time.Duration) error {
@@ -22,7 +22,7 @@ func Sleep(ctx context.Context, duration time.Duration) error {
 func Forever(ctx context.Context, interval time.Duration, f func()) {
 	for {
 		if ctx.Err() != nil {
-			glog.Infof("context cancelled; exiting loop")
+			klog.Infof("context cancelled; exiting loop")
 			return
 		}
 

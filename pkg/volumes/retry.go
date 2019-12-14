@@ -19,7 +19,7 @@ package volumes
 import (
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 )
 
 // Backoff ...
@@ -44,7 +44,7 @@ func SleepUntil(backoff Backoff, condition conditionFunc) (done bool, err error)
 			break
 		}
 		if err != nil {
-			glog.Infof("retrying after error: %v", err)
+			klog.Infof("retrying after error: %v", err)
 		}
 		time.Sleep(backoff.Duration)
 	}

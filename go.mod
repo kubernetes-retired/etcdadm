@@ -83,7 +83,6 @@ require (
 	github.com/denverdino/aliyungo v0.0.0-20180409134525-ed76a3738861 // indirect
 	github.com/digitalocean/godo v1.19.0
 	github.com/go-ini/ini v1.32.0 // indirect
-	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/golang/protobuf v1.3.2
 	github.com/gophercloud/gophercloud v0.0.0-20190216224116-dcc6e84aef1b
 	github.com/pkg/sftp v0.0.0-20180127012644-738e088bbd93 // indirect

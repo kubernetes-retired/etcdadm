@@ -6,7 +6,7 @@ import (
 	"os"
 	"syscall"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 )
 
 type FSFlockLock struct {
@@ -56,7 +56,7 @@ func (l *FSFlockLock) Acquire(ctx context.Context, id string) (LockGuard, error)
 		return nil, fmt.Errorf("unexpected result from flock(%s, LOCK_EX): %v", l.p, err)
 	}
 
-	glog.Infof("Acquired FSLock on %s for %s", l.p, id)
+	klog.Infof("Acquired FSLock on %s for %s", l.p, id)
 
 	//if _, err := f.WriteAt(b, 0); err != nil {
 	//	f.Close()

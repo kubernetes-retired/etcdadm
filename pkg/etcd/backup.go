@@ -9,7 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/etcdclient"
@@ -48,7 +48,7 @@ func DoBackupV2(backupStore backup.Store, info *protoetcd.BackupInfo, dataDir st
 	defer func() {
 		err := os.RemoveAll(tempDir)
 		if err != nil {
-			glog.Warningf("error deleting backup temp directory %q: %v", tempDir, err)
+			klog.Warningf("error deleting backup temp directory %q: %v", tempDir, err)
 		}
 	}()
 
@@ -64,7 +64,7 @@ func DoBackupV2(backupStore backup.Store, info *protoetcd.BackupInfo, dataDir st
 	c.Args = append(c.Args, "backup")
 	c.Args = append(c.Args, "--data-dir", dataDir)
 	c.Args = append(c.Args, "--backup-dir", backupDir)
-	glog.Infof("executing command %s %s", c.Path, c.Args)
+	klog.Infof("executing command %s %s", c.Path, c.Args)
 
 	env := make(map[string]string)
 	for k, v := range env {
@@ -104,7 +104,7 @@ func DoBackupV3(backupStore backup.Store, info *protoetcd.BackupInfo, clientUrls
 	defer func() {
 		err := os.RemoveAll(tempDir)
 		if err != nil {
-			glog.Warningf("error deleting backup temp directory %q: %v", tempDir, err)
+			klog.Warningf("error deleting backup temp directory %q: %v", tempDir, err)
 		}
 	}()
 
@@ -115,7 +115,7 @@ func DoBackupV3(backupStore backup.Store, info *protoetcd.BackupInfo, clientUrls
 	defer etcdclient.LoggedClose(client)
 
 	snapshotFile := filepath.Join(tempDir, "snapshot.db.gz")
-	glog.Infof("performing snapshot save to %s", snapshotFile)
+	klog.Infof("performing snapshot save to %s", snapshotFile)
 	if err := client.SnapshotSave(context.TODO(), snapshotFile); err != nil {
 		return nil, fmt.Errorf("error performing snapshot save: %v", err)
 	}
@@ -140,6 +140,6 @@ func uploadBackup(backupStore backup.Store, info *protoetcd.BackupInfo, srcFile 
 	response := &protoetcd.DoBackupResponse{
 		Name: backupName,
 	}
-	glog.Infof("backup complete: %v", response)
+	klog.Infof("backup complete: %v", response)
 	return response, nil
 }

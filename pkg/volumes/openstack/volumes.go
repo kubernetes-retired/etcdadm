@@ -27,13 +27,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/glog"
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
 	cinderv2 "github.com/gophercloud/gophercloud/openstack/blockstorage/v2/volumes"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/availabilityzones"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/volumeattach"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
+	"k8s.io/klog"
 	utilexec "k8s.io/utils/exec"
 	"kope.io/etcd-manager/pkg/volumes"
 )
@@ -200,7 +200,7 @@ func (stack *OpenstackVolumes) discoverTags() error {
 		if stack.project == "" {
 			return fmt.Errorf("project metadata was empty")
 		}
-		glog.Infof("Found project=%q", stack.project)
+		klog.Infof("Found project=%q", stack.project)
 	}
 
 	// Instance Name
@@ -209,7 +209,7 @@ func (stack *OpenstackVolumes) discoverTags() error {
 		if stack.instanceName == "" {
 			return fmt.Errorf("instance name metadata was empty")
 		}
-		glog.Infof("Found instanceName=%q", stack.instanceName)
+		klog.Infof("Found instanceName=%q", stack.instanceName)
 	}
 
 	// Internal IP & zone
@@ -229,7 +229,7 @@ func (stack *OpenstackVolumes) discoverTags() error {
 		}
 		stack.internalIP = net.ParseIP(ip)
 		stack.zone = extendedServer.AvailabilityZone
-		glog.Infof("Found internalIP=%q and zone=%q", stack.internalIP, stack.zone)
+		klog.Infof("Found internalIP=%q and zone=%q", stack.internalIP, stack.zone)
 
 	}
 
@@ -299,7 +299,7 @@ func (stack *OpenstackVolumes) matchesTags(d *cinderv2.Volume) bool {
 func (stack *OpenstackVolumes) FindVolumes() ([]*volumes.Volume, error) {
 	var volumes []*volumes.Volume
 
-	glog.V(2).Infof("Listing Openstack disks in %s/%s", stack.project, stack.meta.AvailabilityZone)
+	klog.V(2).Infof("Listing Openstack disks in %s/%s", stack.project, stack.meta.AvailabilityZone)
 
 	pages, err := cinderv2.List(stack.volumeClient, cinderv2.ListOpts{
 		TenantID: stack.project,
@@ -318,7 +318,7 @@ func (stack *OpenstackVolumes) FindVolumes() ([]*volumes.Volume, error) {
 		}
 		vol, err := stack.buildOpenstackVolume(&volume)
 		if err != nil {
-			glog.Warningf("skipping volume %s: %v", volume.Name, err)
+			klog.Warningf("skipping volume %s: %v", volume.Name, err)
 			continue
 		}
 		volumes = append(volumes, vol)
@@ -345,7 +345,7 @@ func findDevicePath(volumeID string) (string, error) {
 	for _, f := range files {
 		for _, c := range candidateDeviceNodes {
 			if c == f.Name() {
-				glog.V(4).Infof("Found disk attached as %q; full devicepath: %s\n", f.Name(), path.Join(volumes.PathFor("/dev/disk/by-id/"), f.Name()))
+				klog.V(4).Infof("Found disk attached as %q; full devicepath: %s\n", f.Name(), path.Join(volumes.PathFor("/dev/disk/by-id/"), f.Name()))
 				return path.Join("/dev/disk/by-id/", f.Name()), nil
 			}
 		}
@@ -396,9 +396,9 @@ func (_ *OpenstackVolumes) FindMountedVolume(volume *volumes.Volume) (string, er
 			return true, nil
 		}
 
-		glog.V(2).Infof("Could not find device path for volume; scanning buses")
+		klog.V(2).Infof("Could not find device path for volume; scanning buses")
 		if err := probeVolume(); err != nil {
-			glog.V(2).Infof("Error scanning buses: %v", err)
+			klog.V(2).Infof("Error scanning buses: %v", err)
 		}
 
 		return false, nil
@@ -416,7 +416,7 @@ func (_ *OpenstackVolumes) FindMountedVolume(volume *volumes.Volume) (string, er
 	if _, err := os.Stat(volumes.PathFor(device)); err != nil {
 		if os.IsNotExist(err) {
 			// Unexpected, but treat as not-found
-			glog.Warningf("did not find device %q at expected path %q", device, volumes.PathFor(device))
+			klog.Warningf("did not find device %q at expected path %q", device, volumes.PathFor(device))
 			return "", nil
 		}
 		return "", fmt.Errorf("error checking for device %q: %v", device, err)

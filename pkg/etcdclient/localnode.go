@@ -8,7 +8,7 @@ import (
 
 	etcd_client_v2 "github.com/coreos/etcd/client"
 	"github.com/coreos/etcd/pkg/pathutil"
-	"github.com/golang/glog"
+	"k8s.io/klog"
 )
 
 type v2SelfInfo struct {
@@ -61,7 +61,7 @@ func (c *V3Client) LocalNodeInfo(ctx context.Context) (*LocalNodeInfo, error) {
 	for _, endpoint := range c.endpoints {
 		response, err := c.client.Status(ctx, endpoint)
 		if err != nil {
-			glog.Warningf("unable to get status from %q: %v", endpoint, err)
+			klog.Warningf("unable to get status from %q: %v", endpoint, err)
 			lastErr = err
 		} else {
 			return &LocalNodeInfo{

@@ -8,8 +8,8 @@ import (
 	"io"
 	"time"
 
-	"github.com/golang/glog"
 	grpccontext "golang.org/x/net/context"
+	"k8s.io/klog"
 )
 
 type leadership struct {
@@ -18,7 +18,7 @@ type leadership struct {
 }
 
 func (s *Server) LeaderNotification(ctx grpccontext.Context, request *LeaderNotificationRequest) (*LeaderNotificationResponse, error) {
-	glog.Infof("Got LeaderNotification %s", request)
+	klog.Infof("Got LeaderNotification %s", request)
 
 	if request.View == nil {
 		return nil, fmt.Errorf("View is required")
@@ -46,7 +46,7 @@ func (s *Server) LeaderNotification(ctx grpccontext.Context, request *LeaderNoti
 		}
 		_, healthy := peer.status(s.HealthyTimeout)
 		if healthy {
-			glog.Warningf("LeaderElection view did not include peer %s; will reject", id)
+			klog.Warningf("LeaderElection view did not include peer %s; will reject", id)
 			reject = true
 			break
 		}
@@ -99,7 +99,7 @@ func (s *Server) addPeersFromView(view *View) {
 
 		existing := s.peers[peerId]
 		if existing == nil {
-			glog.Infof("leader notification found new candidate peer: %s", peerId)
+			klog.Infof("leader notification found new candidate peer: %s", peerId)
 			existing = &peer{
 				server: s,
 				id:     peerId,
@@ -118,19 +118,19 @@ func (s *Server) IsLeader(leadershipToken string) bool {
 	// TODO: Immediately depose leader if we see a lower peer?
 
 	if s.leadership == nil {
-		glog.Infof("will reject leadership token %q: no leadership", leadershipToken)
+		klog.Infof("will reject leadership token %q: no leadership", leadershipToken)
 		return false
 	}
 	if s.leadership.notification == nil {
-		glog.Infof("will reject leadership token %q: no leadership notification", leadershipToken)
+		klog.Infof("will reject leadership token %q: no leadership notification", leadershipToken)
 		return false
 	}
 	if s.leadership.notification.View == nil {
-		glog.Infof("will reject leadership token %q: no leadership notification view", leadershipToken)
+		klog.Infof("will reject leadership token %q: no leadership notification view", leadershipToken)
 		return false
 	}
 	if s.leadership.notification.View.LeadershipToken != leadershipToken {
-		glog.Infof("will reject leadership token %q: actual leadership is %q", leadershipToken, s.leadership.notification.View.LeadershipToken)
+		klog.Infof("will reject leadership token %q: actual leadership is %q", leadershipToken, s.leadership.notification.View.LeadershipToken)
 		return false
 	} else {
 		return true
@@ -182,7 +182,7 @@ func randomToken() string {
 	b := make([]byte, 16, 16)
 	_, err := io.ReadFull(crypto_rand.Reader, b)
 	if err != nil {
-		glog.Fatalf("error generating random token: %v", err)
+		klog.Fatalf("error generating random token: %v", err)
 	}
 	return base64.RawURLEncoding.EncodeToString(b)
 }
