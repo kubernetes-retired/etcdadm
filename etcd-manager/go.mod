@@ -75,6 +75,7 @@ replace k8s.io/cli-runtime => k8s.io/cli-runtime v0.0.0-20190819144027-541433d7c
 
 require (
 	cloud.google.com/go v0.34.0
+	github.com/aliyun/alibaba-cloud-sdk-go v1.60.290
 	github.com/aws/aws-sdk-go v1.26.2
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/coreos/etcd v3.3.13+incompatible
