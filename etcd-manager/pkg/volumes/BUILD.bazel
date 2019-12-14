@@ -6,15 +6,15 @@ go_library(
         "boot.go",
         "interfaces.go",
         "mounter.go",
-        "nsenter_exec.go",
         "retry.go",
     ],
     importpath = "kope.io/etcd-manager/pkg/volumes",
     visibility = ["//visibility:public"],
     deps = [
+        "//pkg/hostmount:go_default_library",
         "//vendor/github.com/golang/glog:go_default_library",
-        "//vendor/k8s.io/kubernetes/pkg/util/mount:go_default_library",
-        "//vendor/k8s.io/kubernetes/pkg/util/nsenter:go_default_library",
         "//vendor/k8s.io/utils/exec:go_default_library",
+        "//vendor/k8s.io/utils/mount:go_default_library",
+        "//vendor/k8s.io/utils/nsenter:go_default_library",
     ],
 )
