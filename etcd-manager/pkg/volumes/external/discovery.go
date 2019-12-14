@@ -32,10 +32,11 @@ var _ discovery.Interface = &ExternalDiscovery{}
 
 type ExternalDiscovery struct {
 	seeddir string
+	volumes *ExternalVolumes
 }
 
-func NewExternalDiscovery(seeddir string) *ExternalDiscovery {
-	return &ExternalDiscovery{seeddir: seeddir}
+func NewExternalDiscovery(seeddir string, volumes *ExternalVolumes) *ExternalDiscovery {
+	return &ExternalDiscovery{seeddir: seeddir, volumes: volumes}
 }
 
 func (a *ExternalDiscovery) Poll() (map[string]discovery.Node, error) {
@@ -65,6 +66,27 @@ func (a *ExternalDiscovery) Poll() (map[string]discovery.Node, error) {
 		}
 		node.Endpoints = append(node.Endpoints, discovery.NodeEndpoint{IP: ipString})
 		nodes[node.ID] = node
+	}
+
+	{
+		volumes, err := a.volumes.FindVolumes()
+		if err != nil {
+			return nil, err
+		}
+
+		ipString, err := a.volumes.MyIP()
+		if err != nil {
+			return nil, err
+		}
+
+		for _, volume := range volumes {
+			id := volume.EtcdName
+			node := discovery.Node{
+				ID: id,
+			}
+			node.Endpoints = append(node.Endpoints, discovery.NodeEndpoint{IP: ipString})
+			nodes[node.ID] = node
+		}
 	}
 
 	return nodes, nil
