@@ -73,7 +73,7 @@ func NewOpenstackVolumes(clusterName string, volumeTags []string, nameTag string
 
 	metadata, err := getLocalMetadata()
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get server metadata: %v", err)
+		return nil, fmt.Errorf("failed to get server metadata: %v", err)
 	}
 
 	stack := &OpenstackVolumes{
@@ -94,7 +94,7 @@ func NewOpenstackVolumes(clusterName string, volumeTags []string, nameTag string
 
 	err = stack.getClients()
 	if err != nil {
-		return nil, fmt.Errorf("Could not build OpenstackVolumes: %v", err)
+		return nil, fmt.Errorf("could not build OpenstackVolumes: %v", err)
 	}
 
 	err = stack.discoverTags()
@@ -221,7 +221,7 @@ func (stack *OpenstackVolumes) discoverTags() error {
 		}
 		err := servers.Get(stack.computeClient, strings.TrimSpace(stack.meta.ServerID)).ExtractInto(&extendedServer)
 		if err != nil {
-			return fmt.Errorf("Failed to retrieve server information from cloud: %v", err)
+			return fmt.Errorf("failed to retrieve server information from cloud: %v", err)
 		}
 		ip, err := GetServerFixedIP(extendedServer.Addresses, extendedServer.Name)
 		if err != nil {

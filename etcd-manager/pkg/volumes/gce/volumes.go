@@ -189,7 +189,7 @@ func DecodeGCELabel(s string) (string, error) {
 	uriForm := strings.Replace(s, "-", "%", -1)
 	v, err := url.QueryUnescape(uriForm)
 	if err != nil {
-		return "", fmt.Errorf("Cannot decode GCE label: %q", s)
+		return "", fmt.Errorf("cannot decode GCE label: %q", s)
 	}
 	return v, nil
 }
@@ -201,7 +201,7 @@ func (g *GCEVolumes) buildGCEVolume(d *compute.Disk) (*volumes.Volume, error) {
 		if v != "" {
 			plaintext, err := DecodeGCELabel(v)
 			if err != nil {
-				return nil, fmt.Errorf("Error decoding GCE label: %s=%q", g.nameTag, v)
+				return nil, fmt.Errorf("error decoding GCE label: %s=%q", g.nameTag, v)
 			}
 
 			tokens := strings.SplitN(plaintext, "/", 2)
