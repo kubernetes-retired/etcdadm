@@ -185,8 +185,15 @@ func updateHostsFileWithRecords(p string, key string, addrToHosts map[string][]s
 	// Note that because we are bind mounting /etc/hosts, we can't do a normal atomic file write
 	// (where we write a temp file and rename it)
 	// TODO: We should just hold the file open while we read & write it
-	if err := pseudoAtomicWrite(p, updated, stat.Mode()); err != nil {
-		return fmt.Errorf("error writing file %q: %v", p, err)
+	containerized := true
+	if containerized {
+		if err := pseudoAtomicWrite(p, updated, stat.Mode()); err != nil {
+			return fmt.Errorf("error writing file %q: %v", p, err)
+		}
+	} else {
+		if err := atomicWriteFile(p, updated, stat.Mode()); err != nil {
+			return fmt.Errorf("error writing file %q: %v", p, err)
+		}
 	}
 
 	return nil
