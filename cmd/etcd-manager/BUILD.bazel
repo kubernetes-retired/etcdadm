@@ -21,6 +21,7 @@ go_library(
         "//pkg/tlsconfig:go_default_library",
         "//pkg/urls:go_default_library",
         "//pkg/volumes:go_default_library",
+        "//pkg/volumes/alicloud:go_default_library",
         "//pkg/volumes/aws:go_default_library",
         "//pkg/volumes/do:go_default_library",
         "//pkg/volumes/external:go_default_library",
