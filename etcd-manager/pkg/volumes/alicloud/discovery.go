@@ -21,7 +21,7 @@ import (
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 	"kope.io/etcd-manager/pkg/volumes"
 )
@@ -64,7 +64,7 @@ func (a *AlicloudVolumes) Poll() (map[string]discovery.Node, error) {
 			volume := instanceToVolumeMap[instance.InstanceId]
 			if volume == nil {
 				// unexpected ... we constructed the request from the map!
-				glog.Errorf("instance not found: %q", instance.InstanceId)
+				klog.Errorf("instance not found: %q", instance.InstanceId)
 				continue
 			}
 

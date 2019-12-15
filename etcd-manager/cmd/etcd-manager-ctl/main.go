@@ -24,6 +24,7 @@ import (
 	"strconv"
 
 	"github.com/golang/protobuf/proto"
+	"k8s.io/klog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/commands"
@@ -42,7 +43,7 @@ func (o *Options) SetDefaults() {
 }
 
 func main() {
-	flag.Set("logtostderr", "true")
+	klog.InitFlags(nil)
 
 	var o Options
 	o.SetDefaults()

@@ -17,7 +17,7 @@ limitations under the License.
 package gce
 
 import (
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 	"kope.io/etcd-manager/pkg/volumes"
 )
@@ -43,18 +43,18 @@ func (g *GCEVolumes) Poll() (map[string]discovery.Node, error) {
 	for i, volume := range instanceToVolumeMap {
 		u, err := ParseGoogleCloudURL(i)
 		if err != nil {
-			glog.Warningf("cannot parse instance url %q: %v", i, err)
+			klog.Warningf("cannot parse instance url %q: %v", i, err)
 			continue
 		}
 
 		if u.Project == "" || u.Zone == "" || u.Name == "" {
-			glog.Warningf("unexpected format for isntance url %q", i)
+			klog.Warningf("unexpected format for isntance url %q", i)
 			continue
 		}
 
 		instance, err := g.compute.Instances.Get(u.Project, u.Zone, u.Name).Do()
 		if err != nil {
-			glog.Warningf("error getting instance %s/%s/%s: %v", u.Project, u.Zone, u.Name, err)
+			klog.Warningf("error getting instance %s/%s/%s: %v", u.Project, u.Zone, u.Name, err)
 			continue
 		}
 

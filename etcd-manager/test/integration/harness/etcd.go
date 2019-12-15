@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	"kope.io/etcd-manager/pkg/etcdclient"
 )
 
@@ -28,7 +28,7 @@ func (n *TestHarnessNode) get(ctx context.Context, key string, quorum bool) (str
 	if err != nil {
 		return "", fmt.Errorf("error reading from member %s: %v", n.ClientURL, err)
 	}
-	glog.Infof("read from %q: %q", key, response)
+	klog.Infof("read from %q: %q", key, response)
 	return string(response), nil
 }
 
@@ -44,7 +44,7 @@ func (n *TestHarnessNode) Put(ctx context.Context, key string, value string) err
 		return fmt.Errorf("error writing to  %s: %v", n.ClientURL, err)
 	}
 
-	glog.Infof("etcd set %q = %q", key, value)
+	klog.Infof("etcd set %q = %q", key, value)
 
 	return nil
 }
@@ -59,10 +59,10 @@ func (n *TestHarnessNode) waitForClient(deadline time.Time) etcdclient.EtcdClien
 		}
 
 		if err != nil {
-			glog.Warningf("error building client: %v", err)
+			klog.Warningf("error building client: %v", err)
 		}
 
-		glog.Infof("test waiting for client: (%v)", err)
+		klog.Infof("test waiting for client: (%v)", err)
 
 		if time.Now().After(deadline) {
 			t.Fatalf("wait-for-client did not succeed within timeout")
@@ -81,10 +81,10 @@ func (n *TestHarnessNode) WaitForListMembers(timeout time.Duration) {
 	for {
 		members, err := client.ListMembers(context.Background())
 		if err == nil {
-			glog.Infof("Got members from %s: (%v)", client, members)
+			klog.Infof("Got members from %s: (%v)", client, members)
 			return
 		}
-		glog.Infof("test waiting for members from %s: (%v)", client, err)
+		klog.Infof("test waiting for members from %s: (%v)", client, err)
 
 		if time.Now().After(endAt) {
 			t.Fatalf("list-members did not succeed within %v", timeout)
@@ -125,10 +125,10 @@ func (n *TestHarnessNode) WaitForQuorumRead(ctx context.Context, timeout time.Du
 	for {
 		_, err := n.GetQuorum(ctx, "/")
 		if err == nil {
-			glog.Infof("Got quorum-read on %q: (%v)", "/", client)
+			klog.Infof("Got quorum-read on %q: (%v)", "/", client)
 			return
 		}
-		glog.Infof("error from quorum-read on %q: %v", "/", err)
+		klog.Infof("error from quorum-read on %q: %v", "/", err)
 		if time.Now().After(endAt) {
 			n.TestHarness.T.Fatalf("quorum-read did not succeed within %v", timeout)
 			return

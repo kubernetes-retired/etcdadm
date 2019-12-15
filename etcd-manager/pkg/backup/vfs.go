@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	"k8s.io/kops/util/pkg/vfs"
 	"kope.io/etcd-manager/pkg/apis/etcd"
 )
@@ -82,7 +82,7 @@ func (s *vfsStore) ListBackups() ([]string, error) {
 		path := f.Path()
 		tokens := strings.Split(path, "/")
 		if len(tokens) < 2 {
-			glog.Infof("skipping unexpectedly short path %q", path)
+			klog.Infof("skipping unexpectedly short path %q", path)
 			continue
 		} else {
 			backups = append(backups, tokens[len(tokens)-2])
@@ -91,7 +91,7 @@ func (s *vfsStore) ListBackups() ([]string, error) {
 
 	sort.Strings(backups)
 
-	glog.Infof("listed backups in %s: %v", s.backupsBase, backups)
+	klog.Infof("listed backups in %s: %v", s.backupsBase, backups)
 
 	return backups, nil
 }
@@ -115,7 +115,7 @@ func (s *vfsStore) RemoveBackup(backup string) error {
 }
 
 func (s *vfsStore) LoadInfo(name string) (*etcd.BackupInfo, error) {
-	glog.Infof("Loading info for backup %q", name)
+	klog.Infof("Loading info for backup %q", name)
 
 	p := s.backupsBase.Join(name, MetaFilename)
 
@@ -129,7 +129,7 @@ func (s *vfsStore) LoadInfo(name string) (*etcd.BackupInfo, error) {
 		return nil, fmt.Errorf("error parsing file %q: %v", p, err)
 	}
 
-	glog.Infof("read backup info for %q: %v", name, spec)
+	klog.Infof("read backup info for %q: %v", name, spec)
 
 	return spec, nil
 }
@@ -139,7 +139,7 @@ func (s *vfsStore) Spec() string {
 }
 
 func (s *vfsStore) DownloadBackup(name string, destFile string) error {
-	glog.Infof("Downloading backup %q -> %s", name, destFile)
+	klog.Infof("Downloading backup %q -> %s", name, destFile)
 
 	srcPath := s.backupsBase.Join(name).Join(DataFilename)
 	destPath := vfs.NewFSPath(destFile)

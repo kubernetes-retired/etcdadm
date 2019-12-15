@@ -22,7 +22,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	utilexec "k8s.io/utils/exec"
 	"k8s.io/utils/mount"
 	"k8s.io/utils/nsenter"
@@ -64,12 +64,12 @@ func (k *VolumeMountController) mountMasterVolumes() ([]*Volume, error) {
 
 		// Handle the case of volumes that are premounted on the filesystem
 		if v.Mountpoint != "" {
-			glog.V(2).Infof("Master volume %q is pre-mounted at %q", v.ProviderID, v.Mountpoint)
+			klog.V(2).Infof("Master volume %q is pre-mounted at %q", v.ProviderID, v.Mountpoint)
 			k.mounted[v.ProviderID] = v
 			continue
 		}
 
-		glog.V(2).Infof("Master volume %q is attached at %q", v.ProviderID, v.LocalDevice)
+		klog.V(2).Infof("Master volume %q is attached at %q", v.ProviderID, v.LocalDevice)
 
 		mountpoint := "/mnt/" + v.MountName
 
@@ -83,15 +83,15 @@ func (k *VolumeMountController) mountMasterVolumes() ([]*Volume, error) {
 			mountpoint = "/mnt/disks/" + v.MountName
 		}
 
-		glog.Infof("Doing safe-format-and-mount of %s to %s", v.LocalDevice, mountpoint)
+		klog.Infof("Doing safe-format-and-mount of %s to %s", v.LocalDevice, mountpoint)
 		fstype := ""
 		err = k.safeFormatAndMount(v, mountpoint, fstype)
 		if err != nil {
-			glog.Warningf("unable to mount master volume: %q", err)
+			klog.Warningf("unable to mount master volume: %q", err)
 			continue
 		}
 
-		glog.Infof("mounted master volume %q on %s", v.ProviderID, mountpoint)
+		klog.Infof("mounted master volume %q on %s", v.ProviderID, mountpoint)
 
 		v.Mountpoint = PathFor(mountpoint)
 		k.mounted[v.ProviderID] = v
@@ -118,11 +118,11 @@ func (k *VolumeMountController) safeFormatAndMount(volume *Volume, mountpoint st
 			break
 		}
 
-		glog.Infof("Waiting for volume %q to be mounted", volume.ProviderID)
+		klog.Infof("Waiting for volume %q to be mounted", volume.ProviderID)
 		// TODO: Some form of backoff?
 		time.Sleep(1 * time.Second)
 	}
-	glog.Infof("Found volume %q mounted at device %q", volume.ProviderID, device)
+	klog.Infof("Found volume %q mounted at device %q", volume.ProviderID, device)
 
 	safeFormatAndMount := &mount.SafeFormatAndMount{}
 
@@ -153,7 +153,7 @@ func (k *VolumeMountController) safeFormatAndMount(volume *Volume, mountpoint st
 	var existing []*mount.MountPoint
 	for i := range mounts {
 		m := &mounts[i]
-		glog.V(8).Infof("found existing mount: %v", m)
+		klog.V(8).Infof("found existing mount: %v", m)
 		// Note: when containerized, we still list mounts in the host, so we don't need to call PathFor(mountpoint)
 		if m.Path == mountpoint {
 			existing = append(existing, m)
@@ -164,31 +164,31 @@ func (k *VolumeMountController) safeFormatAndMount(volume *Volume, mountpoint st
 	if len(existing) == 0 {
 		options := []string{}
 
-		glog.Infof("Creating mount directory %q", PathFor(mountpoint))
+		klog.Infof("Creating mount directory %q", PathFor(mountpoint))
 		if err := os.MkdirAll(PathFor(mountpoint), 0750); err != nil {
 			return err
 		}
 
-		glog.Infof("Mounting device %q on %q", device, mountpoint)
+		klog.Infof("Mounting device %q on %q", device, mountpoint)
 
 		err = safeFormatAndMount.FormatAndMount(device, mountpoint, fstype, options)
 		if err != nil {
 			return fmt.Errorf("error formatting and mounting disk %q on %q: %v", device, mountpoint, err)
 		}
 	} else {
-		glog.Infof("Device already mounted on %q, verifying it is our device", mountpoint)
+		klog.Infof("Device already mounted on %q, verifying it is our device", mountpoint)
 
 		if len(existing) != 1 {
-			glog.Infof("Existing mounts unexpected")
+			klog.Infof("Existing mounts unexpected")
 
 			for i := range mounts {
 				m := &mounts[i]
-				glog.Infof("%s\t%s", m.Device, m.Path)
+				klog.Infof("%s\t%s", m.Device, m.Path)
 			}
 
 			return fmt.Errorf("found multiple existing mounts of %q at %q", device, mountpoint)
 		} else {
-			glog.Infof("Found existing mount of %q at %q", device, mountpoint)
+			klog.Infof("Found existing mount of %q at %q", device, mountpoint)
 		}
 	}
 
@@ -211,7 +211,7 @@ func (k *VolumeMountController) safeFormatAndMount(volume *Volume, mountpoint st
 				return fmt.Errorf("device already mounted at %s, but is %s and we want %s or %s", target, mountedDevice, source, device)
 			}
 		} else {
-			glog.Infof("mounting inside container: %s -> %s", source, target)
+			klog.Infof("mounting inside container: %s -> %s", source, target)
 			if err := mounter.Mount(source, target, fstype, options); err != nil {
 				return fmt.Errorf("error mounting %s inside container at %s: %v", source, target, err)
 			}
@@ -229,13 +229,13 @@ func isSameDevice(dev1, dev2 string) bool {
 	for k1 := range aliases1 {
 		for k2 := range aliases2 {
 			if k1 == k2 {
-				glog.V(2).Infof("matched device %q and %q via %q", dev1, dev2, k1)
+				klog.V(2).Infof("matched device %q and %q via %q", dev1, dev2, k1)
 				return true
 			}
 		}
 	}
 
-	glog.Warningf("device %q and %q were not the same; expansions %v and %v", dev1, dev2, aliases1, aliases2)
+	klog.Warningf("device %q and %q were not the same; expansions %v and %v", dev1, dev2, aliases1, aliases2)
 
 	return false
 }
@@ -249,11 +249,11 @@ func namesFor(dev string) []string {
 	// Check for a symlink
 	s, err := filepath.EvalSymlinks(dev)
 	if err != nil {
-		glog.Infof("device %q did not evaluate as a symlink: %v", dev, err)
+		klog.Infof("device %q did not evaluate as a symlink: %v", dev, err)
 	} else {
 		a, err := filepath.Abs(s)
 		if err != nil {
-			glog.Warningf("unable to make filepath %q absolute: %v", s, err)
+			klog.Warningf("unable to make filepath %q absolute: %v", s, err)
 		} else {
 			s = a
 		}
@@ -291,20 +291,20 @@ func (k *VolumeMountController) attachMasterVolumes() ([]*Volume, error) {
 			break
 		}
 
-		glog.V(2).Infof("Trying to mount master volume: %q", v.ProviderID)
+		klog.V(2).Infof("Trying to mount master volume: %q", v.ProviderID)
 
 		err := k.provider.AttachVolume(v)
 		if err != nil {
 			// We are racing with other instances here; this can happen
-			glog.Warningf("Error attaching volume %q: %v", v.ProviderID, err)
+			klog.Warningf("Error attaching volume %q: %v", v.ProviderID, err)
 		} else {
 			if v.LocalDevice == "" && v.Mountpoint == "" {
-				glog.Fatalf("AttachVolume did not set LocalDevice or Mountpoint")
+				klog.Fatalf("AttachVolume did not set LocalDevice or Mountpoint")
 			}
 			attached = append(attached, v)
 		}
 	}
 
-	glog.V(2).Infof("Currently attached volumes: %v", attached)
+	klog.V(2).Infof("Currently attached volumes: %v", attached)
 	return attached, nil
 }

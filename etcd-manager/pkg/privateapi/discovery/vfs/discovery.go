@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	"k8s.io/kops/util/pkg/vfs"
 
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
@@ -38,7 +38,7 @@ func (d *VFSDiscovery) publish() error {
 		return fmt.Errorf("DiscoveryNode does not have ID set")
 	}
 
-	glog.Infof("publishing discovery record: %v", d.me)
+	klog.Infof("publishing discovery record: %v", d.me)
 
 	meJson, err := json.Marshal(d.me)
 	if err != nil {
@@ -54,7 +54,7 @@ func (d *VFSDiscovery) publish() error {
 }
 
 func (d *VFSDiscovery) Poll() (map[string]discovery.Node, error) {
-	glog.V(2).Infof("polling discovery directory: %s", d.base)
+	klog.V(2).Infof("polling discovery directory: %s", d.base)
 	nodes := make(map[string]discovery.Node)
 
 	files, err := d.base.ReadDir()
@@ -67,13 +67,13 @@ func (d *VFSDiscovery) Poll() (map[string]discovery.Node, error) {
 
 		data, err := p.ReadFile()
 		if err != nil {
-			glog.Warningf("error reading node discovery file %s: %v", p, err)
+			klog.Warningf("error reading node discovery file %s: %v", p, err)
 			continue
 		}
 
 		node := discovery.Node{}
 		if err := json.Unmarshal(data, &node); err != nil {
-			glog.Warningf("error parsing node discovery file %s: %v", p, err)
+			klog.Warningf("error parsing node discovery file %s: %v", p, err)
 			continue
 		}
 

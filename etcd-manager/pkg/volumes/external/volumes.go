@@ -25,7 +25,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 
 	"kope.io/etcd-manager/pkg/volumes"
 )
@@ -86,14 +86,14 @@ func findLocalIP() (net.IP, error) {
 			case *net.IPAddr:
 				ip = v.IP
 			default:
-				glog.Warningf("ignoring unknown address type %T", v)
+				klog.Warningf("ignoring unknown address type %T", v)
 			}
 
 			if ip != nil {
 				if ip.IsLoopback() {
-					glog.V(2).Infof("ignoring loopback address: %v", err)
+					klog.V(2).Infof("ignoring loopback address: %v", err)
 				} else if ip.IsLinkLocalUnicast() {
-					glog.V(2).Infof("ignoring link-local unicast address: %v", err)
+					klog.V(2).Infof("ignoring link-local unicast address: %v", err)
 				} else {
 					ips = append(ips, ip)
 				}
@@ -119,7 +119,7 @@ func findLocalIP() (net.IP, error) {
 			return false
 		})
 
-		glog.Infof("found multiple ips %v; choosing %q", ips, ips[0])
+		klog.Infof("found multiple ips %v; choosing %q", ips, ips[0])
 	}
 
 	return ips[0], nil
@@ -145,7 +145,7 @@ func (a *ExternalVolumes) FindVolumes() ([]*volumes.Volume, error) {
 		}
 
 		if !match {
-			glog.V(2).Infof("volume %s did not match tags %v, skipping", f.Name(), a.volumeTags)
+			klog.V(2).Infof("volume %s did not match tags %v, skipping", f.Name(), a.volumeTags)
 			continue
 		}
 
@@ -155,14 +155,14 @@ func (a *ExternalVolumes) FindVolumes() ([]*volumes.Volume, error) {
 		stat, err := os.Stat(mntPath)
 		if err != nil {
 			if os.IsNotExist(err) {
-				glog.V(2).Infof("did not find dir %s, skipping", mntPath)
+				klog.V(2).Infof("did not find dir %s, skipping", mntPath)
 				continue
 			}
 			return nil, fmt.Errorf("error doing stat on %v: %v", mntPath, err)
 		}
 
 		if !stat.IsDir() {
-			glog.V(2).Infof("expected directory at %s, but was not a directory; skipping")
+			klog.V(2).Infof("expected directory at %s, but was not a directory; skipping")
 			continue
 		}
 

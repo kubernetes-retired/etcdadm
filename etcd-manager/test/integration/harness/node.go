@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	"k8s.io/kops/util/pkg/vfs"
 
 	apis_etcd "kope.io/etcd-manager/pkg/apis/etcd"
@@ -90,7 +90,7 @@ func (n *TestHarnessNode) Run() {
 
 	address := n.Address
 
-	glog.Infof("Starting node %q", address)
+	klog.Infof("Starting node %q", address)
 
 	uniqueID, err := privateapi.PersistentPeerId(n.NodeDir)
 	if err != nil {
@@ -108,11 +108,11 @@ func (n *TestHarnessNode) Run() {
 	})
 	p, err := vfs.Context.BuildVfsPath(n.TestHarness.DiscoveryStoreDir)
 	if err != nil {
-		glog.Fatalf("error parsing discovery path %q: %v", n.TestHarness.DiscoveryStoreDir, err)
+		klog.Fatalf("error parsing discovery path %q: %v", n.TestHarness.DiscoveryStoreDir, err)
 	}
 	disco, err := vfsdiscovery.NewVFSDiscovery(p, discoMe)
 	if err != nil {
-		glog.Fatalf("error building discovery: %v", err)
+		klog.Fatalf("error building discovery: %v", err)
 	}
 
 	var serverTLSConfig *tls.Config
@@ -145,7 +145,7 @@ func (n *TestHarnessNode) Run() {
 	peerServer.HealthyTimeout = time.Second * 5
 	peerServer.DiscoveryPollInterval = time.Second * 5
 	if err != nil {
-		glog.Fatalf("error building server: %v", err)
+		klog.Fatalf("error building server: %v", err)
 	}
 
 	scheme := "https"

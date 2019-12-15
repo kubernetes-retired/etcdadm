@@ -25,10 +25,10 @@ import (
 	"sync"
 
 	"cloud.google.com/go/compute/metadata"
-	"github.com/golang/glog"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
 	compute "google.golang.org/api/compute/v0.beta"
+	"k8s.io/klog"
 	"kope.io/etcd-manager/pkg/volumes"
 )
 
@@ -94,7 +94,7 @@ func NewGCEVolumes(clusterName string, volumeTags []string, nameTag string) (*GC
 		if g.project == "" {
 			return nil, fmt.Errorf("project metadata was empty")
 		}
-		glog.Infof("Found project=%q", g.project)
+		klog.Infof("Found project=%q", g.project)
 	}
 
 	// Zone
@@ -107,14 +107,14 @@ func NewGCEVolumes(clusterName string, volumeTags []string, nameTag string) (*GC
 		if g.zone == "" {
 			return nil, fmt.Errorf("zone metadata was empty")
 		}
-		glog.Infof("Found zone=%q", g.zone)
+		klog.Infof("Found zone=%q", g.zone)
 
 		region, err := regionFromZone(zone)
 		if err != nil {
 			return nil, fmt.Errorf("error determining region from zone %q: %v", zone, err)
 		}
 		g.region = region
-		glog.Infof("Found region=%q", g.region)
+		klog.Infof("Found region=%q", g.region)
 	}
 
 	// Instance Name
@@ -127,7 +127,7 @@ func NewGCEVolumes(clusterName string, volumeTags []string, nameTag string) (*GC
 		if g.instanceName == "" {
 			return nil, fmt.Errorf("instance name metadata was empty")
 		}
-		glog.Infof("Found instanceName=%q", g.instanceName)
+		klog.Infof("Found instanceName=%q", g.instanceName)
 	}
 
 	// Internal IP
@@ -143,7 +143,7 @@ func NewGCEVolumes(clusterName string, volumeTags []string, nameTag string) (*GC
 		if g.internalIP == nil {
 			return nil, fmt.Errorf("InternalIP from metadata was not parseable(%q)", internalIP)
 		}
-		glog.Infof("Found internalIP=%q", g.internalIP)
+		klog.Infof("Found internalIP=%q", g.internalIP)
 	}
 
 	{
@@ -231,9 +231,9 @@ func (g *GCEVolumes) buildGCEVolume(d *compute.Disk) (*volumes.Volume, error) {
 		if u.Project == g.project && u.Zone == g.zone && u.Name == g.instanceName {
 			devicePath := "/dev/disk/by-id/google-" + d.Name
 			vol.LocalDevice = devicePath
-			glog.V(2).Infof("volume %q is attached to this instance at %s", d.Name, devicePath)
+			klog.V(2).Infof("volume %q is attached to this instance at %s", d.Name, devicePath)
 		} else {
-			glog.V(2).Infof("volume %q is attached to another instance %q", d.Name, attachedTo)
+			klog.V(2).Infof("volume %q is attached to another instance %q", d.Name, attachedTo)
 		}
 	}
 
@@ -247,7 +247,7 @@ func (g *GCEVolumes) FindVolumes() ([]*volumes.Volume, error) {
 func (g *GCEVolumes) findVolumes(filterByZone bool) ([]*volumes.Volume, error) {
 	var volumes []*volumes.Volume
 
-	glog.V(2).Infof("Listing GCE disks in %s/%s", g.project, g.zone)
+	klog.V(2).Infof("Listing GCE disks in %s/%s", g.project, g.zone)
 
 	var zones []string
 
@@ -269,7 +269,7 @@ func (g *GCEVolumes) findVolumes(filterByZone bool) ([]*volumes.Volume, error) {
 				vol, err := g.buildGCEVolume(d)
 				if err != nil {
 					// Fail safe
-					glog.Warningf("skipping malformed volume %q: %v", d.Name, err)
+					klog.Warningf("skipping malformed volume %q: %v", d.Name, err)
 					continue
 				}
 				volumes = append(volumes, vol)

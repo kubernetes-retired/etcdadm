@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/blang/semver"
-	"github.com/golang/glog"
+	"k8s.io/klog"
 )
 
 // By declaring the versions here, using constants, we likely force a compilation error
@@ -31,13 +31,13 @@ var AllEtcdVersions = []string{
 func UpgradeInPlaceSupported(fromVersion, toVersion string) bool {
 	fromSemver, err := semver.ParseTolerant(fromVersion)
 	if err != nil {
-		glog.Warningf("unknown version format: %q", fromVersion)
+		klog.Warningf("unknown version format: %q", fromVersion)
 		return false
 	}
 
 	toSemver, err := semver.ParseTolerant(toVersion)
 	if err != nil {
-		glog.Warningf("unknown version format: %q", toVersion)
+		klog.Warningf("unknown version format: %q", toVersion)
 		return false
 	}
 
@@ -71,7 +71,7 @@ func UpgradeInPlaceSupported(fromVersion, toVersion string) bool {
 func EtcdVersionForAdoption(fromVersion string) string {
 	fromSemver, err := semver.ParseTolerant(fromVersion)
 	if err != nil {
-		glog.Warningf("unknown version format: %q", fromVersion)
+		klog.Warningf("unknown version format: %q", fromVersion)
 		return ""
 	}
 
@@ -103,7 +103,7 @@ func EtcdVersionForAdoption(fromVersion string) string {
 func EtcdVersionForRestore(fromVersion string) string {
 	fromSemver, err := semver.ParseTolerant(fromVersion)
 	if err != nil {
-		glog.Warningf("unknown version format: %q", fromVersion)
+		klog.Warningf("unknown version format: %q", fromVersion)
 		return ""
 	}
 

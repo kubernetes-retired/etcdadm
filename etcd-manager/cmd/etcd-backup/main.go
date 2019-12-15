@@ -26,13 +26,13 @@ import (
 	"os"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	"kope.io/etcd-manager/pkg/backup"
 	"kope.io/etcd-manager/pkg/backupcontroller"
 )
 
 func main() {
-	flag.Set("logtostderr", "true")
+	klog.InitFlags(nil)
 
 	clusterName := ""
 	flag.StringVar(&clusterName, "cluster-name", clusterName, "name of cluster")
@@ -77,19 +77,19 @@ func main() {
 	if (clientCertFile != "") && (clientKeyFile != "") && (clientCAFile != "") {
 		cert, err := tls.LoadX509KeyPair(clientCertFile, clientKeyFile)
 		if err != nil {
-			glog.Fatalf("error creating keypair from provided etcd certificate and key files: %v", err)
+			klog.Fatalf("error creating keypair from provided etcd certificate and key files: %v", err)
 			os.Exit(1)
 		}
 
 		raw, err := ioutil.ReadFile(clientCAFile)
 		if err != nil {
-			glog.Fatalf("error loading etcd ca cert file: %v", err)
+			klog.Fatalf("error loading etcd ca cert file: %v", err)
 			os.Exit(1)
 		}
 		roots := x509.NewCertPool()
 		ok := roots.AppendCertsFromPEM(raw)
 		if !ok {
-			glog.Fatalf("error parsing etcd ca cert file")
+			klog.Fatalf("error parsing etcd ca cert file")
 			os.Exit(1)
 		}
 
@@ -98,12 +98,12 @@ func main() {
 
 	backupStore, err := backup.NewStore(backupStorePath)
 	if err != nil {
-		glog.Fatalf("error initializing backup store: %v", err)
+		klog.Fatalf("error initializing backup store: %v", err)
 	}
 	clientURLs := []string{clientURL}
 	c, err := backupcontroller.NewBackupController(backupStore, clusterName, clientURLs, etcdClientTLSConfig, dataDir, backupInterval)
 	if err != nil {
-		glog.Fatalf("error building backup controller: %v", err)
+		klog.Fatalf("error building backup controller: %v", err)
 	}
 
 	c.Run(ctx)

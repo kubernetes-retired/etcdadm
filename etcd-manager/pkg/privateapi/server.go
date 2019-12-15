@@ -7,10 +7,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang/glog"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"k8s.io/klog"
 	"kope.io/etcd-manager/pkg/dns"
 	"kope.io/etcd-manager/pkg/privateapi/discovery"
 )
@@ -68,12 +68,12 @@ func NewServer(ctx context.Context, myInfo PeerInfo, serverTLSConfig *tls.Config
 
 	var opts []grpc.ServerOption
 	if serverTLSConfig != nil {
-		glog.Infof("starting GRPC server using TLS, ServerName=%q", serverTLSConfig.ServerName)
+		klog.Infof("starting GRPC server using TLS, ServerName=%q", serverTLSConfig.ServerName)
 		opts = []grpc.ServerOption{
 			grpc.Creds(credentials.NewTLS(serverTLSConfig)),
 		}
 	} else {
-		glog.Warningf("starting insecure GRPC server")
+		klog.Warningf("starting insecure GRPC server")
 	}
 
 	s.grpcServer = grpc.NewServer(opts...)
@@ -86,7 +86,7 @@ var _ ClusterServiceServer = &Server{}
 func (s *Server) ListenAndServe(ctx context.Context, listen string) error {
 	go s.runDiscovery(ctx)
 
-	glog.Infof("GRPC server listening on %q", listen)
+	klog.Infof("GRPC server listening on %q", listen)
 
 	lis, err := net.Listen("tcp", listen)
 	if err != nil {
@@ -95,10 +95,10 @@ func (s *Server) ListenAndServe(ctx context.Context, listen string) error {
 
 	go func() {
 		<-ctx.Done()
-		glog.Infof("context closed; forcing close of listening socket %q", listen)
+		klog.Infof("context closed; forcing close of listening socket %q", listen)
 		err := lis.Close()
 		if err != nil {
-			glog.Warningf("error closing listening socket %q: %v", listen, err)
+			klog.Warningf("error closing listening socket %q: %v", listen, err)
 		}
 	}()
 
@@ -112,10 +112,10 @@ func (s *Server) GrpcServer() *grpc.Server {
 
 // Ping is just nodes pinging each other, part of the discovery protocol
 func (s *Server) Ping(ctx context.Context, request *PingRequest) (*PingResponse, error) {
-	glog.V(8).Infof("got ping %s", request)
+	klog.V(8).Infof("got ping %s", request)
 
 	if request.Info == nil || request.Info.Id == "" {
-		glog.Warningf("ping request did not have id: %s", request)
+		klog.Warningf("ping request did not have id: %s", request)
 	} else {
 		s.updateFromPingRequest(request)
 	}

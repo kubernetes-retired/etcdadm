@@ -7,8 +7,8 @@ import (
 	"net/url"
 	"path/filepath"
 
-	"github.com/golang/glog"
 	certutil "k8s.io/client-go/util/cert"
+	"k8s.io/klog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/pki"
 )
@@ -36,14 +36,14 @@ func (p *etcdProcess) createKeypairs(peersCA *pki.Keypair, clientsCA *pki.Keypai
 			return err
 		}
 
-		glog.Infof("generating peer keypair for etcd: %+v", certConfig)
+		klog.Infof("generating peer keypair for etcd: %+v", certConfig)
 
 		_, err := keypairs.EnsureKeypair("me", certConfig, peersCA)
 		if err != nil {
 			return err
 		}
 	} else {
-		glog.Warningf("not generating peer keypair as peers-ca not set")
+		klog.Warningf("not generating peer keypair as peers-ca not set")
 	}
 
 	p.etcdClientsCA = clientsCA
@@ -74,14 +74,14 @@ func (p *etcdProcess) createKeypairs(peersCA *pki.Keypair, clientsCA *pki.Keypai
 			return err
 		}
 
-		glog.Infof("building client-serving certificate: %+v", certConfig)
+		klog.Infof("building client-serving certificate: %+v", certConfig)
 
 		_, err := keypairs.EnsureKeypair("server", certConfig, clientsCA)
 		if err != nil {
 			return err
 		}
 	} else {
-		glog.Warningf("not generating client keypair as clients-ca not set")
+		klog.Warningf("not generating client keypair as clients-ca not set")
 	}
 
 	if clientsCA != nil {
