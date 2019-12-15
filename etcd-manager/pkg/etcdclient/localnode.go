@@ -63,10 +63,11 @@ func (c *V3Client) LocalNodeInfo(ctx context.Context) (*LocalNodeInfo, error) {
 		if err != nil {
 			glog.Warningf("unable to get status from %q: %v", endpoint, err)
 			lastErr = err
+		} else {
+			return &LocalNodeInfo{
+				IsLeader: response.Header.MemberId == response.Leader,
+			}, nil
 		}
-		return &LocalNodeInfo{
-			IsLeader: response.Header.MemberId == response.Leader,
-		}, nil
 	}
 	return nil, lastErr
 }
