@@ -41,5 +41,5 @@ func GetServerFixedIP(addrs map[string]interface{}, name string) (poolAddress st
 			}
 		}
 	}
-	return "", fmt.Errorf("Failed to find Fixed IP address for server %s", name)
+	return "", fmt.Errorf("failed to find Fixed IP address for server %s", name)
 }
