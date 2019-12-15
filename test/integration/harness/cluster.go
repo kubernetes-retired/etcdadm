@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/commands"
 	"kope.io/etcd-manager/pkg/pki"
@@ -45,7 +45,7 @@ func NewTestHarness(t *testing.T, ctx context.Context) *TestHarness {
 		t.Errorf("error building tempdir: %v", err)
 	}
 
-	glog.Infof("Starting new testharness for %q in %s", t.Name(), tmpDir)
+	klog.Infof("Starting new testharness for %q in %s", t.Name(), tmpDir)
 
 	clusterName := "testharnesscluster"
 	h := &TestHarness{
@@ -111,7 +111,7 @@ func (h *TestHarness) Close() {
 	t := h.T
 
 	for k, node := range h.Nodes {
-		glog.Infof("Terminating node %q", k)
+		klog.Infof("Terminating node %q", k)
 		if err := node.Close(); err != nil {
 			t.Errorf("error closing node %q: %v", k, err)
 		}
@@ -172,7 +172,7 @@ func (h *TestHarness) WaitForVersion(timeout time.Duration, expectedVersion stri
 			}
 
 			if version == expectedVersion {
-				glog.Infof("node %q is on target version %q", n.Address, expectedVersion)
+				klog.Infof("node %q is on target version %q", n.Address, expectedVersion)
 				return nil
 			}
 

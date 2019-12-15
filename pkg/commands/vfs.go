@@ -8,7 +8,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	"k8s.io/kops/util/pkg/vfs"
 	"kope.io/etcd-manager/pkg/apis/etcd"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
@@ -57,7 +57,7 @@ func (s *vfsStore) AddCommand(cmd *protoetcd.Command) error {
 		}
 
 		p := s.commandsBase.Join(name, CommandFilename)
-		glog.Infof("Adding command at %s: %v", p, cmd)
+		klog.Infof("Adding command at %s: %v", p, cmd)
 		if err := p.WriteFile(bytes.NewReader([]byte(data)), nil); err != nil {
 			return fmt.Errorf("error writing file %q: %v", p.Path(), err)
 		}
@@ -92,7 +92,7 @@ func (s *vfsStore) ListCommands() ([]Command, error) {
 		}
 		command.p = f
 
-		glog.Infof("read command for %q: %v", f, command.data.String())
+		klog.Infof("read command for %q: %v", f, command.data.String())
 
 		commands = append(commands, command)
 	}
@@ -101,14 +101,14 @@ func (s *vfsStore) ListCommands() ([]Command, error) {
 		return commands[i].Data().Timestamp < commands[j].Data().Timestamp
 	})
 
-	glog.V(2).Infof("listed commands in %s: %d commands", s.commandsBase.Path(), len(commands))
+	klog.V(2).Infof("listed commands in %s: %d commands", s.commandsBase.Path(), len(commands))
 
 	return commands, nil
 }
 
 func (s *vfsStore) RemoveCommand(command Command) error {
 	p := command.(*vfsCommand).p
-	glog.Infof("deleting command %s", p)
+	klog.Infof("deleting command %s", p)
 
 	if err := p.Remove(); err != nil {
 		return fmt.Errorf("error removing command %s: %v", p, err)

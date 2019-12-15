@@ -19,7 +19,7 @@ package volumes
 import (
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 )
 
 var (
@@ -41,13 +41,13 @@ func (b *Boot) WaitForVolumes() []*Volume {
 	for {
 		info, err := b.tryMountVolumes()
 		if err != nil {
-			glog.Warningf("error during attempt to bootstrap (will sleep and retry): %v", err)
+			klog.Warningf("error during attempt to bootstrap (will sleep and retry): %v", err)
 			time.Sleep(1 * time.Second)
 			continue
 		} else if len(info) != 0 {
 			return info
 		} else {
-			glog.Infof("waiting for volumes")
+			klog.Infof("waiting for volumes")
 		}
 
 		time.Sleep(1 * time.Minute)
@@ -66,7 +66,7 @@ func (b *Boot) tryMountVolumes() ([]*Volume, error) {
 
 func PathFor(hostPath string) string {
 	if hostPath[0] != '/' {
-		glog.Fatalf("path was not absolute: %q", hostPath)
+		klog.Fatalf("path was not absolute: %q", hostPath)
 	}
 	rootfs := "/"
 	if Containerized {

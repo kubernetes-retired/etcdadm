@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/commands"
 )
@@ -19,10 +19,10 @@ func (m *EtcdController) refreshControlStore(ttl time.Duration) error {
 
 	now := time.Now()
 	if ttl != time.Duration(0) && now.Before(m.controlLastRead.Add(ttl)) {
-		glog.V(4).Infof("not refreshing commands - TTL not hit")
+		klog.V(4).Infof("not refreshing commands - TTL not hit")
 		return nil
 	}
-	glog.Infof("refreshing commands")
+	klog.Infof("refreshing commands")
 	controlCommands, err := m.controlStore.ListCommands()
 	if err != nil {
 		return err

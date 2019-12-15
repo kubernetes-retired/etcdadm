@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/test/integration/harness"
 )
@@ -51,7 +51,7 @@ func TestEnableTLS(t *testing.T) {
 					} else if len(members1) != nodeCount {
 						t.Errorf("members was not as expected: %v", members1)
 					} else {
-						glog.Infof("got members from #1: %v", members1)
+						klog.Infof("got members from #1: %v", members1)
 					}
 
 					for _, n := range nodes {
@@ -67,7 +67,7 @@ func TestEnableTLS(t *testing.T) {
 					}
 				}
 
-				glog.Infof("marking node secure")
+				klog.Infof("marking node secure")
 				{
 					for _, n := range nodes {
 						// Restart n1 in secure mode
@@ -93,7 +93,7 @@ func TestEnableTLS(t *testing.T) {
 							} else if len(members) != nodeCount {
 								return fmt.Errorf("members was not as expected: %v", members)
 							} else {
-								glog.Infof("got members from #%d: %v", i, members)
+								klog.Infof("got members from #%d: %v", i, members)
 							}
 
 							for _, m := range members {
@@ -139,7 +139,7 @@ func TestEnableTLS(t *testing.T) {
 					}
 				}
 
-				glog.Infof("success")
+				klog.Infof("success")
 
 				cancel()
 				h.Close()

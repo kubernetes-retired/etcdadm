@@ -28,8 +28,8 @@ import (
 	"time"
 
 	"github.com/digitalocean/godo"
-	"github.com/golang/glog"
 	"golang.org/x/oauth2"
+	"k8s.io/klog"
 	"kope.io/etcd-manager/pkg/volumes"
 )
 
@@ -151,7 +151,7 @@ func (a *DOVolumes) findAllVolumes(filterByRegion bool) ([]*volumes.Volume, erro
 	var myvolumes []*volumes.Volume
 	for _, doVolume := range doVolumes {
 
-		glog.V(2).Infof("Iterating DO Volume with name=%s ID=%s, nametag=%s", doVolume.Name, doVolume.ID, a.nameTag)
+		klog.V(2).Infof("Iterating DO Volume with name=%s ID=%s, nametag=%s", doVolume.Name, doVolume.ID, a.nameTag)
 
 		// make sure dropletTags match the volumeTags for the keys mentioned in matchTags
 		tagFound := a.matchesDropletTags(&doVolume)
@@ -182,9 +182,9 @@ func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) 
 	var myvolumes []*volumes.Volume
 	for _, doVolume := range doVolumes {
 
-		glog.V(2).Infof("DO Volume name=%s, Volume ID=%s, nametag=%s", doVolume.Name, doVolume.ID, a.nameTag)
+		klog.V(2).Infof("DO Volume name=%s, Volume ID=%s, nametag=%s", doVolume.Name, doVolume.ID, a.nameTag)
 
-		glog.V(2).Infof("Iterating all Volume tags for volume %q,  tags %v, droplet tags %v", doVolume.Name, doVolume.Tags, a.dropletTags)
+		klog.V(2).Infof("Iterating all Volume tags for volume %q,  tags %v, droplet tags %v", doVolume.Name, doVolume.Tags, a.dropletTags)
 
 		// make sure dropletTags match the volumeTags for the keys mentioned in matchTags
 		tagFound := a.matchesTags(&doVolume)
@@ -204,7 +204,7 @@ func (a *DOVolumes) findVolumes(filterByRegion bool) ([]*volumes.Volume, error) 
 // if the nameTag matches the volume (etcd-main or etcd-events) add them to the volume list.
 func (a *DOVolumes) appendMatchedVolume(doVolume *godo.Volume) *volumes.Volume {
 
-	glog.V(2).Infof("Tag Matched for droplet name=%s and volume name=%s", a.dropletName, doVolume.Name)
+	klog.V(2).Infof("Tag Matched for droplet name=%s and volume name=%s", a.dropletName, doVolume.Name)
 
 	var retvol *volumes.Volume = nil
 	var clusterKey string
@@ -229,7 +229,7 @@ func (a *DOVolumes) appendMatchedVolume(doVolume *godo.Volume) *volumes.Volume {
 			vol.LocalDevice = getLocalDeviceName(doVolume)
 		}
 
-		glog.V(2).Infof("Found a matching nameTag=%s for cluster key=%s with etcd cluster name = %s; volume name = %s", a.nameTag, clusterKey, a.ClusterName, doVolume.Name)
+		klog.V(2).Infof("Found a matching nameTag=%s for cluster key=%s with etcd cluster name = %s; volume name = %s", a.nameTag, clusterKey, a.ClusterName, doVolume.Name)
 		retvol = vol
 	}
 
@@ -242,16 +242,16 @@ func (a *DOVolumes) matchesDropletTags(volume *godo.Volume) bool {
 		// Create a string like "k:v" and check if they match.
 		doTag := k + ":" + v
 
-		glog.V(2).Infof("Check for matching volume tag - doTag=%s for volume name = %s", strings.ToUpper(doTag), volume.Name)
+		klog.V(2).Infof("Check for matching volume tag - doTag=%s for volume name = %s", strings.ToUpper(doTag), volume.Name)
 
 		volumeTagfound := a.Contains(volume.Tags, doTag)
 		if !volumeTagfound {
 			return false
 		} else {
-			glog.V(2).Infof("Matching tag found for doTag=%s in volume name = %s", strings.ToUpper(doTag), volume.Name)
+			klog.V(2).Infof("Matching tag found for doTag=%s in volume name = %s", strings.ToUpper(doTag), volume.Name)
 		}
 
-		glog.V(2).Infof("Check for matching droplet tag - doTag=%s for droplet name = %s", strings.ToUpper(doTag), a.dropletName)
+		klog.V(2).Infof("Check for matching droplet tag - doTag=%s for droplet name = %s", strings.ToUpper(doTag), a.dropletName)
 
 		// Also check if this tag is seen in the droplet.
 		dropletTagfound := a.Contains(a.dropletTags, doTag)
@@ -285,13 +285,13 @@ func (a *DOVolumes) matchesTags(volume *godo.Volume) bool {
 			vtKey := vt[0]
 			vtValue := vt[1]
 
-			glog.V(2).Infof("Matching tag keys for vtKey=%s; vtValue = %s; matchTagKey = %s", strings.ToUpper(vtKey), strings.ToUpper(vtValue), strings.ToUpper(matchTag))
+			klog.V(2).Infof("Matching tag keys for vtKey=%s; vtValue = %s; matchTagKey = %s", strings.ToUpper(vtKey), strings.ToUpper(vtValue), strings.ToUpper(matchTag))
 
 			if strings.ToUpper(matchTag) != strings.ToUpper(vtKey) {
 				continue
 			}
 
-			glog.V(2).Infof("Match found for tag keys for vtKey=%s; vtValue = %s; matchTagKey = %s", strings.ToUpper(vtKey), strings.ToUpper(vtValue), strings.ToUpper(matchTag))
+			klog.V(2).Infof("Match found for tag keys for vtKey=%s; vtValue = %s; matchTagKey = %s", strings.ToUpper(vtKey), strings.ToUpper(vtValue), strings.ToUpper(matchTag))
 
 			// match found, verify if this tag exists in dropletTags and find a matching value.
 			for _, dropletTag := range a.dropletTags {
@@ -303,13 +303,13 @@ func (a *DOVolumes) matchesTags(volume *godo.Volume) bool {
 				dtKey := dt[0]
 				dtValue := dt[1]
 
-				glog.V(2).Infof("Matching droplet tag keys for dtKey=%s; dtValue = %s; matchTagKey = %s", strings.ToUpper(dtKey), strings.ToUpper(dtValue), strings.ToUpper(matchTag))
+				klog.V(2).Infof("Matching droplet tag keys for dtKey=%s; dtValue = %s; matchTagKey = %s", strings.ToUpper(dtKey), strings.ToUpper(dtValue), strings.ToUpper(matchTag))
 
 				if strings.ToUpper(matchTag) != strings.ToUpper(dtKey) {
 					continue
 				}
 
-				glog.V(2).Infof("Matching droplet key FOUND for dtKey=%s; dtValue = %s; matchTagKey = %s", strings.ToUpper(dtKey), strings.ToUpper(dtValue), strings.ToUpper(matchTag))
+				klog.V(2).Infof("Matching droplet key FOUND for dtKey=%s; dtValue = %s; matchTagKey = %s", strings.ToUpper(dtKey), strings.ToUpper(dtValue), strings.ToUpper(matchTag))
 
 				// droplet tag also matched, check if the value matches.
 				if strings.ToUpper(dtValue) != strings.ToUpper(vtValue) {
@@ -317,7 +317,7 @@ func (a *DOVolumes) matchesTags(volume *godo.Volume) bool {
 				}
 
 				// Finally everything matched.. Increment the matchingTagCount.
-				glog.V(2).Infof("Everything matched for matchTagKey = %s", strings.ToUpper(matchTag))
+				klog.V(2).Infof("Everything matched for matchTagKey = %s", strings.ToUpper(matchTag))
 				matchingTagCount++
 			}
 		}

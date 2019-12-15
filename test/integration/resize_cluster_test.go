@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/etcdversions"
 	"kope.io/etcd-manager/test/integration/harness"
@@ -38,7 +38,7 @@ func TestResizeCluster(t *testing.T) {
 				} else if len(members1) != 1 {
 					t.Errorf("members was not as expected: %v", members1)
 				} else {
-					glog.Infof("got members from #1: %v", members1)
+					klog.Infof("got members from #1: %v", members1)
 				}
 
 				if err := n1.Put(ctx, testKey, "singlev2"); err != nil {
@@ -55,7 +55,7 @@ func TestResizeCluster(t *testing.T) {
 			n3.EtcdVersion = etcdVersion
 			go n3.Run()
 
-			glog.Infof("expanding to cluster size 3")
+			klog.Infof("expanding to cluster size 3")
 			{
 				h.SetClusterSpec(&protoetcd.ClusterSpec{MemberCount: 3, EtcdVersion: etcdVersion})
 				h.InvalidateControlStore(n1, n2, n3)
@@ -77,7 +77,7 @@ func TestResizeCluster(t *testing.T) {
 				} else if len(members1) != 3 {
 					t.Errorf("members was not as expected: %v", members1)
 				} else {
-					glog.Infof("got members from #1: %v", members1)
+					klog.Infof("got members from #1: %v", members1)
 				}
 			}
 

@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"sort"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/etcdclient"
 	"kope.io/etcd-manager/pkg/privateapi"
@@ -21,11 +21,11 @@ func (m *EtcdController) updatePeerURLs(ctx context.Context, peerID privateapi.P
 
 	changed := false
 	if len(setPeerURLs) == 0 {
-		glog.Warningf("peer %q had no clientURLs, can't reconfigure peerUrls", peerID)
+		klog.Warningf("peer %q had no clientURLs, can't reconfigure peerUrls", peerID)
 		return false, nil
 	}
 
-	glog.Infof("updating peer %q with peerURLs %v", peerID, setPeerURLs)
+	klog.Infof("updating peer %q with peerURLs %v", peerID, setPeerURLs)
 
 	etcdClient, err := etcdclient.NewClient(p.info.EtcdState.EtcdVersion, clientURLs, m.etcdClientTLSConfig)
 	if err != nil {
@@ -55,7 +55,7 @@ func (m *EtcdController) updatePeerURLs(ctx context.Context, peerID privateapi.P
 	}
 
 	changed = true
-	glog.Infof("reconfigured peer %v with peerUrls=%v", peerID, setPeerURLs)
+	klog.Infof("reconfigured peer %v with peerUrls=%v", peerID, setPeerURLs)
 	return changed, nil
 }
 
@@ -70,7 +70,7 @@ func normalize(in []string) []string {
 
 func (m *EtcdController) reconcileTLS(ctx context.Context, clusterState *etcdClusterState) (bool, error) {
 	if m.disableEtcdTLS {
-		glog.Infof("TLS configuration is disabled, won't enable TLS")
+		klog.Infof("TLS configuration is disabled, won't enable TLS")
 		return false, nil
 	}
 
@@ -80,14 +80,14 @@ func (m *EtcdController) reconcileTLS(ctx context.Context, clusterState *etcdClu
 		}
 
 		if p.info.NodeConfiguration == nil {
-			glog.Warningf("peer %q did not have node configuration", peerID)
+			klog.Warningf("peer %q did not have node configuration", peerID)
 			continue
 		}
 		if p.info.EtcdState == nil {
 			continue
 		}
 		if p.info.EtcdState.Cluster == nil {
-			glog.Warningf("peer %q did not have etcd_state.cluster", peerID)
+			klog.Warningf("peer %q did not have etcd_state.cluster", peerID)
 			continue
 		}
 
@@ -99,7 +99,7 @@ func (m *EtcdController) reconcileTLS(ctx context.Context, clusterState *etcdClu
 		}
 
 		if node == nil {
-			glog.Warningf("peer %q did not have node in etcd_state.cluster", peerID)
+			klog.Warningf("peer %q did not have node in etcd_state.cluster", peerID)
 			continue
 		}
 
@@ -110,7 +110,7 @@ func (m *EtcdController) reconcileTLS(ctx context.Context, clusterState *etcdClu
 
 			member := clusterState.FindMember(peerID)
 			if member == nil {
-				glog.Warningf("peer %q was not part of cluster", peerID)
+				klog.Warningf("peer %q was not part of cluster", peerID)
 				continue
 			}
 
@@ -120,7 +120,7 @@ func (m *EtcdController) reconcileTLS(ctx context.Context, clusterState *etcdClu
 			actualPeerURLs = normalize(actualPeerURLs)
 
 			if !reflect.DeepEqual(actualPeerURLs, expectedPeerURLs) {
-				glog.Infof("peerURLs do not match: actual=%v, expected=%v", actualPeerURLs, expectedPeerURLs)
+				klog.Infof("peerURLs do not match: actual=%v, expected=%v", actualPeerURLs, expectedPeerURLs)
 
 				c, err := m.updatePeerURLs(ctx, peerID, p, expectedPeerURLs)
 				if c || err != nil {
@@ -136,13 +136,13 @@ func (m *EtcdController) reconcileTLS(ctx context.Context, clusterState *etcdClu
 				EnableTls:   true,
 			}
 
-			glog.Infof("reconfiguring peer %q to enable TLS %v", peerID, request)
+			klog.Infof("reconfiguring peer %q to enable TLS %v", peerID, request)
 
 			response, err := p.peer.rpcReconfigure(ctx, request)
 			if err != nil {
 				return false, fmt.Errorf("error reconfiguring peer %v with %v: %v", peerID, request, err)
 			}
-			glog.Infof("reconfigured peer %v to enable TLS, response = %s", peerID, response)
+			klog.Infof("reconfigured peer %v to enable TLS, response = %s", peerID, response)
 			return true, nil
 		}
 

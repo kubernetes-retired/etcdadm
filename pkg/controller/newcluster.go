@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/golang/glog"
 	"github.com/golang/protobuf/proto"
+	"k8s.io/klog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/pkg/urls"
 )
@@ -18,7 +18,7 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterState *etc
 	desiredQuorumSize := quorumSize(desiredMemberCount)
 
 	if len(clusterState.peers) < desiredQuorumSize {
-		glog.Infof("Insufficient peers to form a quorum %d, won't proceed", desiredQuorumSize)
+		klog.Infof("Insufficient peers to form a quorum %d, won't proceed", desiredQuorumSize)
 		return false, nil
 	}
 
@@ -27,9 +27,9 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterState *etc
 
 		// But ... as a special case, we can allow it through if the quorum size is the same (i.e. one less than desired)
 		if quorumSize(len(clusterState.peers)) == desiredQuorumSize {
-			glog.Infof("Fewer peers (%d) than desired members (%d), but quorum size is the same, so will proceed", len(clusterState.peers), desiredMemberCount)
+			klog.Infof("Fewer peers (%d) than desired members (%d), but quorum size is the same, so will proceed", len(clusterState.peers), desiredMemberCount)
 		} else {
-			glog.Infof("Insufficient peers to form full cluster %d, won't proceed", desiredQuorumSize)
+			klog.Infof("Insufficient peers to form full cluster %d, won't proceed", desiredQuorumSize)
 			return false, nil
 		}
 	}
@@ -46,7 +46,7 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterState *etc
 	}
 
 	if len(proposal) < desiredMemberCount && quorumSize(len(proposal)) < quorumSize(desiredMemberCount) {
-		glog.Fatalf("Need to add dummy peers to force quorum size :-(")
+		klog.Fatalf("Need to add dummy peers to force quorum size :-(")
 	}
 
 	// Build the proposed nodes and the proposed member map
@@ -108,7 +108,7 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterState *etc
 			if err != nil {
 				return false, fmt.Errorf("error stopping etcd peer %q: %v", peer.Id, err)
 			}
-			glog.Infof("stopped etcd on peer %q: %v", peer.Id, response)
+			klog.Infof("stopped etcd on peer %q: %v", peer.Id, response)
 		}
 	}
 
@@ -117,7 +117,7 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterState *etc
 		return false, fmt.Errorf("unable to broadcast member map: %v", errors)
 	}
 
-	glog.Infof("starting new etcd cluster with %s", proposal)
+	klog.Infof("starting new etcd cluster with %s", proposal)
 
 	for _, p := range proposal {
 		// Note that we may send the message to ourselves
@@ -134,7 +134,7 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterState *etc
 			// TODO: Send a CANCEL message for anything PREPAREd?  (currently we rely on a slow timeout)
 			return false, fmt.Errorf("error from JoinClusterRequest (prepare) from peer %q: %v", p.peer, err)
 		}
-		glog.V(2).Infof("JoinClusterResponse: %s", joinClusterResponse)
+		klog.V(2).Infof("JoinClusterResponse: %s", joinClusterResponse)
 	}
 
 	for _, p := range proposal {
@@ -152,7 +152,7 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterState *etc
 			// TODO: Send a CANCEL message for anything PREPAREd?  (currently we rely on a slow timeout)
 			return false, fmt.Errorf("error from JoinClusterRequest from peer %q: %v", p.peer, err)
 		}
-		glog.V(2).Infof("JoinClusterResponse: %s", joinClusterResponse)
+		klog.V(2).Infof("JoinClusterResponse: %s", joinClusterResponse)
 	}
 
 	// Write cluster spec to etcd

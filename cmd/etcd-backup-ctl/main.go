@@ -21,11 +21,12 @@ import (
 	"fmt"
 	"os"
 
+	"k8s.io/klog"
 	"kope.io/etcd-manager/pkg/backup"
 )
 
 func main() {
-	flag.Set("logtostderr", "true")
+	klog.InitFlags(nil)
 
 	backupStorePath := ""
 	flag.StringVar(&backupStorePath, "backup-store", backupStorePath, "backup store location")

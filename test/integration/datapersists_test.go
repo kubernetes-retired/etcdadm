@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
 	"kope.io/etcd-manager/test/integration/harness"
 )
@@ -50,7 +50,7 @@ func TestClusterDataPersists(t *testing.T) {
 		t.Fatalf("failed to stop node 1: %v", err)
 	}
 
-	glog.Infof("restarting node %v", n1)
+	klog.Infof("restarting node %v", n1)
 	go n1.Run()
 
 	n1.WaitForListMembers(time.Second * 20)
@@ -97,7 +97,7 @@ func TestHAReadWrite(t *testing.T) {
 	}
 
 	// We bring up a third node
-	glog.Infof("starting new node %v", n1)
+	klog.Infof("starting new node %v", n1)
 	n3 := h.NewNode("127.0.0.3")
 	go n3.Run()
 
@@ -176,10 +176,10 @@ func TestHARecovery(t *testing.T) {
 	}
 
 	// We bring up nodes 2 and 3
-	glog.Infof("restarting node %v", n2)
+	klog.Infof("restarting node %v", n2)
 	go n2.Run()
 
-	glog.Infof("restarting node %v", n3)
+	klog.Infof("restarting node %v", n3)
 	go n3.Run()
 
 	// Wait for n3 node to be running (but not necessarily happy)
