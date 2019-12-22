@@ -185,6 +185,19 @@ func TryLoadCertAndKeyFromDisk(pkiPath, name string) (*x509.Certificate, *rsa.Pr
 	return cert, key, nil
 }
 
+// TryLoadCertFromDiskIgnoreExpirationDate tries to load the cert from the disk and ignore expiration date
+func TryLoadCertFromDiskIgnoreExpirationDate(pkiPath, name string) (*x509.Certificate, error) {
+	certificatePath := pathForCert(pkiPath, name)
+
+	certs, err := certutil.CertsFromFile(certificatePath)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't load the certificate file %s: %v", certificatePath, err)
+	}
+
+	// We are only putting one certificate in the certificate pem file, so it's safe to just pick the first one
+	return certs[0], nil
+}
+
 // TryLoadCertFromDisk tries to load the cert from the disk and validates that it is valid
 func TryLoadCertFromDisk(pkiPath, name string) (*x509.Certificate, error) {
 	certificatePath := pathForCert(pkiPath, name)

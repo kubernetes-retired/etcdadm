@@ -26,6 +26,7 @@ import (
 	"crypto/x509"
 	"fmt"
 
+	"github.com/pkg/errors"
 	log "sigs.k8s.io/etcdadm/pkg/logrus"
 
 	certutil "k8s.io/client-go/util/cert"
@@ -33,6 +34,59 @@ import (
 	"sigs.k8s.io/etcdadm/certs/pkiutil"
 	"sigs.k8s.io/etcdadm/constants"
 )
+
+// GetDefaultCertList returns all of the certificates etcdadm requires to function.
+func GetDefaultCertList() []string {
+	return []string{
+		constants.EtcdServerCertAndKeyBaseName,
+		constants.EtcdPeerCertAndKeyBaseName,
+		constants.EtcdctlClientCertAndKeyBaseName,
+		constants.APIServerEtcdClientCertAndKeyBaseName,
+	}
+}
+
+// RenewUsingLocalCA replaces certificates with new certificates signed by the CA.
+func RenewUsingLocalCA(pkiDir, name string) (bool, error) {
+	// reads the current certificate
+	cert, err := pkiutil.TryLoadCertFromDiskIgnoreExpirationDate(pkiDir, name)
+	if err != nil {
+		return false, err
+	}
+
+	// extract the certificate config
+	cfg := certToConfig(cert)
+
+	// reads the CA
+	caCert, caKey, err := loadCertificateAuthority(pkiDir, constants.EtcdCACertAndKeyBaseName)
+	if err != nil {
+		return false, err
+	}
+
+	// create a new certificate with the same config
+	newCert, newKey, err := pkiutil.NewCertAndKey(caCert, caKey, cfg)
+	if err != nil {
+		return false, errors.Wrapf(err, "failed to renew certificate %s", name)
+	}
+
+	// writes the new certificate to disk
+	if err := pkiutil.WriteCertAndKey(pkiDir, name, newCert, newKey); err != nil {
+		return false, errors.Wrapf(err, "failed to write new certificate %s", name)
+	}
+
+	return true, nil
+}
+
+func certToConfig(cert *x509.Certificate) certutil.Config {
+	return certutil.Config{
+		CommonName:   cert.Subject.CommonName,
+		Organization: cert.Subject.Organization,
+		AltNames: certutil.AltNames{
+			IPs:      cert.IPAddresses,
+			DNSNames: cert.DNSNames,
+		},
+		Usages: cert.ExtKeyUsage,
+	}
+}
 
 // CreatePKIAssets will create and write to disk all PKI assets necessary to establish the control plane.
 // If the PKI assets already exists in the target folder, they are used only if evaluated equal; otherwise an error is returned.
