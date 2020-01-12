@@ -96,7 +96,7 @@ container_image(
         "etcd-3-2-24-layer",
         "etcd-3-3-10-layer",
         "etcd-3-3-13-layer",
-	"etcd-3-4-3-layer",
+        "etcd-3-4-3-layer",
     ],
 )
 
