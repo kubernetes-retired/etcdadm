@@ -80,15 +80,7 @@ func get(url, archive string) error {
 	cmd := exec.Command("curl", strings.Fields(argStr)...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	err := cmd.Start()
-	if err != nil {
-		return err
-	}
-	err = cmd.Wait()
-	if err != nil {
-		return err
-	}
-	return nil
+	return cmd.Run()
 }
 
 func extract(extractDir, archive string) error {
@@ -96,15 +88,7 @@ func extract(extractDir, archive string) error {
 	cmd := exec.Command("tar", "xzf", archive, "--strip-components=1", "-C", extractDir)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	err := cmd.Start()
-	if err != nil {
-		return err
-	}
-	err = cmd.Wait()
-	if err != nil {
-		return err
-	}
-	return nil
+	return cmd.Run()
 }
 
 // Download downloads the etcd binaries in the directory specified by locationDir
