@@ -76,7 +76,7 @@ func isEtcdctlInstalled(version, inputDir string) (bool, error) {
 
 func get(url, archive string) error {
 	log.Printf("[install] downloading etcd from %s to %s\n", url, archive)
-	argStr := fmt.Sprintf("--connect-timeout %v --progress-bar --location --output %v %v", int(constants.DefaultDownloadConnectTimeout/time.Second), archive, url)
+	argStr := fmt.Sprintf("--fail --connect-timeout %v --progress-bar --location --output %v %v", int(constants.DefaultDownloadConnectTimeout/time.Second), archive, url)
 	cmd := exec.Command("curl", strings.Fields(argStr)...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
