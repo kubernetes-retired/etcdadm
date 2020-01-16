@@ -108,7 +108,7 @@ func run(ctx context.Context, o *Options, command string, args []string) error {
 
 func GetBackupStore(o *Options) (backup.Store, error) {
 	if o.BackupStorePath == "" {
-		return nil, fmt.Errorf("backup-store is required\n")
+		return nil, fmt.Errorf("backup-store is required")
 	}
 
 	commandStore, err := backup.NewStore(o.BackupStorePath)
@@ -120,7 +120,7 @@ func GetBackupStore(o *Options) (backup.Store, error) {
 
 func GetCommandStore(o *Options) (commands.Store, error) {
 	if o.BackupStorePath == "" {
-		return nil, fmt.Errorf("backup-store is required\n")
+		return nil, fmt.Errorf("backup-store is required")
 	}
 
 	commandStore, err := commands.NewStore(o.BackupStorePath)

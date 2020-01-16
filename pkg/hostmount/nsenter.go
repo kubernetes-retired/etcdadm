@@ -29,8 +29,6 @@ import (
 const (
 	// hostProcMountsPath is the default mount path for rootfs
 	hostProcMountsPath = "/rootfs/proc/1/mounts"
-	// hostProcMountinfoPath is the default mount info path for rootfs
-	hostProcMountinfoPath = "/rootfs/proc/1/mountinfo"
 )
 
 func New(ne *nsenter.Nsenter) *Mounter {
@@ -110,6 +108,9 @@ func (n *Mounter) makeNsenterArgs(source, target, fstype string, options []strin
 		//   restart of kubelet container will kill it!
 
 		// No code here, mountCmd and mountArgs use /bin/mount
+
+		// Log - mostly to keep staticcheck happy, but also this is unexpected
+		klog.Warningf("running without systemd")
 	}
 
 	return mountCmd, mountArgs
