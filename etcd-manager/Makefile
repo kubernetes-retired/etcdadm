@@ -42,7 +42,9 @@ gazelle:
 	#rm vendor/github.com/golang/protobuf/protoc-gen-go/testdata/multi/BUILD.bazel
 
 .PHONY: dep-ensure
-dep-ensure: vendor
+dep-ensure:
+	echo "'make dep-ensure' has been replaced by 'make vendor'"
+	exit 1
 
 .PHONY: vendor
 vendor:
