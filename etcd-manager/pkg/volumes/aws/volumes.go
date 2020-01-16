@@ -300,7 +300,7 @@ func (a *AWSVolumes) assignDevice(volumeID string) (string, error) {
 			return d, nil
 		}
 	}
-	return "", fmt.Errorf("All devices in use")
+	return "", fmt.Errorf("all devices in use")
 }
 
 // releaseDevice releases the volume mapping lock; used when an attach was known to fail
@@ -334,7 +334,7 @@ func (a *AWSVolumes) AttachVolume(volume *volumes.Volume) error {
 
 		attachResponse, err := a.ec2.AttachVolume(request)
 		if err != nil {
-			return fmt.Errorf("Error attaching EBS volume %q: %v", volumeID, err)
+			return fmt.Errorf("error attaching EBS volume %q: %v", volumeID, err)
 		}
 
 		klog.V(2).Infof("AttachVolume request returned %v", attachResponse)
@@ -348,14 +348,14 @@ func (a *AWSVolumes) AttachVolume(volume *volumes.Volume) error {
 
 		volumes, err := a.describeVolumes(request)
 		if err != nil {
-			return fmt.Errorf("Error describing EBS volume %q: %v", volumeID, err)
+			return fmt.Errorf("error describing EBS volume %q: %v", volumeID, err)
 		}
 
 		if len(volumes) == 0 {
 			return fmt.Errorf("EBS volume %q disappeared during attach", volumeID)
 		}
 		if len(volumes) != 1 {
-			return fmt.Errorf("Multiple volumes found with id %q", volumeID)
+			return fmt.Errorf("multiple volumes found with id %q", volumeID)
 		}
 
 		v := volumes[0]
@@ -368,7 +368,7 @@ func (a *AWSVolumes) AttachVolume(volume *volumes.Volume) error {
 			} else {
 				a.releaseDevice(device, volumeID)
 
-				return fmt.Errorf("Unable to attach volume %q, was attached to %q", volumeID, v.AttachedTo)
+				return fmt.Errorf("unable to attach volume %q, was attached to %q", volumeID, v.AttachedTo)
 			}
 		}
 
@@ -378,7 +378,7 @@ func (a *AWSVolumes) AttachVolume(volume *volumes.Volume) error {
 			// continue looping
 
 		default:
-			return fmt.Errorf("Observed unexpected volume state %q", v.Status)
+			return fmt.Errorf("observed unexpected volume state %q", v.Status)
 		}
 
 		time.Sleep(10 * time.Second)
