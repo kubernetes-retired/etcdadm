@@ -246,8 +246,8 @@ func (p *etcdProcess) Start() error {
 	// This should be the last step before setting the env vars for the
 	// command so that any param can be overwritten.
 	for _, e := range os.Environ() {
-		envPair := strings.SplitN(e, "=", 2)
-		if strings.HasPrefix(envPair[0], "ETCD_") {
+		if strings.HasPrefix(e, "ETCD_") {
+			envPair := strings.SplitN(e, "=", 2)
 			klog.Infof("Overwriting etcd setting %s with value %s", envPair[0], envPair[1])
 			env[envPair[0]] = envPair[1]
 		}
