@@ -20,17 +20,24 @@ set -o pipefail
 # shellcheck source=/dev/null
 source "$(dirname "$0")/utils.sh"
 
+DATA_VOLUME_NAME="etcdadm-volume"
+DATA_VOLUME_MOUNT_PATH="/opt/etcd/pki"
+IMAGE="kindest/node:v1.16.2"
+
 cd_root_path
 
 # Build
 make container-build
 
 # Prepare containers
-trap "docker rm -f etcdadm-{0,1,2};rm -f ${PWD}/bin/ca.*" EXIT
+trap "docker rm -f etcdadm-{0,1,2};docker volume rm ${DATA_VOLUME_NAME}" EXIT
+
+# Prepare etcdadm CA certificates temporary local volume
+docker volume create ${DATA_VOLUME_NAME}
 
 for ((i=0;i<3;i++))
 do
-    docker run --name etcdadm-${i} --detach --privileged --security-opt seccomp=unconfined --tmpfs /tmp --tmpfs /run --volume ${PWD}:/etcdadm kindest/node:v1.16.2
+    docker run --name etcdadm-${i} --detach --privileged --security-opt seccomp=unconfined --tmpfs /tmp --tmpfs /run --volume ${DATA_VOLUME_NAME}:${DATA_VOLUME_MOUNT_PATH} --volume ${PWD}:/etcdadm ${IMAGE}
 done
 
 # Run init
@@ -43,17 +50,16 @@ docker exec etcdadm-0 /opt/bin/etcdctl.sh endpoint health
 etcdadm_0_ip=$(docker inspect --format {{.NetworkSettings.Networks.bridge.IPAddress}} etcdadm-0)
 
 # Copy CA certs from etcdadm-0 container to bin directory
-docker cp etcdadm-0:/etc/etcd/pki/ca.crt ${PWD}/bin/
-docker cp etcdadm-0:/etc/etcd/pki/ca.key ${PWD}/bin/
+docker exec etcdadm-0 cp /etc/etcd/pki/ca.crt ${DATA_VOLUME_MOUNT_PATH}/
+docker exec etcdadm-0 cp /etc/etcd/pki/ca.key ${DATA_VOLUME_MOUNT_PATH}/
 
 # Add more members
 for ((i=1;i<3;i++))
 do
     echo "Copying CA certs to container etcdadm-${i}"
     # Copy CA certs to container
-    docker exec etcdadm-${i} mkdir -p /etc/etcd/pki
-    docker cp ${PWD}/bin/ca.crt etcdadm-${i}:/etc/etcd/pki/
-    docker cp ${PWD}/bin/ca.key etcdadm-${i}:/etc/etcd/pki/
+    docker exec etcdadm-${i} mkdir -p /etc/etcd/
+    docker exec etcdadm-${i} cp -r ${DATA_VOLUME_MOUNT_PATH} /etc/etcd/pki
 
     echo "Joining etcd member etcdadm-${i}"
     docker exec etcdadm-${i} /etcdadm/etcdadm join https://${etcdadm_0_ip}:2379 --name etcdadm-${i}
