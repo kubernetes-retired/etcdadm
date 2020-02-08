@@ -35,6 +35,7 @@ import (
 	"sigs.k8s.io/etcdadm/service"
 
 	"github.com/spf13/cobra"
+	"k8s.io/apimachinery/pkg/util/wait"
 )
 
 var joinCmd = &cobra.Command{
@@ -102,14 +103,38 @@ var joinCmd = &cobra.Command{
 			log.Printf("Removing existing data dir %q", etcdAdmConfig.DataDir)
 			os.RemoveAll(etcdAdmConfig.DataDir)
 			log.Println("[membership] Adding member")
-			ctx, cancel := context.WithTimeout(context.Background(), constants.DefaultEtcdRequestTimeout)
-			mresp, err := client.MemberAdd(ctx, etcdAdmConfig.InitialAdvertisePeerURLs.StringSlice())
-			if err != nil {
-				log.Fatalf("[membership] Error adding member: %v", err)
+
+			var lastErr error
+			retrySteps := 1
+			if etcdAdmConfig.Retry {
+				retrySteps = constants.DefaultBackOffSteps
 			}
-			localMember = mresp.Member
-			members = mresp.Members
-			cancel()
+
+			// Exponential backoff for MemberAdd (values exclude jitter):
+			// If --retry=false, add member only try one times, otherwise try five times.
+			// The backoff duration is 0, 2, 4, 8, 16 s
+			opts := wait.Backoff{
+				Duration: constants.DefaultBackOffDuration,
+				Steps:    retrySteps,
+				Factor:   constants.DefaultBackOffFactor,
+				Jitter:   0.1,
+			}
+			err := wait.ExponentialBackoff(opts, func() (bool, error) {
+				ctx, cancel := context.WithTimeout(context.Background(), constants.DefaultEtcdRequestTimeout)
+				mresp, err := client.MemberAdd(ctx, etcdAdmConfig.InitialAdvertisePeerURLs.StringSlice())
+				cancel()
+				if err != nil {
+					log.Warningf("[membership] Error adding member: %v, will retry after %s.", err, opts.Step())
+					lastErr = err
+					return false, nil
+				}
+				localMember = mresp.Member
+				members = mresp.Members
+				return true, nil
+			})
+			if err != nil {
+				log.Fatalf("[membership] Error adding member: %v", lastErr)
+			}
 		} else {
 			log.Println("[membership] Member was added")
 		}
@@ -209,4 +234,5 @@ func init() {
 	joinCmd.PersistentFlags().StringSliceVar(&etcdAdmConfig.ServerCertSANs, "server-cert-extra-sans", etcdAdmConfig.ServerCertSANs, "optional extra Subject Alternative Names for the etcd server signing cert, can be multiple comma separated DNS names or IPs")
 	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.InstallDir, "install-dir", constants.DefaultInstallDir, "install directory")
 	joinCmd.PersistentFlags().StringArrayVar(&etcdAdmConfig.EtcdDiskPriorities, "disk-priorities", constants.DefaultEtcdDiskPriorities, "Setting etcd disk priority")
+	joinCmd.PersistentFlags().BoolVar(&etcdAdmConfig.Retry, "retry", true, "Enable or disable backoff retry when join etcd member to cluster")
 }
