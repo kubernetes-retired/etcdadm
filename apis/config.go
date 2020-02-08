@@ -85,6 +85,10 @@ type EtcdAdmConfig struct {
 
 	Snapshot      string
 	SkipHashCheck bool
+
+	// Retry sets enable or disable backoff retry when join etcd member to cluster.
+	// Default true, it mean that enable backoff retry.
+	Retry bool
 }
 
 // EndpointStatus TODO: add description

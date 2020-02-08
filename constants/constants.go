@@ -157,6 +157,10 @@ fi
 . "{{ .EtcdctlEnvFile }}"
 "{{ .EtcdctlExecutable }}" "$@"
 `
+
+	DefaultBackOffSteps    = 5
+	DefaultBackOffDuration = 2 * time.Second
+	DefaultBackOffFactor   = 2.0
 )
 
 // DefaultEtcdDiskPriorities defines the default etcd disk priority.
