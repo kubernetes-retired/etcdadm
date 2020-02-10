@@ -22,9 +22,9 @@ import (
 	"time"
 
 	"github.com/coreos/etcd/clientv3"
+	"github.com/coreos/etcd/clientv3/snapshot"
 	"github.com/coreos/etcd/etcdserver/etcdserverpb"
 	"github.com/coreos/etcd/pkg/transport"
-	"github.com/coreos/etcd/snapshot"
 
 	"sigs.k8s.io/etcdadm/apis"
 )
