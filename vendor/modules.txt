@@ -1,5 +1,7 @@
 # cloud.google.com/go v0.34.0
 cloud.google.com/go/compute/metadata
+# github.com/BurntSushi/toml v0.3.1
+github.com/BurntSushi/toml
 # github.com/aliyun/alibaba-cloud-sdk-go v1.60.290
 github.com/aliyun/alibaba-cloud-sdk-go/sdk
 github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth
@@ -71,13 +73,14 @@ github.com/coreos/etcd/version
 github.com/coreos/go-semver/semver
 # github.com/denverdino/aliyungo v0.0.0-20180409134525-ed76a3738861
 github.com/denverdino/aliyungo/common
+github.com/denverdino/aliyungo/metadata
 github.com/denverdino/aliyungo/oss
 github.com/denverdino/aliyungo/util
 # github.com/digitalocean/godo v1.19.0
 github.com/digitalocean/godo
 # github.com/go-ini/ini v1.32.0
 github.com/go-ini/ini
-# github.com/gogo/protobuf v0.0.0-20171007142547-342cbe0a0415
+# github.com/gogo/protobuf v1.1.1
 github.com/gogo/protobuf/gogoproto
 github.com/gogo/protobuf/proto
 github.com/gogo/protobuf/protoc-gen-gogo/descriptor
@@ -118,11 +121,11 @@ github.com/kr/fs
 github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.1
 github.com/modern-go/reflect2
-# github.com/pkg/errors v0.8.0
+# github.com/pkg/errors v0.8.1
 github.com/pkg/errors
 # github.com/pkg/sftp v0.0.0-20180127012644-738e088bbd93
 github.com/pkg/sftp
-# golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
+# golang.org/x/crypto v0.0.0-20190510104115-cbcb75029529
 golang.org/x/crypto/curve25519
 golang.org/x/crypto/ed25519
 golang.org/x/crypto/ed25519/internal/edwards25519
@@ -145,7 +148,7 @@ golang.org/x/oauth2/google
 golang.org/x/oauth2/internal
 golang.org/x/oauth2/jws
 golang.org/x/oauth2/jwt
-# golang.org/x/sys v0.0.0-20190312061237-fead79001313
+# golang.org/x/sys v0.0.0-20191128015809-6d18c012aee9
 golang.org/x/sys/cpu
 golang.org/x/sys/unix
 # golang.org/x/text v0.3.1-0.20181227161524-e6919f6577db
@@ -153,6 +156,21 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
+# golang.org/x/tools v0.0.0-20190621195816-6e04913cbbac
+golang.org/x/tools/go/analysis
+golang.org/x/tools/go/analysis/passes/inspect
+golang.org/x/tools/go/ast/astutil
+golang.org/x/tools/go/ast/inspector
+golang.org/x/tools/go/buildutil
+golang.org/x/tools/go/gcexportdata
+golang.org/x/tools/go/internal/gcimporter
+golang.org/x/tools/go/internal/packagesdriver
+golang.org/x/tools/go/packages
+golang.org/x/tools/go/types/objectpath
+golang.org/x/tools/go/types/typeutil
+golang.org/x/tools/internal/fastwalk
+golang.org/x/tools/internal/gopathwalk
+golang.org/x/tools/internal/semver
 # google.golang.org/api v0.0.0-20181220000619-583d854617af
 google.golang.org/api/compute/v0.beta
 google.golang.org/api/gensupport
@@ -216,16 +234,42 @@ gopkg.in/ini.v1
 gopkg.in/warnings.v0
 # gopkg.in/yaml.v2 v2.2.4
 gopkg.in/yaml.v2
+# honnef.co/go/tools v0.0.1-2019.2.3
+honnef.co/go/tools/arg
+honnef.co/go/tools/cmd/staticcheck
+honnef.co/go/tools/config
+honnef.co/go/tools/deprecated
+honnef.co/go/tools/facts
+honnef.co/go/tools/functions
+honnef.co/go/tools/go/types/typeutil
+honnef.co/go/tools/internal/cache
+honnef.co/go/tools/internal/passes/buildssa
+honnef.co/go/tools/internal/renameio
+honnef.co/go/tools/internal/sharedcheck
+honnef.co/go/tools/lint
+honnef.co/go/tools/lint/lintdsl
+honnef.co/go/tools/lint/lintutil
+honnef.co/go/tools/lint/lintutil/format
+honnef.co/go/tools/loader
+honnef.co/go/tools/printf
+honnef.co/go/tools/simple
+honnef.co/go/tools/ssa
+honnef.co/go/tools/ssautil
+honnef.co/go/tools/staticcheck
+honnef.co/go/tools/staticcheck/vrp
+honnef.co/go/tools/stylecheck
+honnef.co/go/tools/unused
+honnef.co/go/tools/version
 # k8s.io/apimachinery v0.0.0 => k8s.io/apimachinery v0.0.0-20190817020851-f2f3a405f61d
 k8s.io/apimachinery/pkg/util/runtime
 k8s.io/apimachinery/pkg/util/wait
-# k8s.io/client-go v11.0.0+incompatible => k8s.io/client-go v0.0.0-20190819141724-e14f31a72a77
+# k8s.io/client-go v11.0.1-0.20190409021438-1a26190bd76a+incompatible => k8s.io/client-go v0.0.0-20190819141724-e14f31a72a77
 k8s.io/client-go/util/cert
 k8s.io/client-go/util/homedir
 k8s.io/client-go/util/keyutil
 # k8s.io/klog v1.0.0
 k8s.io/klog
-# k8s.io/kops v0.0.0-00010101000000-000000000000 => k8s.io/kops v1.4.2-0.20191120011744-9992b4055733
+# k8s.io/kops v0.0.0-00010101000000-000000000000 => k8s.io/kops v1.16.0
 k8s.io/kops/pkg/try
 k8s.io/kops/util/pkg/hashing
 k8s.io/kops/util/pkg/vfs
