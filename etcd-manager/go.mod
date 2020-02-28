@@ -2,7 +2,7 @@ module kope.io/etcd-manager
 
 go 1.12
 
-replace k8s.io/kops => k8s.io/kops v1.4.2-0.20191120011744-9992b4055733
+replace k8s.io/kops => k8s.io/kops v1.16.0
 
 // Version kubernetes-1.15.3
 //replace k8s.io/kubernetes => k8s.io/kubernetes v1.15.3
@@ -79,7 +79,6 @@ require (
 	github.com/aws/aws-sdk-go v1.26.2
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/coreos/etcd v3.3.13+incompatible
-	github.com/coreos/go-semver v0.2.0 // indirect
 	github.com/denverdino/aliyungo v0.0.0-20180409134525-ed76a3738861 // indirect
 	github.com/digitalocean/godo v1.19.0
 	github.com/go-ini/ini v1.32.0 // indirect
@@ -96,7 +95,7 @@ require (
 	gopkg.in/yaml.v2 v2.2.4
 	honnef.co/go/tools v0.0.1-2019.2.3
 	k8s.io/apimachinery v0.0.0
-	k8s.io/client-go v11.0.0+incompatible
+	k8s.io/client-go v11.0.1-0.20190409021438-1a26190bd76a+incompatible
 	k8s.io/klog v1.0.0
 	k8s.io/kops v0.0.0-00010101000000-000000000000
 	k8s.io/utils v0.0.0-20191114200735-6ca3b61696b6
