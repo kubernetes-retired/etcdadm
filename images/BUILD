@@ -75,6 +75,16 @@ container_layer(
     ],
 )
 
+# Layer for etcd 3.3.17, updated recommendation for k8s 1.16.3 and later
+container_layer(
+    name = "etcd-3-3-17-layer",
+    directory = "/opt/etcd-v3.3.17-linux-amd64/",
+    files = [
+        "//:etcd-v3.3.17-linux-amd64_etcdctl",
+        "//:etcd-v3.3.17-linux-amd64_etcd",
+    ],
+)
+
 # Layer for etcd 3.4.3, updated recommendation for k8s 1.17 and later
 container_layer(
     name = "etcd-3-4-3-layer",
@@ -96,6 +106,7 @@ container_image(
         "etcd-3-2-24-layer",
         "etcd-3-3-10-layer",
         "etcd-3-3-13-layer",
+        "etcd-3-3-17-layer",
         "etcd-3-4-3-layer",
     ],
 )
