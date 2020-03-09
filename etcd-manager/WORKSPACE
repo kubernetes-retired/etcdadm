@@ -106,6 +106,12 @@ http_file(
 )
 
 http_file(
+    name = "etcd_3_3_17_tar",
+    sha256 = "8c1168a24d17a2d6772f8148ea35d4f3398c51f1e23db90c849d506adb387060",
+    urls = ["https://github.com/coreos/etcd/releases/download/v3.3.17/etcd-v3.3.17-linux-amd64.tar.gz"],
+)
+
+http_file(
     name = "etcd_3_4_3_tar",
     sha256 = "6c642b723a86941b99753dff6c00b26d3b033209b15ee33325dc8e7f4cd68f07",
     urls = ["https://github.com/coreos/etcd/releases/download/v3.4.3/etcd-v3.4.3-linux-amd64.tar.gz"],
