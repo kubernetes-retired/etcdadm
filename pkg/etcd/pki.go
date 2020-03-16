@@ -61,9 +61,11 @@ func (p *etcdProcess) createKeypairs(peersCA *pki.Keypair, clientsCA *pki.Keypai
 		keypairs := pki.Keypairs{Store: store}
 		keypairs.SetCA(clientsCA)
 
+		// The server cert is used by the gRPC library of etcd as a client cert for meta checks, like health
+		// See https://github.com/etcd-io/etcd/issues/9785
 		certConfig := certutil.Config{
 			CommonName: me.Name,
-			Usages:     []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+			Usages:     []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
 		}
 
 		if err := addAltNames(&certConfig, me.ClientUrls); err != nil {
