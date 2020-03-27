@@ -17,6 +17,7 @@ const (
 	Version_3_2_24 = "3.2.24"
 	Version_3_3_10 = "3.3.10"
 	Version_3_3_13 = "3.3.13"
+	Version_3_3_17 = "3.3.17"
 	Version_3_4_3  = "3.4.3"
 )
 
@@ -27,6 +28,7 @@ var AllEtcdVersions = []string{
 	Version_3_2_24,
 	Version_3_3_10,
 	Version_3_3_13,
+	Version_3_3_17,
 	Version_3_4_3,
 }
 
@@ -100,8 +102,10 @@ func EtcdVersionForAdoption(fromVersion string) string {
 	case "3.3":
 		if fromSemver.Patch <= 10 {
 			return Version_3_3_10
-		} else {
+		} else if fromSemver.Patch <= 13 {
 			return Version_3_3_13
+		} else {
+			return Version_3_3_17
 		}
 	case "3.4":
 		return Version_3_4_3
@@ -134,8 +138,10 @@ func EtcdVersionForRestore(fromVersion string) string {
 	case "3.3":
 		if fromSemver.Patch <= 10 {
 			return Version_3_3_10
-		} else {
+		} else if fromSemver.Patch <= 13 {
 			return Version_3_3_13
+		} else {
+			return Version_3_3_17
 		}
 	case "3.4":
 		return Version_3_4_3
