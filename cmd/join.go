@@ -101,7 +101,9 @@ var joinCmd = &cobra.Command{
 		if !ok {
 			log.Printf("[membership] Member was not added")
 			log.Printf("Removing existing data dir %q", etcdAdmConfig.DataDir)
-			os.RemoveAll(etcdAdmConfig.DataDir)
+			if err := os.RemoveAll(etcdAdmConfig.DataDir); err != nil {
+				log.Errorf("unable to remove data dir %q: %v", etcdAdmConfig.DataDir, err)
+			}
 			log.Println("[membership] Adding member")
 
 			var lastErr error
@@ -143,7 +145,9 @@ var joinCmd = &cobra.Command{
 		if !etcd.Started(localMember) {
 			log.Println("[membership] Member was not started")
 			log.Printf("[membership] Removing existing data dir %q", etcdAdmConfig.DataDir)
-			os.RemoveAll(etcdAdmConfig.DataDir)
+			if err := os.RemoveAll(etcdAdmConfig.DataDir); err != nil {
+				log.Errorf("unable to remove data dir %q: %v", etcdAdmConfig.DataDir, err)
+			}
 
 			// To derive the initial cluster string, add the name and peerURLs to the local member
 			localMember.Name = etcdAdmConfig.Name

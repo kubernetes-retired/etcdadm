@@ -74,7 +74,9 @@ var initCmd = &cobra.Command{
 		}
 		if exists {
 			log.Printf("[install] Removing existing data dir %q", etcdAdmConfig.DataDir)
-			os.RemoveAll(etcdAdmConfig.DataDir)
+			if err := os.RemoveAll(etcdAdmConfig.DataDir); err != nil {
+				log.Fatalf("unable to remove data dir %q: %v", etcdAdmConfig.DataDir, err)
+			}
 		}
 
 		// etcd binaries installation
