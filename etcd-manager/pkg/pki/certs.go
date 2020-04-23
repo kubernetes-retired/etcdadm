@@ -6,10 +6,14 @@ import (
 	"fmt"
 	"reflect"
 	"sort"
+	"time"
 
 	certutil "k8s.io/client-go/util/cert"
 	"k8s.io/klog"
 )
+
+// Renew certificates with less than 60 days left.
+const RENEW_THRESHOLD = 60 * 24 * time.Hour
 
 type Keypair struct {
 	Certificate    *x509.Certificate
@@ -42,6 +46,11 @@ func EnsureKeypair(store MutableKeypair, config certutil.Config, signer *Keypair
 			cert := keypair.Certificate
 
 			match := true
+
+			if match && time.Until(cert.NotAfter) <= RENEW_THRESHOLD {
+				klog.Infof("certificate expired or almost expired, not valid after %s; will regenerate", cert.NotAfter.Format(time.RFC3339))
+				match = false
+			}
 
 			if match && cert.Subject.CommonName != config.CommonName {
 				klog.Infof("certificate CommonName mismatch on %q; will regenerate", p)
