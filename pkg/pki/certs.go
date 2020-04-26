@@ -4,16 +4,71 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"fmt"
+	"os"
 	"reflect"
 	"sort"
+	"strconv"
+	"strings"
 	"time"
 
 	certutil "k8s.io/client-go/util/cert"
 	"k8s.io/klog"
 )
 
-// Renew certificates with less than 60 days left.
-const RENEW_THRESHOLD = 60 * 24 * time.Hour
+// CertDuration controls how long we issue certificates for.  We set
+// it to a longer time period, primarily because we don't have a nice
+// means of rotation.  This was historically one year, but we now set
+// it to two years, with kubernetes LTS proposing one year's support.
+var CertDuration = 2 * 365 * 24 * time.Hour
+
+// CertRenewalMinTimeLeft is the minimum amount of validity required on
+// a certificate to reuse it.  Becasue we set this (much) higher than
+// CertDuration, we will now always reissue certificates.
+var CertMinTimeLeft = 20 * 365 * 24 * time.Hour
+
+// ParseHumanDuration parses a go-style duration string, but
+// recognizes additional suffixes: d means "day" and is interpreted as
+// 24 hours; y means "year" and is interpreted as 365 days.
+func ParseHumanDuration(s string) (time.Duration, error) {
+	if strings.HasSuffix(s, "y") {
+		s = strings.TrimSuffix(s, "y")
+		n, err := strconv.Atoi(s)
+		if err != nil {
+			return time.Duration(0), err
+		}
+		return time.Duration(n) * 365 * 24 * time.Hour, nil
+	}
+
+	if strings.HasSuffix(s, "d") {
+		s = strings.TrimSuffix(s, "d")
+		n, err := strconv.Atoi(s)
+		if err != nil {
+			return time.Duration(0), err
+		}
+		return time.Duration(n) * 24 * time.Hour, nil
+	}
+
+	return time.ParseDuration(s)
+
+}
+
+func init() {
+	if s := os.Getenv("ETCD_MANAGER_CERT_DURATION"); s != "" {
+		v, err := ParseHumanDuration(s)
+		if err != nil {
+			klog.Fatalf("failed to parse ETCD_MANAGER_CERT_DURATION=%q", s)
+		}
+		CertDuration = v
+	}
+
+	if s := os.Getenv("ETCD_MANAGER_CERT_MIN_TIME_LEFT"); s != "" {
+		v, err := ParseHumanDuration(s)
+		if err != nil {
+			klog.Fatalf("failed to parse ETCD_MANAGER_CERT_MIN_TIME_LEFT=%q", s)
+		}
+		CertMinTimeLeft = v
+	}
+}
 
 type Keypair struct {
 	Certificate    *x509.Certificate
@@ -47,8 +102,8 @@ func EnsureKeypair(store MutableKeypair, config certutil.Config, signer *Keypair
 
 			match := true
 
-			if match && time.Until(cert.NotAfter) <= RENEW_THRESHOLD {
-				klog.Infof("certificate expired or almost expired, not valid after %s; will regenerate", cert.NotAfter.Format(time.RFC3339))
+			if match && time.Until(cert.NotAfter) <= CertMinTimeLeft {
+				klog.Infof("existing certificate not valid after %s; will regenerate", cert.NotAfter.Format(time.RFC3339))
 				match = false
 			}
 
@@ -113,7 +168,8 @@ func EnsureKeypair(store MutableKeypair, config certutil.Config, signer *Keypair
 			var cert *x509.Certificate
 			var err error
 			if signer != nil {
-				cert, err = NewSignedCert(&config, keypair.PrivateKey, signer.Certificate, signer.PrivateKey)
+				duration := CertDuration
+				cert, err = NewSignedCert(&config, keypair.PrivateKey, signer.Certificate, signer.PrivateKey, duration)
 			} else {
 				cert, err = certutil.NewSelfSignedCACert(config, keypair.PrivateKey)
 			}

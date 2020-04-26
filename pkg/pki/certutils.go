@@ -39,8 +39,6 @@ const (
 	RSAPrivateKeyBlockType = "RSA PRIVATE KEY"
 
 	rsaKeySize = 2048
-
-	duration365d = time.Hour * 24 * 365
 )
 
 // EncodeCertPEM returns PEM-endcoded certificate data
@@ -67,7 +65,7 @@ func NewPrivateKey() (*rsa.PrivateKey, error) {
 }
 
 // NewSignedCert creates a signed certificate using the given CA certificate and key
-func NewSignedCert(cfg *certutil.Config, key crypto.Signer, caCert *x509.Certificate, caKey crypto.Signer) (*x509.Certificate, error) {
+func NewSignedCert(cfg *certutil.Config, key crypto.Signer, caCert *x509.Certificate, caKey crypto.Signer, duration time.Duration) (*x509.Certificate, error) {
 	serial, err := cryptorand.Int(cryptorand.Reader, new(big.Int).SetInt64(math.MaxInt64))
 	if err != nil {
 		return nil, err
@@ -88,7 +86,7 @@ func NewSignedCert(cfg *certutil.Config, key crypto.Signer, caCert *x509.Certifi
 		IPAddresses:  cfg.AltNames.IPs,
 		SerialNumber: serial,
 		NotBefore:    caCert.NotBefore,
-		NotAfter:     time.Now().Add(duration365d).UTC(),
+		NotAfter:     time.Now().Add(duration).UTC(),
 		KeyUsage:     x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
 		ExtKeyUsage:  cfg.Usages,
 	}
