@@ -24,9 +24,15 @@ etcdadm is a command-line tool for operating an etcd cluster. It makes it easy t
 
 ### Building
 
-```
-go get -u sigs.k8s.io/etcdadm
-```
+1. Clone the git repository.
+1. Build on the host:
+   ```
+   make etcdadm
+   ```
+1. Build in a container, using docker:
+   ```
+   make container-build
+   ```
 
 ### Creating a new cluster
 
