@@ -29,7 +29,7 @@ GIT_STORAGE_MOUNT := $(shell source ./git_utils.sh; container_git_storage_mount)
 default: $(BIN)
 
 container-build:
-	docker run --rm -e VERSION_OVERRIDE=${VERSION_OVERRIDE} -v $(PWD):$(PACKAGE_GOPATH) -w $(PACKAGE_GOPATH) $(GIT_STORAGE_MOUNT) golang:1.11 /bin/bash -c "make ensure && make"
+	docker run --rm -e VERSION_OVERRIDE=${VERSION_OVERRIDE} -v $(PWD):$(PACKAGE_GOPATH) -w $(PACKAGE_GOPATH) $(GIT_STORAGE_MOUNT) golang:1.12 /bin/bash -c "make ensure && make"
 
 $(BIN):
 	GO111MODULE=on go build -ldflags "$(LDFLAGS)"
