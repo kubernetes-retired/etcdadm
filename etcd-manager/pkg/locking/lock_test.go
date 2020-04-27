@@ -6,12 +6,18 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"testing"
+
+	"k8s.io/klog"
 )
 
 func init() {
-	flag.Set("logtostderr", "true")
-	flag.Set("v", "2")
-	flag.Parse()
+	logflags := flag.NewFlagSet("testing", flag.ExitOnError)
+
+	klog.InitFlags(logflags)
+
+	logflags.Set("logtostderr", "true")
+	logflags.Set("v", "2")
+	logflags.Parse([]string{})
 }
 
 func checkLocks(t *testing.T, l1, l2 Lock) {
