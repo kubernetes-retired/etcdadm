@@ -7,9 +7,9 @@ load(
     "container_push",
 )
 
-# Layer for etcd 2.2.1, the version of etcd2 that was recommended
+# Layer for etcd 2.2.1, the version of etcd2 that was originally recommended
 container_layer(
-    name = "etcd-2-2-1-layer",
+    name = "etcd-2.2.1-layer-amd64",
     directory = "/opt/etcd-v2.2.1-linux-amd64/",
     files = [
         "@etcd_v2_2_1_source//:etcd",
@@ -17,108 +17,62 @@ container_layer(
     ],
 )
 
-#container_layer(
-#    name = "etcd-2-2-1-layer-upstream",
-#    directory = "/opt/",
-#    tars = [
-#        "@etcd_2_2_1_tar//file",
-#],
-#)
+load("etcd.bzl", "supported_etcd_arch_and_version")
 
 # Layer for etcd 3.1.12, as used in k8s 1.10
-container_layer(
-    name = "etcd-3-1-12-layer",
-    directory = "/opt/etcd-v3.1.12-linux-amd64/",
-    files = [
-        "//:etcd-v3.1.12-linux-amd64_etcdctl",
-        "//:etcd-v3.1.12-linux-amd64_etcd",
-    ],
-)
-
 # Layer for etcd 3.2.18, as originally used in k8s 1.11
-container_layer(
-    name = "etcd-3-2-18-layer",
-    directory = "/opt/etcd-v3.2.18-linux-amd64/",
-    files = [
-        "//:etcd-v3.2.18-linux-amd64_etcdctl",
-        "//:etcd-v3.2.18-linux-amd64_etcd",
-    ],
-)
-
 # Layer for etcd 3.2.24, updated recommendation for k8s 1.11 and later
-container_layer(
-    name = "etcd-3-2-24-layer",
-    directory = "/opt/etcd-v3.2.24-linux-amd64/",
-    files = [
-        "//:etcd-v3.2.24-linux-amd64_etcdctl",
-        "//:etcd-v3.2.24-linux-amd64_etcd",
-    ],
-)
-
 # Layer for etcd 3.3.10, updated recommendation for k8s 1.14 and later
-container_layer(
-    name = "etcd-3-3-10-layer",
-    directory = "/opt/etcd-v3.3.10-linux-amd64/",
-    files = [
-        "//:etcd-v3.3.10-linux-amd64_etcdctl",
-        "//:etcd-v3.3.10-linux-amd64_etcd",
-    ],
-)
-
 # Layer for etcd 3.3.13, updated recommendation for k8s 1.14 and later
-container_layer(
-    name = "etcd-3-3-13-layer",
-    directory = "/opt/etcd-v3.3.13-linux-amd64/",
-    files = [
-        "//:etcd-v3.3.13-linux-amd64_etcdctl",
-        "//:etcd-v3.3.13-linux-amd64_etcd",
-    ],
-)
-
 # Layer for etcd 3.3.17, updated recommendation for k8s 1.16.3 and later
-container_layer(
-    name = "etcd-3-3-17-layer",
-    directory = "/opt/etcd-v3.3.17-linux-amd64/",
-    files = [
-        "//:etcd-v3.3.17-linux-amd64_etcdctl",
-        "//:etcd-v3.3.17-linux-amd64_etcd",
-    ],
-)
-
 # Layer for etcd 3.4.3, updated recommendation for k8s 1.17 and later
-container_layer(
-    name = "etcd-3-4-3-layer",
-    directory = "/opt/etcd-v3.4.3-linux-amd64/",
-    files = [
-        "//:etcd-v3.4.3-linux-amd64_etcdctl",
-        "//:etcd-v3.4.3-linux-amd64_etcd",
-    ],
-)
-
 # Layer for etcd 3.4.13, updated recommendation for k8s 1.19 and later
-container_layer(
-    name = "etcd-3-4-13-layer",
-    directory = "/opt/etcd-v3.4.13-linux-amd64/",
-    files = [
-        "//:etcd-v3.4.13-linux-amd64_etcdctl",
-        "//:etcd-v3.4.13-linux-amd64_etcd",
-    ],
-)
+[
+    container_layer(
+        name = "etcd-{version}-layer-{arch}".format(
+            arch = arch,
+            version = version,
+        ),
+        directory = "/opt/etcd-v{version}-linux-{arch}/".format(
+            arch = arch,
+            version = version,
+        ),
+        files = [
+            "//:etcd-v{version}-linux-{arch}_etcdctl".format(
+                arch = arch,
+                version = version,
+            ),
+            "//:etcd-v{version}-linux-{arch}_etcd".format(
+                arch = arch,
+                version = version,
+            ),
+        ],
+    )
+    for (arch, version) in supported_etcd_arch_and_version()
+]
 
+# We build a base layer that includes all the versions of etcd we want to ship
+# On non-amd64 we exclude the older versions of etcd
 container_image(
     name = "etcd-manager-base",
-    base = "@debian-hyperkube-base-amd64//image",
+    base = select({
+        "@io_bazel_rules_go//go/platform:amd64": "@debian-hyperkube-base-amd64//image",
+        "@io_bazel_rules_go//go/platform:arm64": "@debian-hyperkube-base-arm64//image",
+    }),
     directory = "/opt",
-    layers = [
-        "etcd-2-2-1-layer",
-        "etcd-3-1-12-layer",
-        "etcd-3-2-18-layer",
-        "etcd-3-2-24-layer",
-        "etcd-3-3-10-layer",
-        "etcd-3-3-13-layer",
-        "etcd-3-3-17-layer",
-        "etcd-3-4-3-layer",
-        "etcd-3-4-13-layer",
+    layers = select({
+        "@io_bazel_rules_go//go/platform:amd64": [
+            "etcd-2.2.1-layer-amd64",
+            "etcd-3.1.12-layer-amd64",
+            "etcd-3.2.18-layer-amd64",
+            "etcd-3.2.24-layer-amd64",
+            "etcd-3.3.10-layer-amd64",
+            "etcd-3.3.13-layer-amd64",
+            "etcd-3.3.17-layer-amd64",
+        ],
+        "//conditions:default": [],
+    }) + [
+        "etcd-3.4.3-layer-arm64",
     ],
 )
 
