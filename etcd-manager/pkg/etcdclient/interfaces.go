@@ -27,6 +27,10 @@ type EtcdClient interface {
 	// CopyTo traverses every key and writes it to dest
 	CopyTo(ctx context.Context, dest NodeSink) (int, error)
 
+	// LeaderID returns the ID of the current leader, or "" if there is no leader
+	// NOTE: This is currently only used in end-to-end tests
+	LeaderID(ctx context.Context) (string, error)
+
 	ListMembers(ctx context.Context) ([]*EtcdProcessMember, error)
 	AddMember(ctx context.Context, peerURLs []string) error
 	RemoveMember(ctx context.Context, member *EtcdProcessMember) error
