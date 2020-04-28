@@ -76,7 +76,7 @@ replace k8s.io/cli-runtime => k8s.io/cli-runtime v0.0.0-20190819144027-541433d7c
 require (
 	cloud.google.com/go v0.34.0
 	github.com/aliyun/alibaba-cloud-sdk-go v1.60.290
-	github.com/aws/aws-sdk-go v1.26.2
+	github.com/aws/aws-sdk-go v1.30.16
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/coreos/etcd v3.3.13+incompatible
 	github.com/denverdino/aliyungo v0.0.0-20180409134525-ed76a3738861 // indirect
@@ -85,7 +85,7 @@ require (
 	github.com/golang/protobuf v1.3.2
 	github.com/gophercloud/gophercloud v0.0.0-20190216224116-dcc6e84aef1b
 	github.com/pkg/sftp v0.0.0-20180127012644-738e088bbd93 // indirect
-	golang.org/x/net v0.0.0-20191004110552-13f9640d40b9
+	golang.org/x/net v0.0.0-20200202094626-16171245cfb2
 	golang.org/x/oauth2 v0.0.0-20190402181905-9f3314589c9a
 	google.golang.org/api v0.0.0-20181220000619-583d854617af
 	google.golang.org/grpc v1.17.0
