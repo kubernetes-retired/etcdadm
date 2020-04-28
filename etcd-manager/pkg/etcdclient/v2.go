@@ -130,6 +130,17 @@ func (c *V2Client) ListMembers(ctx context.Context) ([]*EtcdProcessMember, error
 	return members, nil
 }
 
+func (c *V2Client) LeaderID(ctx context.Context) (string, error) {
+	leader, err := c.members.Leader(ctx)
+	if err != nil {
+		return "", err
+	}
+	if leader == nil {
+		return "", nil
+	}
+	return leader.ID, nil
+}
+
 func (c *V2Client) AddMember(ctx context.Context, peerURLs []string) error {
 	if len(peerURLs) == 0 {
 		return fmt.Errorf("AddMember with empty peerURLs")
