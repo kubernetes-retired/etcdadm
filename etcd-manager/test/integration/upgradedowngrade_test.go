@@ -139,7 +139,7 @@ func TestUpgradeDowngrade(t *testing.T) {
 						t.Fatalf("error reading test key after downgrade: %v", err)
 					}
 					if v != "worldv3" {
-						t.Fatalf("unexpected test key value after upgrade: %q", v)
+						t.Fatalf("unexpected test key value after downgrade: %q", v)
 					}
 
 					n1.AssertVersion(t, fromVersion)
