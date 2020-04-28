@@ -44,17 +44,18 @@ func TestUpgradeDowngrade(t *testing.T) {
 				{
 					n1.WaitForListMembers(60 * time.Second)
 					h.WaitForHealthy(n1, n2, n3)
+					h.WaitForHasLeader(n1, n2, n3)
 					members1, err := n1.ListMembers(ctx)
 					if err != nil {
-						t.Errorf("error doing etcd ListMembers: %v", err)
+						t.Errorf("error doing etcd ListMembers (before upgrade): %v", err)
 					} else if len(members1) != 3 {
-						t.Errorf("members was not as expected: %v", members1)
+						t.Errorf("members was not as expected (before upgrade): %v", members1)
 					} else {
 						klog.Infof("got members from #1: %v", members1)
 					}
 
 					if err := n1.Put(ctx, testKey, "worldv2"); err != nil {
-						t.Fatalf("unable to set test key: %v", err)
+						t.Fatalf("unable to set test key before upgrade: %v", err)
 					}
 
 					n1.AssertVersion(t, fromVersion)
@@ -98,7 +99,7 @@ func TestUpgradeDowngrade(t *testing.T) {
 					}
 
 					if err := n1.Put(ctx, testKey, "worldv3"); err != nil {
-						t.Fatalf("unable to set test key: %v", err)
+						t.Fatalf("unable to set test key after upgrade: %v", err)
 					}
 
 					n1.AssertVersion(t, toVersion)

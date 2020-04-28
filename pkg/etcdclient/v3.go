@@ -20,11 +20,12 @@ import (
 )
 
 type V3Client struct {
-	endpoints []string
-	client    *etcd_client_v3.Client
-	kv        etcd_client_v3.KV
-	cluster   etcd_client_v3.Cluster
-	tlsConfig *tls.Config
+	endpoints   []string
+	client      *etcd_client_v3.Client
+	kv          etcd_client_v3.KV
+	cluster     etcd_client_v3.Cluster
+	maintenance etcd_client_v3.Maintenance
+	tlsConfig   *tls.Config
 }
 
 var _ EtcdClient = &V3Client{}
@@ -46,12 +47,14 @@ func NewV3Client(endpoints []string, tlsConfig *tls.Config) (EtcdClient, error) 
 	}
 
 	kv := etcd_client_v3.NewKV(etcdClient)
+	maintenance := etcd_client_v3.NewMaintenance(etcdClient)
 	return &V3Client{
-		endpoints: endpoints,
-		client:    etcdClient,
-		kv:        kv,
-		cluster:   etcd_client_v3.NewCluster(etcdClient),
-		tlsConfig: tlsConfig,
+		endpoints:   endpoints,
+		client:      etcdClient,
+		kv:          kv,
+		maintenance: maintenance,
+		cluster:     etcd_client_v3.NewCluster(etcdClient),
+		tlsConfig:   tlsConfig,
 	}, nil
 }
 
@@ -202,6 +205,19 @@ func (c *V3Client) ListMembers(ctx context.Context) ([]*EtcdProcessMember, error
 		})
 	}
 	return members, nil
+}
+
+func (c *V3Client) LeaderID(ctx context.Context) (string, error) {
+	response, err := c.maintenance.Status(ctx, c.endpoints[0])
+	if err != nil {
+		return "", err
+	}
+	leaderID := response.Leader
+	if leaderID == 0 {
+		return "", nil
+	}
+
+	return strconv.FormatUint(leaderID, 10), nil
 }
 
 func (c *V3Client) AddMember(ctx context.Context, peerURLs []string) error {
