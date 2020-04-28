@@ -157,6 +157,12 @@ func (h *TestHarness) WaitForHealthy(nodes ...*TestHarnessNode) {
 	}
 }
 
+func (h *TestHarness) WaitForHasLeader(nodes ...*TestHarnessNode) {
+	for _, node := range nodes {
+		node.WaitForHasLeader(10 * time.Second)
+	}
+}
+
 func (h *TestHarness) WaitForVersion(timeout time.Duration, expectedVersion string, nodes ...*TestHarnessNode) {
 	for _, n := range nodes {
 		h.WaitFor(timeout, func() error {

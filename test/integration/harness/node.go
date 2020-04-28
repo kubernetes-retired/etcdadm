@@ -285,6 +285,25 @@ func (n *TestHarnessNode) WaitForHealthy(timeout time.Duration) {
 	})
 }
 
+func (n *TestHarnessNode) WaitForHasLeader(timeout time.Duration) {
+	n.TestHarness.WaitFor(timeout, func() error {
+		client, err := n.NewClient()
+		if err != nil {
+			return fmt.Errorf("error building etcd client: %v", err)
+		}
+		defer client.Close()
+
+		leaderID, err := client.LeaderID(context.Background())
+		if err != nil {
+			return err
+		}
+		if leaderID == "" {
+			return fmt.Errorf("node did not have leader")
+		}
+		return nil
+	})
+}
+
 type MockDNSProvider struct {
 }
 
