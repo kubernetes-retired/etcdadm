@@ -35,11 +35,14 @@ func (s URLValue) String() string {
 
 // Set sets the argument passed to URL Value
 func (s URLValue) Set(val string) error {
-	if u, err := url.Parse(val); err != nil {
+
+	var u *url.URL
+	var err error
+
+	if u, err = url.ParseRequestURI(val); err != nil {
 		return err
-	} else {
-		*s.URL = *u
 	}
+	*s.URL = *u
 	return nil
 }
 
