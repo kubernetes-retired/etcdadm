@@ -38,6 +38,9 @@ const (
 	DefaultPeerPort     = 2380
 	DefaultClientPort   = 2379
 
+	DefaultAdditionalMetricsPort   = 9379
+	DefaultAdditionalMetricsScheme = "http"
+
 	DefaultDownloadConnectTimeout = 10 * time.Second
 	DefaultEtcdRequestTimeout     = 5 * time.Second
 
@@ -126,6 +129,9 @@ ETCD_PEER_TRUSTED_CA_FILE={{ .PeerTrustedCAFile }}
 # Client/server configuration
 ETCD_ADVERTISE_CLIENT_URLS={{ .AdvertiseClientURLs.String }}
 ETCD_LISTEN_CLIENT_URLS={{ .ListenClientURLs.String }}
+{{- if .AdditionalMetricsURL.String }}
+ETCD_LISTEN_METRICS_URLS={{ .AdditionalMetricsURL.String }}
+{{- end }}
 
 ETCD_PEER_CLIENT_CERT_AUTH=true
 ETCD_CERT_FILE={{ .CertFile }}
