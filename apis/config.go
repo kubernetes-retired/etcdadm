@@ -68,7 +68,8 @@ type EtcdAdmConfig struct {
 	AdvertiseClientURLs      URLList
 	ListenClientURLs         URLList
 
-	LoopbackClientURL url.URL
+	LoopbackClientURL    url.URL
+	AdditionalMetricsURL url.URL
 
 	// ServerCertSANs sets extra Subject Alternative Names for the etcd server signing cert.
 	ServerCertSANs []string
@@ -200,6 +201,9 @@ func setDynamicDefaults(cfg *EtcdAdmConfig) error {
 	if err := DefaultClientURLs(cfg); err != nil {
 		return err
 	}
+	if cfg.AdditionalMetricsURL.String() == "" {
+		DefaultAdditionalMetricsURL(cfg)
+	}
 	DefaultPeerCertSANs(cfg)
 	DefaultServerCertSANs(cfg)
 	return nil
@@ -297,6 +301,19 @@ func DefaultAdvertiseClientURLs(cfg *EtcdAdmConfig) error {
 		Scheme: "https",
 		Host:   fmt.Sprintf("%s:%d", externalAddress.String(), constants.DefaultClientPort),
 	})
+	return nil
+}
+
+// DefaultAdditionalMetricsURL sets additional metrics url using node ip
+func DefaultAdditionalMetricsURL(cfg *EtcdAdmConfig) error {
+	externalAddress, err := defaultExternalAddress()
+	if err != nil {
+		return fmt.Errorf("failed to set default DefaultAdditionalMetricsURL: %s", err)
+	}
+	cfg.AdditionalMetricsURL = url.URL{
+		Scheme: constants.DefaultAdditionalMetricsScheme,
+		Host:   fmt.Sprintf("%s:%d", externalAddress.String(), constants.DefaultAdditionalMetricsPort),
+	}
 	return nil
 }
 

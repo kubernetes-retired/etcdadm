@@ -33,6 +33,7 @@ import (
 	"sigs.k8s.io/etcdadm/etcd"
 	"sigs.k8s.io/etcdadm/initsystem"
 	"sigs.k8s.io/etcdadm/service"
+	"sigs.k8s.io/etcdadm/util"
 
 	"github.com/spf13/cobra"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -235,4 +236,5 @@ func init() {
 	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.InstallDir, "install-dir", constants.DefaultInstallDir, "install directory")
 	joinCmd.PersistentFlags().StringArrayVar(&etcdAdmConfig.EtcdDiskPriorities, "disk-priorities", constants.DefaultEtcdDiskPriorities, "Setting etcd disk priority")
 	joinCmd.PersistentFlags().BoolVar(&etcdAdmConfig.Retry, "retry", true, "Enable or disable backoff retry when join etcd member to cluster")
+	joinCmd.PersistentFlags().Var(util.URLValue{URL: &etcdAdmConfig.AdditionalMetricsURL}, "listen-metrics-url", "Additional URL to expose /metrics endpoint without TLS")
 }
