@@ -39,10 +39,16 @@ func (s *vfsStore) AddBackup(srcFile string, sequence string, info *etcd.BackupI
 
 	// Copy the backup file
 	if srcFile != "" {
-		srcPath := vfs.NewFSPath(srcFile)
+		f, err := os.Open(srcFile)
+		if err != nil {
+			return "", fmt.Errorf("error opening %q: %v", srcFile, err)
+		}
+		defer f.Close()
+
 		destPath := s.backupsBase.Join(name).Join(DataFilename)
-		if err := vfs.CopyFile(srcPath, destPath, nil); err != nil {
-			return "", fmt.Errorf("error copying %q to %q: %v", srcPath, destPath, err)
+		err = destPath.WriteFile(f, nil)
+		if err != nil {
+			return "", fmt.Errorf("error copying %q to %q: %v", srcFile, destPath, err)
 		}
 	}
 
