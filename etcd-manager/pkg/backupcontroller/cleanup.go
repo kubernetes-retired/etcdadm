@@ -3,12 +3,65 @@ package backupcontroller
 import (
 	"context"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	"k8s.io/klog"
 
 	"kope.io/etcd-manager/pkg/backup"
 )
+
+// HourlyBackupsRetention controls how long hourly backups are kept.
+var HourlyBackupsRetention = 24 * 7 * time.Hour
+
+// DailyBackupsRetention controls how long daily backups are kept.
+var DailyBackupsRetention = 24 * 7 * 365 * time.Hour
+
+// ParseHumanDuration parses a go-style duration string, but
+// recognizes additional suffixes: d means "day" and is interpreted as
+// 24 hours; y means "year" and is interpreted as 365 days.
+func ParseHumanDuration(s string) (time.Duration, error) {
+	if strings.HasSuffix(s, "y") {
+		s = strings.TrimSuffix(s, "y")
+		n, err := strconv.Atoi(s)
+		if err != nil {
+			return time.Duration(0), err
+		}
+		return time.Duration(n) * 365 * 24 * time.Hour, nil
+	}
+
+	if strings.HasSuffix(s, "d") {
+		s = strings.TrimSuffix(s, "d")
+		n, err := strconv.Atoi(s)
+		if err != nil {
+			return time.Duration(0), err
+		}
+		return time.Duration(n) * 24 * time.Hour, nil
+	}
+
+	return time.ParseDuration(s)
+
+}
+
+func init() {
+	if s := os.Getenv("ETCD_MANAGER_HOURLY_BACKUPS_RETENTION"); s != "" {
+		v, err := ParseHumanDuration(s)
+		if err != nil {
+			klog.Fatalf("failed to parse ETCD_MANAGER_HOURLY_BACKUPS_RETENTION=%q", s)
+		}
+		HourlyBackupsRetention = v
+	}
+
+	if s := os.Getenv("ETCD_MANAGER_DAILY_BACKUPS_RETENTION"); s != "" {
+		v, err := ParseHumanDuration(s)
+		if err != nil {
+			klog.Fatalf("failed to parse ETCD_MANAGER_DAILY_BACKUPS_RETENTION=%q", s)
+		}
+		DailyBackupsRetention = v
+	}
+}
 
 // BackupCleanup encapsulates the logic around periodically removing old backups
 type BackupCleanup struct {
@@ -43,8 +96,6 @@ func (m *BackupCleanup) MaybeDoBackupMaintenance(ctx context.Context) error {
 	}
 
 	minRetention := time.Hour
-	hourly := time.Hour * 24 * 7
-	daily := time.Hour * 24 * 7 * 365
 
 	backups := make(map[time.Time]string)
 	retain := make(map[string]bool)
@@ -70,7 +121,7 @@ func (m *BackupCleanup) MaybeDoBackupMaintenance(ctx context.Context) error {
 			continue
 		}
 
-		if age < hourly {
+		if age < HourlyBackupsRetention {
 			bucketed := t.Truncate(time.Hour)
 			existing := buckets[bucketed]
 			if existing.IsZero() || existing.After(t) {
@@ -79,7 +130,7 @@ func (m *BackupCleanup) MaybeDoBackupMaintenance(ctx context.Context) error {
 			continue
 		}
 
-		if age < daily {
+		if age < DailyBackupsRetention {
 			bucketed := t.Truncate(time.Hour * 24)
 			existing := buckets[bucketed]
 			if existing.IsZero() || existing.After(t) {
