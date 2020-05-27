@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/ec2metadata"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -320,24 +321,34 @@ func (a *AWSVolumes) AttachVolume(volume *volumes.Volume) error {
 
 	device := volume.LocalDevice
 	if device == "" {
-		d, err := a.assignDevice(volumeID)
-		if err != nil {
-			return err
-		}
-		device = d
+		for {
+			d, err := a.assignDevice(volumeID)
+			if err != nil {
+				return err
+			}
+			device = d
 
-		request := &ec2.AttachVolumeInput{
-			Device:     aws.String(device),
-			InstanceId: aws.String(a.instanceID),
-			VolumeId:   aws.String(volumeID),
-		}
+			klog.V(2).Infof("Trying to attach volume %q at %q", volumeID, device)
 
-		attachResponse, err := a.ec2.AttachVolume(request)
-		if err != nil {
-			return fmt.Errorf("error attaching EBS volume %q: %v", volumeID, err)
-		}
+			request := &ec2.AttachVolumeInput{
+				Device:     aws.String(device),
+				InstanceId: aws.String(a.instanceID),
+				VolumeId:   aws.String(volumeID),
+			}
 
-		klog.V(2).Infof("AttachVolume request returned %v", attachResponse)
+			attachResponse, err := a.ec2.AttachVolume(request)
+			if err != nil {
+				aerr, ok := err.(awserr.Error)
+				if ok && aerr.Code() == "InvalidParameterValue" {
+					klog.Warning(aerr.Message())
+					continue
+				}
+				return fmt.Errorf("error attaching EBS volume %q: %v", volumeID, err)
+			}
+
+			klog.V(2).Infof("AttachVolume request returned %v", attachResponse)
+			break
+		}
 	}
 
 	// Wait (forever) for volume to attach or reach a failure-to-attach condition
