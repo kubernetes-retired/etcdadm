@@ -2,7 +2,7 @@ module kope.io/etcd-manager
 
 go 1.12
 
-replace k8s.io/kops => k8s.io/kops v1.16.0
+replace k8s.io/kops => k8s.io/kops v1.16.3-0.20200529024915-348cc87883a5
 
 // Version kubernetes-1.15.3
 //replace k8s.io/kubernetes => k8s.io/kubernetes v1.15.3
