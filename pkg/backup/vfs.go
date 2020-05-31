@@ -3,7 +3,9 @@ package backup
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path"
 	"sort"
 	"strings"
 	"time"
@@ -147,7 +149,43 @@ func (s *vfsStore) Spec() string {
 func (s *vfsStore) DownloadBackup(name string, destFile string) error {
 	klog.Infof("Downloading backup %q -> %s", name, destFile)
 
+	dir := path.Dir(destFile)
+	err := os.MkdirAll(dir, 0755)
+	if err != nil {
+		return fmt.Errorf("error creating directories %q: %v", dir, err)
+	}
+
+	f, err := ioutil.TempFile(dir, "tmp")
+	if err != nil {
+		return fmt.Errorf("error creating temp file in %q: %v", dir, err)
+	}
+	tempfile := f.Name()
+	defer func() {
+		if f != nil {
+			_ = f.Close()
+		}
+		if tempfile != "" {
+			_ = os.Remove(tempfile)
+		}
+	}()
+
 	srcPath := s.backupsBase.Join(name).Join(DataFilename)
-	destPath := vfs.NewFSPath(destFile)
-	return vfs.CopyFile(srcPath, destPath, nil)
+	_, err = srcPath.WriteTo(f)
+	if err != nil {
+		return err
+	}
+
+	err = f.Close()
+	f = nil
+	if err != nil {
+		return err
+	}
+
+	err = os.Rename(tempfile, destFile)
+	if err != nil {
+		return fmt.Errorf("error during file write of %q: rename failed: %v", destFile, err)
+	}
+	tempfile = ""
+
+	return nil
 }
