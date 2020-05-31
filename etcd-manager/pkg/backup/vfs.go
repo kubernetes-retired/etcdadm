@@ -113,7 +113,7 @@ func (s *vfsStore) RemoveBackup(backup string) error {
 	}
 
 	for _, f := range files {
-		err := f.Remove()
+		err := f.RemoveAllVersions()
 		if err != nil {
 			return fmt.Errorf("error deleting backups in %q: %v", p, err)
 		}
