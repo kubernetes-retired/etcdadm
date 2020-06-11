@@ -37,13 +37,14 @@ func newCmdCerts() *cobra.Command {
 
 func newCmdCertsRenewal() *cobra.Command {
 	var certificatesDir string
+	var csrOnly bool
 	cmd := &cobra.Command{
 		Use:   "renew",
 		Short: "Renew certificates for a etcd cluster",
 		Run: func(cmd *cobra.Command, args []string) {
 			for _, name := range certs.GetDefaultCertList() {
 				log.Printf("[renew] Renew etcd %s certificate.", name)
-				renewed, err := certs.RenewUsingLocalCA(certificatesDir, name)
+				renewed, err := certs.RenewUsingLocalCA(certificatesDir, name, csrOnly)
 				if err != nil {
 					log.Fatalf("[renew] Error renew certificate %s: %v", name, err)
 				}
@@ -56,6 +57,7 @@ func newCmdCertsRenewal() *cobra.Command {
 		},
 	}
 	cmd.PersistentFlags().StringVar(&certificatesDir, "certs-dir", constants.DefaultCertificateDir, "certificates directory")
+	cmd.PersistentFlags().BoolVar(&csrOnly, "csr-only", false, "create CSRs instead of generating certificates")
 
 	return cmd
 }

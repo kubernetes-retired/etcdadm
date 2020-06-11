@@ -29,6 +29,9 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"fmt"
+	"io/ioutil"
+	"math"
+	"math/big"
 	"net"
 	"os"
 	"path/filepath"
@@ -38,8 +41,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation"
 	certutil "k8s.io/client-go/util/cert"
 	"k8s.io/client-go/util/keyutil"
-	"math"
-	"math/big"
 	"sigs.k8s.io/etcdadm/apis"
 	"sigs.k8s.io/etcdadm/constants"
 )
@@ -398,4 +399,129 @@ func EncodePrivateKeyPEM(key *rsa.PrivateKey) []byte {
 		Bytes: x509.MarshalPKCS1PrivateKey(key),
 	}
 	return pem.EncodeToMemory(&block)
+}
+
+// NewCSRAndKey generates a new key and CSR and that could be signed to create the given certificate
+func NewCSRAndKey(config *certutil.Config) (*x509.CertificateRequest, *rsa.PrivateKey, error) {
+	key, err := NewPrivateKey()
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "unable to create private key")
+	}
+
+	csr, err := NewCSR(*config, key)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "unable to generate CSR")
+	}
+
+	return csr, key, nil
+}
+
+// NewCSR creates a new CSR
+func NewCSR(cfg certutil.Config, key crypto.Signer) (*x509.CertificateRequest, error) {
+	template := &x509.CertificateRequest{
+		Subject: pkix.Name{
+			CommonName:   cfg.CommonName,
+			Organization: cfg.Organization,
+		},
+		DNSNames:    cfg.AltNames.DNSNames,
+		IPAddresses: cfg.AltNames.IPs,
+	}
+
+	csrBytes, err := x509.CreateCertificateRequest(cryptorand.Reader, template, key)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create a CSR")
+	}
+
+	return x509.ParseCertificateRequest(csrBytes)
+}
+
+func pathForCSR(pkiPath, name string) string {
+	return filepath.Join(pkiPath, fmt.Sprintf("%s.csr", name))
+}
+
+// CSROrKeyExist returns true if one of the CSR or key exists
+func CSROrKeyExist(csrDir, name string) bool {
+	csrPath := pathForCSR(csrDir, name)
+	keyPath := pathForKey(csrDir, name)
+
+	_, csrErr := os.Stat(csrPath)
+	_, keyErr := os.Stat(keyPath)
+
+	return !(os.IsNotExist(csrErr) && os.IsNotExist(keyErr))
+}
+
+func parseCSRPEM(pemCSR []byte) (*x509.CertificateRequest, error) {
+	block, _ := pem.Decode(pemCSR)
+	if block == nil {
+		return nil, errors.New("data doesn't contain a valid certificate request")
+	}
+
+	if block.Type != certutil.CertificateRequestBlockType {
+		return nil, errors.Errorf("expected block type %q, but PEM had type %q", certutil.CertificateRequestBlockType, block.Type)
+	}
+
+	return x509.ParseCertificateRequest(block.Bytes)
+}
+
+// CertificateRequestFromFile returns the CertificateRequest from a given PEM-encoded file.
+// Returns an error if the file could not be read or if the CSR could not be parsed.
+func CertificateRequestFromFile(file string) (*x509.CertificateRequest, error) {
+	pemBlock, err := ioutil.ReadFile(file)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to read file")
+	}
+
+	csr, err := parseCSRPEM(pemBlock)
+	if err != nil {
+		return nil, errors.Wrapf(err, "error reading certificate request file %s", file)
+	}
+	return csr, nil
+}
+
+// TryLoadCSRAndKeyFromDisk tries to load the CSR and key from the disk
+func TryLoadCSRAndKeyFromDisk(pkiPath, name string) (*x509.CertificateRequest, crypto.Signer, error) {
+	csrPath := pathForCSR(pkiPath, name)
+
+	csr, err := CertificateRequestFromFile(csrPath)
+	if err != nil {
+		return nil, nil, errors.Wrapf(err, "couldn't load the certificate request %s", csrPath)
+	}
+
+	key, err := TryLoadKeyFromDisk(pkiPath, name)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "couldn't load key file")
+	}
+
+	return csr, key, nil
+}
+
+// EncodeCSRPEM returns PEM-encoded CSR data
+func EncodeCSRPEM(csr *x509.CertificateRequest) []byte {
+	block := pem.Block{
+		Type:  certutil.CertificateRequestBlockType,
+		Bytes: csr.Raw,
+	}
+	return pem.EncodeToMemory(&block)
+}
+
+// WriteCSR writes the pem-encoded CSR data to csrPath.
+// The CSR file will be created with file mode 0600.
+// If the CSR file already exists, it will be overwritten.
+// The parent directory of the csrPath will be created as needed with file mode 0700.
+func WriteCSR(csrDir, name string, csr *x509.CertificateRequest) error {
+	if csr == nil {
+		return errors.New("certificate request cannot be nil when writing to file")
+	}
+
+	csrPath := pathForCSR(csrDir, name)
+	if err := os.MkdirAll(filepath.Dir(csrPath), os.FileMode(0700)); err != nil {
+		return errors.Wrapf(err, "failed to make directory %s", filepath.Dir(csrPath))
+	}
+
+	if err := ioutil.WriteFile(csrPath, EncodeCSRPEM(csr), os.FileMode(0600)); err != nil {
+		return errors.Wrapf(err, "unable to write CSR to file %s", csrPath)
+	}
+
+	return nil
 }

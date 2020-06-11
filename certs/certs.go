@@ -46,7 +46,7 @@ func GetDefaultCertList() []string {
 }
 
 // RenewUsingLocalCA replaces certificates with new certificates signed by the CA.
-func RenewUsingLocalCA(pkiDir, name string) (bool, error) {
+func RenewUsingLocalCA(pkiDir, name string, csrOnly bool) (bool, error) {
 	// reads the current certificate
 	cert, err := pkiutil.TryLoadCertFromDiskIgnoreExpirationDate(pkiDir, name)
 	if err != nil {
@@ -55,6 +55,17 @@ func RenewUsingLocalCA(pkiDir, name string) (bool, error) {
 
 	// extract the certificate config
 	cfg := certToConfig(cert)
+
+	if csrOnly {
+		csr, key, err := pkiutil.NewCSRAndKey(&cfg)
+		if err != nil {
+			return false, errors.Wrapf(err, "failed to renew csr %s", name)
+		}
+		if err := writeCSRFilesIfNotExist(pkiDir, name, csr, key); err != nil {
+			return false, errors.Wrapf(err, "failed to write new csr %s", name)
+		}
+		return true, nil
+	}
 
 	// reads the CA
 	caCert, caKey, err := loadCertificateAuthority(pkiDir, constants.EtcdCACertAndKeyBaseName)
@@ -426,6 +437,30 @@ func writeKeyFilesIfNotExist(pkiDir string, baseName string, key *rsa.PrivateKey
 			return fmt.Errorf("failure while saving %s public key: %v", baseName, err)
 		}
 		fmt.Printf("[certificates] Generated %s key and public key.\n", baseName)
+	}
+
+	return nil
+}
+
+func writeCSRFilesIfNotExist(csrDir string, baseName string, csr *x509.CertificateRequest, key *rsa.PrivateKey) error {
+	if pkiutil.CSROrKeyExist(csrDir, baseName) {
+		_, _, err := pkiutil.TryLoadCSRAndKeyFromDisk(csrDir, baseName)
+		if err != nil {
+			return errors.Wrapf(err, "%s CSR existed but it could not be loaded properly", baseName)
+		}
+
+		fmt.Printf("[certs] Using the existing %q CSR\n", baseName)
+	} else {
+		// Write .key and .csr files to disk
+		fmt.Printf("[certs] Generating %q key and CSR\n", baseName)
+
+		if err := pkiutil.WriteKey(csrDir, baseName, key); err != nil {
+			return errors.Wrapf(err, "failure while saving %s key", baseName)
+		}
+
+		if err := pkiutil.WriteCSR(csrDir, baseName, csr); err != nil {
+			return errors.Wrapf(err, "failure while saving %s CSR", baseName)
+		}
 	}
 
 	return nil
