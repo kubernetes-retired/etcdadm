@@ -23,12 +23,7 @@ import (
 
 // InitSystem is the interface that describe behaviors of an init system
 type InitSystem interface {
-	Start(service string) error
-	Stop(service string) error
-	Enable(service string) error
-	Disable(service string) error
 	IsActive(service string) (bool, error)
-	IsEnabled(service string) (bool, error)
 	EnableAndStartService(service string) error
 	DisableAndStopService(service string) error
 }
