@@ -7,16 +7,6 @@ load(
     "container_push",
 )
 
-# Layer for etcd 2.2.1, the version of etcd2 that was originally recommended
-container_layer(
-    name = "etcd-2.2.1-layer-amd64",
-    directory = "/opt/etcd-v2.2.1-linux-amd64/",
-    files = [
-        "@etcd_v2_2_1_source//:etcd",
-        "@etcd_v2_2_1_source//etcdctl",
-    ],
-)
-
 load("etcd.bzl", "supported_etcd_arch_and_version")
 
 # Layer for etcd 3.1.12, as used in k8s 1.10
@@ -62,22 +52,33 @@ container_image(
     directory = "/opt",
     layers = select({
         "@io_bazel_rules_go//go/platform:amd64": [
-            "etcd-2.2.1-layer-amd64",
             "etcd-3.1.12-layer-amd64",
             "etcd-3.2.18-layer-amd64",
             "etcd-3.2.24-layer-amd64",
             "etcd-3.3.10-layer-amd64",
             "etcd-3.3.13-layer-amd64",
             "etcd-3.3.17-layer-amd64",
+            "etcd-3.4.3-layer-amd64",
+            "etcd-3.4.13-layer-amd64",
         ],
-        "//conditions:default": [],
-    }) + [
-        "etcd-3.4.3-layer-arm64",
-    ],
+        "@io_bazel_rules_go//go/platform:arm64": [
+            "etcd-3.2.18-layer-arm64",
+            "etcd-3.2.24-layer-arm64",
+            "etcd-3.3.10-layer-arm64",
+            "etcd-3.3.13-layer-arm64",
+            "etcd-3.3.17-layer-arm64",
+            "etcd-3.4.3-layer-arm64",
+            "etcd-3.4.13-layer-arm64",
+        ],
+    }),
 )
 
 container_image(
     name = "etcd-manager",
+    architecture = select({
+        "@io_bazel_rules_go//go/platform:amd64": "amd64",
+        "@io_bazel_rules_go//go/platform:arm64": "arm64",
+    }),
     base = "etcd-manager-base",
     entrypoint = ["/etcd-manager"],
     files = [
@@ -91,12 +92,19 @@ container_push(
     format = "Docker",
     image = ":etcd-manager",
     registry = "{STABLE_DOCKER_REGISTRY}",
-    repository = "{STABLE_DOCKER_IMAGE_PREFIX}etcd-manager",
+    repository = select({
+        "@io_bazel_rules_go//go/platform:amd64": "{STABLE_DOCKER_IMAGE_PREFIX}etcd-manager-amd64",
+        "@io_bazel_rules_go//go/platform:arm64": "{STABLE_DOCKER_IMAGE_PREFIX}etcd-manager-arm64",
+    }),
     tag = "{STABLE_DOCKER_TAG}",
 )
 
 container_image(
     name = "etcd-dump",
+    architecture = select({
+        "@io_bazel_rules_go//go/platform:amd64": "amd64",
+        "@io_bazel_rules_go//go/platform:arm64": "arm64",
+    }),
     base = "etcd-manager-base",
     entrypoint = ["/etcd-dump"],
     files = [
@@ -109,12 +117,19 @@ container_push(
     format = "Docker",
     image = ":etcd-dump",
     registry = "{STABLE_DOCKER_REGISTRY}",
-    repository = "{STABLE_DOCKER_IMAGE_PREFIX}etcd-dump",
+    repository = select({
+        "@io_bazel_rules_go//go/platform:amd64": "{STABLE_DOCKER_IMAGE_PREFIX}etcd-dump-amd64",
+        "@io_bazel_rules_go//go/platform:arm64": "{STABLE_DOCKER_IMAGE_PREFIX}etcd-dump-arm64",
+    }),
     tag = "{STABLE_DOCKER_TAG}",
 )
 
 container_image(
     name = "etcd-backup",
+    architecture = select({
+        "@io_bazel_rules_go//go/platform:amd64": "amd64",
+        "@io_bazel_rules_go//go/platform:arm64": "arm64",
+    }),
     base = "etcd-manager-base",
     entrypoint = ["/etcd-backup"],
     files = [
@@ -128,6 +143,9 @@ container_push(
     format = "Docker",
     image = ":etcd-backup",
     registry = "{STABLE_DOCKER_REGISTRY}",
-    repository = "{STABLE_DOCKER_IMAGE_PREFIX}etcd-backup",
+    repository = select({
+        "@io_bazel_rules_go//go/platform:amd64": "{STABLE_DOCKER_IMAGE_PREFIX}etcd-backup-amd64",
+        "@io_bazel_rules_go//go/platform:arm64": "{STABLE_DOCKER_IMAGE_PREFIX}etcd-backup-arm64",
+    }),
     tag = "{STABLE_DOCKER_TAG}",
 )

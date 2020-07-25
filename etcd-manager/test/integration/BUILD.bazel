@@ -12,8 +12,6 @@ go_test(
         "upgradedowngrade_test.go",
     ],
     data = [
-        "@etcd_v2_2_1_source//:etcd",
-        "@etcd_v2_2_1_source//etcdctl:etcdctl",
         "//:etcd-v3.1.12-linux-amd64_etcd",
         "//:etcd-v3.1.12-linux-amd64_etcdctl",
         "//:etcd-v3.2.18-linux-amd64_etcd",

@@ -34,15 +34,18 @@ goimports:
 
 .PHONY: push-etcd-manager
 push-etcd-manager:
-	bazel run ${BAZEL_FLAGS} //images:push-etcd-manager
+	bazel run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //images:push-etcd-manager
+	bazel run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_arm64 //images:push-etcd-manager
 
 .PHONY: push-etcd-dump
 push-etcd-dump:
-	bazel run ${BAZEL_FLAGS} //images:push-etcd-dump
+	bazel run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //images:push-etcd-dump
+	bazel run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_arm64 //images:push-etcd-dump
 
 .PHONY: push-etcd-backup
 push-etcd-backup:
-	bazel run ${BAZEL_FLAGS} //images:push-etcd-backup
+	bazel run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //images:push-etcd-backup
+	bazel run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_arm64 //images:push-etcd-backup
 
 .PHONY: push
 push: push-etcd-manager push-etcd-dump push-etcd-backup
