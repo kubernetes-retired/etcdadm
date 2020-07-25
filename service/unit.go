@@ -17,6 +17,7 @@ limitations under the License.
 package service
 
 import (
+	"bytes"
 	"fmt"
 	"html/template"
 	"os"
@@ -28,7 +29,10 @@ import (
 
 // WriteEnvironmentFile writes the environment file used by the etcd service unit
 func WriteEnvironmentFile(cfg *apis.EtcdAdmConfig) error {
-	t := template.Must(template.New("environment").Parse(constants.EnvFileTemplate))
+	b, err := BuildEnvironment(cfg)
+	if err != nil {
+		return err
+	}
 
 	environmentFileDir := filepath.Dir(cfg.EnvironmentFile)
 	if err := os.MkdirAll(environmentFileDir, 0755); err != nil {
@@ -41,13 +45,27 @@ func WriteEnvironmentFile(cfg *apis.EtcdAdmConfig) error {
 	}
 	defer f.Close()
 
-	if err := t.Execute(f, cfg); err != nil {
-		return fmt.Errorf("unable to apply the etcd environment: %s", err)
+	if _, err := f.Write(b); err != nil {
+		return fmt.Errorf("error writing etcd environment file %s: %w", cfg.EnvironmentFile, err)
 	}
+
 	return nil
 }
 
+// BuildEnvironment returns the environment variables corresponding to the desired configuration
+func BuildEnvironment(cfg *apis.EtcdAdmConfig) ([]byte, error) {
+	t := template.Must(template.New("environment").Parse(constants.EnvFileTemplate))
+
+	var b bytes.Buffer
+
+	if err := t.Execute(&b, cfg); err != nil {
+		return nil, fmt.Errorf("unable to apply the etcd environment: %s", err)
+	}
+	return b.Bytes(), nil
+}
+
 // WriteUnitFile writes etcd service unit file
+// TODO: Move to systemd-specific area
 func WriteUnitFile(cfg *apis.EtcdAdmConfig) error {
 	t := template.Must(template.New("unit").Parse(constants.UnitFileTemplate))
 
