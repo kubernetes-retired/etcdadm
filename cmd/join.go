@@ -58,24 +58,8 @@ var joinCmd = &cobra.Command{
 			log.Fatalf("[initsystem] Error detecting the init system: %s", err)
 		}
 
-		active, err := initSystem.IsActive(constants.UnitFileBaseName)
-		if err != nil {
-			log.Fatalf("[start] Error checking if etcd service is active: %s", err)
-		}
-		if active {
-			if err := initSystem.Stop(constants.UnitFileBaseName); err != nil {
-				log.Fatalf("[start] Error stopping existing etcd service: %s", err)
-			}
-		}
-
-		enabled, err := initSystem.IsEnabled(constants.UnitFileBaseName)
-		if err != nil {
-			log.Fatalf("[start] Error checking if etcd service is enabled: %s", err)
-		}
-		if enabled {
-			if err := initSystem.Disable(constants.UnitFileBaseName); err != nil {
-				log.Fatalf("[start] Error disabling existing etcd service: %s", err)
-			}
+		if err := initSystem.DisableAndStopService(constants.UnitFileBaseName); err != nil {
+			log.Fatalf("[install] Error disabling and stopping etcd service: %s", err)
 		}
 
 		// cert management
