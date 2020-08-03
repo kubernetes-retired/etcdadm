@@ -90,20 +90,11 @@ var resetCmd = &cobra.Command{
 					log.Println("[membership] Member was removed")
 				}
 			}
-			// Disable etcd service
-			if err := initSystem.Stop(constants.UnitFileBaseName); err != nil {
-				log.Fatalf("[reset] Error stopping existing etcd service: %s", err)
-			}
 		}
-		enabled, err := initSystem.IsEnabled(constants.UnitFileBaseName)
-		if err != nil {
-			log.Fatalf("[reset] Error checking if etcd service is enabled: %s", err)
+		if err := initSystem.DisableAndStopService(constants.UnitFileBaseName); err != nil {
+			log.Fatalf("[reset] Error stopping etcd: %s", err)
 		}
-		if enabled {
-			if err := initSystem.Disable(constants.UnitFileBaseName); err != nil {
-				log.Fatalf("[reset] Error disabling existing etcd service: %s", err)
-			}
-		}
+
 		// Remove etcd datastore
 		if err = os.RemoveAll(etcdAdmConfig.DataDir); err != nil {
 			log.Print(err)
