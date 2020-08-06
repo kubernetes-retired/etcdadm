@@ -141,15 +141,18 @@ func getCredential() (gophercloud.AuthOptions, string, bool, error) {
 	}
 
 	return gophercloud.AuthOptions{
-		IdentityEndpoint: cfg.Global.AuthURL,
-		Username:         cfg.Global.Username,
-		UserID:           cfg.Global.UserID,
-		Password:         cfg.Global.Password,
-		TenantID:         cfg.Global.TenantID,
-		TenantName:       cfg.Global.TenantName,
-		DomainID:         cfg.Global.DomainID,
-		DomainName:       cfg.Global.DomainName,
-		AllowReauth:      true,
+		IdentityEndpoint:            cfg.Global.AuthURL,
+		Username:                    cfg.Global.Username,
+		UserID:                      cfg.Global.UserID,
+		Password:                    cfg.Global.Password,
+		TenantID:                    cfg.Global.TenantID,
+		TenantName:                  cfg.Global.TenantName,
+		DomainID:                    cfg.Global.DomainID,
+		DomainName:                  cfg.Global.DomainName,
+		ApplicationCredentialID:     cfg.Global.ApplicationCredentialID,
+		ApplicationCredentialName:   cfg.Global.ApplicationCredentialName,
+		ApplicationCredentialSecret: cfg.Global.ApplicationCredentialSecret,
+		AllowReauth:                 true,
 	}, cfg.Global.Region, cfg.BlockStorage.IgnoreVolumeAZ, nil
 }
 
