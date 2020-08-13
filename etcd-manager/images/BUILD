@@ -81,6 +81,10 @@ container_image(
     }),
     base = "etcd-manager-base",
     entrypoint = ["/etcd-manager"],
+    env = select({
+        "@io_bazel_rules_go//go/platform:amd64": {},
+        "@io_bazel_rules_go//go/platform:arm64": {"ETCD_UNSUPPORTED_ARCH": "arm64"},
+    }),
     files = [
         "//cmd/etcd-manager",
         "//cmd/etcd-manager-ctl",
