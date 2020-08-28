@@ -1,0 +1,39 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_test")
+
+go_test(
+    name = "go_default_test",
+    size = "enormous",  # Takes more than 900 seconds to run on travis
+    srcs = [
+        "clusterformation_test.go",
+        "datapersists_test.go",
+        "etcdinstalled_test.go",
+        "resize_cluster_test.go",
+        "secure_transitions_test.go",
+        "upgradedowngrade_test.go",
+    ],
+    data = [
+        "@etcd_v2_2_1_source//:etcd",
+        "@etcd_v2_2_1_source//etcdctl:etcdctl",
+        "//:etcd-v3.1.12-linux-amd64_etcd",
+        "//:etcd-v3.1.12-linux-amd64_etcdctl",
+        "//:etcd-v3.2.18-linux-amd64_etcd",
+        "//:etcd-v3.2.18-linux-amd64_etcdctl",
+        "//:etcd-v3.2.24-linux-amd64_etcd",
+        "//:etcd-v3.2.24-linux-amd64_etcdctl",
+        "//:etcd-v3.3.10-linux-amd64_etcd",
+        "//:etcd-v3.3.10-linux-amd64_etcdctl",
+        "//:etcd-v3.3.13-linux-amd64_etcd",
+        "//:etcd-v3.3.13-linux-amd64_etcdctl",
+        "//:etcd-v3.3.17-linux-amd64_etcd",
+        "//:etcd-v3.3.17-linux-amd64_etcdctl",
+        "//:etcd-v3.4.3-linux-amd64_etcd",
+        "//:etcd-v3.4.3-linux-amd64_etcdctl",
+    ],
+    deps = [
+        "//pkg/apis/etcd:go_default_library",
+        "//pkg/etcd:go_default_library",
+        "//pkg/etcdversions:go_default_library",
+        "//test/integration/harness:go_default_library",
+        "//vendor/k8s.io/klog:go_default_library",
+    ],
+)
