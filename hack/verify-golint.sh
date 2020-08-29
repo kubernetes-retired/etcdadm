@@ -46,6 +46,8 @@ go build -o ./golint/golint ./golint
 # run the binary
 cd "${REPO_PATH}"
 echo "Running golint..."
+# To ease merging repos, we initially exclude etcd-manager, then will fix it here
 git ls-files | grep "\.go" | \
   grep -v "vendor\/" | \
+  grep -v "etcd-manager\/" | \
   xargs -L1 "${TMP_DIR}/golint/golint" -set_exit_status
