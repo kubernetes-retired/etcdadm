@@ -3,7 +3,7 @@
 We hope that the backup structure used by etcd-manager and etcd-backup can be adopted by all tools,
 so that there can be portability between etcd backups.
 
-As such, the format is intended to be minimal and hopefully "unsuprising"
+As such, the format is intended to be minimal and hopefully "unsurprising"
 
 ## Overview
 

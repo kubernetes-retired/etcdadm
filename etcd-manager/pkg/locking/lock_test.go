@@ -38,7 +38,7 @@ func checkLocks(t *testing.T, l1, l2 Lock) {
 		t.Fatalf("able to double-lock lock: %v", err)
 	}
 	if err != nil {
-		t.Fatalf("expected no error when failed to aquire lock: %v", err)
+		t.Fatalf("expected no error when failed to acquire lock: %v", err)
 	}
 
 	// Release first lock
@@ -61,7 +61,7 @@ func checkLocks(t *testing.T, l1, l2 Lock) {
 		t.Fatalf("able to double-lock lock: %v", err)
 	}
 	if err != nil {
-		t.Fatalf("expected no error when failed to aquire lock: %v", err)
+		t.Fatalf("expected no error when failed to acquire lock: %v", err)
 	}
 
 	// Release second lock
