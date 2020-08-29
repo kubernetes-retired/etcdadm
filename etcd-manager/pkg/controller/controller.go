@@ -1021,7 +1021,7 @@ func (m *EtcdController) verifyEtcdVersion(clusterSpec *protoetcd.ClusterSpec) (
 
 	// New versions of etcd might introduce new management requirements
 	// If we aren't aware of the version, we don't proceed
-	klog.Warningf("we don't support etcd version requested, won't assume forward compatability: %v", clusterSpec)
+	klog.Warningf("we don't support etcd version requested, won't assume forward compatibility: %v", clusterSpec)
 
 	return false, fmt.Errorf("can't act as leader for unknown etcd version %q", clusterSpec.EtcdVersion)
 }
