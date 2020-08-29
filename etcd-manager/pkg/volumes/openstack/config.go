@@ -28,20 +28,23 @@ type BlockStorageOpts struct {
 
 type Config struct {
 	Global struct {
-		AuthURL          string `gcfg:"auth-url"`
-		Username         string
-		UserID           string `gcfg:"user-id"`
-		Password         string
-		TenantID         string `gcfg:"tenant-id"`
-		TenantName       string `gcfg:"tenant-name"`
-		TrustID          string `gcfg:"trust-id"`
-		DomainID         string `gcfg:"domain-id"`
-		DomainName       string `gcfg:"domain-name"`
-		TenantDomainID   string `gcfg:"tenant-domain-id"`
-		TenantDomainName string `gcfg:"tenant-domain-name"`
-		Region           string
-		CAFile           string `gcfg:"ca-file"`
-		Cloud            string `gcfg:"cloud,omitempty"`
+		AuthURL                     string `gcfg:"auth-url"`
+		Username                    string
+		UserID                      string `gcfg:"user-id"`
+		Password                    string
+		TenantID                    string `gcfg:"tenant-id"`
+		TenantName                  string `gcfg:"tenant-name"`
+		TrustID                     string `gcfg:"trust-id"`
+		DomainID                    string `gcfg:"domain-id"`
+		DomainName                  string `gcfg:"domain-name"`
+		TenantDomainID              string `gcfg:"tenant-domain-id"`
+		TenantDomainName            string `gcfg:"tenant-domain-name"`
+		Region                      string
+		CAFile                      string `gcfg:"ca-file"`
+		Cloud                       string `gcfg:"cloud,omitempty"`
+		ApplicationCredentialID     string `gcfg:"application-credential-id"`
+		ApplicationCredentialName   string `gcfg:"application-credential-name"`
+		ApplicationCredentialSecret string `gcfg:"application-credential-secret"`
 	}
 	BlockStorage BlockStorageOpts
 }
