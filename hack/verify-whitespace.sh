@@ -32,7 +32,8 @@ if [[ ! -z "$TRAILING" ]]; then
 fi
 
 echo -e "Verifying new lines at end of files..."
-FILES="$(git ls-files | grep -I -v -e "vendor\/" -v -e "\.svg")"
+# To ease merging repos, we initially exclude etcd-manager, then will fix it here
+FILES="$(git ls-files | grep -I -v -e "vendor\/" -v -e "etcd-manager\/" -v -e "\.svg")"
 while read -r LINE; do
     grep -qI . "${LINE}" || continue # skip binary files
     c="$(tail -c 1 "${LINE}")"
