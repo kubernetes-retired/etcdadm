@@ -61,7 +61,7 @@ configure-cluster		Sets cluster spec based on -member-count and -etcd-version ar
 list-backups			List backups available in the -backup-store
 list-commands			List commands in queue for cluster to execute.
 delete-command			Deletes a command from the clusters queue
-restore-backup			Restores the backup specified. Pass the backup timestamp shown by list-backup as parameter. 
+restore-backup			Restores the backup specified. Pass the backup timestamp shown by list-backup as parameter.
 				eg. etcd-ctl -backup-store=s3://mybackupstore/ restore-backup 2019-05-07T18:28:01Z-000977
 `)
 	}

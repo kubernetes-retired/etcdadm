@@ -23,7 +23,7 @@ The format of the backup store, which is intended to be project-neutral is [here
 
 ### etcd-host
 
-* Each node can host 
+* Each node can host
 * The state is stored in a local directory; typically this would be a persistent volume
 * etcd-manager runs the local etcd process if configured/told to start by the etcd-manager leader, restarts it after a crash, etc.
 * Code is in `pkg/etcd`
@@ -44,7 +44,7 @@ restore-backup			Restores the backup specified. Pass the backup timestamp shown 
 
 ### etcd-manager
 * Runs the leader election and control loop
-* Hosts a gRPC server to run gossip discovery of peers and communicate initial setup parameters 
+* Hosts a gRPC server to run gossip discovery of peers and communicate initial setup parameters
 
 #### Leader Election Overview
 

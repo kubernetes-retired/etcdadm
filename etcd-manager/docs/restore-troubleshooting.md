@@ -1,6 +1,6 @@
 # etcd restore troubleshooting
 
-An etcd restore can sometimes leave your cluster in an incorrect state. 
+An etcd restore can sometimes leave your cluster in an incorrect state.
 Below troubleshooting steps can help you resolve some of the issues that can occur.
 
 ## Api server slow
@@ -9,7 +9,7 @@ Shortly after an etcd restore, the api server may respond slowly, and you can se
 In this case, the api server is trying to restore the cluster to the correct state, which may require a lot of changes.
 
 You can help this process by increasing the master's instance size and stopping unnecessary pod creation / API calls (CronJobs, automation scripts etc).
-Rolling nodes may also help in some scenarios. Make sure you check for unhealthy pods and fix any potential issues, 
+Rolling nodes may also help in some scenarios. Make sure you check for unhealthy pods and fix any potential issues,
 as otherwise the api server may remain busy with these pods.
 
 ## Kubernetes service unavailable / flannel issues
@@ -17,7 +17,7 @@ as otherwise the api server may remain busy with these pods.
 In some scenarios, the in-cluster kubernetes service can become unavailable, or have spotty connectivity issues.
 If you're using flannel for networking, this can mean that flannel won't start up on (some) nodes.
 
-This issue is due to old master IPs being set as endpoints in the kubernetes service. 
+This issue is due to old master IPs being set as endpoints in the kubernetes service.
 Removing the endpoints manually will not resolve the issue, as they will be added automatically again.
 
 You can fix this by manually removing the old master IPs from etcd:
