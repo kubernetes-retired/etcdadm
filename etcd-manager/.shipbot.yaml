@@ -1,0 +1,15 @@
+owner: kopeio
+repo: etcd-manager
+assets:
+- source: dist/etcd-manager-ctl-windows-amd64
+  githubName: etcd-manager-ctl-windows-amd64
+- source: dist/etcd-manager-ctl-windows-amd64-sha-256
+  githubName: etcd-manager-ctl-windows-amd64-sha256
+- source: dist/etcd-manager-ctl-darwin-amd64
+  githubName: etcd-manager-ctl-darwin-amd64
+- source: dist/etcd-manager-ctl-darwin-amd64-sha-256
+  githubName: etcd-manager-ctl-darwin-amd64-sha256
+- source: dist/etcd-manager-ctl-linux-amd64
+  githubName: etcd-manager-ctl-linux-amd64
+- source: dist/etcd-manager-ctl-linux-amd64-sha-256
+  githubName: etcd-manager-ctl-linux-amd64-sha256
