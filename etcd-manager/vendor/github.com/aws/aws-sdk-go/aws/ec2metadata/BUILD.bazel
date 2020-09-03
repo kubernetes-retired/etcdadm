@@ -7,7 +7,7 @@ go_library(
         "service.go",
         "token_provider.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/aws/aws-sdk-go/aws/ec2metadata",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/aws/aws-sdk-go/aws/ec2metadata",
     importpath = "github.com/aws/aws-sdk-go/aws/ec2metadata",
     visibility = ["//visibility:public"],
     deps = [

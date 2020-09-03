@@ -18,7 +18,7 @@ go_library(
         "validation.go",
         "waiter.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/aws/aws-sdk-go/aws/request",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/aws/aws-sdk-go/aws/request",
     importpath = "github.com/aws/aws-sdk-go/aws/request",
     visibility = ["//visibility:public"],
     deps = [

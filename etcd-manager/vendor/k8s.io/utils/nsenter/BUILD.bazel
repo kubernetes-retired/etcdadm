@@ -6,7 +6,7 @@ go_library(
         "nsenter.go",
         "nsenter_unsupported.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/k8s.io/utils/nsenter",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/k8s.io/utils/nsenter",
     importpath = "k8s.io/utils/nsenter",
     visibility = ["//visibility:public"],
     deps = select({

@@ -25,7 +25,7 @@ import (
 
 	"k8s.io/klog"
 
-	"kope.io/etcd-manager/pkg/privateapi/discovery"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi/discovery"
 )
 
 // FilesystemDiscovery implements discovery.Interface using a shared directory.

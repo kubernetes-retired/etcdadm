@@ -9,7 +9,7 @@ go_library(
         "curve25519_generic.go",
         "curve25519_noasm.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/golang.org/x/crypto/curve25519",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/crypto/curve25519",
     importpath = "golang.org/x/crypto/curve25519",
     visibility = ["//visibility:public"],
 )

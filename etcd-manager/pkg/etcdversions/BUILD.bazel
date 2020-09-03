@@ -3,7 +3,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "go_default_library",
     srcs = ["mappings.go"],
-    importpath = "kope.io/etcd-manager/pkg/etcdversions",
+    importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdversions",
     visibility = ["//visibility:public"],
     deps = [
         "//vendor/github.com/blang/semver:go_default_library",

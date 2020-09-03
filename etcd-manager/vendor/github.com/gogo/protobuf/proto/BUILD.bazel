@@ -33,7 +33,7 @@ go_library(
         "timestamp.go",
         "timestamp_gogo.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/gogo/protobuf/proto",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/gogo/protobuf/proto",
     importpath = "github.com/gogo/protobuf/proto",
     visibility = ["//visibility:public"],
 )

@@ -8,7 +8,7 @@ go_library(
         "implements.go",
         "unused.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/honnef.co/go/tools/unused",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/honnef.co/go/tools/unused",
     importpath = "honnef.co/go/tools/unused",
     visibility = ["//visibility:public"],
     deps = [

@@ -3,7 +3,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "go_default_library",
     srcs = ["strings.go"],
-    importmap = "kope.io/etcd-manager/vendor/github.com/aws/aws-sdk-go/internal/strings",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/aws/aws-sdk-go/internal/strings",
     importpath = "github.com/aws/aws-sdk-go/internal/strings",
     visibility = ["//vendor/github.com/aws/aws-sdk-go:__subpackages__"],
 )

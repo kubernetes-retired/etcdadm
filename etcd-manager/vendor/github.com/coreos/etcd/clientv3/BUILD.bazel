@@ -23,7 +23,7 @@ go_library(
         "txn.go",
         "watch.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/coreos/etcd/clientv3",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/coreos/etcd/clientv3",
     importpath = "github.com/coreos/etcd/clientv3",
     visibility = ["//visibility:public"],
     deps = [

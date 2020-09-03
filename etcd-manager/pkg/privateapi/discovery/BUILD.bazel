@@ -3,6 +3,6 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "go_default_library",
     srcs = ["discovery.go"],
-    importpath = "kope.io/etcd-manager/pkg/privateapi/discovery",
+    importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi/discovery",
     visibility = ["//visibility:public"],
 )

@@ -3,7 +3,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "go_default_library",
     srcs = ["inspect.go"],
-    importmap = "kope.io/etcd-manager/vendor/golang.org/x/tools/go/analysis/passes/inspect",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/tools/go/analysis/passes/inspect",
     importpath = "golang.org/x/tools/go/analysis/passes/inspect",
     visibility = ["//visibility:public"],
     deps = [

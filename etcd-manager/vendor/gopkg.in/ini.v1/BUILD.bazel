@@ -14,7 +14,7 @@ go_library(
         "section.go",
         "struct.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/gopkg.in/ini.v1",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/gopkg.in/ini.v1",
     importpath = "gopkg.in/ini.v1",
     visibility = ["//visibility:public"],
 )

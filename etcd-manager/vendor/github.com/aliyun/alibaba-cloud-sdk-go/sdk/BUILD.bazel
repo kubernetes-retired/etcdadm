@@ -8,7 +8,7 @@ go_library(
         "config.go",
         "logger.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk",
     importpath = "github.com/aliyun/alibaba-cloud-sdk-go/sdk",
     visibility = ["//visibility:public"],
     deps = [

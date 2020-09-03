@@ -11,7 +11,7 @@ go_library(
         "rules.go",
         "structtag.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/honnef.co/go/tools/staticcheck",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/honnef.co/go/tools/staticcheck",
     importpath = "honnef.co/go/tools/staticcheck",
     visibility = ["//visibility:public"],
     deps = [

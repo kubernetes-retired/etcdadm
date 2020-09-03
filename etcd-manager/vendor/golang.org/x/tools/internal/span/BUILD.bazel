@@ -11,7 +11,7 @@ go_library(
         "uri.go",
         "utf16.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/golang.org/x/tools/internal/span",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/tools/internal/span",
     importpath = "golang.org/x/tools/internal/span",
     visibility = ["//vendor/golang.org/x/tools:__subpackages__"],
 )

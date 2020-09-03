@@ -14,7 +14,7 @@ go_library(
         "signer_sts_token.go",
         "signer_v2.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/signers",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/signers",
     importpath = "github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/signers",
     visibility = ["//visibility:public"],
     deps = [

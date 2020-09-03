@@ -6,7 +6,7 @@ go_library(
         "filesystem.go",
         "walk.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/kr/fs",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/kr/fs",
     importpath = "github.com/kr/fs",
     visibility = ["//visibility:public"],
 )

@@ -23,8 +23,8 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"k8s.io/klog"
-	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
-	"kope.io/etcd-manager/pkg/urls"
+	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/urls"
 )
 
 // createNewCluster starts a new etcd cluster.

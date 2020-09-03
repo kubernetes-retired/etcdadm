@@ -10,7 +10,7 @@ go_library(
         "util_linux.go",
         "util_nonlinux.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/google.golang.org/grpc/internal/channelz",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/google.golang.org/grpc/internal/channelz",
     importpath = "google.golang.org/grpc/internal/channelz",
     visibility = ["//vendor/google.golang.org/grpc:__subpackages__"],
     deps = [

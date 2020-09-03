@@ -7,7 +7,7 @@ go_library(
         "controller.go",
         "parse.go",
     ],
-    importpath = "kope.io/etcd-manager/pkg/backupcontroller",
+    importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/backupcontroller",
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/apis/etcd:go_default_library",

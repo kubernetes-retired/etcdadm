@@ -8,7 +8,7 @@ go_library(
         "lint.go",
         "names.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/honnef.co/go/tools/stylecheck",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/honnef.co/go/tools/stylecheck",
     importpath = "honnef.co/go/tools/stylecheck",
     visibility = ["//visibility:public"],
     deps = [

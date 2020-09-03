@@ -25,7 +25,7 @@ import (
 	"path"
 	"strings"
 
-	etcdclient "kope.io/etcd-manager/pkg/etcdclient"
+	etcdclient "sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdclient"
 )
 
 type TarDumpSink struct {

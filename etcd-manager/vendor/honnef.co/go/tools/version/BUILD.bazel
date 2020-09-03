@@ -7,7 +7,7 @@ go_library(
         "buildinfo111.go",
         "version.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/honnef.co/go/tools/version",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/honnef.co/go/tools/version",
     importpath = "honnef.co/go/tools/version",
     visibility = ["//visibility:public"],
 )

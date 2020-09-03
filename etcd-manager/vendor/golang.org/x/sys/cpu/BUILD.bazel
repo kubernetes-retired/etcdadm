@@ -22,7 +22,7 @@ go_library(
         "cpu_x86.go",
         "cpu_x86.s",
     ],
-    importmap = "kope.io/etcd-manager/vendor/golang.org/x/sys/cpu",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/sys/cpu",
     importpath = "golang.org/x/sys/cpu",
     visibility = ["//visibility:public"],
 )

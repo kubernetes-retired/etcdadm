@@ -8,7 +8,7 @@ go_library(
         "huffman.go",
         "tables.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/golang.org/x/net/http2/hpack",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/net/http2/hpack",
     importpath = "golang.org/x/net/http2/hpack",
     visibility = ["//visibility:public"],
 )

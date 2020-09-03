@@ -6,7 +6,7 @@ go_library(
         "inspector.go",
         "typeof.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/golang.org/x/tools/go/ast/inspector",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/tools/go/ast/inspector",
     importpath = "golang.org/x/tools/go/ast/inspector",
     visibility = ["//visibility:public"],
 )

@@ -27,8 +27,8 @@ import (
 	"time"
 
 	"k8s.io/klog"
-	"kope.io/etcd-manager/pkg/backup"
-	"kope.io/etcd-manager/pkg/backupcontroller"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/backup"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/backupcontroller"
 )
 
 func main() {

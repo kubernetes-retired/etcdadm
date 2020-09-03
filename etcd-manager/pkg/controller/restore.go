@@ -23,8 +23,8 @@ import (
 	"github.com/golang/protobuf/proto"
 	"k8s.io/klog"
 
-	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
-	"kope.io/etcd-manager/pkg/commands"
+	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/commands"
 )
 
 func (m *EtcdController) restoreBackupAndLiftQuarantine(parentContext context.Context, clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState, cmd commands.Command) (bool, error) {

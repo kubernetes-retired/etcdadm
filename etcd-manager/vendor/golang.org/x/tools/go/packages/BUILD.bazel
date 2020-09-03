@@ -11,7 +11,7 @@ go_library(
         "packages.go",
         "visit.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/golang.org/x/tools/go/packages",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/tools/go/packages",
     importpath = "golang.org/x/tools/go/packages",
     visibility = ["//visibility:public"],
     deps = [

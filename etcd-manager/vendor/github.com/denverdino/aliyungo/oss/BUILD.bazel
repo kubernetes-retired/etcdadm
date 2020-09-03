@@ -10,7 +10,7 @@ go_library(
         "regions.go",
         "signature.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/denverdino/aliyungo/oss",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/denverdino/aliyungo/oss",
     importpath = "github.com/denverdino/aliyungo/oss",
     visibility = ["//visibility:public"],
     deps = [

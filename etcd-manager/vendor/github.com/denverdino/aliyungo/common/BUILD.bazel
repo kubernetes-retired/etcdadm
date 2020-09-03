@@ -10,7 +10,7 @@ go_library(
         "types.go",
         "version.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/denverdino/aliyungo/common",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/denverdino/aliyungo/common",
     importpath = "github.com/denverdino/aliyungo/common",
     visibility = ["//visibility:public"],
     deps = ["//vendor/github.com/denverdino/aliyungo/util:go_default_library"],

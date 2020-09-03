@@ -9,7 +9,7 @@ go_library(
         "string.go",
         "vrp.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/honnef.co/go/tools/staticcheck/vrp",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/honnef.co/go/tools/staticcheck/vrp",
     importpath = "honnef.co/go/tools/staticcheck/vrp",
     visibility = ["//visibility:public"],
     deps = [

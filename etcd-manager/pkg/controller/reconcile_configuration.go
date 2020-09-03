@@ -23,10 +23,10 @@ import (
 	"sort"
 
 	"k8s.io/klog"
-	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
-	"kope.io/etcd-manager/pkg/etcdclient"
-	"kope.io/etcd-manager/pkg/privateapi"
-	"kope.io/etcd-manager/pkg/urls"
+	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdclient"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/urls"
 )
 
 func (m *EtcdController) updatePeerURLs(ctx context.Context, peerID privateapi.PeerId, p *etcdClusterPeerInfo, setPeerURLs []string) (bool, error) {

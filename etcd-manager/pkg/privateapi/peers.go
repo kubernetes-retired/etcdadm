@@ -29,8 +29,8 @@ import (
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
 	"k8s.io/klog"
-	"kope.io/etcd-manager/pkg/contextutil"
-	"kope.io/etcd-manager/pkg/privateapi/discovery"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/contextutil"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi/discovery"
 )
 
 const defaultPingInterval = time.Second * 5

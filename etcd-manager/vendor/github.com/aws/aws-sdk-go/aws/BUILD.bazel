@@ -19,7 +19,7 @@ go_library(
         "url_1_7.go",
         "version.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/aws/aws-sdk-go/aws",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/aws/aws-sdk-go/aws",
     importpath = "github.com/aws/aws-sdk-go/aws",
     visibility = ["//visibility:public"],
     deps = [

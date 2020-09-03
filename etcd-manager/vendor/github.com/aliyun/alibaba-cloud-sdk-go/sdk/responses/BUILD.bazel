@@ -6,7 +6,7 @@ go_library(
         "json_parser.go",
         "response.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses",
     importpath = "github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses",
     visibility = ["//visibility:public"],
     deps = [

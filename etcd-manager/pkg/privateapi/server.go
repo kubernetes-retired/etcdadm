@@ -27,8 +27,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"k8s.io/klog"
-	"kope.io/etcd-manager/pkg/dns"
-	"kope.io/etcd-manager/pkg/privateapi/discovery"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/dns"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi/discovery"
 )
 
 type Server struct {

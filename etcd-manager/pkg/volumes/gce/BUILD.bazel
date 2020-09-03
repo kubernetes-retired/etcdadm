@@ -9,7 +9,7 @@ go_library(
         "urls.go",
         "volumes.go",
     ],
-    importpath = "kope.io/etcd-manager/pkg/volumes/gce",
+    importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/gce",
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/privateapi/discovery:go_default_library",

@@ -23,7 +23,7 @@ import (
 	"io"
 	"strings"
 
-	"kope.io/etcd-manager/pkg/etcdclient"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdclient"
 )
 
 type StreamDumpSink struct {

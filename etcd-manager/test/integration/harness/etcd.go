@@ -22,7 +22,7 @@ import (
 	"time"
 
 	"k8s.io/klog"
-	"kope.io/etcd-manager/pkg/etcdclient"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdclient"
 )
 
 func (n *TestHarnessNode) GetQuorum(ctx context.Context, key string) (string, error) {

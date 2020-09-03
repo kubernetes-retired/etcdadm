@@ -13,7 +13,7 @@ go_library(
         "unmarshal.go",
         "unmarshal_error.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/aws/aws-sdk-go/private/protocol",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/aws/aws-sdk-go/private/protocol",
     importpath = "github.com/aws/aws-sdk-go/private/protocol",
     visibility = ["//visibility:public"],
     deps = [

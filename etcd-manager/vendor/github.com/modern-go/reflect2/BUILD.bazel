@@ -35,7 +35,7 @@ go_library(
         "unsafe_struct.go",
         "unsafe_type.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/modern-go/reflect2",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/modern-go/reflect2",
     importpath = "github.com/modern-go/reflect2",
     visibility = ["//visibility:public"],
     deps = ["//vendor/github.com/modern-go/concurrent:go_default_library"],

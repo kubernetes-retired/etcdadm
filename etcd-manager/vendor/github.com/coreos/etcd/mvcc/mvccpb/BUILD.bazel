@@ -3,7 +3,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "go_default_library",
     srcs = ["kv.pb.go"],
-    importmap = "kope.io/etcd-manager/vendor/github.com/coreos/etcd/mvcc/mvccpb",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/coreos/etcd/mvcc/mvccpb",
     importpath = "github.com/coreos/etcd/mvcc/mvccpb",
     visibility = ["//visibility:public"],
     deps = [

@@ -26,9 +26,9 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 	"k8s.io/klog"
-	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
-	"kope.io/etcd-manager/pkg/commands"
-	"kope.io/etcd-manager/pkg/etcdversions"
+	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/commands"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdversions"
 )
 
 type legacyManifest struct {

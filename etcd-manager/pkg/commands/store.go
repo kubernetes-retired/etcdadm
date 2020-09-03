@@ -18,7 +18,7 @@ package commands
 
 import (
 	"k8s.io/kops/util/pkg/vfs"
-	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
+	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
 )
 
 const CommandFilename = "_command.json"

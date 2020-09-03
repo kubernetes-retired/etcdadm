@@ -7,7 +7,7 @@ go_library(
         "store.go",
         "vfs.go",
     ],
-    importpath = "kope.io/etcd-manager/pkg/backup",
+    importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/backup",
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/apis/etcd:go_default_library",

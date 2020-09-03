@@ -7,7 +7,7 @@ go_library(
         "runner.go",
         "stats.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/honnef.co/go/tools/lint",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/honnef.co/go/tools/lint",
     importpath = "honnef.co/go/tools/lint",
     visibility = ["//visibility:public"],
     deps = [

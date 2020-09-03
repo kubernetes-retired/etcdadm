@@ -9,7 +9,7 @@ go_library(
         "endpoint_location.go",
         "errors.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/gophercloud/gophercloud/openstack",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/gophercloud/gophercloud/openstack",
     importpath = "github.com/gophercloud/gophercloud/openstack",
     visibility = ["//visibility:public"],
     deps = [

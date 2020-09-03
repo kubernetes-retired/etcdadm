@@ -20,8 +20,8 @@ import (
 	"context"
 	"fmt"
 
-	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
-	"kope.io/etcd-manager/pkg/privateapi"
+	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi"
 )
 
 type peer struct {

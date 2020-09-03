@@ -28,14 +28,14 @@ import (
 	"github.com/golang/protobuf/proto"
 	"golang.org/x/net/context"
 	"k8s.io/klog"
-	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
-	"kope.io/etcd-manager/pkg/backup"
-	"kope.io/etcd-manager/pkg/contextutil"
-	"kope.io/etcd-manager/pkg/dns"
-	"kope.io/etcd-manager/pkg/legacy"
-	"kope.io/etcd-manager/pkg/pki"
-	"kope.io/etcd-manager/pkg/privateapi"
-	"kope.io/etcd-manager/pkg/urls"
+	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/backup"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/contextutil"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/dns"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/legacy"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/pki"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/urls"
 )
 
 const PreparedValidity = time.Minute

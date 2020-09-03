@@ -22,7 +22,7 @@ import (
 	"time"
 
 	"k8s.io/klog"
-	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
+	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
 )
 
 func (m *EtcdController) prepareForUpgrade(clusterSpec *protoetcd.ClusterSpec, clusterState *etcdClusterState) (map[EtcdMemberId]*etcdClusterPeerInfo, error) {

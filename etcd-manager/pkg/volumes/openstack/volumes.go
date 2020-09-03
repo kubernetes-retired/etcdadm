@@ -35,7 +35,7 @@ import (
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
 	"k8s.io/klog"
 	utilexec "k8s.io/utils/exec"
-	"kope.io/etcd-manager/pkg/volumes"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes"
 )
 
 const MetadataLatest string = "http://169.254.169.254/openstack/latest/meta_data.json"

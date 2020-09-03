@@ -7,7 +7,7 @@ go_library(
         "doc.go",
         "lint.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/honnef.co/go/tools/simple",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/honnef.co/go/tools/simple",
     importpath = "honnef.co/go/tools/simple",
     visibility = ["//visibility:public"],
     deps = [

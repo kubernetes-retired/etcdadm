@@ -19,7 +19,7 @@ package controller
 import (
 	"strings"
 
-	"kope.io/etcd-manager/pkg/etcdclient"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdclient"
 )
 
 func isTLSEnabled(member *etcdclient.EtcdProcessMember) bool {

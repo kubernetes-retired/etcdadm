@@ -9,7 +9,7 @@ go_library(
         "tags.go",
         "util.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/golang.org/x/tools/go/buildutil",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/tools/go/buildutil",
     importpath = "golang.org/x/tools/go/buildutil",
     visibility = ["//visibility:public"],
 )

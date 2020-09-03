@@ -7,7 +7,7 @@ go_library(
         "go113.go",
         "stack.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/pkg/errors",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/pkg/errors",
     importpath = "github.com/pkg/errors",
     visibility = ["//visibility:public"],
 )

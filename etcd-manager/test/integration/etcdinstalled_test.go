@@ -19,8 +19,8 @@ package integration
 import (
 	"testing"
 
-	"kope.io/etcd-manager/pkg/etcd"
-	"kope.io/etcd-manager/pkg/etcdversions"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/etcd"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdversions"
 )
 
 func TestEtcdInstalled(t *testing.T) {

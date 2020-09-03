@@ -8,7 +8,7 @@ go_library(
         "mounter.go",
         "retry.go",
     ],
-    importpath = "kope.io/etcd-manager/pkg/volumes",
+    importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes",
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/hostmount:go_default_library",

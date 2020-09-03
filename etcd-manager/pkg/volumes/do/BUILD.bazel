@@ -6,7 +6,7 @@ go_library(
         "discovery.go",
         "volumes.go",
     ],
-    importpath = "kope.io/etcd-manager/pkg/volumes/do",
+    importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/do",
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/privateapi/discovery:go_default_library",

@@ -7,7 +7,7 @@ go_library(
         "payload.go",
         "unmarshal.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/aws/aws-sdk-go/private/protocol/rest",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/aws/aws-sdk-go/private/protocol/rest",
     importpath = "github.com/aws/aws-sdk-go/private/protocol/rest",
     visibility = ["//visibility:public"],
     deps = [

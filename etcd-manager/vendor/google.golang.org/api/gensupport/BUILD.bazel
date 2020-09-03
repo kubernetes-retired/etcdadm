@@ -15,7 +15,7 @@ go_library(
         "retry.go",
         "send.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/google.golang.org/api/gensupport",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/google.golang.org/api/gensupport",
     importpath = "google.golang.org/api/gensupport",
     visibility = ["//visibility:public"],
     deps = ["//vendor/google.golang.org/api/googleapi:go_default_library"],

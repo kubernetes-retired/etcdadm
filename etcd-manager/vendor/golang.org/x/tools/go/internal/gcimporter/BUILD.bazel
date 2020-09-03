@@ -12,7 +12,7 @@ go_library(
         "newInterface10.go",
         "newInterface11.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/golang.org/x/tools/go/internal/gcimporter",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/tools/go/internal/gcimporter",
     importpath = "golang.org/x/tools/go/internal/gcimporter",
     visibility = ["//vendor/golang.org/x/tools/go:__subpackages__"],
 )

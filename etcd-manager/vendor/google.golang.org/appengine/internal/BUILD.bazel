@@ -15,7 +15,7 @@ go_library(
         "net.go",
         "transaction.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/google.golang.org/appengine/internal",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/google.golang.org/appengine/internal",
     importpath = "google.golang.org/appengine/internal",
     visibility = ["//vendor/google.golang.org/appengine:__subpackages__"],
     deps = [

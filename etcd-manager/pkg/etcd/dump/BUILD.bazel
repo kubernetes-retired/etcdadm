@@ -6,7 +6,7 @@ go_library(
         "dumpsink.go",
         "streamdumpsink.go",
     ],
-    importpath = "kope.io/etcd-manager/pkg/etcd/dump",
+    importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/etcd/dump",
     visibility = ["//visibility:public"],
     deps = ["//pkg/etcdclient:go_default_library"],
 )

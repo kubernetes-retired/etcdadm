@@ -8,7 +8,7 @@ go_library(
         "results.go",
         "urls.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/accounts",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/accounts",
     importpath = "github.com/gophercloud/gophercloud/openstack/objectstorage/v1/accounts",
     visibility = ["//visibility:public"],
     deps = ["//vendor/github.com/gophercloud/gophercloud:go_default_library"],

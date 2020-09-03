@@ -26,8 +26,8 @@ import (
 
 	"k8s.io/klog"
 	"k8s.io/kops/util/pkg/vfs"
-	"kope.io/etcd-manager/pkg/apis/etcd"
-	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
+	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
 )
 
 const EtcdClusterCreated = "etcd-cluster-created"

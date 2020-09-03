@@ -7,7 +7,7 @@ go_library(
         "read.go",
         "read_1_5.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/aws/aws-sdk-go/internal/sdkrand",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/aws/aws-sdk-go/internal/sdkrand",
     importpath = "github.com/aws/aws-sdk-go/internal/sdkrand",
     visibility = ["//vendor/github.com/aws/aws-sdk-go:__subpackages__"],
 )

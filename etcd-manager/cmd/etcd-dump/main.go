@@ -27,10 +27,10 @@ import (
 	"time"
 
 	"k8s.io/klog"
-	"kope.io/etcd-manager/pkg/backup"
-	"kope.io/etcd-manager/pkg/etcd"
-	"kope.io/etcd-manager/pkg/etcd/dump"
-	"kope.io/etcd-manager/pkg/etcdclient"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/backup"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/etcd"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/etcd/dump"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdclient"
 )
 
 func main() {

@@ -11,7 +11,7 @@ go_library(
         "uri_path.go",
         "v4.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/aws/aws-sdk-go/aws/signer/v4",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/aws/aws-sdk-go/aws/signer/v4",
     importpath = "github.com/aws/aws-sdk-go/aws/signer/v4",
     visibility = ["//visibility:public"],
     deps = [

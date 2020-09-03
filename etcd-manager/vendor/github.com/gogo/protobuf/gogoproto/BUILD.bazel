@@ -7,7 +7,7 @@ go_library(
         "gogo.pb.go",
         "helper.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/gogo/protobuf/gogoproto",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/gogo/protobuf/gogoproto",
     importpath = "github.com/gogo/protobuf/gogoproto",
     visibility = ["//visibility:public"],
     deps = [

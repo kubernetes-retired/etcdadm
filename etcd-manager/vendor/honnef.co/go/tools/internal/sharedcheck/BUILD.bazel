@@ -3,7 +3,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "go_default_library",
     srcs = ["lint.go"],
-    importmap = "kope.io/etcd-manager/vendor/honnef.co/go/tools/internal/sharedcheck",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/honnef.co/go/tools/internal/sharedcheck",
     importpath = "honnef.co/go/tools/internal/sharedcheck",
     visibility = ["//vendor/honnef.co/go/tools:__subpackages__"],
     deps = [

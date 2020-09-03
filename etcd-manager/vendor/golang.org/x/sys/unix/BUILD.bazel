@@ -237,7 +237,7 @@ go_library(
         "ztypes_solaris_amd64.go",
     ],
     cgo = True,
-    importmap = "kope.io/etcd-manager/vendor/golang.org/x/sys/unix",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/sys/unix",
     importpath = "golang.org/x/sys/unix",
     visibility = ["//visibility:public"],
 )

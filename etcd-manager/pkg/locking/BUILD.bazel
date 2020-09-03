@@ -8,7 +8,7 @@ go_library(
         "info.go",
         "interfaces.go",
     ],
-    importpath = "kope.io/etcd-manager/pkg/locking",
+    importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/locking",
     visibility = ["//visibility:public"],
     deps = [
         "//vendor/k8s.io/klog:go_default_library",

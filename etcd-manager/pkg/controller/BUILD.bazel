@@ -13,7 +13,7 @@ go_library(
         "upgrade.go",
         "utils.go",
     ],
-    importpath = "kope.io/etcd-manager/pkg/controller",
+    importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/controller",
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/apis/etcd:go_default_library",

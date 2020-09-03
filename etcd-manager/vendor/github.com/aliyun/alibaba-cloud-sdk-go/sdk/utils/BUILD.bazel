@@ -6,7 +6,7 @@ go_library(
         "debug.go",
         "utils.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/utils",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/utils",
     importpath = "github.com/aliyun/alibaba-cloud-sdk-go/sdk/utils",
     visibility = ["//visibility:public"],
 )

@@ -28,7 +28,7 @@ import (
 
 	"k8s.io/klog"
 	"k8s.io/kops/util/pkg/vfs"
-	"kope.io/etcd-manager/pkg/apis/etcd"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
 )
 
 func NewVFSStore(p vfs.Path) (Store, error) {

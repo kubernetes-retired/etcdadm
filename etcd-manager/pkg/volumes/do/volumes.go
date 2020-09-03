@@ -30,7 +30,7 @@ import (
 	"github.com/digitalocean/godo"
 	"golang.org/x/oauth2"
 	"k8s.io/klog"
-	"kope.io/etcd-manager/pkg/volumes"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes"
 )
 
 // DigiCloud exposes all the interfaces required to operate on DigitalOcean resources

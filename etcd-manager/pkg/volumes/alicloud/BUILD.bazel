@@ -7,7 +7,7 @@ go_library(
         "metadata.go",
         "volumes.go",
     ],
-    importpath = "kope.io/etcd-manager/pkg/volumes/alicloud",
+    importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/alicloud",
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/privateapi/discovery:go_default_library",

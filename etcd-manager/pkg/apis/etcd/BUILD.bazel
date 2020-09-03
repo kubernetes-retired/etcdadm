@@ -6,7 +6,7 @@ go_library(
         "etcdapi.pb.go",
         "json.go",
     ],
-    importpath = "kope.io/etcd-manager/pkg/apis/etcd",
+    importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd",
     visibility = ["//visibility:public"],
     deps = [
         "//vendor/github.com/golang/protobuf/jsonpb:go_default_library",

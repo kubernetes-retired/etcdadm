@@ -9,7 +9,7 @@ go_library(
         "peers.go",
         "server.go",
     ],
-    importpath = "kope.io/etcd-manager/pkg/privateapi",
+    importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi",
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/contextutil:go_default_library",

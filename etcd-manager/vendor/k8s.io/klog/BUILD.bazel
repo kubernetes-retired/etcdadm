@@ -6,7 +6,7 @@ go_library(
         "klog.go",
         "klog_file.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/k8s.io/klog",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/k8s.io/klog",
     importpath = "k8s.io/klog",
     visibility = ["//visibility:public"],
 )

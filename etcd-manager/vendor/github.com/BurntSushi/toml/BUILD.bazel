@@ -14,7 +14,7 @@ go_library(
         "type_check.go",
         "type_fields.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/BurntSushi/toml",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/BurntSushi/toml",
     importpath = "github.com/BurntSushi/toml",
     visibility = ["//visibility:public"],
 )

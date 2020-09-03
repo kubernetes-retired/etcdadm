@@ -19,8 +19,8 @@ package openstack
 import (
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
 	"k8s.io/klog"
-	"kope.io/etcd-manager/pkg/privateapi/discovery"
-	"kope.io/etcd-manager/pkg/volumes"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi/discovery"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes"
 )
 
 // OpenstackVolumes also allows us to discover our peer nodes

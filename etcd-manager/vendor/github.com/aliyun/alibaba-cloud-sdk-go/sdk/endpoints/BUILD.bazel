@@ -10,7 +10,7 @@ go_library(
         "mapping_resolver.go",
         "resolver.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/endpoints",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/endpoints",
     importpath = "github.com/aliyun/alibaba-cloud-sdk-go/sdk/endpoints",
     visibility = ["//visibility:public"],
     deps = [

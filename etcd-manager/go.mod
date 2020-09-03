@@ -1,4 +1,4 @@
-module kope.io/etcd-manager
+module sigs.k8s.io/etcdadm/etcd-manager
 
 go 1.12
 

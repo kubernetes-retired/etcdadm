@@ -7,7 +7,7 @@ go_library(
         "serialize.go",
         "token.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/gopkg.in/gcfg.v1/token",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/gopkg.in/gcfg.v1/token",
     importpath = "gopkg.in/gcfg.v1/token",
     visibility = ["//visibility:public"],
 )

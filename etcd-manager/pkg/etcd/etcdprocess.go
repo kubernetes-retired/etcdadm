@@ -33,10 +33,10 @@ import (
 
 	certutil "k8s.io/client-go/util/cert"
 	"k8s.io/klog"
-	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
-	"kope.io/etcd-manager/pkg/backup"
-	"kope.io/etcd-manager/pkg/etcdclient"
-	"kope.io/etcd-manager/pkg/pki"
+	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/backup"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdclient"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/pki"
 )
 
 var baseDirs = []string{"/opt"}

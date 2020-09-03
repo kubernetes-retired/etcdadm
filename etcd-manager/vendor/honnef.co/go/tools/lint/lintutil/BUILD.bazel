@@ -8,7 +8,7 @@ go_library(
         "stats_posix.go",
         "util.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/honnef.co/go/tools/lint/lintutil",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/honnef.co/go/tools/lint/lintutil",
     importpath = "honnef.co/go/tools/lint/lintutil",
     visibility = ["//visibility:public"],
     deps = [

@@ -25,7 +25,7 @@ go_library(
         "tcpip.go",
         "transport.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/golang.org/x/crypto/ssh",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/crypto/ssh",
     importpath = "golang.org/x/crypto/ssh",
     visibility = ["//visibility:public"],
     deps = [

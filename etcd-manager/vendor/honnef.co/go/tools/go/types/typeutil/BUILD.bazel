@@ -10,7 +10,7 @@ go_library(
         "methodsetcache.go",
         "ui.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/honnef.co/go/tools/go/types/typeutil",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/honnef.co/go/tools/go/types/typeutil",
     importpath = "honnef.co/go/tools/go/types/typeutil",
     visibility = ["//visibility:public"],
     deps = ["//vendor/golang.org/x/tools/go/ast/astutil:go_default_library"],

@@ -25,9 +25,9 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"k8s.io/klog"
-	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
-	"kope.io/etcd-manager/pkg/backup"
-	"kope.io/etcd-manager/pkg/commands"
+	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/backup"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/commands"
 )
 
 const DefaultEtcdVersion = "3.2.24"

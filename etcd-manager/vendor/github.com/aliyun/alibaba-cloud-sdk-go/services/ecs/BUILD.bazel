@@ -582,7 +582,7 @@ go_library(
         "unassociate_ha_vip.go",
         "untag_resources.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/aliyun/alibaba-cloud-sdk-go/services/ecs",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/aliyun/alibaba-cloud-sdk-go/services/ecs",
     importpath = "github.com/aliyun/alibaba-cloud-sdk-go/services/ecs",
     visibility = ["//visibility:public"],
     deps = [

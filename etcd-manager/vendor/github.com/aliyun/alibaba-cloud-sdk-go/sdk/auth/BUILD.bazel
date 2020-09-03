@@ -8,7 +8,7 @@ go_library(
         "rpc_signature_composer.go",
         "signer.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth",
     importpath = "github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth",
     visibility = ["//visibility:public"],
     deps = [

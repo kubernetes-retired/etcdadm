@@ -8,7 +8,7 @@ go_library(
         "doc.go",
         "validate.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/golang.org/x/tools/go/analysis",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/tools/go/analysis",
     importpath = "golang.org/x/tools/go/analysis",
     visibility = ["//visibility:public"],
 )

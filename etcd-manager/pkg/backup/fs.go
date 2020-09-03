@@ -27,9 +27,9 @@ import (
 	"time"
 
 	"k8s.io/klog"
-	"kope.io/etcd-manager/pkg/apis/etcd"
-	protoetcd "kope.io/etcd-manager/pkg/apis/etcd"
-	"kope.io/etcd-manager/pkg/ioutils"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
+	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/ioutils"
 )
 
 func NewFilesystemStore(u *url.URL) (*filesystemStore, error) {

@@ -29,7 +29,7 @@ import (
 	"golang.org/x/oauth2/google"
 	compute "google.golang.org/api/compute/v0.beta"
 	"k8s.io/klog"
-	"kope.io/etcd-manager/pkg/volumes"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes"
 )
 
 // GCEVolumes defines the aws volume implementation

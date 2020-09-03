@@ -6,7 +6,7 @@ go_library(
         "gcexportdata.go",
         "importer.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/golang.org/x/tools/go/gcexportdata",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/tools/go/gcexportdata",
     importpath = "golang.org/x/tools/go/gcexportdata",
     visibility = ["//visibility:public"],
     deps = ["//vendor/golang.org/x/tools/go/internal/gcimporter:go_default_library"],

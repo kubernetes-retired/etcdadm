@@ -22,8 +22,8 @@ import (
 	"strconv"
 
 	"k8s.io/klog"
-	"kope.io/etcd-manager/pkg/privateapi/discovery"
-	"kope.io/etcd-manager/pkg/volumes"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi/discovery"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes"
 )
 
 // DO Volumes also allows us to discover our peer nodes

@@ -34,7 +34,7 @@ go_library(
         "timestamp.go",
         "vpcs.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/digitalocean/godo",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/digitalocean/godo",
     importpath = "github.com/digitalocean/godo",
     visibility = ["//visibility:public"],
     deps = ["//vendor/github.com/google/go-querystring/query:go_default_library"],

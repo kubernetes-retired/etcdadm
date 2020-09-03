@@ -4,7 +4,7 @@ load("@bazel_gazelle//:def.bzl", "gazelle")
 gazelle(
     name = "gazelle",
     external = "vendored",
-    prefix = "kope.io/etcd-manager",
+    prefix = "sigs.k8s.io/etcdadm/etcd-manager",
 )
 
 [genrule(

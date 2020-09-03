@@ -10,7 +10,7 @@ go_library(
         "urls.go",
         "urlsmap.go",
     ],
-    importmap = "kope.io/etcd-manager/vendor/github.com/coreos/etcd/pkg/types",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/coreos/etcd/pkg/types",
     importpath = "github.com/coreos/etcd/pkg/types",
     visibility = ["//visibility:public"],
 )
