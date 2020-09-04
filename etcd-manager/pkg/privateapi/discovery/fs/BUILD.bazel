@@ -1,0 +1,12 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["filesystemdiscovery.go"],
+    importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi/discovery/fs",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/privateapi/discovery:go_default_library",
+        "//vendor/k8s.io/klog:go_default_library",
+    ],
+)

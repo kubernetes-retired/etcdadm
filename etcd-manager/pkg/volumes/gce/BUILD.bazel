@@ -1,0 +1,25 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "discovery.go",
+        "gce_url.go",
+        "op.go",
+        "urls.go",
+        "volumes.go",
+    ],
+    importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/gce",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/privateapi/discovery:go_default_library",
+        "//pkg/volumes:go_default_library",
+        "//vendor/cloud.google.com/go/compute/metadata:go_default_library",
+        "//vendor/golang.org/x/net/context:go_default_library",
+        "//vendor/golang.org/x/oauth2/google:go_default_library",
+        "//vendor/google.golang.org/api/compute/v0.beta:go_default_library",
+        "//vendor/google.golang.org/api/googleapi:go_default_library",
+        "//vendor/k8s.io/apimachinery/pkg/util/wait:go_default_library",
+        "//vendor/k8s.io/klog:go_default_library",
+    ],
+)

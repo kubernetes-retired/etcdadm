@@ -1,0 +1,19 @@
+# Common IDEs
+.idea/
+*.iml
+.vscode/
+*~
+
+# Bazel stuff
+bazel-bin
+bazel-etcd-manager
+bazel-genfiles
+bazel-out
+bazel-testlogs
+
+# We often create some local symlinks
+/etcd-manager
+/etcd-manager-ctl
+
+# Release assets
+dist/

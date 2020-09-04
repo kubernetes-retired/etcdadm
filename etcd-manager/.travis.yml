@@ -1,0 +1,41 @@
+dist: trusty
+sudo: required
+#osx_image: xcode8
+language: java
+
+os:
+  - linux
+#  - osx
+
+env:
+  - BAZEL_VERSION=1.2.1
+  - BAZEL_VERSION=2.2.0
+
+before_install:
+  - pwd
+  - OS=linux
+  - ARCH=x86_64
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then OS=darwin; fi
+  - GH_BASE="https://github.com/bazelbuild/bazel/releases/download/$BAZEL_VERSION"
+  - GH_ARTIFACT="bazel-$BAZEL_VERSION-installer-$OS-$ARCH.sh"
+  - CI_BASE="http://ci.bazel.io/job/Bazel/JAVA_VERSION=1.8,PLATFORM_NAME=$OS-$ARCH/lastSuccessfulBuild/artifact/output/ci"
+  - CI_ARTIFACT="bazel--installer.sh"
+  - URL="$GH_BASE/$GH_ARTIFACT"
+  - if [[ "$BAZEL_VERSION" == "HEAD" ]]; then CI_ARTIFACT="`wget -qO- $CI_BASE | grep -o 'bazel-[-_a-zA-Z0-9\.]*-installer.sh' | uniq`"; fi
+  - if [[ "$BAZEL_VERSION" == "HEAD" ]]; then URL="$CI_BASE/$CI_ARTIFACT"; fi
+  - echo $URL
+  - wget -O install.sh $URL
+  - chmod +x install.sh
+  - ./install.sh --user
+  - rm -f install.sh
+
+script:
+  - cd ${TRAVIS_BUILD_DIR}
+  - bazel build //cmd/...
+  # Tests log too much output for travis
+  #- bazel test //test/... --test_output=streamed --local_test_jobs=1
+  - bazel test //... --test_output=errors --local_test_jobs=1
+
+notifications:
+  email: false
+

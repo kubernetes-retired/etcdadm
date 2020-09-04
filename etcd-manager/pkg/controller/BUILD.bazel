@@ -1,0 +1,34 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "commands.go",
+        "controller.go",
+        "etcdclusterstate.go",
+        "newcluster.go",
+        "peer.go",
+        "reconcile_configuration.go",
+        "restore.go",
+        "upgrade.go",
+        "utils.go",
+    ],
+    importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/controller",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/apis/etcd:go_default_library",
+        "//pkg/backup:go_default_library",
+        "//pkg/backupcontroller:go_default_library",
+        "//pkg/commands:go_default_library",
+        "//pkg/contextutil:go_default_library",
+        "//pkg/etcd:go_default_library",
+        "//pkg/etcdclient:go_default_library",
+        "//pkg/etcdversions:go_default_library",
+        "//pkg/locking:go_default_library",
+        "//pkg/pki:go_default_library",
+        "//pkg/privateapi:go_default_library",
+        "//pkg/urls:go_default_library",
+        "//vendor/github.com/golang/protobuf/proto:go_default_library",
+        "//vendor/k8s.io/klog:go_default_library",
+    ],
+)

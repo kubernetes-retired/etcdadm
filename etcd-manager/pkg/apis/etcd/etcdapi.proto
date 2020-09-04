@@ -1,0 +1,208 @@
+syntax = "proto3";
+package etcd;
+
+option go_package = "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd";
+
+message ClusterSpec {
+    int32 member_count = 1;
+    string etcd_version = 2;
+}
+
+message Command {
+    int64 timestamp = 1;
+
+    // If restore backup is set, this indicates a request to restore the specified backup
+    // This is not normally safe (potential for data loss if the backup is out of date),
+    // but either the administrator can set this in a DR scenario,
+    // or we set it ourselves immediately after having performed a quarantined backup
+    RestoreBackupCommand restore_backup = 10;
+}
+
+message RestoreBackupCommand {
+    // The new cluster spec we should restore into
+    ClusterSpec cluster_spec = 1;
+
+    string backup = 3;
+}
+
+message CreateNewClusterCommand {
+    ClusterSpec cluster_spec = 1;
+}
+
+service EtcdManagerService {
+    // GetInfo gets info about the node
+    rpc GetInfo (GetInfoRequest) returns (GetInfoResponse);
+
+    // UpdateEndpoints is sent to peers so they can update their inter-cluster routing
+    rpc UpdateEndpoints(UpdateEndpointsRequest) returns (UpdateEndpointsResponse);
+
+    // JoinCluster requests that the node join an existing cluster
+    rpc JoinCluster (JoinClusterRequest) returns (JoinClusterResponse);
+
+    // Reconfigure changes the configuration of an existing node, primarily for a version upgrade/downgrade
+    rpc Reconfigure (ReconfigureRequest) returns (ReconfigureResponse);
+
+    // DoBackup requests that the node backup etcd
+    rpc DoBackup (DoBackupRequest) returns (DoBackupResponse);
+
+    // DoRestore requests that the node restores an etcd backup
+    rpc DoRestore (DoRestoreRequest) returns (DoRestoreResponse);
+
+    // StopEtcd requests that the node no longer run etcd.
+    // Typically the node will already have been removed from the etcd cluster.
+    rpc StopEtcd(StopEtcdRequest) returns (StopEtcdResponse);
+}
+
+enum Phase {
+    PHASE_UNKNOWN = 0;
+    PHASE_PREPARE = 1;
+    PHASE_INITIAL_CLUSTER = 2;
+    PHASE_JOIN_EXISTING = 3;
+
+    // Cancel a previous prepare (it times out eventually)
+    PHASE_CANCEL_PREPARE = 4;
+}
+
+message GetInfoRequest {
+}
+
+message GetInfoResponse {
+    string cluster_name = 2;
+
+//    bool etcd_configured = 3;
+//    string cluster_token = 4;
+
+    EtcdNode node_configuration = 5;
+    EtcdState etcd_state = 6;
+}
+
+message UpdateEndpointsRequest {
+  // Contains information about the current nodes
+  // It can be used for nodes to update /etc/hosts
+  MemberMap member_map = 1;
+}
+
+message MemberMap {
+  repeated MemberMapInfo members = 1;
+}
+
+message MemberMapInfo {
+  string name = 1;
+  string dns = 2;
+  repeated string addresses = 3;
+}
+
+message UpdateEndpointsResponse {
+}
+
+message BackupInfo {
+    string etcd_version = 1;
+    int64 timestamp = 2;
+    ClusterSpec cluster_spec = 3;
+}
+
+message CommonRequestHeader {
+    string leadership_token = 1;
+    string cluster_name = 2;
+}
+
+message DoBackupRequest {
+    CommonRequestHeader header = 1;
+
+    string storage = 2;
+
+    // If allow_offline_backup is true, backup will be permitted even if etcd is not running on the node
+    bool allow_offline_backup = 4;
+
+    BackupInfo info = 10;
+}
+
+message DoBackupResponse {
+    string name = 1;
+}
+
+
+message DoRestoreRequest {
+    CommonRequestHeader header = 1;
+
+    string storage = 2;
+
+    string backup_name = 4;
+}
+
+message DoRestoreResponse {
+}
+
+
+message StopEtcdRequest {
+    CommonRequestHeader header = 1;
+}
+
+message StopEtcdResponse {
+}
+
+message JoinClusterRequest {
+    CommonRequestHeader header = 1;
+
+    Phase phase = 2;
+    string cluster_token = 4;
+    repeated EtcdNode nodes = 5;
+
+    EtcdNode add_node = 6;
+
+    string etcd_version = 7;
+}
+
+message JoinClusterResponse {
+}
+
+
+
+message ReconfigureRequest {
+    CommonRequestHeader header = 1;
+
+    string set_etcd_version = 10;
+
+    // Note that because this is bool this must always be specified
+    bool quarantined = 11;
+
+    // Note that because this is bool we need two fields
+    bool enable_tls = 12;
+    //bool disable_tls = 13;
+}
+
+message ReconfigureResponse {
+}
+
+message EtcdCluster {
+    int32 desired_cluster_size = 1;
+
+//    int32 peer_port = 2;
+//    int32 client_port = 3;
+//    string cluster_name = 4;
+    string cluster_token = 5;
+
+    //string my_id = 6;
+    repeated EtcdNode nodes = 7;
+}
+
+//message EtcdNode {
+//    string name = 1;
+//    repeated string peer_urls = 2;
+//    repeated string client_urls = 3;
+//}
+
+message EtcdNode {
+    string name = 1;
+    repeated string peer_urls = 2;
+    repeated string client_urls = 3;
+    repeated string quarantined_client_urls = 4;
+    bool tls_enabled = 5;
+}
+
+message EtcdState {
+    bool new_cluster = 1;
+    EtcdCluster cluster = 2;
+    string etcd_version = 3;
+    bool quarantined = 4;
+}
