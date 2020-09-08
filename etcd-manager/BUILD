@@ -94,3 +94,14 @@ gazelle(
     "etcd",
     "etcdctl",
 ]]
+
+[genrule(
+    name = "etcd-v3.4.13-linux-amd64_%s" % c,
+    srcs = ["@etcd_3_4_13_tar//file"],
+    outs = ["etcd-v3.4.13-linux-amd64/%s" % c],
+    cmd = "tar -x -z --no-same-owner -f ./$(location @etcd_3_4_13_tar//file) etcd-v3.4.13-linux-amd64/%s && mv etcd-v3.4.13-linux-amd64/%s \"$@\"" % (c, c),
+    visibility = ["//visibility:public"],
+) for c in [
+    "etcd",
+    "etcdctl",
+]]

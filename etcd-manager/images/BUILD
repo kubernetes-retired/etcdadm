@@ -95,6 +95,16 @@ container_layer(
     ],
 )
 
+# Layer for etcd 3.4.13, updated recommendation for k8s 1.19 and later
+container_layer(
+    name = "etcd-3-4-13-layer",
+    directory = "/opt/etcd-v3.4.13-linux-amd64/",
+    files = [
+        "//:etcd-v3.4.13-linux-amd64_etcdctl",
+        "//:etcd-v3.4.13-linux-amd64_etcd",
+    ],
+)
+
 load("@io_bazel_rules_docker//docker/package_managers:download_pkgs.bzl", "download_pkgs")
 load("@io_bazel_rules_docker//docker/package_managers:install_pkgs.bzl", "install_pkgs")
 
@@ -128,6 +138,7 @@ container_image(
         "etcd-3-3-13-layer",
         "etcd-3-3-17-layer",
         "etcd-3-4-3-layer",
+        "etcd-3-4-13-layer",
     ],
 )
 
