@@ -109,25 +109,9 @@ load("@io_bazel_rules_docker//docker/package_managers:download_pkgs.bzl", "downl
 load("@io_bazel_rules_docker//docker/package_managers:install_pkgs.bzl", "install_pkgs")
 
 # Install deps because we need nsenter / fsck
-download_pkgs(
-    name = "required_pkgs",
-    image_tar = "@debian-base-amd64//image:image.tar",
-    packages = [
-        "mount",
-        "util-linux",
-    ],
-)
-
-install_pkgs(
-    name = "debian-base-with-req-pkgs-amd64",
-    image_tar = "@debian-base-amd64//image:image.tar",
-    installables_tar = ":required_pkgs.tar",
-    output_image_name = "debian-base-with-req-pkgs-amd64",
-)
-
 container_image(
     name = "etcd-manager-base",
-    base = ":debian-base-with-req-pkgs-amd64",
+    base = "@debian-base-amd64//image",
     directory = "/opt",
     layers = [
         "etcd-2-2-1-layer",
