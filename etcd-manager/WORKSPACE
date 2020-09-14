@@ -34,9 +34,9 @@ gazelle_dependencies()
 
 http_archive(
     name = "io_bazel_rules_docker",
-    sha256 = "dc97fccceacd4c6be14e800b2a00693d5e8d07f69ee187babfd04a80a9f8e250",
-    strip_prefix = "rules_docker-0.14.1",
-    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.14.1/rules_docker-v0.14.1.tar.gz"],
+    sha256 = "14ac30773fdb393ddec90e158c9ec7ebb3f8a4fd533ec2abbfd8789ad81a284b",
+    strip_prefix = "rules_docker-0.12.1",
+    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.12.1/rules_docker-v0.12.1.tar.gz"],
 )
 
 load(
@@ -51,6 +51,7 @@ load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
 container_deps()
 
 # Note: We can't (easily) use distroless because we need: fsck, blkid, mount, others? to mount disks
+# We also have to use debian-hyperkube-base because we need nsenter / fsck
 
 load(
     "@io_bazel_rules_docker//container:container.bzl",
@@ -58,12 +59,12 @@ load(
 )
 
 container_pull(
-    name = "debian-base-amd64",
+    name = "debian-hyperkube-base-amd64",
     architecture = "amd64",
-    digest = "sha256:dc06e242160076b72bd75135fb3dd0a9e91f386b2d812ec10cbf9e65864c755d",
-    registry = "k8s.gcr.io/build-image",
-    repository = "debian-base-amd64",
-    tag = "v2.1.3",  # ignored, but kept here for documentation
+    digest = "sha256:5d4ea2fb5fbe9a9a9da74f67cf2faefc881968bc39f2ac5d62d9167e575812a1",
+    registry = "k8s.gcr.io",
+    repository = "debian-hyperkube-base",
+    tag = "0.12.1",  # ignored, but kept here for documentation
 )
 
 #=============================================================================
