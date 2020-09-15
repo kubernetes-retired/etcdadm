@@ -107,11 +107,11 @@ container_push(
     format = "Docker",
     image = ":etcd-manager",
     registry = "{STABLE_DOCKER_REGISTRY}",
-    repository = select({
-        "@io_bazel_rules_go//go/platform:amd64": "{STABLE_DOCKER_IMAGE_PREFIX}etcd-manager-amd64",
-        "@io_bazel_rules_go//go/platform:arm64": "{STABLE_DOCKER_IMAGE_PREFIX}etcd-manager-arm64",
+    repository = "{STABLE_DOCKER_IMAGE_PREFIX}etcd-manager",
+    tag = select({
+        "@io_bazel_rules_go//go/platform:amd64": "{STABLE_DOCKER_TAG}-amd64",
+        "@io_bazel_rules_go//go/platform:arm64": "{STABLE_DOCKER_TAG}-arm64",
     }),
-    tag = "{STABLE_DOCKER_TAG}",
 )
 
 container_image(
@@ -132,11 +132,11 @@ container_push(
     format = "Docker",
     image = ":etcd-dump",
     registry = "{STABLE_DOCKER_REGISTRY}",
-    repository = select({
-        "@io_bazel_rules_go//go/platform:amd64": "{STABLE_DOCKER_IMAGE_PREFIX}etcd-dump-amd64",
-        "@io_bazel_rules_go//go/platform:arm64": "{STABLE_DOCKER_IMAGE_PREFIX}etcd-dump-arm64",
+    repository = "{STABLE_DOCKER_IMAGE_PREFIX}etcd-dump",
+    tag = select({
+        "@io_bazel_rules_go//go/platform:amd64": "{STABLE_DOCKER_TAG}-amd64",
+        "@io_bazel_rules_go//go/platform:arm64": "{STABLE_DOCKER_TAG}-arm64",
     }),
-    tag = "{STABLE_DOCKER_TAG}",
 )
 
 container_image(
@@ -158,9 +158,9 @@ container_push(
     format = "Docker",
     image = ":etcd-backup",
     registry = "{STABLE_DOCKER_REGISTRY}",
-    repository = select({
-        "@io_bazel_rules_go//go/platform:amd64": "{STABLE_DOCKER_IMAGE_PREFIX}etcd-backup-amd64",
-        "@io_bazel_rules_go//go/platform:arm64": "{STABLE_DOCKER_IMAGE_PREFIX}etcd-backup-arm64",
+    repository = "{STABLE_DOCKER_IMAGE_PREFIX}etcd-backup",
+    tag = select({
+        "@io_bazel_rules_go//go/platform:amd64": "{STABLE_DOCKER_TAG}-amd64",
+        "@io_bazel_rules_go//go/platform:arm64": "{STABLE_DOCKER_TAG}-arm64",
     }),
-    tag = "{STABLE_DOCKER_TAG}",
 )

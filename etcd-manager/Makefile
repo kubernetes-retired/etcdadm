@@ -12,7 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+STABLE_DOCKER_REGISTRY     := $(shell tools/get_workspace_status.sh | grep STABLE_DOCKER_REGISTRY | cut -d ' ' -f 2)
+STABLE_DOCKER_IMAGE_PREFIX := $(shell tools/get_workspace_status.sh | grep STABLE_DOCKER_IMAGE_PREFIX | cut -d ' ' -f 2)
+STABLE_DOCKER_TAG          := $(shell tools/get_workspace_status.sh | grep STABLE_DOCKER_TAG | cut -d ' ' -f 2)
+IMAGE_BASE                 := $(STABLE_DOCKER_REGISTRY)/$(STABLE_DOCKER_IMAGE_PREFIX)
+
 BAZEL_FLAGS=--features=pure --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64
+
 .PHONY: all
 all: test
 
@@ -37,19 +43,53 @@ push-etcd-manager:
 	bazel run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //images:push-etcd-manager
 	bazel run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_arm64 //images:push-etcd-manager
 
+.PHONY: push-etcd-manager-manifest
+push-etcd-manager-manifest:
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest create \
+		$(IMAGE_BASE)etcd-manager:$(STABLE_DOCKER_TAG) \
+		$(IMAGE_BASE)etcd-manager:$(STABLE_DOCKER_TAG)-amd64 \
+		$(IMAGE_BASE)etcd-manager:$(STABLE_DOCKER_TAG)-arm64
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest push --purge \
+		$(IMAGE_BASE)etcd-manager:$(STABLE_DOCKER_TAG)
+
 .PHONY: push-etcd-dump
 push-etcd-dump:
 	bazel run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //images:push-etcd-dump
 	bazel run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_arm64 //images:push-etcd-dump
+
+.PHONY: push-etcd-dump-manifest
+push-etcd-dump-manifest:
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest create \
+		$(IMAGE_BASE)etcd-dump:$(STABLE_DOCKER_TAG) \
+		$(IMAGE_BASE)etcd-dump:$(STABLE_DOCKER_TAG)-amd64 \
+		$(IMAGE_BASE)etcd-dump:$(STABLE_DOCKER_TAG)-arm64
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest push --purge \
+		$(IMAGE_BASE)etcd-dump:$(STABLE_DOCKER_TAG)
 
 .PHONY: push-etcd-backup
 push-etcd-backup:
 	bazel run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //images:push-etcd-backup
 	bazel run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_arm64 //images:push-etcd-backup
 
-.PHONY: push
-push: push-etcd-manager push-etcd-dump push-etcd-backup
+.PHONY: push-etcd-backup-manifest
+push-etcd-backup-manifest:
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest create \
+		$(IMAGE_BASE)etcd-backup:$(STABLE_DOCKER_TAG) \
+		$(IMAGE_BASE)etcd-backup:$(STABLE_DOCKER_TAG)-amd64 \
+		$(IMAGE_BASE)etcd-backup:$(STABLE_DOCKER_TAG)-arm64
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest push --purge \
+		$(IMAGE_BASE)etcd-backup:$(STABLE_DOCKER_TAG)
+
+.PHONY: push-images
+push-images: push-etcd-manager push-etcd-dump push-etcd-backup
 	echo "pushed images"
+
+.PHONY: push-manifests
+push-manifests: push-etcd-manager-manifest push-etcd-dump-manifest push-etcd-backup-manifest
+	echo "pushed manifests"
+
+.PHONY: push
+push: push-images push-manifests
 
 .PHONY: gazelle
 gazelle:
