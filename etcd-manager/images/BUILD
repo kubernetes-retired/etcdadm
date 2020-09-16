@@ -108,7 +108,6 @@ container_layer(
 load("@io_bazel_rules_docker//docker/package_managers:download_pkgs.bzl", "download_pkgs")
 load("@io_bazel_rules_docker//docker/package_managers:install_pkgs.bzl", "install_pkgs")
 
-# Install deps because we need nsenter / fsck
 container_image(
     name = "etcd-manager-base",
     base = "@debian-base-amd64//image",
