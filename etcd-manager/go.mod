@@ -78,6 +78,9 @@ replace k8s.io/cli-runtime => k8s.io/cli-runtime v0.19.0
 
 require (
 	cloud.google.com/go v0.54.0
+	github.com/Azure/azure-sdk-for-go v49.0.0+incompatible
+	github.com/Azure/go-autorest/autorest/azure/auth v0.5.3
+	github.com/Azure/go-autorest/autorest/to v0.2.0
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.264
 	github.com/aws/aws-sdk-go v1.35.24
 	github.com/blang/semver v3.5.1+incompatible
