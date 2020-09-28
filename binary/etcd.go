@@ -66,11 +66,8 @@ func isEtcdctlInstalled(version, inputDir string) (bool, error) {
 	if !exists {
 		return false, nil
 	}
-	cmdVersionFlag := "--version"
-	if os.Getenv("ETCDCTL_API") == "3" {
-		cmdVersionFlag = "version"
-	}
-	cmd := exec.Command(path, cmdVersionFlag)
+	cmd := exec.Command(path, "version")
+	cmd.Env = append(os.Environ(), "ETCDCTL_API=3")
 	return util.CmdOutputContains(cmd, fmt.Sprintf("etcdctl version: %s", version))
 }
 
