@@ -28,7 +28,7 @@ var _ discovery.Interface = &OpenstackVolumes{}
 
 func (os *OpenstackVolumes) Poll() (map[string]discovery.Node, error) {
 
-	allVolumes, err := os.FindVolumes()
+	allVolumes, err := os.findVolumes(false)
 	if err != nil {
 		return nil, err
 	}

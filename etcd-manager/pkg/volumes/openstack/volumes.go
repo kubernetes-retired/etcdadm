@@ -274,7 +274,7 @@ func (stack *OpenstackVolumes) buildOpenstackVolume(d *cinderv2.Volume) (*volume
 	return vol, nil
 }
 
-func (stack *OpenstackVolumes) matchesTags(d *cinderv2.Volume) bool {
+func (stack *OpenstackVolumes) matchesTags(d *cinderv2.Volume, filterByAZ bool) bool {
 	for _, k := range stack.matchTagKeys {
 		_, found := d.Metadata[k]
 		if !found {
@@ -290,7 +290,7 @@ func (stack *OpenstackVolumes) matchesTags(d *cinderv2.Volume) bool {
 	}
 
 	// find volume az matching compute az
-	if !stack.ignoreAZ {
+	if filterByAZ && !stack.ignoreAZ {
 		if d.AvailabilityZone != stack.zone {
 			return false
 		}
@@ -300,6 +300,10 @@ func (stack *OpenstackVolumes) matchesTags(d *cinderv2.Volume) bool {
 }
 
 func (stack *OpenstackVolumes) FindVolumes() ([]*volumes.Volume, error) {
+	return stack.findVolumes(true)
+}
+
+func (stack *OpenstackVolumes) findVolumes(filterByAZ bool) ([]*volumes.Volume, error) {
 	var volumes []*volumes.Volume
 
 	klog.V(2).Infof("Listing Openstack disks in %s/%s", stack.project, stack.meta.AvailabilityZone)
@@ -316,7 +320,7 @@ func (stack *OpenstackVolumes) FindVolumes() ([]*volumes.Volume, error) {
 	}
 
 	for _, volume := range vols {
-		if !stack.matchesTags(&volume) {
+		if !stack.matchesTags(&volume, filterByAZ) {
 			continue
 		}
 		vol, err := stack.buildOpenstackVolume(&volume)
