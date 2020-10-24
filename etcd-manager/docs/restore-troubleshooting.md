@@ -50,3 +50,14 @@ Make sure to replace `[MASTER IP]` with the IP of the old master.
 
 Once you've removed the old master IPs from etcd, the kubernetes service endpoints should be automatically updated.
 The kubernetes service should be functional again now, and flannel should come up on new nodes.
+
+## Corrupted restore-backup command in storage
+
+Once a cluster is established and a leader is selected, the leader will read the
+`restore-backup` command from storage. If this is an invalid command -- for
+example, one that specifies a nonexistent backup -- it is possible to enter a
+state where `etcd-manager` will fail to start up, and eventually enter a
+`CrashLoopBackOff` state.
+
+You can fix this by manually deleting the command from storage. You can do this
+by removing the backup via `etcd-manager-ctl delete-backup <backupname>`.
