@@ -21,7 +21,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strconv"
 
 	"github.com/golang/protobuf/proto"
 	"k8s.io/klog"
@@ -171,7 +170,7 @@ func runDeleteCommand(ctx context.Context, o *Options, args []string) error {
 	if len(args) != 1 {
 		return fmt.Errorf("syntax: delete-command <backupname>")
 	}
-	commandID := args[0]
+	backupName := args[0]
 
 	commandStore, err := GetCommandStore(o)
 	if err != nil {
@@ -185,7 +184,7 @@ func runDeleteCommand(ctx context.Context, o *Options, args []string) error {
 
 	for _, c := range commands {
 		data := c.Data()
-		if strconv.FormatInt(data.Timestamp, 10) == commandID {
+		if data.RestoreBackup.Backup == backupName {
 			err := commandStore.RemoveCommand(c)
 			if err != nil {
 				return fmt.Errorf("error deleting command: %v", err)
