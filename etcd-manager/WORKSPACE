@@ -61,7 +61,7 @@ container_pull(
     name = "debian-base-amd64",
     architecture = "amd64",
     digest = "sha256:30a33eaa75d591bd8a5ec1caee5259f79158c574615c8e06142a0f2ab2fec7cc",
-    registry = "gcr.io/cloud-marketplace-containers/google",
+    registry = "l.gcr.io/google",
     repository = "debian10",
 )
 
