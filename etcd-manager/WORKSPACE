@@ -60,9 +60,10 @@ load(
 container_pull(
     name = "debian-base-amd64",
     architecture = "amd64",
-    digest = "sha256:30a33eaa75d591bd8a5ec1caee5259f79158c574615c8e06142a0f2ab2fec7cc",
-    registry = "l.gcr.io/google",
-    repository = "debian10",
+    digest = "sha256:dc06e242160076b72bd75135fb3dd0a9e91f386b2d812ec10cbf9e65864c755d",
+    registry = "k8s.gcr.io/build-image",
+    repository = "debian-base-amd64",
+    tag = "v2.1.3",  # ignored, but kept here for documentation
 )
 
 #=============================================================================
