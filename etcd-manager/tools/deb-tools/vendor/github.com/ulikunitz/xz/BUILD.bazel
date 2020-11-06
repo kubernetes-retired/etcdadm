@@ -1,0 +1,21 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "bits.go",
+        "crc.go",
+        "format.go",
+        "lzmafilter.go",
+        "none-check.go",
+        "reader.go",
+        "writer.go",
+    ],
+    importmap = "kope.io/etcd-manager/tools/deb-extract/vendor/github.com/ulikunitz/xz",
+    importpath = "github.com/ulikunitz/xz",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/ulikunitz/xz/internal/xlog:go_default_library",
+        "//vendor/github.com/ulikunitz/xz/lzma:go_default_library",
+    ],
+)

@@ -203,3 +203,54 @@ go_repository(
     build_external = "vendored",
     build_file_proto_mode = "disable_global",
 )
+
+#=============================================================================
+
+http_file(
+    name = "debian_packages_gz_amd64",
+    sha256 = "369d45f6c138af98d8ea8a598564dcabc1f6991ac777fb2d351e846f195cdc13",
+    urls = ["http://snapshot.debian.org/archive/debian/20201101T154040Z/dists/buster/main/binary-amd64/Packages.gz"],
+)
+
+http_file(
+    name = "debian_packages_gz_arm64",
+    sha256 = "62a7e0c34f45a2524024ef4871e48f061f8d57d54e6f9d75d2aa2bff55ca91b8",
+    urls = ["http://snapshot.debian.org/archive/debian/20201101T154040Z/dists/buster/main/binary-arm64/Packages.gz"],
+)
+
+container_pull(
+    name = "distroless-base-amd64",
+    architecture = "amd64",
+    digest = "sha256:abe4b6cd34fed3ade2e89ed1f2ce75ddab023ea0d583206cfa4f960b74572c67",
+    registry = "gcr.io/distroless",
+    repository = "base-debian10",
+)
+
+container_pull(
+    name = "distroless-base-amd64-debug",
+    architecture = "amd64",
+    digest = "sha256:ef82640400a9f1623813bd32cf23de4db317086bddcda1f4b1787a4ab57ec319",
+    registry = "gcr.io/distroless",
+    repository = "base-debian10",
+)
+
+container_pull(
+    name = "distroless-base-arm64",
+    architecture = "arm64",
+    digest = "sha256:abe4b6cd34fed3ade2e89ed1f2ce75ddab023ea0d583206cfa4f960b74572c67",
+    registry = "gcr.io/distroless",
+    repository = "base-debian10",
+)
+
+container_pull(
+    name = "distroless-base-arm64-debug",
+    architecture = "arm64",
+    digest = "sha256:ef82640400a9f1623813bd32cf23de4db317086bddcda1f4b1787a4ab57ec319",
+    registry = "gcr.io/distroless",
+    repository = "base-debian10",
+)
+
+local_repository(
+    name = "deb_tools",
+    path = "tools/deb-tools",
+)

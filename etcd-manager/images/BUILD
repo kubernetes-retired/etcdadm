@@ -56,8 +56,8 @@ load("etcd.bzl", "supported_etcd_arch_and_version")
 container_image(
     name = "etcd-manager-base",
     base = select({
-        "@io_bazel_rules_go//go/platform:amd64": "@debian-hyperkube-base-amd64//image",
-        "@io_bazel_rules_go//go/platform:arm64": "@debian-hyperkube-base-arm64//image",
+        "@io_bazel_rules_go//go/platform:amd64": "//images/base:base_image_amd64",
+        "@io_bazel_rules_go//go/platform:arm64": "//images/base:base_image_arm64",
     }),
     directory = "/opt",
     layers = select({
