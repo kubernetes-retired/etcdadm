@@ -339,8 +339,10 @@ func findDevicePath(volumeID string) (string, error) {
 	candidateDeviceNodes := []string{
 		// KVM
 		fmt.Sprintf("virtio-%s", volumeID[:20]),
+		fmt.Sprintf("virtio-%s", volumeID),
 		// KVM virtio-scsi
 		fmt.Sprintf("scsi-0QEMU_QEMU_HARDDISK_%s", volumeID[:20]),
+		fmt.Sprintf("scsi-0QEMU_QEMU_HARDDISK_%s", volumeID),
 		// ESXi
 		fmt.Sprintf("wwn-0x%s", strings.Replace(volumeID, "-", "", -1)),
 	}
