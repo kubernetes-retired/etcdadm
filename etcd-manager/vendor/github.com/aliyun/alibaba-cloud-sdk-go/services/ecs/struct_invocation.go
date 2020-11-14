@@ -22,12 +22,14 @@ type Invocation struct {
 	TotalCount        int64             `json:"TotalCount" xml:"TotalCount"`
 	PageSize          int64             `json:"PageSize" xml:"PageSize"`
 	Timed             bool              `json:"Timed" xml:"Timed"`
+	CreationTime      string            `json:"CreationTime" xml:"CreationTime"`
 	Frequency         string            `json:"Frequency" xml:"Frequency"`
 	CommandName       string            `json:"CommandName" xml:"CommandName"`
 	Parameters        string            `json:"Parameters" xml:"Parameters"`
 	InvokeId          string            `json:"InvokeId" xml:"InvokeId"`
 	InvokeStatus      string            `json:"InvokeStatus" xml:"InvokeStatus"`
 	CommandContent    string            `json:"CommandContent" xml:"CommandContent"`
+	InvocationStatus  string            `json:"InvocationStatus" xml:"InvocationStatus"`
 	CommandType       string            `json:"CommandType" xml:"CommandType"`
 	InvokeInstances   InvokeInstances   `json:"InvokeInstances" xml:"InvokeInstances"`
 	InvocationResults InvocationResults `json:"InvocationResults" xml:"InvocationResults"`

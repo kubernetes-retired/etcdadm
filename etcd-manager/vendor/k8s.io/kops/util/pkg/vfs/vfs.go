@@ -21,7 +21,7 @@ import (
 	"io"
 	"strings"
 
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 	"k8s.io/kops/util/pkg/hashing"
 )
 
@@ -105,7 +105,7 @@ func IsClusterReadable(p Path) bool {
 	}
 
 	switch p.(type) {
-	case *S3Path, *GSPath, *SwiftPath, *OSSPath, *FSPath:
+	case *S3Path, *GSPath, *SwiftPath, *OSSPath, *FSPath, *VaultPath:
 		return true
 
 	case *KubernetesPath:

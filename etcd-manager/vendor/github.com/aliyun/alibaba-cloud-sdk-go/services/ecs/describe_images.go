@@ -98,6 +98,7 @@ type DescribeImagesRequest struct {
 	OSType               string                  `position:"Query" name:"OSType"`
 	OwnerId              requests.Integer        `position:"Query" name:"OwnerId"`
 	Filter               *[]DescribeImagesFilter `position:"Query" name:"Filter"  type:"Repeated"`
+	ImageFamily          string                  `position:"Query" name:"ImageFamily"`
 	Status               string                  `position:"Query" name:"Status"`
 }
 
@@ -130,6 +131,7 @@ func CreateDescribeImagesRequest() (request *DescribeImagesRequest) {
 		RpcRequest: &requests.RpcRequest{},
 	}
 	request.InitWithApiInfo("Ecs", "2014-05-26", "DescribeImages", "ecs", "openAPI")
+	request.Method = requests.POST
 	return
 }
 

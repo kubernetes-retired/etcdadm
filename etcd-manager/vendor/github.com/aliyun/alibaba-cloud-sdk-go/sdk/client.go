@@ -27,6 +27,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"regexp"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
@@ -123,6 +124,13 @@ func (client *Client) GetNoProxy() string {
 	return client.noProxy
 }
 
+func (client *Client) SetTransport(transport http.RoundTripper) {
+	if client.httpClient == nil {
+		client.httpClient = &http.Client{}
+	}
+	client.httpClient.Transport = transport
+}
+
 // InitWithProviderChain will get credential from the providerChain,
 // the RsaKeyPairCredential Only applicable to regionID `ap-northeast-1`,
 // if your providerChain may return a credential type with RsaKeyPairCredential,
@@ -143,7 +151,9 @@ func (client *Client) InitWithOptions(regionId string, config *Config, credentia
 	client.config = config
 	client.httpClient = &http.Client{}
 
-	if config.HttpTransport != nil {
+	if config.Transport != nil {
+		client.httpClient.Transport = config.Transport
+	} else if config.HttpTransport != nil {
 		client.httpClient.Transport = config.HttpTransport
 	}
 
@@ -486,7 +496,7 @@ func (client *Client) setTimeout(request requests.AcsRequest) {
 	if trans, ok := client.httpClient.Transport.(*http.Transport); ok && trans != nil {
 		trans.DialContext = Timeout(connectTimeout)
 		client.httpClient.Transport = trans
-	} else {
+	} else if client.httpClient.Transport == nil {
 		client.httpClient.Transport = &http.Transport{
 			DialContext: Timeout(connectTimeout),
 		}
@@ -524,7 +534,14 @@ func (client *Client) DoActionWithSigner(request requests.AcsRequest, response r
 
 	var flag bool
 	for _, value := range noProxy {
-		if value == httpRequest.Host {
+		if strings.HasPrefix(value, "*") {
+			value = fmt.Sprintf(".%s", value)
+		}
+		noProxyReg, err := regexp.Compile(value)
+		if err != nil {
+			return err
+		}
+		if noProxyReg.MatchString(httpRequest.Host){
 			flag = true
 			break
 		}
@@ -533,8 +550,12 @@ func (client *Client) DoActionWithSigner(request requests.AcsRequest, response r
 	// Set whether to ignore certificate validation.
 	// Default InsecureSkipVerify is false.
 	if trans, ok := client.httpClient.Transport.(*http.Transport); ok && trans != nil {
-		trans.TLSClientConfig = &tls.Config{
-			InsecureSkipVerify: client.getHTTPSInsecure(request),
+		if trans.TLSClientConfig != nil {
+			trans.TLSClientConfig.InsecureSkipVerify = client.getHTTPSInsecure(request)
+		} else {
+			trans.TLSClientConfig = &tls.Config{
+				InsecureSkipVerify: client.getHTTPSInsecure(request),
+			}
 		}
 		if proxy != nil && !flag {
 			trans.Proxy = http.ProxyURL(proxy)
@@ -688,6 +709,14 @@ func (client *Client) AddAsyncTask(task func()) (err error) {
 
 func (client *Client) GetConfig() *Config {
 	return client.config
+}
+
+func (client *Client) GetSigner() auth.Signer {
+	return client.signer
+}
+
+func (client *Client) SetSigner(signer auth.Signer) {
+	client.signer = signer
 }
 
 func NewClient() (client *Client, err error) {

@@ -18,6 +18,7 @@ package vfs
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"fmt"
 	"io"
@@ -28,11 +29,10 @@ import (
 	"sync"
 	"time"
 
-	"golang.org/x/net/context"
 	"google.golang.org/api/googleapi"
 	storage "google.golang.org/api/storage/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 	"k8s.io/kops/util/pkg/hashing"
 )
 
@@ -58,6 +58,15 @@ var gcsReadBackoff = wait.Backoff{
 // GSAcl is an ACL implementation for objects on Google Cloud Storage
 type GSAcl struct {
 	Acl []*storage.ObjectAccessControl
+}
+
+func (a *GSAcl) String() string {
+	var s []string
+	for _, acl := range a.Acl {
+		s = append(s, fmt.Sprintf("%+v", acl))
+	}
+
+	return "{" + strings.Join(s, ", ") + "}"
 }
 
 var _ ACL = &GSAcl{}
@@ -139,25 +148,26 @@ func (p *GSPath) Join(relativePath ...string) Path {
 }
 
 func (p *GSPath) WriteFile(data io.ReadSeeker, acl ACL) error {
+	md5Hash, err := hashing.HashAlgorithmMD5.Hash(data)
+	if err != nil {
+		return err
+	}
+
 	done, err := RetryWithBackoff(gcsWriteBackoff, func() (bool, error) {
-		klog.V(4).Infof("Writing file %q", p)
-
-		md5Hash, err := hashing.HashAlgorithmMD5.Hash(data)
-		if err != nil {
-			return false, err
-		}
-
 		obj := &storage.Object{
 			Name:    p.key,
 			Md5Hash: base64.StdEncoding.EncodeToString(md5Hash.HashValue),
 		}
 
 		if acl != nil {
-			gsAcl, ok := acl.(*GSAcl)
+			gsACL, ok := acl.(*GSAcl)
 			if !ok {
 				return true, fmt.Errorf("write to %s with ACL of unexpected type %T", p, acl)
 			}
-			obj.Acl = gsAcl.Acl
+			obj.Acl = gsACL.Acl
+			klog.V(4).Infof("Writing file %q with ACL %v", p, gsACL)
+		} else {
+			klog.V(4).Infof("Writing file %q", p)
 		}
 
 		if _, err := data.Seek(0, 0); err != nil {

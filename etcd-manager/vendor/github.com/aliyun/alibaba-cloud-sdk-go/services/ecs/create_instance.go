@@ -78,6 +78,7 @@ type CreateInstanceRequest struct {
 	*requests.RpcRequest
 	ResourceOwnerId               requests.Integer          `position:"Query" name:"ResourceOwnerId"`
 	HpcClusterId                  string                    `position:"Query" name:"HpcClusterId"`
+	HttpPutResponseHopLimit       requests.Integer          `position:"Query" name:"HttpPutResponseHopLimit"`
 	SecurityEnhancementStrategy   string                    `position:"Query" name:"SecurityEnhancementStrategy"`
 	KeyPairName                   string                    `position:"Query" name:"KeyPairName"`
 	SpotPriceLimit                requests.Float            `position:"Query" name:"SpotPriceLimit"`
@@ -85,6 +86,7 @@ type CreateInstanceRequest struct {
 	ResourceGroupId               string                    `position:"Query" name:"ResourceGroupId"`
 	HostName                      string                    `position:"Query" name:"HostName"`
 	Password                      string                    `position:"Query" name:"Password"`
+	DeploymentSetGroupNo          requests.Integer          `position:"Query" name:"DeploymentSetGroupNo"`
 	StorageSetPartitionNumber     requests.Integer          `position:"Query" name:"StorageSetPartitionNumber"`
 	Tag                           *[]CreateInstanceTag      `position:"Query" name:"Tag"  type:"Repeated"`
 	AutoRenewPeriod               requests.Integer          `position:"Query" name:"AutoRenewPeriod"`
@@ -117,6 +119,7 @@ type CreateInstanceRequest struct {
 	SystemDiskPerformanceLevel    string                    `position:"Query" name:"SystemDisk.PerformanceLevel"`
 	UserData                      string                    `position:"Query" name:"UserData"`
 	PasswordInherit               requests.Boolean          `position:"Query" name:"PasswordInherit"`
+	HttpEndpoint                  string                    `position:"Query" name:"HttpEndpoint"`
 	InstanceType                  string                    `position:"Query" name:"InstanceType"`
 	Arn                           *[]CreateInstanceArn      `position:"Query" name:"Arn"  type:"Repeated"`
 	InstanceChargeType            string                    `position:"Query" name:"InstanceChargeType"`
@@ -134,6 +137,8 @@ type CreateInstanceRequest struct {
 	DataDisk                      *[]CreateInstanceDataDisk `position:"Query" name:"DataDisk"  type:"Repeated"`
 	StorageSetId                  string                    `position:"Query" name:"StorageSetId"`
 	SystemDiskSize                requests.Integer          `position:"Query" name:"SystemDisk.Size"`
+	ImageFamily                   string                    `position:"Query" name:"ImageFamily"`
+	HttpTokens                    string                    `position:"Query" name:"HttpTokens"`
 	SystemDiskDescription         string                    `position:"Query" name:"SystemDisk.Description"`
 }
 
@@ -157,6 +162,7 @@ type CreateInstanceDataDisk struct {
 	Size               string `name:"Size"`
 	Encrypted          string `name:"Encrypted"`
 	PerformanceLevel   string `name:"PerformanceLevel"`
+	EncryptAlgorithm   string `name:"EncryptAlgorithm"`
 	Description        string `name:"Description"`
 	Category           string `name:"Category"`
 	KMSKeyId           string `name:"KMSKeyId"`
@@ -178,6 +184,7 @@ func CreateCreateInstanceRequest() (request *CreateInstanceRequest) {
 		RpcRequest: &requests.RpcRequest{},
 	}
 	request.InitWithApiInfo("Ecs", "2014-05-26", "CreateInstance", "ecs", "openAPI")
+	request.Method = requests.POST
 	return
 }
 

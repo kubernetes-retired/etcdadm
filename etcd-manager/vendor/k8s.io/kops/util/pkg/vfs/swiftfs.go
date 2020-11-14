@@ -38,7 +38,7 @@ import (
 	"github.com/gophercloud/gophercloud/pagination"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/util/homedir"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 	"k8s.io/kops/util/pkg/hashing"
 )
 
@@ -50,8 +50,6 @@ func NewSwiftClient() (*gophercloud.ServiceClient, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	authOption.AllowReauth = true
 
 	pc, err := openstack.NewClient(authOption.IdentityEndpoint)
 	if err != nil {
@@ -96,7 +94,7 @@ func NewSwiftClient() (*gophercloud.ServiceClient, error) {
 type OpenstackConfig struct {
 }
 
-func (_ OpenstackConfig) filename() (string, error) {
+func (OpenstackConfig) filename() (string, error) {
 	name := os.Getenv("OPENSTACK_CREDENTIAL_FILE")
 	if name != "" {
 		klog.V(2).Infof("using openstack config found in $OPENSTACK_CREDENTIAL_FILE: %s", name)
@@ -137,10 +135,15 @@ func (oc OpenstackConfig) GetCredential() (gophercloud.AuthOptions, error) {
 	// prioritize environment config
 	env, enverr := openstack.AuthOptionsFromEnv()
 	if enverr != nil {
-		klog.Warningf("Could not initialize swift from environment: %v", enverr)
+		klog.Warningf("Could not initialize OpenStack config from environment: %v", enverr)
 		// fallback to config file
 		return oc.getCredentialFromFile()
 	}
+
+	if env.ApplicationCredentialID != "" && env.Username == "" {
+		env.Scope = &gophercloud.AuthScope{}
+	}
+	env.AllowReauth = true
 	return env, nil
 
 }
@@ -161,7 +164,7 @@ func (oc OpenstackConfig) GetRegion() (string, error) {
 	// TODO: Unsure if this is the correct section for region
 	values, err := oc.getSection("Global", items)
 	if err != nil {
-		return "", fmt.Errorf("Region not provided in OS_REGION_NAME or openstack config section GLOBAL")
+		return "", fmt.Errorf("region not provided in OS_REGION_NAME or openstack config section GLOBAL")
 	}
 	return values["region"], nil
 }
@@ -523,7 +526,7 @@ func (p *SwiftPath) Hash(a hashing.HashAlgorithm) (*hashing.Hash, error) {
 
 	md5Bytes, err := hex.DecodeString(md5)
 	if err != nil {
-		return nil, fmt.Errorf("Etag was not a valid MD5 sum: %q", md5)
+		return nil, fmt.Errorf("etag was not a valid MD5 sum: %q", md5)
 	}
 
 	return &hashing.Hash{Algorithm: hashing.HashAlgorithmMD5, HashValue: md5Bytes}, nil

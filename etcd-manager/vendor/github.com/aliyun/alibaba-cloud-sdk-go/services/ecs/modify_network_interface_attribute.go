@@ -76,6 +76,7 @@ func (client *Client) ModifyNetworkInterfaceAttributeWithCallback(request *Modif
 // ModifyNetworkInterfaceAttributeRequest is the request struct for api ModifyNetworkInterfaceAttribute
 type ModifyNetworkInterfaceAttributeRequest struct {
 	*requests.RpcRequest
+	QueueNumber          requests.Integer `position:"Query" name:"QueueNumber"`
 	ResourceOwnerId      requests.Integer `position:"Query" name:"ResourceOwnerId"`
 	SecurityGroupId      *[]string        `position:"Query" name:"SecurityGroupId"  type:"Repeated"`
 	Description          string           `position:"Query" name:"Description"`
@@ -98,6 +99,7 @@ func CreateModifyNetworkInterfaceAttributeRequest() (request *ModifyNetworkInter
 		RpcRequest: &requests.RpcRequest{},
 	}
 	request.InitWithApiInfo("Ecs", "2014-05-26", "ModifyNetworkInterfaceAttribute", "ecs", "openAPI")
+	request.Method = requests.POST
 	return
 }
 

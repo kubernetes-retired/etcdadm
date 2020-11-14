@@ -5,7 +5,6 @@ go_library(
     srcs = [
         "doc.go",
         "errors.go",
-        "microversions.go",
         "requests.go",
         "results.go",
         "urls.go",
@@ -16,8 +15,6 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//vendor/github.com/gophercloud/gophercloud:go_default_library",
-        "//vendor/github.com/gophercloud/gophercloud/openstack/compute/v2/flavors:go_default_library",
-        "//vendor/github.com/gophercloud/gophercloud/openstack/compute/v2/images:go_default_library",
         "//vendor/github.com/gophercloud/gophercloud/pagination:go_default_library",
     ],
 )

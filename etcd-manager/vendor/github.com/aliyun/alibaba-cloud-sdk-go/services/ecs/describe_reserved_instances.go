@@ -91,6 +91,7 @@ type DescribeReservedInstancesRequest struct {
 	ZoneId               string           `position:"Query" name:"ZoneId"`
 	ReservedInstanceName string           `position:"Query" name:"ReservedInstanceName"`
 	Status               *[]string        `position:"Query" name:"Status"  type:"Repeated"`
+	AllocationType       string           `position:"Query" name:"AllocationType"`
 }
 
 // DescribeReservedInstancesResponse is the response struct for api DescribeReservedInstances
@@ -109,6 +110,7 @@ func CreateDescribeReservedInstancesRequest() (request *DescribeReservedInstance
 		RpcRequest: &requests.RpcRequest{},
 	}
 	request.InitWithApiInfo("Ecs", "2014-05-26", "DescribeReservedInstances", "ecs", "openAPI")
+	request.Method = requests.POST
 	return
 }
 
