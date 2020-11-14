@@ -81,15 +81,15 @@ require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.264
 	github.com/aws/aws-sdk-go v1.35.10
 	github.com/blang/semver v3.5.1+incompatible
-	github.com/coreos/etcd v3.3.17+incompatible
 	github.com/digitalocean/godo v1.19.0
 	github.com/golang/protobuf v1.4.2
 	github.com/gophercloud/gophercloud v0.11.1-0.20200518183226-7aec46f32c19
 	github.com/pkg/sftp v0.0.0-20180127012644-738e088bbd93 // indirect
+	go.etcd.io/etcd v0.5.0-alpha.5.0.20200819165624-17cef6e3e9d5
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	google.golang.org/api v0.22.0
-	google.golang.org/grpc v1.27.0
+	google.golang.org/grpc v1.27.1
 	gopkg.in/gcfg.v1 v1.2.3
 	gopkg.in/yaml.v2 v2.3.0
 	honnef.co/go/tools v0.0.1-2020.1.4

@@ -30,8 +30,8 @@ import (
 	"strings"
 	"time"
 
-	etcd_client_v3 "github.com/coreos/etcd/clientv3"
-	"github.com/coreos/etcd/version"
+	etcd_client_v3 "go.etcd.io/etcd/clientv3"
+	"go.etcd.io/etcd/version"
 	"k8s.io/klog"
 )
 
