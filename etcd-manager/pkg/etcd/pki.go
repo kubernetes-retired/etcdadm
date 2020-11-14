@@ -45,7 +45,10 @@ func (p *etcdProcess) createKeypairs(peersCA *pki.Keypair, clientsCA *pki.Keypai
 
 		certConfig := certutil.Config{
 			CommonName: me.Name,
-			Usages:     []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
+			AltNames: certutil.AltNames{
+				DNSNames: []string{me.Name},
+			},
+			Usages: []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
 		}
 
 		if err := addAltNames(&certConfig, me.PeerUrls); err != nil {
@@ -81,7 +84,10 @@ func (p *etcdProcess) createKeypairs(peersCA *pki.Keypair, clientsCA *pki.Keypai
 		// See https://github.com/etcd-io/etcd/issues/9785
 		certConfig := certutil.Config{
 			CommonName: me.Name,
-			Usages:     []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
+			AltNames: certutil.AltNames{
+				DNSNames: []string{me.Name},
+			},
+			Usages: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
 		}
 
 		if err := addAltNames(&certConfig, me.ClientUrls); err != nil {
