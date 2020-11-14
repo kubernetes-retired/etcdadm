@@ -201,6 +201,7 @@ go_repository(
     importpath = "github.com/coreos/etcd",
     strip_prefix = "etcd-2.2.1/",
     build_external = "vendored",
+    build_file_name = "BUILD.bazel", # See https://github.com/bazelbuild/rules_go/issues/456
     build_file_proto_mode = "disable_global",
 )
 
