@@ -48,3 +48,15 @@ jobs:
     - name: Test
       run: |
         "${GITHUB_WORKSPACE}/bin/bazelisk" test //... --test_output=streamed
+
+  verify-gofmt:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: gofmt
+      run: gofmt -s -w $(find . -type f -name '*.go' | grep -v "/vendor/")
+
+    - name: fail on changes
+      run: git diff && git diff-index --quiet HEAD --
