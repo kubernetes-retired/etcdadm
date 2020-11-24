@@ -163,9 +163,10 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 			ClusterToken: clusterToken,
 			Nodes:        []*protoetcd.EtcdNode{myNode},
 		},
-		MyNodeName:    myNodeName,
-		ListenAddress: "127.0.0.1",
-		DisableTLS:    false,
+		IgnoreListenMetricsURLs: true, // Do not Set ListenMetricsURLs for restore to avoid port conflicts
+		MyNodeName:              myNodeName,
+		ListenAddress:           "127.0.0.1",
+		DisableTLS:              false,
 	}
 
 	var etcdClientsCA *pki.Keypair

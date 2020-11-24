@@ -100,6 +100,9 @@ type etcdProcess struct {
 
 	// ListenMetricsURLs is the set of urls we should listen for metrics on
 	ListenMetricsURLs []string
+
+	// IgnoreListenMetricsURLs if this is set, we will not set Metrics URL even if ENV is set.
+	IgnoreListenMetricsURLs bool
 }
 
 func (p *etcdProcess) ExitState() (error, *os.ProcessState) {
@@ -269,6 +272,10 @@ func (p *etcdProcess) Start() error {
 		}
 	}
 
+	//IgnoreListenMetricsURLs
+	if p.IgnoreListenMetricsURLs {
+		delete(env, "ETCD_LISTEN_METRICS_URLS")
+	}
 	for k, v := range env {
 		c.Env = append(c.Env, k+"="+v)
 	}
