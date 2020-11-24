@@ -8,30 +8,26 @@ load(
 )
 
 packages = [
-    "e2fsprogs", # For mkfs.ext4
-    "libext2fs2", # needed by e2fsprogs
-    "libcom-err2", # needed by e2fsprogs
-    "libblkid1", # needed by e2fsprogs
-    "libuuid1", # needed by e2fsprogs
-
-    "util-linux", # For blkid
-
-    "mount", # For mount & umount
-    "libmount1", # Needed by mount
-    "libselinux1", # Needed by mount
-    "libpcre3", # Needed by libselinux1
-
-    "dash", # Needed for shell (for dual logging)
-
-    "coreutils", # General tools
-    "libacl1", # Needed by coreutils
-    "libattr1", # Needed by coreutils
+    "e2fsprogs",  # For mkfs.ext4
+    "libext2fs2",  # needed by e2fsprogs
+    "libcom-err2",  # needed by e2fsprogs
+    "libblkid1",  # needed by e2fsprogs
+    "libuuid1",  # needed by e2fsprogs
+    "util-linux",  # For blkid
+    "mount",  # For mount & umount
+    "libmount1",  # Needed by mount
+    "libselinux1",  # Needed by mount
+    "libpcre3",  # Needed by libselinux1
+    "dash",  # Needed for shell (for dual logging)
+    "coreutils",  # General tools
+    "libacl1",  # Needed by coreutils
+    "libattr1",  # Needed by coreutils
 ]
 
 architectures = [
     "amd64",
     "arm64",
-] 
+]
 
 [genrule(
     name = "pkg_tar_%s_%s" % (pkg, arch),
@@ -53,4 +49,4 @@ architectures = [
     name = "base_image_%s" % (arch),
     base = "@distroless-base-%s//image" % (arch),
     tars = [":pkg_tar_%s_%s" % (pkg, arch) for pkg in packages],
- ) for arch in architectures]
+) for arch in architectures]
