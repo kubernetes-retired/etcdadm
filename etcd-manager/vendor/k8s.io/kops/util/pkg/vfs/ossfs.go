@@ -31,7 +31,7 @@ import (
 
 	"github.com/denverdino/aliyungo/oss"
 	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 	"k8s.io/kops/util/pkg/hashing"
 )
 
@@ -231,6 +231,14 @@ func (p *OSSPath) String() string {
 
 func (p *OSSPath) Path() string {
 	return "oss://" + p.bucket + "/" + p.key
+}
+
+func (p *OSSPath) Bucket() string {
+	return p.bucket
+}
+
+func (p *OSSPath) Key() string {
+	return p.key
 }
 
 func (p *OSSPath) ReadDir() ([]Path, error) {

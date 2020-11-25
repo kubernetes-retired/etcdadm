@@ -90,6 +90,7 @@ type CreateImageRequest struct {
 	OwnerAccount         string                          `position:"Query" name:"OwnerAccount"`
 	OwnerId              requests.Integer                `position:"Query" name:"OwnerId"`
 	InstanceId           string                          `position:"Query" name:"InstanceId"`
+	ImageFamily          string                          `position:"Query" name:"ImageFamily"`
 	ImageVersion         string                          `position:"Query" name:"ImageVersion"`
 }
 
@@ -120,6 +121,7 @@ func CreateCreateImageRequest() (request *CreateImageRequest) {
 		RpcRequest: &requests.RpcRequest{},
 	}
 	request.InitWithApiInfo("Ecs", "2014-05-26", "CreateImage", "ecs", "openAPI")
+	request.Method = requests.POST
 	return
 }
 

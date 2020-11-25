@@ -17,6 +17,7 @@ limitations under the License.
 package vfs
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -26,13 +27,16 @@ import (
 	"sync"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws/ec2metadata"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/denverdino/aliyungo/oss"
 	"github.com/gophercloud/gophercloud"
-	"golang.org/x/net/context"
-	"golang.org/x/oauth2/google"
+	"google.golang.org/api/option"
 	storage "google.golang.org/api/storage/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
+
+	vault "github.com/hashicorp/vault/api"
 )
 
 // VFSContext is a 'context' for VFS, that is normally a singleton
@@ -49,6 +53,8 @@ type VFSContext struct {
 	swiftClient *gophercloud.ServiceClient
 	// ossClient is the Aliyun Open Source Storage client
 	ossClient *oss.Client
+
+	vaultClient *vault.Client
 }
 
 var Context = VFSContext{
@@ -69,11 +75,13 @@ func WithBackoff(backoff wait.Backoff) VFSOption {
 	}
 }
 
-// ReadLocation reads a file from a vfs URL
+// ReadFile reads a file from a vfs URL
 // It supports additional schemes which don't (yet) have full VFS implementations:
 //   metadata: reads from instance metadata on GCE/AWS
 //   http / https: reads from HTTP
 func (c *VFSContext) ReadFile(location string, options ...VFSOption) ([]byte, error) {
+	ctx := context.TODO()
+
 	var opts vfsOptions
 	// Exponential backoff, starting with 500 milliseconds, doubling each time, 5 steps
 	opts.backoff = wait.Backoff{
@@ -97,25 +105,27 @@ func (c *VFSContext) ReadFile(location string, options ...VFSOption) ([]byte, er
 		case "metadata":
 			switch u.Host {
 			case "gce":
-				httpURL := "http://169.254.169.254/computeMetadata/v1/instance/attributes/" + u.Path
+				httpURL := "http://169.254.169.254/computeMetadata/v1/" + u.Path
 				httpHeaders := make(map[string]string)
 				httpHeaders["Metadata-Flavor"] = "Google"
-				return c.readHttpLocation(httpURL, httpHeaders, opts)
+				return c.readHTTPLocation(httpURL, httpHeaders, opts)
 			case "aws":
-				httpURL := "http://169.254.169.254/latest/" + u.Path
-				return c.readHttpLocation(httpURL, nil, opts)
+				return c.readAWSMetadata(ctx, u.Path)
 			case "digitalocean":
 				httpURL := "http://169.254.169.254/metadata/v1" + u.Path
-				return c.readHttpLocation(httpURL, nil, opts)
+				return c.readHTTPLocation(httpURL, nil, opts)
 			case "alicloud":
 				httpURL := "http://100.100.100.200/latest/meta-data/" + u.Path
-				return c.readHttpLocation(httpURL, nil, opts)
+				return c.readHTTPLocation(httpURL, nil, opts)
+			case "openstack":
+				httpURL := "http://169.254.169.254/latest/meta-data/" + u.Path
+				return c.readHTTPLocation(httpURL, nil, opts)
 			default:
 				return nil, fmt.Errorf("unknown metadata type: %q in %q", u.Host, location)
 			}
 
 		case "http", "https":
-			return c.readHttpLocation(location, nil, opts)
+			return c.readHTTPLocation(location, nil, opts)
 		}
 	}
 
@@ -166,13 +176,35 @@ func (c *VFSContext) BuildVfsPath(p string) (Path, error) {
 		return c.buildOSSPath(p)
 	}
 
+	if strings.HasPrefix(p, "vault://") {
+		return c.buildVaultPath(p)
+	}
+
 	return nil, fmt.Errorf("unknown / unhandled path type: %q", p)
 }
 
-// readHttpLocation reads an http (or https) url.
+// readAWSMetadata reads the specified path from the AWS EC2 metadata service
+func (c *VFSContext) readAWSMetadata(ctx context.Context, path string) ([]byte, error) {
+	awsSession, err := session.NewSession()
+	if err != nil {
+		return nil, fmt.Errorf("error building AWS session: %v", err)
+	}
+	client := ec2metadata.New(awsSession)
+	if strings.HasPrefix(path, "/meta-data/") {
+		s, err := client.GetMetadataWithContext(ctx, strings.TrimPrefix(path, "/meta-data/"))
+		if err != nil {
+			return nil, fmt.Errorf("error reading from AWS metadata service: %v", err)
+		}
+		return []byte(s), nil
+	}
+	// There are others (e.g. user-data), but as we don't use them yet let's not expose them
+	return nil, fmt.Errorf("unhandled aws metadata path %q", path)
+}
+
+// readHTTPLocation reads an http (or https) url.
 // It returns the contents, or an error on any non-200 response.  On a 404, it will return os.ErrNotExist
 // It will retry a few times on a 500 class error
-func (c *VFSContext) readHttpLocation(httpURL string, httpHeaders map[string]string, opts vfsOptions) ([]byte, error) {
+func (c *VFSContext) readHTTPLocation(httpURL string, httpHeaders map[string]string, opts vfsOptions) ([]byte, error) {
 	var body []byte
 
 	done, err := RetryWithBackoff(opts.backoff, func() (bool, error) {
@@ -248,7 +280,7 @@ func RetryWithBackoff(backoff wait.Backoff, condition func() (bool, error)) (boo
 		}
 
 		if noMoreRetries {
-			klog.Infof("hit maximum retries %d with error %v", i, err)
+			klog.V(2).Infof("hit maximum retries %d with error %v", i, err)
 			return done, err
 		}
 	}
@@ -361,12 +393,8 @@ func (c *VFSContext) getGCSClient() (*storage.Service, error) {
 	// TODO: Should we fall back to read-only?
 	scope := storage.DevstorageReadWriteScope
 
-	httpClient, err := google.DefaultClient(context.Background(), scope)
-	if err != nil {
-		return nil, fmt.Errorf("error building GCS HTTP client: %v", err)
-	}
-
-	gcsClient, err := storage.New(httpClient)
+	ctx := context.Background()
+	gcsClient, err := storage.NewService(ctx, option.WithScopes(scope))
 	if err != nil {
 		return nil, fmt.Errorf("error building GCS client: %v", err)
 	}
@@ -425,4 +453,36 @@ func (c *VFSContext) buildOSSPath(p string) (*OSSPath, error) {
 	}
 
 	return NewOSSPath(c.ossClient, bucket, u.Path)
+}
+
+func (c *VFSContext) buildVaultPath(p string) (*VaultPath, error) {
+	u, err := url.Parse(p)
+	if err != nil {
+		return nil, fmt.Errorf("invalid vault url: %q", p)
+	}
+
+	var scheme string
+
+	if u.Scheme != "vault" {
+		return nil, fmt.Errorf("invalid vault url: %q", p)
+	}
+
+	queryValues := u.Query()
+
+	scheme = "https://"
+	if queryValues.Get("tls") == "false" {
+		scheme = "http://"
+	}
+
+	if c.vaultClient == nil {
+
+		vaultClient, err := newVaultClient(scheme, u.Hostname(), u.Port())
+		if err != nil {
+			return nil, err
+		}
+
+		c.vaultClient = vaultClient
+	}
+
+	return newVaultPath(c.vaultClient, scheme, u.Path)
 }

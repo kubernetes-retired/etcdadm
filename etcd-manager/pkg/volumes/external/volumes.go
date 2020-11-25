@@ -162,7 +162,7 @@ func (a *ExternalVolumes) FindVolumes() ([]*volumes.Volume, error) {
 		}
 
 		if !stat.IsDir() {
-			klog.V(2).Infof("expected directory at %s, but was not a directory; skipping")
+			klog.V(2).Infof("expected directory at %s, but was not a directory; skipping", mntPath)
 			continue
 		}
 

@@ -1,15 +1,18 @@
 steps:
-- name: gcr.io/cloud-builders/bazel
+- name: gcr.io/cloud-marketplace-containers/google/bazel:2.2.0
+  entrypoint: bazel
   args: ['version']
 
-- name: gcr.io/cloud-builders/bazel
+- name: gcr.io/cloud-marketplace-containers/google/bazel:2.2.0
+  entrypoint: bazel
   args: ['build', '//cmd/...', '//images:etcd-manager', '//images:etcd-backup', '//images:etcd-dump']
   # To build with GCS cache
   #args: ['build', '--google_default_credentials', '--spawn_strategy=remote', '--genrule_strategy=remote', '--strategy=Javac=remote', '--strategy=Closure=remote', '--remote_http_cache=https://storage.googleapis.com/cache-bucket', '//cmd/...']
 
-- name: gcr.io/cloud-builders/bazel
+- name: gcr.io/cloud-marketplace-containers/google/bazel:2.2.0
+  entrypoint: bazel
   args: ['test', '//test/...', '--test_output=streamed', '--local_test_jobs=1']
 
-timeout: 1800s
+timeout: 3000s
 options:
   machineType: N1_HIGHCPU_8

@@ -79,10 +79,13 @@ type ModifyImageAttributeRequest struct {
 	ResourceOwnerId      requests.Integer `position:"Query" name:"ResourceOwnerId"`
 	ImageId              string           `position:"Query" name:"ImageId"`
 	Description          string           `position:"Query" name:"Description"`
+	BootMode             string           `position:"Query" name:"BootMode"`
 	ImageName            string           `position:"Query" name:"ImageName"`
 	ResourceOwnerAccount string           `position:"Query" name:"ResourceOwnerAccount"`
 	OwnerAccount         string           `position:"Query" name:"OwnerAccount"`
 	OwnerId              requests.Integer `position:"Query" name:"OwnerId"`
+	ImageFamily          string           `position:"Query" name:"ImageFamily"`
+	Status               string           `position:"Query" name:"Status"`
 }
 
 // ModifyImageAttributeResponse is the response struct for api ModifyImageAttribute
@@ -97,6 +100,7 @@ func CreateModifyImageAttributeRequest() (request *ModifyImageAttributeRequest) 
 		RpcRequest: &requests.RpcRequest{},
 	}
 	request.InitWithApiInfo("Ecs", "2014-05-26", "ModifyImageAttribute", "ecs", "openAPI")
+	request.Method = requests.POST
 	return
 }
 

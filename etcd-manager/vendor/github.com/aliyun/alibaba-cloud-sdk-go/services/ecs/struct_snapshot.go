@@ -36,5 +36,7 @@ type Snapshot struct {
 	RemainTime        int                     `json:"RemainTime" xml:"RemainTime"`
 	ResourceGroupId   string                  `json:"ResourceGroupId" xml:"ResourceGroupId"`
 	KMSKeyId          string                  `json:"KMSKeyId" xml:"KMSKeyId"`
+	Category          string                  `json:"Category" xml:"Category"`
+	SnapshotType      string                  `json:"SnapshotType" xml:"SnapshotType"`
 	Tags              TagsInDescribeSnapshots `json:"Tags" xml:"Tags"`
 }

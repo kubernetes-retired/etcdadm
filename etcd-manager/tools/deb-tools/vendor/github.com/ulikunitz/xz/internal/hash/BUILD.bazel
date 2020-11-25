@@ -1,0 +1,14 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "cyclic_poly.go",
+        "doc.go",
+        "rabin_karp.go",
+        "roller.go",
+    ],
+    importmap = "kope.io/etcd-manager/tools/deb-extract/vendor/github.com/ulikunitz/xz/internal/hash",
+    importpath = "github.com/ulikunitz/xz/internal/hash",
+    visibility = ["//vendor/github.com/ulikunitz/xz:__subpackages__"],
+)

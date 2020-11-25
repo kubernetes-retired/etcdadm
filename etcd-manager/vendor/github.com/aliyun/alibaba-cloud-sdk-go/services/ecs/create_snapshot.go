@@ -86,6 +86,7 @@ type CreateSnapshotRequest struct {
 	OwnerAccount         string               `position:"Query" name:"OwnerAccount"`
 	OwnerId              requests.Integer     `position:"Query" name:"OwnerId"`
 	RetentionDays        requests.Integer     `position:"Query" name:"RetentionDays"`
+	Category             string               `position:"Query" name:"Category"`
 }
 
 // CreateSnapshotTag is a repeated param struct in CreateSnapshotRequest
@@ -107,6 +108,7 @@ func CreateCreateSnapshotRequest() (request *CreateSnapshotRequest) {
 		RpcRequest: &requests.RpcRequest{},
 	}
 	request.InitWithApiInfo("Ecs", "2014-05-26", "CreateSnapshot", "ecs", "openAPI")
+	request.Method = requests.POST
 	return
 }
 

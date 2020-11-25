@@ -22,8 +22,8 @@ import (
 	"net/http"
 	"net/url"
 
-	etcd_client_v2 "github.com/coreos/etcd/client"
-	"github.com/coreos/etcd/pkg/pathutil"
+	etcd_client_v2 "go.etcd.io/etcd/client"
+	"go.etcd.io/etcd/pkg/pathutil"
 	"k8s.io/klog"
 )
 

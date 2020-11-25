@@ -62,9 +62,13 @@ func GRPCServerConfig(keypairs *pki.Keypairs, myPeerID string) (*tls.Config, err
 	caPool := x509.NewCertPool()
 	caPool.AddCert(ca.Certificate)
 
+	name := "etcd-manager-server-" + myPeerID
 	config := certutil.Config{
-		CommonName: "etcd-manager-server-" + myPeerID,
-		Usages:     []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		CommonName: name,
+		AltNames: certutil.AltNames{
+			DNSNames: []string{name},
+		},
+		Usages: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 	}
 
 	keypair, err := keypairs.EnsureKeypair("etcd-manager-server-"+myPeerID, config, ca)

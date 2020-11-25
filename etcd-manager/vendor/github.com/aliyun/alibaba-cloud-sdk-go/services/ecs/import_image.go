@@ -80,7 +80,9 @@ type ImportImageRequest struct {
 	ResourceOwnerId      requests.Integer                `position:"Query" name:"ResourceOwnerId"`
 	Description          string                          `position:"Query" name:"Description"`
 	Platform             string                          `position:"Query" name:"Platform"`
+	ResourceGroupId      string                          `position:"Query" name:"ResourceGroupId"`
 	ImageName            string                          `position:"Query" name:"ImageName"`
+	Tag                  *[]ImportImageTag               `position:"Query" name:"Tag"  type:"Repeated"`
 	Architecture         string                          `position:"Query" name:"Architecture"`
 	LicenseType          string                          `position:"Query" name:"LicenseType"`
 	ResourceOwnerAccount string                          `position:"Query" name:"ResourceOwnerAccount"`
@@ -99,6 +101,12 @@ type ImportImageDiskDeviceMapping struct {
 	DiskImageSize string `name:"DiskImageSize"`
 }
 
+// ImportImageTag is a repeated param struct in ImportImageRequest
+type ImportImageTag struct {
+	Value string `name:"Value"`
+	Key   string `name:"Key"`
+}
+
 // ImportImageResponse is the response struct for api ImportImage
 type ImportImageResponse struct {
 	*responses.BaseResponse
@@ -114,6 +122,7 @@ func CreateImportImageRequest() (request *ImportImageRequest) {
 		RpcRequest: &requests.RpcRequest{},
 	}
 	request.InitWithApiInfo("Ecs", "2014-05-26", "ImportImage", "ecs", "openAPI")
+	request.Method = requests.POST
 	return
 }
 

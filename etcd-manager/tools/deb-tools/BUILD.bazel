@@ -1,0 +1,27 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("@bazel_gazelle//:def.bzl", "gazelle")
+
+# gazelle:proto disable_global
+gazelle(
+    name = "gazelle",
+    external = "vendored",
+    prefix = "kope.io/etcd-manager/tools/deb-extract",
+)
+
+go_library(
+    name = "go_default_library",
+    srcs = ["main.go"],
+    importpath = "kope.io/etcd-manager/tools/deb-extract",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//vendor/github.com/blakesmith/ar:go_default_library",
+        "//vendor/github.com/ulikunitz/xz:go_default_library",
+        "//vendor/k8s.io/klog:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "deb-tools",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+)

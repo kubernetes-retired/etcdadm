@@ -27,7 +27,7 @@ import (
 
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 )
 
 type SSHPath struct {
@@ -179,11 +179,11 @@ func (p *SSHPath) WriteFile(data io.ReadSeeker, acl ACL) error {
 
 	if err == nil {
 		if acl != nil {
-			sshAcl, ok := acl.(*SSHAcl)
+			sshACL, ok := acl.(*SSHAcl)
 			if !ok {
 				err = fmt.Errorf("unexpected acl type %T", acl)
 			} else {
-				err = sftpClient.Chmod(tempfile, sshAcl.Mode)
+				err = sftpClient.Chmod(tempfile, sshACL.Mode)
 				if err != nil {
 					err = fmt.Errorf("error during chmod of %q: %v", tempfile, err)
 				}
