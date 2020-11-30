@@ -34,7 +34,7 @@ import (
 
 	"github.com/blakesmith/ar"
 	"github.com/ulikunitz/xz"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 )
 
 func main() {

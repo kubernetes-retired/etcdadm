@@ -28,7 +28,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes"
 )
 

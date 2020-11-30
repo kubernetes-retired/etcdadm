@@ -24,7 +24,7 @@ import (
 	"sort"
 	"time"
 
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 	"k8s.io/kops/util/pkg/vfs"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
 	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"

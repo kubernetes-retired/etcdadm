@@ -27,7 +27,7 @@ import (
 	"time"
 
 	etcd_client_v2 "go.etcd.io/etcd/client"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 )
 
 // EtcdClient is an abstract client for V2 and V3

@@ -20,7 +20,7 @@ import (
 	"context"
 	"time"
 
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 )
 
 func Sleep(ctx context.Context, duration time.Duration) error {

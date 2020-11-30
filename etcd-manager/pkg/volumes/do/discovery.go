@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi/discovery"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes"
 )

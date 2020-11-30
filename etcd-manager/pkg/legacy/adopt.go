@@ -25,7 +25,7 @@ import (
 	"strings"
 
 	yaml "gopkg.in/yaml.v2"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/commands"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdversions"

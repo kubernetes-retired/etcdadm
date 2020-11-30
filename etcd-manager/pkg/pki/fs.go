@@ -25,7 +25,7 @@ import (
 	"path/filepath"
 
 	"k8s.io/client-go/util/keyutil"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 )
 
 func LoadCAFromDisk(dir string) (*Keypair, error) {
