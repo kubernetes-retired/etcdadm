@@ -35,7 +35,7 @@ go_library(
     importpath = "github.com/ulikunitz/xz/lzma",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/ulikunitz/xz/internal/hash:go_default_library",
-        "//vendor/github.com/ulikunitz/xz/internal/xlog:go_default_library",
+        "//tools/deb-tools/vendor/github.com/ulikunitz/xz/internal/hash:go_default_library",
+        "//tools/deb-tools/vendor/github.com/ulikunitz/xz/internal/xlog:go_default_library",
     ],
 )
