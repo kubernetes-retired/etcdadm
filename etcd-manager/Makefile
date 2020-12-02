@@ -94,6 +94,7 @@ push: push-images push-manifests
 .PHONY: gazelle
 gazelle:
 	bazel run //:gazelle -- fix
+	cd tools/deb-tools && bazel run //:gazelle -- fix
 	git checkout -- vendor
 	rm -f vendor/github.com/coreos/etcd/cmd/etcd
 	#rm vendor/github.com/golang/protobuf/protoc-gen-go/testdata/multi/BUILD.bazel
