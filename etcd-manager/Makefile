@@ -110,6 +110,7 @@ vendor:
 	find vendor/ -name "BUILD" -delete
 	find vendor/ -name "BUILD.bazel" -delete
 	bazel run //:gazelle
+	make -C tools/deb-tools vendor
 
 .PHONY: staticcheck-all
 staticcheck-all:
