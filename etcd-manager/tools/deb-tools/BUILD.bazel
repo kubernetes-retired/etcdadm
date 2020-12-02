@@ -14,9 +14,9 @@ go_library(
     importpath = "kope.io/etcd-manager/tools/deb-extract",
     visibility = ["//visibility:private"],
     deps = [
-        "//tools/deb-tools/vendor/github.com/blakesmith/ar:go_default_library",
-        "//tools/deb-tools/vendor/github.com/ulikunitz/xz:go_default_library",
-        "//tools/deb-tools/vendor/k8s.io/klog/v2:go_default_library",
+        "//vendor/github.com/blakesmith/ar:go_default_library",
+        "//vendor/github.com/ulikunitz/xz:go_default_library",
+        "//vendor/k8s.io/klog/v2:go_default_library",
     ],
 )
 
