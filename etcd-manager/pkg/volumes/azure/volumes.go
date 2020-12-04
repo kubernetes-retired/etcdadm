@@ -183,7 +183,7 @@ func (a *AzureVolumes) findLocalDevice(disk *compute.Disk) (string, error) {
 	return dev, nil
 }
 
-// FindMountedVolume returns the device name of tghe mounted volume.
+// FindMountedVolume returns the device name of the mounted volume.
 func (a *AzureVolumes) FindMountedVolume(volume *volumes.Volume) (string, error) {
 	dev := volume.LocalDevice
 
