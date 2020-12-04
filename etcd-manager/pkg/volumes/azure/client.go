@@ -75,11 +75,11 @@ type instanceMetadata struct {
 }
 
 type client struct {
-	metadata         *instanceMetadata
-	vmssesClient     *compute.VirtualMachineScaleSetsClient
-	vmssVMsClient    *compute.VirtualMachineScaleSetVMsClient
-	disksClient      *compute.DisksClient
-	interfacesClient *network.InterfacesClient
+	metadata          *instanceMetadata
+	scaleSets         *compute.VirtualMachineScaleSetsClient
+	scaleSetVMs       *compute.VirtualMachineScaleSetVMsClient
+	disks             *compute.DisksClient
+	networkInterfaces *network.InterfacesClient
 }
 
 func newClient() (*client, error) {
@@ -99,24 +99,24 @@ func newClient() (*client, error) {
 		return nil, fmt.Errorf("error creating an authorizer: %s", err)
 	}
 
-	vmssesClient := compute.NewVirtualMachineScaleSetsClient(m.Compute.SubscriptionID)
-	vmssesClient.Authorizer = authorizer
+	scaleSets := compute.NewVirtualMachineScaleSetsClient(m.Compute.SubscriptionID)
+	scaleSets.Authorizer = authorizer
 
-	vmssVMsClient := compute.NewVirtualMachineScaleSetVMsClient(m.Compute.SubscriptionID)
-	vmssVMsClient.Authorizer = authorizer
+	scaleSetVMs := compute.NewVirtualMachineScaleSetVMsClient(m.Compute.SubscriptionID)
+	scaleSetVMs.Authorizer = authorizer
 
-	disksClient := compute.NewDisksClient(m.Compute.SubscriptionID)
-	disksClient.Authorizer = authorizer
+	disks := compute.NewDisksClient(m.Compute.SubscriptionID)
+	disks.Authorizer = authorizer
 
-	interfacesClient := network.NewInterfacesClient(m.Compute.SubscriptionID)
-	interfacesClient.Authorizer = authorizer
+	networkInterfaces := network.NewInterfacesClient(m.Compute.SubscriptionID)
+	networkInterfaces.Authorizer = authorizer
 
 	return &client{
-		metadata:         m,
-		vmssesClient:     &vmssesClient,
-		vmssVMsClient:    &vmssVMsClient,
-		disksClient:      &disksClient,
-		interfacesClient: &interfacesClient,
+		metadata:          m,
+		scaleSets:         &scaleSets,
+		scaleSetVMs:       &scaleSetVMs,
+		disks:             &disks,
+		networkInterfaces: &networkInterfaces,
 	}, nil
 }
 
@@ -166,7 +166,7 @@ func (c *client) localIP() net.IP {
 
 func (c *client) listVMScaleSetVMs(ctx context.Context) ([]compute.VirtualMachineScaleSetVM, error) {
 	var l []compute.VirtualMachineScaleSetVM
-	for iter, err := c.vmssVMsClient.ListComplete(ctx, c.resourceGroupName(), c.vmScaleSetName(), "" /* filter */, "" /* selectParameter */, "" /* expand */); iter.NotDone(); err = iter.Next() {
+	for iter, err := c.scaleSetVMs.ListComplete(ctx, c.resourceGroupName(), c.vmScaleSetName(), "" /* filter */, "" /* selectParameter */, "" /* expand */); iter.NotDone(); err = iter.Next() {
 		if err != nil {
 			return nil, err
 		}
@@ -176,7 +176,7 @@ func (c *client) listVMScaleSetVMs(ctx context.Context) ([]compute.VirtualMachin
 }
 
 func (c *client) getVMScaleSetVM(ctx context.Context, instanceID string) (*compute.VirtualMachineScaleSetVM, error) {
-	inst, err := c.vmssVMsClient.Get(ctx, c.resourceGroupName(), c.vmScaleSetName(), instanceID, compute.InstanceView)
+	inst, err := c.scaleSetVMs.Get(ctx, c.resourceGroupName(), c.vmScaleSetName(), instanceID, compute.InstanceView)
 	if err != nil {
 		return nil, err
 	}
@@ -184,11 +184,11 @@ func (c *client) getVMScaleSetVM(ctx context.Context, instanceID string) (*compu
 }
 
 func (c *client) updateVMScaleSetVM(ctx context.Context, instanceID string, parameters compute.VirtualMachineScaleSetVM) error {
-	future, err := c.vmssVMsClient.Update(ctx, c.resourceGroupName(), c.vmScaleSetName(), instanceID, parameters)
+	future, err := c.scaleSetVMs.Update(ctx, c.resourceGroupName(), c.vmScaleSetName(), instanceID, parameters)
 	if err != nil {
 		return fmt.Errorf("error updating VM Scale Set VM: %s", err)
 	}
-	if err := future.WaitForCompletionRef(ctx, c.vmssVMsClient.Client); err != nil {
+	if err := future.WaitForCompletionRef(ctx, c.scaleSetVMs.Client); err != nil {
 		return fmt.Errorf("error waiting for VM Scale Set VM update completion: %s", err)
 	}
 	return nil
@@ -196,7 +196,7 @@ func (c *client) updateVMScaleSetVM(ctx context.Context, instanceID string, para
 
 func (c *client) listDisks(ctx context.Context) ([]compute.Disk, error) {
 	var l []compute.Disk
-	for iter, err := c.disksClient.ListByResourceGroupComplete(ctx, c.resourceGroupName()); iter.NotDone(); err = iter.Next() {
+	for iter, err := c.disks.ListByResourceGroupComplete(ctx, c.resourceGroupName()); iter.NotDone(); err = iter.Next() {
 		if err != nil {
 			return nil, err
 		}
@@ -207,7 +207,7 @@ func (c *client) listDisks(ctx context.Context) ([]compute.Disk, error) {
 
 func (c *client) listVMSSNetworkInterfaces(ctx context.Context) ([]network.Interface, error) {
 	var l []network.Interface
-	for iter, err := c.interfacesClient.ListVirtualMachineScaleSetNetworkInterfacesComplete(ctx, c.resourceGroupName(), c.vmScaleSetName()); iter.NotDone(); err = iter.Next() {
+	for iter, err := c.networkInterfaces.ListVirtualMachineScaleSetNetworkInterfacesComplete(ctx, c.resourceGroupName(), c.vmScaleSetName()); iter.NotDone(); err = iter.Next() {
 		if err != nil {
 			return nil, err
 		}
