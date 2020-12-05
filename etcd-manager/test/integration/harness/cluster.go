@@ -181,7 +181,8 @@ func (h *TestHarness) WaitForHasLeader(nodes ...*TestHarnessNode) {
 
 func (h *TestHarness) WaitForVersion(timeout time.Duration, expectedVersion string, nodes ...*TestHarnessNode) {
 	for _, n := range nodes {
-		h.WaitFor(timeout, func() error {
+		description := fmt.Sprintf("wait for node %s to have version %q", n.Address, expectedVersion)
+		h.WaitFor(timeout, description, func() error {
 			client, err := n.NewClient()
 			if err != nil {
 				return fmt.Errorf("error building etcd client: %v", err)

@@ -289,7 +289,8 @@ func (n *TestHarnessNode) AssertVersion(t *testing.T, version string) {
 }
 
 func (n *TestHarnessNode) WaitForHealthy(timeout time.Duration) {
-	n.TestHarness.WaitFor(timeout, func() error {
+	description := fmt.Sprintf("wait for node %s to be healthy", n.Address)
+	n.TestHarness.WaitFor(timeout, description, func() error {
 		client, err := n.NewClient()
 		if err != nil {
 			return fmt.Errorf("error building etcd client: %v", err)
@@ -302,7 +303,8 @@ func (n *TestHarnessNode) WaitForHealthy(timeout time.Duration) {
 }
 
 func (n *TestHarnessNode) WaitForHasLeader(timeout time.Duration) {
-	n.TestHarness.WaitFor(timeout, func() error {
+	description := fmt.Sprintf("wait for node %s to have a leader", n.Address)
+	n.TestHarness.WaitFor(timeout, description, func() error {
 		client, err := n.NewClient()
 		if err != nil {
 			return fmt.Errorf("error building etcd client: %v", err)
