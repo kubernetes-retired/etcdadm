@@ -21,7 +21,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi/discovery"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes"

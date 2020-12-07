@@ -26,7 +26,7 @@ import (
 	"time"
 
 	etcd_client_v2 "go.etcd.io/etcd/client"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 )
 
 // V2Client is a client for the etcd v2 API, implementing EtcdClient

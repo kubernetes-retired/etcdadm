@@ -32,7 +32,7 @@ import (
 
 	etcd_client_v3 "go.etcd.io/etcd/clientv3"
 	"go.etcd.io/etcd/version"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 )
 
 type V3Client struct {

@@ -1,0 +1,40 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "client.go",
+        "discovery.go",
+        "testing.go",
+        "volumes.go",
+    ],
+    importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/azure",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/privateapi/discovery:go_default_library",
+        "//pkg/volumes:go_default_library",
+        "//vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-06-01/compute:go_default_library",
+        "//vendor/github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-06-01/network:go_default_library",
+        "//vendor/github.com/Azure/go-autorest/autorest/azure/auth:go_default_library",
+        "//vendor/github.com/Azure/go-autorest/autorest/to:go_default_library",
+        "//vendor/k8s.io/klog/v2:go_default_library",
+    ],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = [
+        "client_test.go",
+        "discovery_test.go",
+        "volumes_test.go",
+    ],
+    data = glob(["testdata/**"]),
+    embed = [":go_default_library"],
+    deps = [
+        "//pkg/privateapi/discovery:go_default_library",
+        "//pkg/volumes:go_default_library",
+        "//vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-06-01/compute:go_default_library",
+        "//vendor/github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-06-01/network:go_default_library",
+        "//vendor/github.com/Azure/go-autorest/autorest/to:go_default_library",
+    ],
+)

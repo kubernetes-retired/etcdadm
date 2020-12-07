@@ -24,7 +24,7 @@ import (
 	"testing"
 	"time"
 
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
 	"sigs.k8s.io/etcdadm/etcd-manager/test/integration/harness"
 )
@@ -102,7 +102,8 @@ func TestEnableTLS(t *testing.T) {
 					h.WaitForHealthy(nodes[0])
 
 					for i, n := range nodes {
-						h.WaitFor(120*time.Second, func() error {
+						description := fmt.Sprintf("wait for node %s to restart and settle", n.Address)
+						h.WaitFor(120*time.Second, description, func() error {
 							members, err := n.ListMembers(ctx)
 							if err != nil {
 								return fmt.Errorf("error doing etcd ListMembers: %v", err)

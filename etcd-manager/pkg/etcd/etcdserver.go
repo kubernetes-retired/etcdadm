@@ -27,7 +27,7 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"golang.org/x/net/context"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/backup"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/contextutil"

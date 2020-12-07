@@ -20,7 +20,7 @@ import (
 	"fmt"
 
 	"github.com/blang/semver"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 )
 
 // By declaring the versions here, using constants, we likely force a compilation error

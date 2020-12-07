@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"time"
 
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdclient"
 )
 
@@ -110,7 +110,7 @@ func (n *TestHarnessNode) WaitForListMembers(timeout time.Duration) {
 	}
 }
 
-func (h *TestHarness) WaitFor(timeout time.Duration, f func() error) {
+func (h *TestHarness) WaitFor(timeout time.Duration, description string, f func() error) {
 	t := h.T
 
 	deadline := time.Now().Add(timeout)
@@ -120,10 +120,13 @@ func (h *TestHarness) WaitFor(timeout time.Duration, f func() error) {
 			return
 		}
 
+		// We also log to klog, so that it appears in the test output.
 		if time.Now().After(deadline) {
-			t.Fatalf("time out waiting for condition: %v", err)
+			klog.Errorf("time out waiting for condition %q: %v", description, err)
+			t.Fatalf("time out waiting for condition %q: %v", description, err)
 		} else {
-			t.Logf("waiting for condition: %v", err)
+			klog.Infof("waiting for condition %q: %v", description, err)
+			t.Logf("waiting for condition %q: %v", description, err)
 		}
 
 		time.Sleep(time.Second)

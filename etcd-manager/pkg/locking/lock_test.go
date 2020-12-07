@@ -23,7 +23,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 )
 
 func init() {

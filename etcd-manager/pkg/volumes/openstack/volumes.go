@@ -33,7 +33,7 @@ import (
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/availabilityzones"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/volumeattach"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 	utilexec "k8s.io/utils/exec"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes"
 )

@@ -2,7 +2,7 @@ module sigs.k8s.io/etcdadm/etcd-manager
 
 go 1.12
 
-replace k8s.io/kops => k8s.io/kops v1.19.0-beta.1
+replace k8s.io/kops => k8s.io/kops v1.19.0-alpha.5.0.20201129060248-dc1c2210cf77
 
 // Version kubernetes-1.15.3
 //replace k8s.io/kubernetes => k8s.io/kubernetes v1.19.0
@@ -77,25 +77,33 @@ replace k8s.io/code-generator => k8s.io/code-generator v0.19.5-rc.0
 replace k8s.io/cli-runtime => k8s.io/cli-runtime v0.19.0
 
 require (
-	cloud.google.com/go v0.51.0
+	cloud.google.com/go v0.54.0
+	github.com/Azure/azure-sdk-for-go v49.0.0+incompatible
+	github.com/Azure/go-autorest/autorest/azure/auth v0.5.3
+	github.com/Azure/go-autorest/autorest/to v0.2.0
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.264
-	github.com/aws/aws-sdk-go v1.35.10
+	github.com/aws/aws-sdk-go v1.35.24
 	github.com/blang/semver v3.5.1+incompatible
-	github.com/digitalocean/godo v1.19.0
+	github.com/digitalocean/godo v1.54.0
+	github.com/go-logr/logr v0.3.0 // indirect
 	github.com/golang/protobuf v1.4.2
 	github.com/gophercloud/gophercloud v0.11.1-0.20200518183226-7aec46f32c19
 	github.com/pkg/sftp v0.0.0-20180127012644-738e088bbd93 // indirect
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20200819165624-17cef6e3e9d5
-	golang.org/x/net v0.0.0-20200707034311-ab3426394381
+	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
+	golang.org/x/sys v0.0.0-20201126233918-771906719818 // indirect
+	golang.org/x/text v0.3.4 // indirect
+	golang.org/x/tools v0.0.0-20201125231158-b5590deeca9b // indirect
 	google.golang.org/api v0.22.0
 	google.golang.org/grpc v1.27.1
 	gopkg.in/gcfg.v1 v1.2.3
-	gopkg.in/yaml.v2 v2.3.0
-	honnef.co/go/tools v0.0.1-2020.1.4
-	k8s.io/apimachinery v0.19.0
+	gopkg.in/yaml.v2 v2.4.0
+	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
+	honnef.co/go/tools v0.0.1-2020.1.6
+	k8s.io/apimachinery v0.20.0-beta.2
 	k8s.io/client-go v11.0.1-0.20190409021438-1a26190bd76a+incompatible
-	k8s.io/klog v1.0.0
+	k8s.io/klog/v2 v2.4.0
 	k8s.io/kops v0.0.0-00010101000000-000000000000
-	k8s.io/utils v0.0.0-20200729134348-d5654de09c73
+	k8s.io/utils v0.0.0-20201110183641-67b214c5f920
 )

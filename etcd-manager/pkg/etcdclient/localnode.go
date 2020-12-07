@@ -24,7 +24,7 @@ import (
 
 	etcd_client_v2 "go.etcd.io/etcd/client"
 	"go.etcd.io/etcd/pkg/pathutil"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 )
 
 type v2SelfInfo struct {

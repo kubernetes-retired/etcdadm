@@ -25,7 +25,7 @@ import (
 	"strings"
 	"time"
 
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 	"k8s.io/kops/util/pkg/vfs"
 	apis_etcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/backup"
@@ -44,6 +44,7 @@ import (
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/alicloud"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/aws"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/azure"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/do"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/external"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/gce"
@@ -254,6 +255,16 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 
 			volumeProvider = alicloudVolumeProvider
 			discoveryProvider = alicloudVolumeProvider
+
+		case "azure":
+			azureVolumeProvider, err := azure.NewAzureVolumes(o.ClusterName, o.VolumeTags, o.NameTag)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%v\n", err)
+				os.Exit(1)
+			}
+
+			volumeProvider = azureVolumeProvider
+			discoveryProvider = azureVolumeProvider
 
 		case "external":
 			volumeDir := volumes.PathFor("/mnt/disks")

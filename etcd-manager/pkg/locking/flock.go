@@ -22,7 +22,7 @@ import (
 	"os"
 	"syscall"
 
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 )
 
 type FSFlockLock struct {

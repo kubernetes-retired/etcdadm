@@ -25,7 +25,7 @@ import (
 	"time"
 
 	grpccontext "golang.org/x/net/context"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 )
 
 type leadership struct {

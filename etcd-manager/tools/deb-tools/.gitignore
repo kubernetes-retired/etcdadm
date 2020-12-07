@@ -1,0 +1,6 @@
+# Bazel stuff
+bazel-bin
+bazel-deb-tools
+bazel-genfiles
+bazel-out
+bazel-testlogs

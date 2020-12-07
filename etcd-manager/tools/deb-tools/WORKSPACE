@@ -26,7 +26,7 @@ go_register_toolchains(
     go_version = "1.13.10",
 )
 
-load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
 
 gazelle_dependencies()
 

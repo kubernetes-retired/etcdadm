@@ -26,7 +26,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/dns"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi/discovery"
 )
