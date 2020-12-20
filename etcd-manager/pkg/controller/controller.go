@@ -691,7 +691,12 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 			klog.Warningf("unable to reach member %s: %v", p, err)
 			continue
 		}
-		members, err := etcdClient.ListMembers(ctx)
+
+		klog.V(2).Infof("base client OK for etcd for client urls %s", clientUrls)
+		etcdClientCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+		members, err := etcdClient.ListMembers(etcdClientCtx)
+		cancel()
+
 		etcdclient.LoggedClose(etcdClient)
 		if err != nil {
 			klog.Warningf("unable to reach member for ListMembers %s: %v", p, err)
