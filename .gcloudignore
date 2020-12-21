@@ -1,0 +1,4 @@
+# Do not ignore .git directory in CloudBuild; needed to determine version                                
+#.git                                                                                                    
+
+#!include:.gitignore
