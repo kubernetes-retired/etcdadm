@@ -15,7 +15,7 @@
 # Usage:
 # make                 # builds the artifact
 # make ensure          # runs dep ensure
-# make container-build # build artifact on a Linux based container using golang 1.10
+# make container-build # build artifact on a Linux based container using golang:1.12
 
 SHELL := /usr/bin/env bash
 CWD := $(shell pwd)
@@ -23,13 +23,14 @@ BIN := etcdadm
 PACKAGE_GOPATH := /go/src/sigs.k8s.io/$(BIN)
 LDFLAGS := $(shell source ./version.sh ; KUBE_ROOT=. ; KUBE_GIT_VERSION=${VERSION_OVERRIDE} ; kube::version::ldflags)
 GIT_STORAGE_MOUNT := $(shell source ./git_utils.sh; container_git_storage_mount)
+GO_IMAGE ?= golang:1.12
 
 .PHONY: clean container-build default ensure diagrams $(BIN)
 
 default: $(BIN)
 
 container-build:
-	docker run --rm -e VERSION_OVERRIDE=${VERSION_OVERRIDE} -v $(PWD):$(PACKAGE_GOPATH) -w $(PACKAGE_GOPATH) $(GIT_STORAGE_MOUNT) golang:1.12 /bin/bash -c "make ensure && make"
+	docker run --rm -e VERSION_OVERRIDE=${VERSION_OVERRIDE} -v $(PWD):$(PACKAGE_GOPATH) -w $(PACKAGE_GOPATH) $(GIT_STORAGE_MOUNT) ${GO_IMAGE} /bin/bash -c "make ensure && make"
 
 $(BIN):
 	GO111MODULE=on go build -ldflags "$(LDFLAGS)"
