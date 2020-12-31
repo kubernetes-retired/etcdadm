@@ -19,6 +19,7 @@ package etcd
 import (
 	"context"
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -191,7 +192,9 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 		etcdPeersCA = ca
 	}
 
-	if err := p.createKeypairs(etcdPeersCA, etcdClientsCA, pkiDir, myNode); err != nil {
+	var peerClientIPs []net.IP // We restore using a single localhost server, so no additional cert SANs needed
+
+	if err := p.createKeypairs(etcdPeersCA, etcdClientsCA, pkiDir, myNode, peerClientIPs); err != nil {
 		return nil, err
 	}
 

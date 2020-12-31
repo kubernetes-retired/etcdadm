@@ -212,7 +212,8 @@ func (n *TestHarnessNode) Run() {
 		etcdPeersCA = nil
 	}
 
-	etcdServer, err := etcd.NewEtcdServer(n.NodeDir, n.TestHarness.ClusterName, n.Address, n.ListenMetricsURLs, me, peerServer, dnsProvider, etcdClientsCA, etcdPeersCA)
+	var peerClientIPs []net.IP
+	etcdServer, err := etcd.NewEtcdServer(n.NodeDir, n.TestHarness.ClusterName, n.Address, n.ListenMetricsURLs, me, peerServer, dnsProvider, etcdClientsCA, etcdPeersCA, peerClientIPs)
 	if err != nil {
 		t.Fatalf("error building EtcdServer: %v", err)
 	}

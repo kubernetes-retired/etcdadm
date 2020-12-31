@@ -29,7 +29,7 @@ import (
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/pki"
 )
 
-func (p *etcdProcess) createKeypairs(peersCA *pki.Keypair, clientsCA *pki.Keypair, pkiDir string, me *protoetcd.EtcdNode) error {
+func (p *etcdProcess) createKeypairs(peersCA *pki.Keypair, clientsCA *pki.Keypair, pkiDir string, me *protoetcd.EtcdNode, peerClientIPs []net.IP) error {
 	if peersCA != nil {
 		peersDir := filepath.Join(pkiDir, "peers")
 		p.PKIPeersDir = peersDir
@@ -51,9 +51,18 @@ func (p *etcdProcess) createKeypairs(peersCA *pki.Keypair, clientsCA *pki.Keypai
 			Usages: []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
 		}
 
+		// etcd 3.2 does some deeper client-certiifcate validation, so we want to include our client IP address
+		// (as the DNS name might not be immediately ready, see https://github.com/kopeio/etcd-manager/issues/371)
+		for _, ip := range peerClientIPs {
+			certConfig.AltNames.IPs = append(certConfig.AltNames.IPs, ip)
+		}
+		klog.Infof("adding peerClientIPs %v", peerClientIPs)
+
 		if err := addAltNames(&certConfig, me.PeerUrls); err != nil {
 			return err
 		}
+
+		certConfig.AltNames.IPs = removeDuplicateIPs(certConfig.AltNames.IPs)
 
 		klog.Infof("generating peer keypair for etcd: %+v", certConfig)
 
@@ -155,4 +164,18 @@ func addAltNames(certConfig *certutil.Config, urls []string) error {
 	}
 	certConfig.AltNames.IPs = append(certConfig.AltNames.IPs, net.ParseIP("127.0.0.1"))
 	return nil
+}
+
+func removeDuplicateIPs(ips []net.IP) []net.IP {
+	m := make(map[string]bool)
+	var out []net.IP
+	for _, ip := range ips {
+		s := ip.String()
+		if m[s] {
+			continue
+		}
+		m[s] = true
+		out = append(out, ip)
+	}
+	return out
 }

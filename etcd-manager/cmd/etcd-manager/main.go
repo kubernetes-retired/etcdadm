@@ -21,6 +21,7 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
+	"net"
 	"os"
 	"strings"
 	"time"
@@ -446,7 +447,14 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 	}
 
 	listenMetricsURLs := expandUrls(o.ListenMetricsURLs, o.Address, name)
-	etcdServer, err := etcd.NewEtcdServer(o.DataDir, o.ClusterName, o.ListenAddress, listenMetricsURLs, etcdNodeInfo, peerServer, dnsProvider, etcdClientsCA, etcdPeersCA)
+	peerClientIPs := []net.IP{}
+	if ip := net.ParseIP(o.Address); ip == nil {
+		return fmt.Errorf("unable to parse address %q: %w", o.Address, err)
+	} else {
+		peerClientIPs = append(peerClientIPs, ip)
+	}
+	klog.Infof("peerClientIPs: %v", peerClientIPs)
+	etcdServer, err := etcd.NewEtcdServer(o.DataDir, o.ClusterName, o.ListenAddress, listenMetricsURLs, etcdNodeInfo, peerServer, dnsProvider, etcdClientsCA, etcdPeersCA, peerClientIPs)
 	if err != nil {
 		return fmt.Errorf("error initializing etcd server: %v", err)
 	}
