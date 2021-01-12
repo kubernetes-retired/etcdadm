@@ -1,3 +1,4 @@
+#!/bin/bash -e
 # Copyright 2020 The Kubernetes Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,8 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-#!/bin/bash -e
 
 pushd pkg/privateapi/
 ln -sf ../../bazel-bin/pkg/privateapi/linux_amd64_stripped/privateapi_go_proto~/sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi/cluster.pb.go
