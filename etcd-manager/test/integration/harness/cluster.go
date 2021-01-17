@@ -156,7 +156,7 @@ func (h *TestHarness) NewNode(address string) *TestHarnessNode {
 		TestHarness: h,
 		Address:     address,
 		NodeDir:     nodeDir,
-		EtcdVersion: "2.2.1",
+		EtcdVersion: "3.4.13",
 	}
 	if err := n.Init(); err != nil {
 		t.Fatalf("error initializing node: %v", err)
