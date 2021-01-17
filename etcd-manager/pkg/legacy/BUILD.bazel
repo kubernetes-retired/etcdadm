@@ -1,15 +1,15 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "legacy",
     srcs = ["adopt.go"],
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/legacy",
     visibility = ["//visibility:public"],
     deps = [
-        "//pkg/apis/etcd:go_default_library",
-        "//pkg/commands:go_default_library",
-        "//pkg/etcdversions:go_default_library",
-        "//vendor/gopkg.in/yaml.v2:go_default_library",
-        "//vendor/k8s.io/klog/v2:go_default_library",
+        "//pkg/apis/etcd",
+        "//pkg/commands",
+        "//pkg/etcdversions",
+        "//vendor/gopkg.in/yaml.v2:yaml_v2",
+        "//vendor/k8s.io/klog/v2:klog",
     ],
 )

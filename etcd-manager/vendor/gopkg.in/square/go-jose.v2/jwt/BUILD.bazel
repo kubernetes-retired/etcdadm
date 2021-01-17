@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "jwt",
     srcs = [
         "builder.go",
         "claims.go",
@@ -14,7 +14,7 @@ go_library(
     importpath = "gopkg.in/square/go-jose.v2/jwt",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/gopkg.in/square/go-jose.v2:go_default_library",
-        "//vendor/gopkg.in/square/go-jose.v2/json:go_default_library",
+        "//vendor/gopkg.in/square/go-jose.v2:go-jose_v2",
+        "//vendor/gopkg.in/square/go-jose.v2/json",
     ],
 )

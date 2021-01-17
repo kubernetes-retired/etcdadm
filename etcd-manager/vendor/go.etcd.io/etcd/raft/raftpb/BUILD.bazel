@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "raftpb",
     srcs = [
         "confchange.go",
         "confstate.go",
@@ -11,8 +11,8 @@ go_library(
     importpath = "go.etcd.io/etcd/raft/raftpb",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/gogo/protobuf/gogoproto:go_default_library",
-        "//vendor/github.com/gogo/protobuf/proto:go_default_library",
-        "//vendor/github.com/golang/protobuf/proto:go_default_library",
+        "//vendor/github.com/gogo/protobuf/gogoproto",
+        "//vendor/github.com/gogo/protobuf/proto",
+        "//vendor/github.com/golang/protobuf/proto",
     ],
 )

@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "stats",
     srcs = [
         "doc.go",
         "measure.go",
@@ -14,8 +14,8 @@ go_library(
     importpath = "go.opencensus.io/stats",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/go.opencensus.io/metric/metricdata:go_default_library",
-        "//vendor/go.opencensus.io/stats/internal:go_default_library",
-        "//vendor/go.opencensus.io/tag:go_default_library",
+        "//vendor/go.opencensus.io/metric/metricdata",
+        "//vendor/go.opencensus.io/stats/internal",
+        "//vendor/go.opencensus.io/tag",
     ],
 )

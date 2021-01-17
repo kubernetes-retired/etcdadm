@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "base",
     srcs = [
         "balancer.go",
         "base.go",
@@ -10,9 +10,9 @@ go_library(
     importpath = "google.golang.org/grpc/balancer/base",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/google.golang.org/grpc/balancer:go_default_library",
-        "//vendor/google.golang.org/grpc/connectivity:go_default_library",
-        "//vendor/google.golang.org/grpc/grpclog:go_default_library",
-        "//vendor/google.golang.org/grpc/resolver:go_default_library",
+        "//vendor/google.golang.org/grpc/balancer",
+        "//vendor/google.golang.org/grpc/connectivity",
+        "//vendor/google.golang.org/grpc/grpclog",
+        "//vendor/google.golang.org/grpc/resolver",
     ],
 )

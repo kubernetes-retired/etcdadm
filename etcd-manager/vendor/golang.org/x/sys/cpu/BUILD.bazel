@@ -1,8 +1,9 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "cpu",
     srcs = [
+        "asm_aix_ppc64.s",
         "byteorder.go",
         "cpu.go",
         "cpu_aix.go",
@@ -21,9 +22,11 @@ go_library(
         "cpu_linux_s390x.go",
         "cpu_mips64x.go",
         "cpu_mipsx.go",
+        "cpu_netbsd_arm64.go",
         "cpu_other_arm.go",
         "cpu_other_arm64.go",
         "cpu_ppc64x.go",
+        "cpu_riscv64.go",
         "cpu_s390x.go",
         "cpu_s390x.s",
         "cpu_wasm.go",
@@ -32,6 +35,7 @@ go_library(
         "cpu_zos.go",
         "cpu_zos_s390x.go",
         "hwcap_linux.go",
+        "syscall_aix_ppc64_gc.go",
     ],
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/sys/cpu",
     importpath = "golang.org/x/sys/cpu",

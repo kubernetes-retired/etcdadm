@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "functions",
     srcs = [
         "loops.go",
         "stub.go",
@@ -10,5 +10,5 @@ go_library(
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/honnef.co/go/tools/functions",
     importpath = "honnef.co/go/tools/functions",
     visibility = ["//visibility:public"],
-    deps = ["//vendor/honnef.co/go/tools/ir:go_default_library"],
+    deps = ["//vendor/honnef.co/go/tools/ir"],
 )

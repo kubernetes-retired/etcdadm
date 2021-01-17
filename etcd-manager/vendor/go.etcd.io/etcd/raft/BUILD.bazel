@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "raft",
     srcs = [
         "bootstrap.go",
         "doc.go",
@@ -20,9 +20,9 @@ go_library(
     importpath = "go.etcd.io/etcd/raft",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/go.etcd.io/etcd/raft/confchange:go_default_library",
-        "//vendor/go.etcd.io/etcd/raft/quorum:go_default_library",
-        "//vendor/go.etcd.io/etcd/raft/raftpb:go_default_library",
-        "//vendor/go.etcd.io/etcd/raft/tracker:go_default_library",
+        "//vendor/go.etcd.io/etcd/raft/confchange",
+        "//vendor/go.etcd.io/etcd/raft/quorum",
+        "//vendor/go.etcd.io/etcd/raft/raftpb",
+        "//vendor/go.etcd.io/etcd/raft/tracker",
     ],
 )

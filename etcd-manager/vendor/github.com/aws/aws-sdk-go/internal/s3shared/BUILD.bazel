@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "s3shared",
     srcs = [
         "endpoint_errors.go",
         "resource_request.go",
@@ -10,10 +10,10 @@ go_library(
     importpath = "github.com/aws/aws-sdk-go/internal/s3shared",
     visibility = ["//vendor/github.com/aws/aws-sdk-go:__subpackages__"],
     deps = [
-        "//vendor/github.com/aws/aws-sdk-go/aws:go_default_library",
-        "//vendor/github.com/aws/aws-sdk-go/aws/arn:go_default_library",
-        "//vendor/github.com/aws/aws-sdk-go/aws/awserr:go_default_library",
-        "//vendor/github.com/aws/aws-sdk-go/aws/request:go_default_library",
-        "//vendor/github.com/aws/aws-sdk-go/internal/s3shared/arn:go_default_library",
+        "//vendor/github.com/aws/aws-sdk-go/aws",
+        "//vendor/github.com/aws/aws-sdk-go/aws/arn",
+        "//vendor/github.com/aws/aws-sdk-go/aws/awserr",
+        "//vendor/github.com/aws/aws-sdk-go/aws/request",
+        "//vendor/github.com/aws/aws-sdk-go/internal/s3shared/arn",
     ],
 )

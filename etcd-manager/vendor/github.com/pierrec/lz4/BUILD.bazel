@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "lz4",
     srcs = [
         "block.go",
         "debug_stub.go",
@@ -14,5 +14,5 @@ go_library(
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/pierrec/lz4",
     importpath = "github.com/pierrec/lz4",
     visibility = ["//visibility:public"],
-    deps = ["//vendor/github.com/pierrec/lz4/internal/xxh32:go_default_library"],
+    deps = ["//vendor/github.com/pierrec/lz4/internal/xxh32"],
 )

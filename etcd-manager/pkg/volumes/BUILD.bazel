@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "volumes",
     srcs = [
         "boot.go",
         "interfaces.go",
@@ -11,10 +11,10 @@ go_library(
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes",
     visibility = ["//visibility:public"],
     deps = [
-        "//pkg/hostmount:go_default_library",
-        "//vendor/k8s.io/klog/v2:go_default_library",
-        "//vendor/k8s.io/utils/exec:go_default_library",
-        "//vendor/k8s.io/utils/mount:go_default_library",
-        "//vendor/k8s.io/utils/nsenter:go_default_library",
+        "//pkg/hostmount",
+        "//vendor/k8s.io/klog/v2:klog",
+        "//vendor/k8s.io/utils/exec",
+        "//vendor/k8s.io/utils/mount",
+        "//vendor/k8s.io/utils/nsenter",
     ],
 )

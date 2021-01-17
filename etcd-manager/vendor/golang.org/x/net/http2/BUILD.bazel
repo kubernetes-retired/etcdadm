@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "http2",
     srcs = [
         "ciphers.go",
         "client_conn_pool.go",
@@ -26,8 +26,8 @@ go_library(
     importpath = "golang.org/x/net/http2",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/golang.org/x/net/http/httpguts:go_default_library",
-        "//vendor/golang.org/x/net/http2/hpack:go_default_library",
-        "//vendor/golang.org/x/net/idna:go_default_library",
+        "//vendor/golang.org/x/net/http/httpguts",
+        "//vendor/golang.org/x/net/http2/hpack",
+        "//vendor/golang.org/x/net/idna",
     ],
 )

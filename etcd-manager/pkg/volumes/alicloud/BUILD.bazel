@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "alicloud",
     srcs = [
         "discovery.go",
         "metadata.go",
@@ -10,12 +10,12 @@ go_library(
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/alicloud",
     visibility = ["//visibility:public"],
     deps = [
-        "//pkg/privateapi/discovery:go_default_library",
-        "//pkg/volumes:go_default_library",
-        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk:go_default_library",
-        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials:go_default_library",
-        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests:go_default_library",
-        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/services/ecs:go_default_library",
-        "//vendor/k8s.io/klog/v2:go_default_library",
+        "//pkg/privateapi/discovery",
+        "//pkg/volumes",
+        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk",
+        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials",
+        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests",
+        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/services/ecs",
+        "//vendor/k8s.io/klog/v2:klog",
     ],
 )

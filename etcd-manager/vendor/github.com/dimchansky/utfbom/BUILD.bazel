@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "utfbom",
     srcs = ["utfbom.go"],
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/dimchansky/utfbom",
     importpath = "github.com/dimchansky/utfbom",

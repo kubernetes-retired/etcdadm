@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "ecs",
     srcs = [
         "accept_inquired_system_event.go",
         "activate_router_interface.go",
@@ -628,10 +628,10 @@ go_library(
     importpath = "github.com/aliyun/alibaba-cloud-sdk-go/services/ecs",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk:go_default_library",
-        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth:go_default_library",
-        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials/provider:go_default_library",
-        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests:go_default_library",
-        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses:go_default_library",
+        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk",
+        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth",
+        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials/provider",
+        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests",
+        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses",
     ],
 )

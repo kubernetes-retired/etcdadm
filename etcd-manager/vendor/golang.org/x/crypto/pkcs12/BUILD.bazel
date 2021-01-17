@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "pkcs12",
     srcs = [
         "bmp-string.go",
         "crypto.go",
@@ -14,5 +14,5 @@ go_library(
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/crypto/pkcs12",
     importpath = "golang.org/x/crypto/pkcs12",
     visibility = ["//visibility:public"],
-    deps = ["//vendor/golang.org/x/crypto/pkcs12/internal/rc2:go_default_library"],
+    deps = ["//vendor/golang.org/x/crypto/pkcs12/internal/rc2"],
 )

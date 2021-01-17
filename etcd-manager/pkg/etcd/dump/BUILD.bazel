@@ -1,12 +1,12 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "dump",
     srcs = [
         "dumpsink.go",
         "streamdumpsink.go",
     ],
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/etcd/dump",
     visibility = ["//visibility:public"],
-    deps = ["//pkg/etcdclient:go_default_library"],
+    deps = ["//pkg/etcdclient"],
 )

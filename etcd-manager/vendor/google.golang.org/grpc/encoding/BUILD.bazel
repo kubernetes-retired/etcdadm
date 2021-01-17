@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "encoding",
     srcs = ["encoding.go"],
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/google.golang.org/grpc/encoding",
     importpath = "google.golang.org/grpc/encoding",

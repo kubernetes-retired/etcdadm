@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "gce",
     srcs = [
         "discovery.go",
         "gce_url.go",
@@ -12,14 +12,14 @@ go_library(
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/gce",
     visibility = ["//visibility:public"],
     deps = [
-        "//pkg/privateapi/discovery:go_default_library",
-        "//pkg/volumes:go_default_library",
-        "//vendor/cloud.google.com/go/compute/metadata:go_default_library",
-        "//vendor/golang.org/x/net/context:go_default_library",
-        "//vendor/golang.org/x/oauth2/google:go_default_library",
-        "//vendor/google.golang.org/api/compute/v0.beta:go_default_library",
-        "//vendor/google.golang.org/api/googleapi:go_default_library",
-        "//vendor/k8s.io/apimachinery/pkg/util/wait:go_default_library",
-        "//vendor/k8s.io/klog/v2:go_default_library",
+        "//pkg/privateapi/discovery",
+        "//pkg/volumes",
+        "//vendor/cloud.google.com/go/compute/metadata",
+        "//vendor/golang.org/x/net/context",
+        "//vendor/golang.org/x/oauth2/google",
+        "//vendor/google.golang.org/api/compute/v0.beta:v0_beta",
+        "//vendor/google.golang.org/api/googleapi",
+        "//vendor/k8s.io/apimachinery/pkg/util/wait",
+        "//vendor/k8s.io/klog/v2:klog",
     ],
 )

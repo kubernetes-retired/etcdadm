@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "go-ieproxy",
     srcs = [
         "ieproxy.go",
         "ieproxy_unix.go",
@@ -20,9 +20,9 @@ go_library(
     visibility = ["//visibility:public"],
     deps = select({
         "@io_bazel_rules_go//go/platform:windows": [
-            "//vendor/golang.org/x/net/http/httpproxy:go_default_library",
-            "//vendor/golang.org/x/sys/windows:go_default_library",
-            "//vendor/golang.org/x/sys/windows/registry:go_default_library",
+            "//vendor/golang.org/x/net/http/httpproxy",
+            "//vendor/golang.org/x/sys/windows",
+            "//vendor/golang.org/x/sys/windows/registry",
         ],
         "//conditions:default": [],
     }),

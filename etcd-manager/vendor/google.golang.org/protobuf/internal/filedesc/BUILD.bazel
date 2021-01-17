@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "filedesc",
     srcs = [
         "build.go",
         "desc.go",
@@ -15,16 +15,16 @@ go_library(
     importpath = "google.golang.org/protobuf/internal/filedesc",
     visibility = ["//vendor/google.golang.org/protobuf:__subpackages__"],
     deps = [
-        "//vendor/google.golang.org/protobuf/encoding/protowire:go_default_library",
-        "//vendor/google.golang.org/protobuf/internal/descfmt:go_default_library",
-        "//vendor/google.golang.org/protobuf/internal/descopts:go_default_library",
-        "//vendor/google.golang.org/protobuf/internal/encoding/defval:go_default_library",
-        "//vendor/google.golang.org/protobuf/internal/errors:go_default_library",
-        "//vendor/google.golang.org/protobuf/internal/fieldnum:go_default_library",
-        "//vendor/google.golang.org/protobuf/internal/pragma:go_default_library",
-        "//vendor/google.golang.org/protobuf/internal/strs:go_default_library",
-        "//vendor/google.golang.org/protobuf/proto:go_default_library",
-        "//vendor/google.golang.org/protobuf/reflect/protoreflect:go_default_library",
-        "//vendor/google.golang.org/protobuf/reflect/protoregistry:go_default_library",
+        "//vendor/google.golang.org/protobuf/encoding/protowire",
+        "//vendor/google.golang.org/protobuf/internal/descfmt",
+        "//vendor/google.golang.org/protobuf/internal/descopts",
+        "//vendor/google.golang.org/protobuf/internal/encoding/defval",
+        "//vendor/google.golang.org/protobuf/internal/errors",
+        "//vendor/google.golang.org/protobuf/internal/fieldnum",
+        "//vendor/google.golang.org/protobuf/internal/pragma",
+        "//vendor/google.golang.org/protobuf/internal/strs",
+        "//vendor/google.golang.org/protobuf/proto",
+        "//vendor/google.golang.org/protobuf/reflect/protoreflect",
+        "//vendor/google.golang.org/protobuf/reflect/protoregistry",
     ],
 )

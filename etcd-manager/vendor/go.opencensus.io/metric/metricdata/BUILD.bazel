@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "metricdata",
     srcs = [
         "doc.go",
         "exemplar.go",
@@ -14,5 +14,5 @@ go_library(
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/go.opencensus.io/metric/metricdata",
     importpath = "go.opencensus.io/metric/metricdata",
     visibility = ["//visibility:public"],
-    deps = ["//vendor/go.opencensus.io/resource:go_default_library"],
+    deps = ["//vendor/go.opencensus.io/resource"],
 )

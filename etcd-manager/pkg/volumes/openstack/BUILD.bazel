@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "openstack",
     srcs = [
         "config.go",
         "discovery.go",
@@ -11,16 +11,16 @@ go_library(
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/openstack",
     visibility = ["//visibility:public"],
     deps = [
-        "//pkg/privateapi/discovery:go_default_library",
-        "//pkg/volumes:go_default_library",
-        "//vendor/github.com/gophercloud/gophercloud:go_default_library",
-        "//vendor/github.com/gophercloud/gophercloud/openstack:go_default_library",
-        "//vendor/github.com/gophercloud/gophercloud/openstack/blockstorage/v2/volumes:go_default_library",
-        "//vendor/github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/availabilityzones:go_default_library",
-        "//vendor/github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/volumeattach:go_default_library",
-        "//vendor/github.com/gophercloud/gophercloud/openstack/compute/v2/servers:go_default_library",
-        "//vendor/gopkg.in/gcfg.v1:go_default_library",
-        "//vendor/k8s.io/klog/v2:go_default_library",
-        "//vendor/k8s.io/utils/exec:go_default_library",
+        "//pkg/privateapi/discovery",
+        "//pkg/volumes",
+        "//vendor/github.com/gophercloud/gophercloud",
+        "//vendor/github.com/gophercloud/gophercloud/openstack",
+        "//vendor/github.com/gophercloud/gophercloud/openstack/blockstorage/v2/volumes",
+        "//vendor/github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/availabilityzones",
+        "//vendor/github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/volumeattach",
+        "//vendor/github.com/gophercloud/gophercloud/openstack/compute/v2/servers",
+        "//vendor/gopkg.in/gcfg.v1:gcfg_v1",
+        "//vendor/k8s.io/klog/v2:klog",
+        "//vendor/k8s.io/utils/exec",
     ],
 )

@@ -1,12 +1,12 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "etcdversions",
     srcs = ["mappings.go"],
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdversions",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/blang/semver:go_default_library",
-        "//vendor/k8s.io/klog/v2:go_default_library",
+        "//vendor/github.com/blang/semver",
+        "//vendor/k8s.io/klog/v2:klog",
     ],
 )

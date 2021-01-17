@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "google",
     srcs = [
         "appengine.go",
         "appengine_gen2_flex.go",
@@ -15,10 +15,10 @@ go_library(
     importpath = "golang.org/x/oauth2/google",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/cloud.google.com/go/compute/metadata:go_default_library",
-        "//vendor/golang.org/x/oauth2:go_default_library",
-        "//vendor/golang.org/x/oauth2/internal:go_default_library",
-        "//vendor/golang.org/x/oauth2/jws:go_default_library",
-        "//vendor/golang.org/x/oauth2/jwt:go_default_library",
+        "//vendor/cloud.google.com/go/compute/metadata",
+        "//vendor/golang.org/x/oauth2",
+        "//vendor/golang.org/x/oauth2/internal",
+        "//vendor/golang.org/x/oauth2/jws",
+        "//vendor/golang.org/x/oauth2/jwt",
     ],
 )

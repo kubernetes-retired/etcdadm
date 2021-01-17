@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "googleapi",
     srcs = [
         "googleapi.go",
         "types.go",
@@ -9,5 +9,5 @@ go_library(
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/google.golang.org/api/googleapi",
     importpath = "google.golang.org/api/googleapi",
     visibility = ["//visibility:public"],
-    deps = ["//vendor/google.golang.org/api/internal/third_party/uritemplates:go_default_library"],
+    deps = ["//vendor/google.golang.org/api/internal/third_party/uritemplates"],
 )

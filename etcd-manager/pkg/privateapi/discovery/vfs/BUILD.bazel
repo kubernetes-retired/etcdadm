@@ -1,13 +1,13 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "vfs",
     srcs = ["discovery.go"],
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi/discovery/vfs",
     visibility = ["//visibility:public"],
     deps = [
-        "//pkg/privateapi/discovery:go_default_library",
-        "//vendor/k8s.io/klog/v2:go_default_library",
-        "//vendor/k8s.io/kops/util/pkg/vfs:go_default_library",
+        "//pkg/privateapi/discovery",
+        "//vendor/k8s.io/klog/v2:klog",
+        "//vendor/k8s.io/kops/util/pkg/vfs",
     ],
 )

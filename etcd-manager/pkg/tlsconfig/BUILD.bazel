@@ -1,12 +1,12 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "tlsconfig",
     srcs = ["options.go"],
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/tlsconfig",
     visibility = ["//visibility:public"],
     deps = [
-        "//pkg/pki:go_default_library",
-        "//vendor/k8s.io/client-go/util/cert:go_default_library",
+        "//pkg/pki",
+        "//vendor/k8s.io/client-go/util/cert",
     ],
 )

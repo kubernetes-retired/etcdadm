@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "etcd",
     srcs = [
         "etcdapi.pb.go",
         "json.go",
@@ -9,9 +9,9 @@ go_library(
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/golang/protobuf/jsonpb:go_default_library",
-        "//vendor/github.com/golang/protobuf/proto:go_default_library",
-        "//vendor/golang.org/x/net/context:go_default_library",
-        "//vendor/google.golang.org/grpc:go_default_library",
+        "//vendor/github.com/golang/protobuf/jsonpb",
+        "//vendor/github.com/golang/protobuf/proto",
+        "//vendor/golang.org/x/net/context",
+        "//vendor/google.golang.org/grpc",
     ],
 )

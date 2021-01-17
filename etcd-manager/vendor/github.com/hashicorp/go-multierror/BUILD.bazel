@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "go-multierror",
     srcs = [
         "append.go",
         "flatten.go",
@@ -13,5 +13,5 @@ go_library(
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/hashicorp/go-multierror",
     importpath = "github.com/hashicorp/go-multierror",
     visibility = ["//visibility:public"],
-    deps = ["//vendor/github.com/hashicorp/errwrap:go_default_library"],
+    deps = ["//vendor/github.com/hashicorp/errwrap"],
 )

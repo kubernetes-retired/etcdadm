@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "lint",
     srcs = [
         "lint.go",
         "runner.go",
@@ -11,12 +11,12 @@ go_library(
     importpath = "honnef.co/go/tools/lint",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/golang.org/x/tools/go/analysis:go_default_library",
-        "//vendor/golang.org/x/tools/go/packages:go_default_library",
-        "//vendor/golang.org/x/tools/go/types/objectpath:go_default_library",
-        "//vendor/honnef.co/go/tools/config:go_default_library",
-        "//vendor/honnef.co/go/tools/facts:go_default_library",
-        "//vendor/honnef.co/go/tools/internal/cache:go_default_library",
-        "//vendor/honnef.co/go/tools/loader:go_default_library",
+        "//vendor/golang.org/x/tools/go/analysis",
+        "//vendor/golang.org/x/tools/go/packages",
+        "//vendor/golang.org/x/tools/go/types/objectpath",
+        "//vendor/honnef.co/go/tools/config",
+        "//vendor/honnef.co/go/tools/facts",
+        "//vendor/honnef.co/go/tools/internal/cache",
+        "//vendor/honnef.co/go/tools/loader",
     ],
 )

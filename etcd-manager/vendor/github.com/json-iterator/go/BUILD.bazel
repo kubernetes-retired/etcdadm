@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "go",
     srcs = [
         "adapter.go",
         "any.go",
@@ -50,7 +50,7 @@ go_library(
     importpath = "github.com/json-iterator/go",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/modern-go/concurrent:go_default_library",
-        "//vendor/github.com/modern-go/reflect2:go_default_library",
+        "//vendor/github.com/modern-go/concurrent",
+        "//vendor/github.com/modern-go/reflect2",
     ],
 )

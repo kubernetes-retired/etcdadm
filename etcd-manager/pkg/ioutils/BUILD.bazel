@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "ioutils",
     srcs = ["create.go"],
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/ioutils",
     visibility = ["//visibility:public"],

@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "eventstreamapi",
     srcs = [
         "error.go",
         "reader.go",
@@ -14,8 +14,8 @@ go_library(
     importpath = "github.com/aws/aws-sdk-go/private/protocol/eventstream/eventstreamapi",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/aws/aws-sdk-go/aws:go_default_library",
-        "//vendor/github.com/aws/aws-sdk-go/private/protocol:go_default_library",
-        "//vendor/github.com/aws/aws-sdk-go/private/protocol/eventstream:go_default_library",
+        "//vendor/github.com/aws/aws-sdk-go/aws",
+        "//vendor/github.com/aws/aws-sdk-go/private/protocol",
+        "//vendor/github.com/aws/aws-sdk-go/private/protocol/eventstream",
     ],
 )
