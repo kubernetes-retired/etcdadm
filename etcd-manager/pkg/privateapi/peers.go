@@ -46,6 +46,7 @@ type Peers interface {
 	MyPeerId() PeerId
 	GetPeerClient(peerId PeerId) (*grpc.ClientConn, error)
 	BecomeLeader(ctx context.Context) ([]PeerId, string, error)
+	AssertLeadership(ctx context.Context, leadershipToken string) error
 	IsLeader(token string) bool
 }
 
