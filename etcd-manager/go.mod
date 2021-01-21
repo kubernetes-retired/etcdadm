@@ -92,9 +92,9 @@ require (
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20200819165624-17cef6e3e9d5
 	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/sys v0.0.0-20201126233918-771906719818 // indirect
 	golang.org/x/text v0.3.4 // indirect
-	golang.org/x/tools v0.0.0-20201125231158-b5590deeca9b // indirect
+	golang.org/x/tools v0.1.0 // indirect
+	golang.org/x/tools/gopls v0.6.3 // indirect
 	google.golang.org/api v0.22.0
 	google.golang.org/grpc v1.27.1
 	gopkg.in/gcfg.v1 v1.2.3
