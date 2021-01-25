@@ -161,7 +161,6 @@ func SetDownloadDynamicDefaults(cfg *EtcdAdmConfig) error {
 
 // SetDefaults sets configuration values defined at build time
 func SetDefaults(cfg *EtcdAdmConfig) {
-	cfg.DataDir = constants.DefaultDataDir
 	cfg.UnitFile = constants.UnitFile
 	cfg.EnvironmentFile = constants.EnvironmentFile
 	cfg.EtcdctlEnvFile = constants.EtcdctlEnvFile
