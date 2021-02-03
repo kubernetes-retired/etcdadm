@@ -81,7 +81,7 @@ func (h *Provider) update() error {
 		}
 	}
 
-	klog.Infof("hosts update: primary=%v, fallbacks=%v, final=%v", h.primary, h.fallbacks, addrToHosts)
+	klog.V(3).Infof("hosts update: primary=%v, fallbacks=%v, final=%v", h.primary, h.fallbacks, addrToHosts)
 	return updateHostsFileWithRecords("/etc/hosts", h.Key, addrToHosts)
 }
 

@@ -263,7 +263,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	}
 
 	{
-		klog.Infof("Broadcasting leadership assertion with token %q", m.leadership.token)
+		klog.V(3).Infof("Broadcasting leadership assertion with token %q", m.leadership.token)
 		// We always broadcast our leadership claim, to ensure that all peers are in sync
 		err := m.peers.AssertLeadership(ctx, m.leadership.token)
 		if err != nil {
@@ -282,7 +282,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	{
 		for _, peer := range peers {
 			if !m.leadership.ackedPeers[peer.Id] {
-				klog.Infof("peer %q has not acked our leadership; resigning leadership", peer)
+				klog.V(3).Infof("peer %q has not acked our leadership; resigning leadership", peer)
 				m.leadership = nil
 
 				// Wait one cycle after leadership changes
@@ -292,14 +292,14 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		}
 	}
 
-	klog.Infof("I am leader with token %q", m.leadership.token)
+	klog.V(3).Infof("I am leader with token %q", m.leadership.token)
 
 	// Query all our peers to try to find the actual state of etcd on each node
 	clusterState, err := m.updateClusterState(ctx, peers)
 	if err != nil {
 		return false, fmt.Errorf("error building cluster state: %v", err)
 	}
-	klog.Infof("etcd cluster state: %s", clusterState)
+	klog.V(3).Infof("etcd cluster state: %s", clusterState)
 	klog.V(2).Infof("etcd cluster members: %s", clusterState.members)
 
 	now := time.Now()
@@ -392,7 +392,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		klog.Infof("no cluster spec set - must seed new cluster")
 		return false, nil
 	}
-	klog.Infof("spec %v", clusterSpec)
+	klog.V(3).Infof("spec %v", clusterSpec)
 
 	desiredQuorumSize := quorumSize(int(clusterSpec.MemberCount))
 
@@ -554,7 +554,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		}
 	}
 
-	klog.Infof("controller loop complete")
+	klog.V(3).Infof("controller loop complete")
 
 	return false, nil
 }
@@ -638,7 +638,7 @@ func (m *EtcdController) buildMemberMap(etcdClusterState *etcdClusterState) *pro
 
 func (m *EtcdController) broadcastMemberMap(ctx context.Context, etcdClusterState *etcdClusterState, memberMap *protoetcd.MemberMap) []error {
 	// TODO: optimize this
-	klog.Infof("sending member map to all peers: %v", memberMap)
+	klog.V(3).Infof("sending member map to all peers: %v", memberMap)
 
 	var errors []error
 	for _, peer := range etcdClusterState.peers {

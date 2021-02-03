@@ -34,7 +34,7 @@ type leadership struct {
 }
 
 func (s *Server) LeaderNotification(ctx grpccontext.Context, request *LeaderNotificationRequest) (*LeaderNotificationResponse, error) {
-	klog.Infof("Got LeaderNotification %s", request)
+	klog.V(3).Infof("Got LeaderNotification %s", request)
 
 	if request.View == nil {
 		return nil, fmt.Errorf("View is required")

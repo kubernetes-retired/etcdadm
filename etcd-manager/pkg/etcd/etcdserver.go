@@ -245,7 +245,7 @@ func (s *EtcdServer) UpdateEndpoints(ctx context.Context, request *protoetcd.Upd
 		}
 
 		if len(addressToHosts) != 0 {
-			klog.Infof("updating hosts: %v", addressToHosts)
+			klog.V(3).Infof("updating hosts: %v", addressToHosts)
 			if err := s.dnsProvider.UpdateHosts(addressToHosts); err != nil {
 				klog.Warningf("error updating hosts: %v", err)
 				return nil, err
