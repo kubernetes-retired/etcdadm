@@ -166,6 +166,11 @@ func (stack *OpenstackVolumes) getClients() error {
 	if err != nil {
 		return fmt.Errorf("error building openstack storage client: %v", err)
 	}
+	ua := gophercloud.UserAgent{}
+	ua.Prepend("etcd-manager")
+	provider.UserAgent = ua
+	klog.V(4).Infof("Using user-agent %s", ua.Join())
+
 	err = openstack.Authenticate(provider, authOption)
 	if err != nil {
 		return fmt.Errorf("error authenticating openstack client: %v", err)
