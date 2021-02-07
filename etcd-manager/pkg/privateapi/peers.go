@@ -36,9 +36,6 @@ import (
 const defaultPingInterval = time.Second * 5
 const defaultHealthyTimeout = time.Minute
 
-// defaultDiscoveryPollInterval is the default value of Server::DiscoveryPollInterval
-const defaultDiscoveryPollInterval = time.Minute
-
 type PeerId string
 
 type Peers interface {

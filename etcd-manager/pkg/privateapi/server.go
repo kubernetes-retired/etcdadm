@@ -66,7 +66,7 @@ type Server struct {
 	dnsSuffix string
 }
 
-func NewServer(ctx context.Context, myInfo PeerInfo, serverTLSConfig *tls.Config, discovery discovery.Interface, defaultPort int, dnsProvider dns.Provider, dnsSuffix string, clientTLSConfig *tls.Config) (*Server, error) {
+func NewServer(ctx context.Context, myInfo PeerInfo, serverTLSConfig *tls.Config, discovery discovery.Interface, defaultPort int, dnsProvider dns.Provider, dnsSuffix string, clientTLSConfig *tls.Config, discoveryPollInterval time.Duration) (*Server, error) {
 	s := &Server{
 		context:         ctx,
 		discovery:       discovery,
@@ -77,7 +77,7 @@ func NewServer(ctx context.Context, myInfo PeerInfo, serverTLSConfig *tls.Config
 		dnsProvider:     dnsProvider,
 		dnsSuffix:       dnsSuffix,
 
-		DiscoveryPollInterval: defaultDiscoveryPollInterval,
+		DiscoveryPollInterval: discoveryPollInterval,
 		PingInterval:          defaultPingInterval,
 		HealthyTimeout:        defaultHealthyTimeout,
 	}

@@ -83,6 +83,7 @@ func main() {
 	flag.StringVar(&o.ClusterName, "cluster-name", o.ClusterName, "name of cluster")
 	flag.StringVar(&o.BackupStorePath, "backup-store", o.BackupStorePath, "backup store location")
 	flag.StringVar(&o.BackupInterval, "backup-interval", o.BackupInterval, "interval for periodic backups")
+	flag.StringVar(&o.DiscoveryPollInterval, "discovery-poll-interval", o.DiscoveryPollInterval, "interval for discovery poll")
 	flag.StringVar(&o.DataDir, "data-dir", o.DataDir, "directory for storing etcd data")
 
 	flag.StringVar(&o.PKIDir, "pki-dir", o.PKIDir, "directory for PKI keys")
@@ -125,20 +126,21 @@ func expandUrls(urls string, address string, name string) []string {
 
 // EtcdManagerOptions holds the flag options for running etcd-manager
 type EtcdManagerOptions struct {
-	PKIDir               string
-	Address              string
-	VolumeProviderID     string
-	PeerUrls             string
-	GrpcPort             int
-	ClientUrls           string
-	QuarantineClientUrls string
-	ClusterName          string
-	ListenAddress        string
-	BackupStorePath      string
-	DataDir              string
-	VolumeTags           []string
-	NameTag              string
-	BackupInterval       string
+	PKIDir                string
+	Address               string
+	VolumeProviderID      string
+	PeerUrls              string
+	GrpcPort              int
+	ClientUrls            string
+	QuarantineClientUrls  string
+	ClusterName           string
+	ListenAddress         string
+	BackupStorePath       string
+	DataDir               string
+	VolumeTags            []string
+	NameTag               string
+	BackupInterval        string
+	DiscoveryPollInterval string
 
 	// DNSSuffix is added to etcd member names and we then use internal client id discovery
 	DNSSuffix string
@@ -165,6 +167,7 @@ func (o *EtcdManagerOptions) InitDefaults() {
 	//o.Address = "127.0.0.1"
 
 	o.BackupInterval = "15m"
+	o.DiscoveryPollInterval = "60s"
 
 	o.ClientUrls = "https://__address__:4001"
 	o.QuarantineClientUrls = "https://__address__:8001"
@@ -417,7 +420,11 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 		Id:        string(myPeerId),
 		Endpoints: []string{grpcEndpoint},
 	}
-	peerServer, err := privateapi.NewServer(ctx, myInfo, grpcServerTLS, discoveryProvider, o.GrpcPort, dnsProvider, o.DNSSuffix, grpcClientTLS)
+	discoveryPollInterval, err := time.ParseDuration(o.DiscoveryPollInterval)
+	if err != nil {
+		return fmt.Errorf("invalid discovery-poll-interval duration %q", o.DiscoveryPollInterval)
+	}
+	peerServer, err := privateapi.NewServer(ctx, myInfo, grpcServerTLS, discoveryProvider, o.GrpcPort, dnsProvider, o.DNSSuffix, grpcClientTLS, discoveryPollInterval)
 	if err != nil {
 		return fmt.Errorf("error building server: %v", err)
 	}
