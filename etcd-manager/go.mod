@@ -87,14 +87,16 @@ require (
 	github.com/digitalocean/godo v1.54.0
 	github.com/go-logr/logr v0.3.0 // indirect
 	github.com/golang/protobuf v1.4.2
+	github.com/google/go-cmp v0.5.4 // indirect
 	github.com/gophercloud/gophercloud v0.11.1-0.20200518183226-7aec46f32c19
 	github.com/pkg/sftp v0.0.0-20180127012644-738e088bbd93 // indirect
+	github.com/prometheus/client_golang v1.7.1
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20200819165624-17cef6e3e9d5
+	golang.org/x/mod v0.4.0 // indirect
 	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/text v0.3.4 // indirect
 	golang.org/x/tools v0.1.0 // indirect
-	golang.org/x/tools/gopls v0.6.3 // indirect
 	google.golang.org/api v0.22.0
 	google.golang.org/grpc v1.27.1
 	gopkg.in/gcfg.v1 v1.2.3

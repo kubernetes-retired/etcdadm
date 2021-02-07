@@ -5,6 +5,8 @@ go_library(
     srcs = [
         "config.go",
         "discovery.go",
+        "metrics.go",
+        "metrics_api.go",
         "util.go",
         "volumes.go",
     ],
@@ -19,6 +21,7 @@ go_library(
         "//vendor/github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/availabilityzones",
         "//vendor/github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/volumeattach",
         "//vendor/github.com/gophercloud/gophercloud/openstack/compute/v2/servers",
+        "//vendor/github.com/prometheus/client_golang/prometheus",
         "//vendor/gopkg.in/gcfg.v1:gcfg_v1",
         "//vendor/k8s.io/klog/v2:klog",
         "//vendor/k8s.io/utils/exec",

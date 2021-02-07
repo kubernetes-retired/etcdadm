@@ -109,8 +109,9 @@ func NewOpenstackVolumes(clusterName string, volumeTags []string, nameTag string
 func getLocalMetadata() (*InstanceMetadata, error) {
 	var meta InstanceMetadata
 	var client http.Client
+	mc := NewMetricContext("metadata", "get")
 	resp, err := client.Get(MetadataLatest)
-	if err != nil {
+	if mc.ObserveRequest(err) != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -227,8 +228,10 @@ func (stack *OpenstackVolumes) discoverTags() error {
 			servers.Server
 			availabilityzones.ServerAvailabilityZoneExt
 		}
+
+		mc := NewMetricContext("server", "get")
 		err := servers.Get(stack.computeClient, strings.TrimSpace(stack.meta.ServerID)).ExtractInto(&extendedServer)
-		if err != nil {
+		if mc.ObserveRequest(err) != nil {
 			return fmt.Errorf("failed to retrieve server information from cloud: %v", err)
 		}
 		ip, err := GetServerFixedIP(extendedServer.Addresses, extendedServer.Name)
@@ -313,10 +316,11 @@ func (stack *OpenstackVolumes) findVolumes(filterByAZ bool) ([]*volumes.Volume, 
 
 	klog.V(2).Infof("Listing Openstack disks in %s/%s", stack.project, stack.meta.AvailabilityZone)
 
+	mc := NewMetricContext("volumes", "list")
 	pages, err := cinderv2.List(stack.volumeClient, cinderv2.ListOpts{
 		TenantID: stack.project,
 	}).AllPages()
-	if err != nil {
+	if mc.ObserveRequest(err) != nil {
 		return volumes, fmt.Errorf("FindVolumes: Failed to list volumes: %v", err)
 	}
 	vols, err := cinderv2.ExtractVolumes(pages)
@@ -444,8 +448,9 @@ func (stack *OpenstackVolumes) AttachVolume(volume *volumes.Volume) error {
 	opts := volumeattach.CreateOpts{
 		VolumeID: volume.ProviderID,
 	}
+	mc := NewMetricContext("volume", "attach")
 	volumeAttachment, err := volumeattach.Create(stack.computeClient, stack.meta.ServerID, opts).Extract()
-	if err != nil {
+	if mc.ObserveRequest(err) != nil {
 		return fmt.Errorf("error attaching volume %s to server %s: %v", opts.VolumeID, stack.meta.ServerID, err)
 	}
 	volume.LocalDevice = volumeAttachment.Device

@@ -36,6 +36,7 @@ import (
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/hosts"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/legacy"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/locking"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/metrics"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/pki"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi/discovery"
@@ -75,6 +76,7 @@ func main() {
 	flag.StringVar(&o.Address, "address", o.Address, "local address to use")
 	flag.StringVar(&o.PeerUrls, "peer-urls", o.PeerUrls, "peer-urls to use")
 	flag.IntVar(&o.GrpcPort, "grpc-port", o.GrpcPort, "grpc-port to use")
+	flag.IntVar(&o.EtcdManagerMetricsPort, "etcd-manager-metrics-port", o.EtcdManagerMetricsPort, "etcd-manager prometheus metrics port")
 	flag.StringVar(&o.ListenMetricsURLs, "listen-metrics-urls", o.ListenMetricsURLs, "listen-metrics-urls configure etcd dedicated metrics URL endpoints")
 	flag.StringVar(&o.ClientUrls, "client-urls", o.ClientUrls, "client-urls to use for normal operation")
 	flag.StringVar(&o.QuarantineClientUrls, "quarantine-client-urls", o.QuarantineClientUrls, "client-urls to use when etcd should be quarantined e.g. when offline")
@@ -153,6 +155,9 @@ type EtcdManagerOptions struct {
 
 	// ListenMetricsURLs allows configuration of the special etcd metrics urls
 	ListenMetricsURLs string
+
+	// EtcdManagerMetricsPort allows exposing statistics from etcd-manager
+	EtcdManagerMetricsPort int
 }
 
 // InitDefaults populates the default flag values
@@ -179,6 +184,7 @@ func (o *EtcdManagerOptions) InitDefaults() {
 
 	o.Insecure = false
 	o.EtcdInsecure = false
+	o.EtcdManagerMetricsPort = 0
 }
 
 // RunEtcdManager runs the etcd-manager, returning only we should exit.
@@ -202,6 +208,11 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 
 	var discoveryProvider discovery.Interface
 	var myPeerId privateapi.PeerId
+
+	// start etcd-manager metrics if the etcd manager metrics port is defined
+	if o.EtcdManagerMetricsPort != 0 {
+		go metrics.RegisterMetrics(o.EtcdManagerMetricsPort, o.VolumeProviderID)
+	}
 
 	if o.VolumeProviderID != "" {
 		var volumeProvider volumes.Volumes
