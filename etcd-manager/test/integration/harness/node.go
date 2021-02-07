@@ -156,7 +156,8 @@ func (n *TestHarnessNode) Run() {
 		Id:        string(uniqueID),
 		Endpoints: []string{grpcEndpoint},
 	}
-	peerServer, err := privateapi.NewServer(n.ctx, myInfo, serverTLSConfig, disco, grpcPort, dnsProvider, dnsSuffix, clientTLSConfig)
+	discoveryInterval := time.Second * 5
+	peerServer, err := privateapi.NewServer(n.ctx, myInfo, serverTLSConfig, disco, grpcPort, dnsProvider, dnsSuffix, clientTLSConfig, discoveryInterval)
 	peerServer.PingInterval = time.Second
 	peerServer.HealthyTimeout = time.Second * 5
 	peerServer.DiscoveryPollInterval = time.Second * 5
