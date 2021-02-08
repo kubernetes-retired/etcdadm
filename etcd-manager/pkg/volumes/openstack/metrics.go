@@ -43,7 +43,7 @@ func NewMetricContext(resource string, request string) *MetricContext {
 	}
 }
 
-// ObserveRequest records the request latency and counts the errors.
+// Observe records the request latency and counts the errors.
 func (mc *MetricContext) Observe(om *OpenstackMetrics, err error) error {
 	if om == nil {
 		// mc.RequestMetrics not set, ignore this request
