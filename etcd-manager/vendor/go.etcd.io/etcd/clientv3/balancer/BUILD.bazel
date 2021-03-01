@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "balancer",
     srcs = [
         "balancer.go",
         "utils.go",
@@ -10,13 +10,13 @@ go_library(
     importpath = "go.etcd.io/etcd/clientv3/balancer",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/go.etcd.io/etcd/clientv3/balancer/connectivity:go_default_library",
-        "//vendor/go.etcd.io/etcd/clientv3/balancer/picker:go_default_library",
-        "//vendor/go.uber.org/zap:go_default_library",
-        "//vendor/google.golang.org/grpc/balancer:go_default_library",
-        "//vendor/google.golang.org/grpc/connectivity:go_default_library",
-        "//vendor/google.golang.org/grpc/resolver:go_default_library",
-        "//vendor/google.golang.org/grpc/resolver/dns:go_default_library",
-        "//vendor/google.golang.org/grpc/resolver/passthrough:go_default_library",
+        "//vendor/go.etcd.io/etcd/clientv3/balancer/connectivity",
+        "//vendor/go.etcd.io/etcd/clientv3/balancer/picker",
+        "//vendor/go.uber.org/zap",
+        "//vendor/google.golang.org/grpc/balancer",
+        "//vendor/google.golang.org/grpc/connectivity",
+        "//vendor/google.golang.org/grpc/resolver",
+        "//vendor/google.golang.org/grpc/resolver/dns",
+        "//vendor/google.golang.org/grpc/resolver/passthrough",
     ],
 )

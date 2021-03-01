@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "internal",
     srcs = [
         "internal.go",
         "sanitize.go",
@@ -10,5 +10,5 @@ go_library(
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/go.opencensus.io/internal",
     importpath = "go.opencensus.io/internal",
     visibility = ["//vendor/go.opencensus.io:__subpackages__"],
-    deps = ["//vendor/go.opencensus.io:go_default_library"],
+    deps = ["//vendor/go.opencensus.io"],
 )

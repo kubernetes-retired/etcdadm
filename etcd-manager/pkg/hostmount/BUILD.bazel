@@ -1,13 +1,13 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "hostmount",
     srcs = ["nsenter.go"],
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/hostmount",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/k8s.io/klog/v2:go_default_library",
-        "//vendor/k8s.io/utils/mount:go_default_library",
-        "//vendor/k8s.io/utils/nsenter:go_default_library",
+        "//vendor/k8s.io/klog/v2:klog",
+        "//vendor/k8s.io/utils/mount",
+        "//vendor/k8s.io/utils/nsenter",
     ],
 )

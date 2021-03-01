@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "printf",
     srcs = ["printf.go"],
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/honnef.co/go/tools/printf",
     importpath = "honnef.co/go/tools/printf",

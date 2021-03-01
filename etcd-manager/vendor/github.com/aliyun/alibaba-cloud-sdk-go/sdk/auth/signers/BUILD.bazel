@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "signers",
     srcs = [
         "algorithms.go",
         "credential_updater.go",
@@ -18,10 +18,10 @@ go_library(
     importpath = "github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/signers",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials:go_default_library",
-        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors:go_default_library",
-        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests:go_default_library",
-        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses:go_default_library",
-        "//vendor/github.com/jmespath/go-jmespath:go_default_library",
+        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials",
+        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors",
+        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests",
+        "//vendor/github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses",
+        "//vendor/github.com/jmespath/go-jmespath",
     ],
 )

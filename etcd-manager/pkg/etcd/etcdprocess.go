@@ -162,6 +162,10 @@ func BindirForEtcdVersion(etcdVersion string, cmd string) (string, error) {
 			binDirs = append(binDirs, binDir)
 			binDir = filepath.Join(baseDir, "external", "etcd_"+strings.Replace(etcdVersion, ".", "_", -1)+"_source", cmd, platform)
 			binDirs = append(binDirs, binDir)
+			binDir = filepath.Join(baseDir, "external", "etcd_"+strings.Replace(etcdVersion, ".", "_", -1)+"_source", cmd+"_")
+			binDirs = append(binDirs, binDir)
+			binDir = filepath.Join(baseDir, "external", "etcd_"+strings.Replace(etcdVersion, ".", "_", -1)+"_source", cmd, cmd+"_")
+			binDirs = append(binDirs, binDir)
 		}
 	}
 

@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "objects",
     srcs = [
         "doc.go",
         "errors.go",
@@ -13,9 +13,9 @@ go_library(
     importpath = "github.com/gophercloud/gophercloud/openstack/objectstorage/v1/objects",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/gophercloud/gophercloud:go_default_library",
-        "//vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/accounts:go_default_library",
-        "//vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/containers:go_default_library",
-        "//vendor/github.com/gophercloud/gophercloud/pagination:go_default_library",
+        "//vendor/github.com/gophercloud/gophercloud",
+        "//vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/accounts",
+        "//vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/containers",
+        "//vendor/github.com/gophercloud/gophercloud/pagination",
     ],
 )

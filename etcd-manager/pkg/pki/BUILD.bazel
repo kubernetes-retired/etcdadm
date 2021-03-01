@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
-    name = "go_default_library",
+    name = "pki",
     srcs = [
         "certs.go",
         "certutils.go",
@@ -13,14 +13,14 @@ go_library(
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/pki",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/k8s.io/client-go/util/cert:go_default_library",
-        "//vendor/k8s.io/client-go/util/keyutil:go_default_library",
-        "//vendor/k8s.io/klog/v2:go_default_library",
+        "//vendor/k8s.io/client-go/util/cert",
+        "//vendor/k8s.io/client-go/util/keyutil",
+        "//vendor/k8s.io/klog/v2:klog",
     ],
 )
 
 go_test(
-    name = "go_default_test",
+    name = "pki_test",
     srcs = ["parse_test.go"],
-    embed = [":go_default_library"],
+    embed = [":pki"],
 )

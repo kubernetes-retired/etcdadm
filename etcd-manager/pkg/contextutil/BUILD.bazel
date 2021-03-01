@@ -1,9 +1,9 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "contextutil",
     srcs = ["poll.go"],
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/contextutil",
     visibility = ["//visibility:public"],
-    deps = ["//vendor/k8s.io/klog/v2:go_default_library"],
+    deps = ["//vendor/k8s.io/klog/v2:klog"],
 )

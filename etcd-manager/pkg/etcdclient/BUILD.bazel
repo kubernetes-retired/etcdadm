@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "etcdclient",
     srcs = [
         "interfaces.go",
         "localnode.go",
@@ -12,10 +12,10 @@ go_library(
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdclient",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/go.etcd.io/etcd/client:go_default_library",
-        "//vendor/go.etcd.io/etcd/clientv3:go_default_library",
-        "//vendor/go.etcd.io/etcd/pkg/pathutil:go_default_library",
-        "//vendor/go.etcd.io/etcd/version:go_default_library",
-        "//vendor/k8s.io/klog/v2:go_default_library",
+        "//vendor/go.etcd.io/etcd/client",
+        "//vendor/go.etcd.io/etcd/clientv3",
+        "//vendor/go.etcd.io/etcd/pkg/pathutil",
+        "//vendor/go.etcd.io/etcd/version",
+        "//vendor/k8s.io/klog/v2:klog",
     ],
 )

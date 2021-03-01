@@ -1,18 +1,18 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
-    name = "go_default_library",
+    name = "hosts",
     srcs = ["hosts.go"],
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/hosts",
     visibility = ["//visibility:public"],
     deps = [
-        "//pkg/dns:go_default_library",
-        "//vendor/k8s.io/klog/v2:go_default_library",
+        "//pkg/dns",
+        "//vendor/k8s.io/klog/v2:klog",
     ],
 )
 
 go_test(
-    name = "go_default_test",
+    name = "hosts_test",
     srcs = ["hosts_test.go"],
-    embed = [":go_default_library"],
+    embed = [":hosts"],
 )

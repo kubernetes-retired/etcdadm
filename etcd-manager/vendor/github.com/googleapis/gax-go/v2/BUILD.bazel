@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "gax-go",
     srcs = [
         "call_option.go",
         "gax.go",
@@ -12,8 +12,8 @@ go_library(
     importpath = "github.com/googleapis/gax-go/v2",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/google.golang.org/grpc:go_default_library",
-        "//vendor/google.golang.org/grpc/codes:go_default_library",
-        "//vendor/google.golang.org/grpc/status:go_default_library",
+        "//vendor/google.golang.org/grpc",
+        "//vendor/google.golang.org/grpc/codes",
+        "//vendor/google.golang.org/grpc/status",
     ],
 )

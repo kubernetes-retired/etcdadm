@@ -1,0 +1,24 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "expfmt",
+    srcs = [
+        "decode.go",
+        "encode.go",
+        "expfmt.go",
+        "openmetrics_create.go",
+        "text_create.go",
+        "text_parse.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/prometheus/common/expfmt",
+    importpath = "github.com/prometheus/common/expfmt",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/golang/protobuf/proto",
+        "//vendor/github.com/golang/protobuf/ptypes",
+        "//vendor/github.com/matttproud/golang_protobuf_extensions/pbutil",
+        "//vendor/github.com/prometheus/client_model/go",
+        "//vendor/github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg",
+        "//vendor/github.com/prometheus/common/model",
+    ],
+)

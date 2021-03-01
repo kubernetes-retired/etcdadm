@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "rpctypes",
     srcs = [
         "doc.go",
         "error.go",
@@ -12,7 +12,7 @@ go_library(
     importpath = "go.etcd.io/etcd/etcdserver/api/v3rpc/rpctypes",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/google.golang.org/grpc/codes:go_default_library",
-        "//vendor/google.golang.org/grpc/status:go_default_library",
+        "//vendor/google.golang.org/grpc/codes",
+        "//vendor/google.golang.org/grpc/status",
     ],
 )

@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "view",
     srcs = [
         "aggregation.go",
         "aggregation_data.go",
@@ -17,11 +17,11 @@ go_library(
     importpath = "go.opencensus.io/stats/view",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/go.opencensus.io/internal/tagencoding:go_default_library",
-        "//vendor/go.opencensus.io/metric/metricdata:go_default_library",
-        "//vendor/go.opencensus.io/metric/metricproducer:go_default_library",
-        "//vendor/go.opencensus.io/stats:go_default_library",
-        "//vendor/go.opencensus.io/stats/internal:go_default_library",
-        "//vendor/go.opencensus.io/tag:go_default_library",
+        "//vendor/go.opencensus.io/internal/tagencoding",
+        "//vendor/go.opencensus.io/metric/metricdata",
+        "//vendor/go.opencensus.io/metric/metricproducer",
+        "//vendor/go.opencensus.io/stats",
+        "//vendor/go.opencensus.io/stats/internal",
+        "//vendor/go.opencensus.io/tag",
     ],
 )

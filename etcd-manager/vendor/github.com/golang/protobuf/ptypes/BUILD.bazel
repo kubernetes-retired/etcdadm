@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "ptypes",
     srcs = [
         "any.go",
         "doc.go",
@@ -12,11 +12,11 @@ go_library(
     importpath = "github.com/golang/protobuf/ptypes",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/golang/protobuf/proto:go_default_library",
-        "//vendor/github.com/golang/protobuf/ptypes/any:go_default_library",
-        "//vendor/github.com/golang/protobuf/ptypes/duration:go_default_library",
-        "//vendor/github.com/golang/protobuf/ptypes/timestamp:go_default_library",
-        "//vendor/google.golang.org/protobuf/reflect/protoreflect:go_default_library",
-        "//vendor/google.golang.org/protobuf/reflect/protoregistry:go_default_library",
+        "//vendor/github.com/golang/protobuf/proto",
+        "//vendor/github.com/golang/protobuf/ptypes/any",
+        "//vendor/github.com/golang/protobuf/ptypes/duration",
+        "//vendor/github.com/golang/protobuf/ptypes/timestamp",
+        "//vendor/google.golang.org/protobuf/reflect/protoreflect",
+        "//vendor/google.golang.org/protobuf/reflect/protoregistry",
     ],
 )

@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "json",
     srcs = [
         "decode.go",
         "decode_number.go",
@@ -13,8 +13,8 @@ go_library(
     importpath = "google.golang.org/protobuf/internal/encoding/json",
     visibility = ["//vendor/google.golang.org/protobuf:__subpackages__"],
     deps = [
-        "//vendor/google.golang.org/protobuf/internal/detrand:go_default_library",
-        "//vendor/google.golang.org/protobuf/internal/errors:go_default_library",
-        "//vendor/google.golang.org/protobuf/internal/strs:go_default_library",
+        "//vendor/google.golang.org/protobuf/internal/detrand",
+        "//vendor/google.golang.org/protobuf/internal/errors",
+        "//vendor/google.golang.org/protobuf/internal/strs",
     ],
 )

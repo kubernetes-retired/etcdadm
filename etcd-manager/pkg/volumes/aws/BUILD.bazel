@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "aws",
     srcs = [
         "discovery.go",
         "volumes.go",
@@ -9,14 +9,14 @@ go_library(
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/aws",
     visibility = ["//visibility:public"],
     deps = [
-        "//pkg/privateapi/discovery:go_default_library",
-        "//pkg/volumes:go_default_library",
-        "//vendor/github.com/aws/aws-sdk-go/aws:go_default_library",
-        "//vendor/github.com/aws/aws-sdk-go/aws/awserr:go_default_library",
-        "//vendor/github.com/aws/aws-sdk-go/aws/ec2metadata:go_default_library",
-        "//vendor/github.com/aws/aws-sdk-go/aws/request:go_default_library",
-        "//vendor/github.com/aws/aws-sdk-go/aws/session:go_default_library",
-        "//vendor/github.com/aws/aws-sdk-go/service/ec2:go_default_library",
-        "//vendor/k8s.io/klog/v2:go_default_library",
+        "//pkg/privateapi/discovery",
+        "//pkg/volumes",
+        "//vendor/github.com/aws/aws-sdk-go/aws",
+        "//vendor/github.com/aws/aws-sdk-go/aws/awserr",
+        "//vendor/github.com/aws/aws-sdk-go/aws/ec2metadata",
+        "//vendor/github.com/aws/aws-sdk-go/aws/request",
+        "//vendor/github.com/aws/aws-sdk-go/aws/session",
+        "//vendor/github.com/aws/aws-sdk-go/service/ec2",
+        "//vendor/k8s.io/klog/v2:klog",
     ],
 )

@@ -36,9 +36,6 @@ import (
 const defaultPingInterval = time.Second * 5
 const defaultHealthyTimeout = time.Minute
 
-// defaultDiscoveryPollInterval is the default value of Server::DiscoveryPollInterval
-const defaultDiscoveryPollInterval = time.Minute
-
 type PeerId string
 
 type Peers interface {
@@ -46,6 +43,7 @@ type Peers interface {
 	MyPeerId() PeerId
 	GetPeerClient(peerId PeerId) (*grpc.ClientConn, error)
 	BecomeLeader(ctx context.Context) ([]PeerId, string, error)
+	AssertLeadership(ctx context.Context, leadershipToken string) error
 	IsLeader(token string) bool
 }
 

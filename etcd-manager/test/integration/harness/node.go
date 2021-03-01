@@ -156,7 +156,8 @@ func (n *TestHarnessNode) Run() {
 		Id:        string(uniqueID),
 		Endpoints: []string{grpcEndpoint},
 	}
-	peerServer, err := privateapi.NewServer(n.ctx, myInfo, serverTLSConfig, disco, grpcPort, dnsProvider, dnsSuffix, clientTLSConfig)
+	discoveryInterval := time.Second * 5
+	peerServer, err := privateapi.NewServer(n.ctx, myInfo, serverTLSConfig, disco, grpcPort, dnsProvider, dnsSuffix, clientTLSConfig, discoveryInterval)
 	peerServer.PingInterval = time.Second
 	peerServer.HealthyTimeout = time.Second * 5
 	peerServer.DiscoveryPollInterval = time.Second * 5
@@ -212,7 +213,8 @@ func (n *TestHarnessNode) Run() {
 		etcdPeersCA = nil
 	}
 
-	etcdServer, err := etcd.NewEtcdServer(n.NodeDir, n.TestHarness.ClusterName, n.Address, n.ListenMetricsURLs, me, peerServer, dnsProvider, etcdClientsCA, etcdPeersCA)
+	var peerClientIPs []net.IP
+	etcdServer, err := etcd.NewEtcdServer(n.NodeDir, n.TestHarness.ClusterName, n.Address, n.ListenMetricsURLs, me, peerServer, dnsProvider, etcdClientsCA, etcdPeersCA, peerClientIPs)
 	if err != nil {
 		t.Fatalf("error building EtcdServer: %v", err)
 	}

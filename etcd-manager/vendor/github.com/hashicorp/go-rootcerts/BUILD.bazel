@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "go-rootcerts",
     srcs = [
         "doc.go",
         "rootcerts.go",
@@ -13,10 +13,10 @@ go_library(
     visibility = ["//visibility:public"],
     deps = select({
         "@io_bazel_rules_go//go/platform:darwin": [
-            "//vendor/github.com/mitchellh/go-homedir:go_default_library",
+            "//vendor/github.com/mitchellh/go-homedir",
         ],
         "@io_bazel_rules_go//go/platform:ios": [
-            "//vendor/github.com/mitchellh/go-homedir:go_default_library",
+            "//vendor/github.com/mitchellh/go-homedir",
         ],
         "//conditions:default": [],
     }),

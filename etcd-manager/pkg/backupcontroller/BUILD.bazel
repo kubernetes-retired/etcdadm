@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
-    name = "go_default_library",
+    name = "backupcontroller",
     srcs = [
         "cleanup.go",
         "controller.go",
@@ -10,17 +10,17 @@ go_library(
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/backupcontroller",
     visibility = ["//visibility:public"],
     deps = [
-        "//pkg/apis/etcd:go_default_library",
-        "//pkg/backup:go_default_library",
-        "//pkg/contextutil:go_default_library",
-        "//pkg/etcd:go_default_library",
-        "//pkg/etcdclient:go_default_library",
-        "//vendor/k8s.io/klog/v2:go_default_library",
+        "//pkg/apis/etcd",
+        "//pkg/backup",
+        "//pkg/contextutil",
+        "//pkg/etcd",
+        "//pkg/etcdclient",
+        "//vendor/k8s.io/klog/v2:klog",
     ],
 )
 
 go_test(
-    name = "go_default_test",
+    name = "backupcontroller_test",
     srcs = ["parse_test.go"],
-    embed = [":go_default_library"],
+    embed = [":backupcontroller"],
 )

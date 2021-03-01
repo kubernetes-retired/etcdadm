@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "lintutil",
     srcs = [
         "stats.go",
         "stats_bsd.go",
@@ -12,13 +12,13 @@ go_library(
     importpath = "honnef.co/go/tools/lint/lintutil",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/golang.org/x/tools/go/analysis:go_default_library",
-        "//vendor/golang.org/x/tools/go/buildutil:go_default_library",
-        "//vendor/golang.org/x/tools/go/packages:go_default_library",
-        "//vendor/honnef.co/go/tools/config:go_default_library",
-        "//vendor/honnef.co/go/tools/internal/cache:go_default_library",
-        "//vendor/honnef.co/go/tools/lint:go_default_library",
-        "//vendor/honnef.co/go/tools/lint/lintutil/format:go_default_library",
-        "//vendor/honnef.co/go/tools/version:go_default_library",
+        "//vendor/golang.org/x/tools/go/analysis",
+        "//vendor/golang.org/x/tools/go/buildutil",
+        "//vendor/golang.org/x/tools/go/packages",
+        "//vendor/honnef.co/go/tools/config",
+        "//vendor/honnef.co/go/tools/internal/cache",
+        "//vendor/honnef.co/go/tools/lint",
+        "//vendor/honnef.co/go/tools/lint/lintutil/format",
+        "//vendor/honnef.co/go/tools/version",
     ],
 )

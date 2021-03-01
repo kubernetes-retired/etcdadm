@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
-    name = "go_default_library",
+    name = "locking",
     srcs = [
         "flock.go",
         "fs.go",
@@ -11,13 +11,13 @@ go_library(
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/locking",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/k8s.io/klog/v2:go_default_library",
+        "//vendor/k8s.io/klog/v2:klog",
     ],
 )
 
 go_test(
-    name = "go_default_test",
+    name = "locking_test",
     srcs = ["lock_test.go"],
-    embed = [":go_default_library"],
-    deps = ["//vendor/k8s.io/klog/v2:go_default_library"],
+    embed = [":locking"],
+    deps = ["//vendor/k8s.io/klog/v2:klog"],
 )

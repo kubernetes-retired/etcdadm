@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "chacha20",
     srcs = [
         "chacha_arm64.go",
         "chacha_arm64.s",
@@ -17,10 +17,10 @@ go_library(
     importpath = "golang.org/x/crypto/chacha20",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/golang.org/x/crypto/internal/subtle:go_default_library",
+        "//vendor/golang.org/x/crypto/internal/subtle",
     ] + select({
         "@io_bazel_rules_go//go/platform:s390x": [
-            "//vendor/golang.org/x/sys/cpu:go_default_library",
+            "//vendor/golang.org/x/sys/cpu",
         ],
         "//conditions:default": [],
     }),

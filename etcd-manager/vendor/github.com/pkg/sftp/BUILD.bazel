@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "sftp",
     srcs = [
         "attrs.go",
         "attrs_stubs.go",
@@ -34,8 +34,8 @@ go_library(
     importpath = "github.com/pkg/sftp",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/kr/fs:go_default_library",
-        "//vendor/github.com/pkg/errors:go_default_library",
-        "//vendor/golang.org/x/crypto/ssh:go_default_library",
+        "//vendor/github.com/kr/fs",
+        "//vendor/github.com/pkg/errors",
+        "//vendor/golang.org/x/crypto/ssh",
     ],
 )

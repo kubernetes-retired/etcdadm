@@ -21,6 +21,7 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
+	"net"
 	"os"
 	"strings"
 	"time"
@@ -35,6 +36,7 @@ import (
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/hosts"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/legacy"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/locking"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/metrics"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/pki"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi/discovery"
@@ -74,12 +76,14 @@ func main() {
 	flag.StringVar(&o.Address, "address", o.Address, "local address to use")
 	flag.StringVar(&o.PeerUrls, "peer-urls", o.PeerUrls, "peer-urls to use")
 	flag.IntVar(&o.GrpcPort, "grpc-port", o.GrpcPort, "grpc-port to use")
+	flag.IntVar(&o.EtcdManagerMetricsPort, "etcd-manager-metrics-port", o.EtcdManagerMetricsPort, "etcd-manager prometheus metrics port")
 	flag.StringVar(&o.ListenMetricsURLs, "listen-metrics-urls", o.ListenMetricsURLs, "listen-metrics-urls configure etcd dedicated metrics URL endpoints")
 	flag.StringVar(&o.ClientUrls, "client-urls", o.ClientUrls, "client-urls to use for normal operation")
 	flag.StringVar(&o.QuarantineClientUrls, "quarantine-client-urls", o.QuarantineClientUrls, "client-urls to use when etcd should be quarantined e.g. when offline")
 	flag.StringVar(&o.ClusterName, "cluster-name", o.ClusterName, "name of cluster")
 	flag.StringVar(&o.BackupStorePath, "backup-store", o.BackupStorePath, "backup store location")
 	flag.StringVar(&o.BackupInterval, "backup-interval", o.BackupInterval, "interval for periodic backups")
+	flag.StringVar(&o.DiscoveryPollInterval, "discovery-poll-interval", o.DiscoveryPollInterval, "interval for discovery poll")
 	flag.StringVar(&o.DataDir, "data-dir", o.DataDir, "directory for storing etcd data")
 
 	flag.StringVar(&o.PKIDir, "pki-dir", o.PKIDir, "directory for PKI keys")
@@ -122,20 +126,21 @@ func expandUrls(urls string, address string, name string) []string {
 
 // EtcdManagerOptions holds the flag options for running etcd-manager
 type EtcdManagerOptions struct {
-	PKIDir               string
-	Address              string
-	VolumeProviderID     string
-	PeerUrls             string
-	GrpcPort             int
-	ClientUrls           string
-	QuarantineClientUrls string
-	ClusterName          string
-	ListenAddress        string
-	BackupStorePath      string
-	DataDir              string
-	VolumeTags           []string
-	NameTag              string
-	BackupInterval       string
+	PKIDir                string
+	Address               string
+	VolumeProviderID      string
+	PeerUrls              string
+	GrpcPort              int
+	ClientUrls            string
+	QuarantineClientUrls  string
+	ClusterName           string
+	ListenAddress         string
+	BackupStorePath       string
+	DataDir               string
+	VolumeTags            []string
+	NameTag               string
+	BackupInterval        string
+	DiscoveryPollInterval string
 
 	// DNSSuffix is added to etcd member names and we then use internal client id discovery
 	DNSSuffix string
@@ -152,6 +157,9 @@ type EtcdManagerOptions struct {
 
 	// ListenMetricsURLs allows configuration of the special etcd metrics urls
 	ListenMetricsURLs string
+
+	// EtcdManagerMetricsPort allows exposing statistics from etcd-manager
+	EtcdManagerMetricsPort int
 }
 
 // InitDefaults populates the default flag values
@@ -159,6 +167,7 @@ func (o *EtcdManagerOptions) InitDefaults() {
 	//o.Address = "127.0.0.1"
 
 	o.BackupInterval = "15m"
+	o.DiscoveryPollInterval = "60s"
 
 	o.ClientUrls = "https://__address__:4001"
 	o.QuarantineClientUrls = "https://__address__:8001"
@@ -178,6 +187,7 @@ func (o *EtcdManagerOptions) InitDefaults() {
 
 	o.Insecure = false
 	o.EtcdInsecure = false
+	o.EtcdManagerMetricsPort = 0
 }
 
 // RunEtcdManager runs the etcd-manager, returning only we should exit.
@@ -201,6 +211,11 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 
 	var discoveryProvider discovery.Interface
 	var myPeerId privateapi.PeerId
+
+	// start etcd-manager metrics if the etcd manager metrics port is defined
+	if o.EtcdManagerMetricsPort != 0 {
+		go metrics.RegisterMetrics(o.EtcdManagerMetricsPort, o.VolumeProviderID)
+	}
 
 	if o.VolumeProviderID != "" {
 		var volumeProvider volumes.Volumes
@@ -405,7 +420,11 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 		Id:        string(myPeerId),
 		Endpoints: []string{grpcEndpoint},
 	}
-	peerServer, err := privateapi.NewServer(ctx, myInfo, grpcServerTLS, discoveryProvider, o.GrpcPort, dnsProvider, o.DNSSuffix, grpcClientTLS)
+	discoveryPollInterval, err := time.ParseDuration(o.DiscoveryPollInterval)
+	if err != nil {
+		return fmt.Errorf("invalid discovery-poll-interval duration %q", o.DiscoveryPollInterval)
+	}
+	peerServer, err := privateapi.NewServer(ctx, myInfo, grpcServerTLS, discoveryProvider, o.GrpcPort, dnsProvider, o.DNSSuffix, grpcClientTLS, discoveryPollInterval)
 	if err != nil {
 		return fmt.Errorf("error building server: %v", err)
 	}
@@ -446,7 +465,14 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 	}
 
 	listenMetricsURLs := expandUrls(o.ListenMetricsURLs, o.Address, name)
-	etcdServer, err := etcd.NewEtcdServer(o.DataDir, o.ClusterName, o.ListenAddress, listenMetricsURLs, etcdNodeInfo, peerServer, dnsProvider, etcdClientsCA, etcdPeersCA)
+	peerClientIPs := []net.IP{}
+	if ip := net.ParseIP(o.Address); ip == nil {
+		return fmt.Errorf("unable to parse address %q: %w", o.Address, err)
+	} else {
+		peerClientIPs = append(peerClientIPs, ip)
+	}
+	klog.Infof("peerClientIPs: %v", peerClientIPs)
+	etcdServer, err := etcd.NewEtcdServer(o.DataDir, o.ClusterName, o.ListenAddress, listenMetricsURLs, etcdNodeInfo, peerServer, dnsProvider, etcdClientsCA, etcdPeersCA, peerClientIPs)
 	if err != nil {
 		return fmt.Errorf("error initializing etcd server: %v", err)
 	}

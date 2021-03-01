@@ -41,8 +41,9 @@ func (os *OpenstackVolumes) Poll() (map[string]discovery.Node, error) {
 		}
 	}
 	for i, volume := range instanceToVolumeMap {
+		mc := NewMetricContext("server", "get")
 		server, err := servers.Get(os.computeClient, i).Extract()
-		if err != nil {
+		if mc.ObserveRequest(err) != nil {
 			klog.Warningf("Could not find server with id '%s': %v", i, err)
 			continue
 		}

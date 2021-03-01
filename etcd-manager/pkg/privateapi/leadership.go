@@ -34,7 +34,7 @@ type leadership struct {
 }
 
 func (s *Server) LeaderNotification(ctx grpccontext.Context, request *LeaderNotificationRequest) (*LeaderNotificationResponse, error) {
-	klog.Infof("Got LeaderNotification %s", request)
+	klog.V(3).Infof("Got LeaderNotification %s", request)
 
 	if request.View == nil {
 		return nil, fmt.Errorf("View is required")
@@ -192,6 +192,46 @@ func (s *Server) BecomeLeader(ctx context.Context) ([]PeerId, string, error) {
 	}
 
 	return acked, request.View.LeadershipToken, nil
+}
+
+func (s *Server) AssertLeadership(ctx context.Context, leadershipToken string) error {
+	// TODO: Should we send a notification if we ourselves would reject it?
+	snapshot, infos := s.snapshotHealthy()
+
+	request := &LeaderNotificationRequest{}
+
+	request.View = &View{}
+	for _, info := range infos {
+		request.View.Healthy = append(request.View.Healthy, info)
+	}
+	request.View.Leader = &s.myInfo
+	request.View.LeadershipToken = leadershipToken
+
+	for peerID := range snapshot {
+		conn, err := s.GetPeerClient(peerID)
+		if err != nil {
+			return fmt.Errorf("error getting peer client for %q: %w", peerID, err)
+		}
+
+		peerClient := NewClusterServiceClient(conn)
+
+		timeoutCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+		response, err := peerClient.LeaderNotification(timeoutCtx, request)
+		cancel()
+		if err != nil {
+			return fmt.Errorf("error sending leader assertion to %q: %w", peerID, err)
+		}
+
+		if response.View != nil {
+			s.addPeersFromView(response.View)
+		}
+
+		if !response.Accepted {
+			return fmt.Errorf("our leadership assertion was not accepted by peer %q: %v", peerID, response)
+		}
+	}
+
+	return nil
 }
 
 func randomToken() string {

@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "tracker",
     srcs = [
         "inflights.go",
         "progress.go",
@@ -12,7 +12,7 @@ go_library(
     importpath = "go.etcd.io/etcd/raft/tracker",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/go.etcd.io/etcd/raft/quorum:go_default_library",
-        "//vendor/go.etcd.io/etcd/raft/raftpb:go_default_library",
+        "//vendor/go.etcd.io/etcd/raft/quorum",
+        "//vendor/go.etcd.io/etcd/raft/raftpb",
     ],
 )

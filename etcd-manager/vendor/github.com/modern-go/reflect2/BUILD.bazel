@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "reflect2",
     srcs = [
         "go_above_17.go",
         "go_above_19.go",
@@ -38,5 +38,5 @@ go_library(
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/modern-go/reflect2",
     importpath = "github.com/modern-go/reflect2",
     visibility = ["//visibility:public"],
-    deps = ["//vendor/github.com/modern-go/concurrent:go_default_library"],
+    deps = ["//vendor/github.com/modern-go/concurrent"],
 )

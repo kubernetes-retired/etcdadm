@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "zap",
     srcs = [
         "array.go",
         "config.go",
@@ -27,9 +27,9 @@ go_library(
     importpath = "go.uber.org/zap",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/go.uber.org/atomic:go_default_library",
-        "//vendor/go.uber.org/multierr:go_default_library",
-        "//vendor/go.uber.org/zap/internal/bufferpool:go_default_library",
-        "//vendor/go.uber.org/zap/zapcore:go_default_library",
+        "//vendor/go.uber.org/atomic",
+        "//vendor/go.uber.org/multierr",
+        "//vendor/go.uber.org/zap/internal/bufferpool",
+        "//vendor/go.uber.org/zap/zapcore",
     ],
 )

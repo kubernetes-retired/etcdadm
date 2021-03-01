@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "aws",
     srcs = [
         "config.go",
         "context_1_5.go",
@@ -23,10 +23,10 @@ go_library(
     importpath = "github.com/aws/aws-sdk-go/aws",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/aws/aws-sdk-go/aws/awserr:go_default_library",
-        "//vendor/github.com/aws/aws-sdk-go/aws/credentials:go_default_library",
-        "//vendor/github.com/aws/aws-sdk-go/aws/endpoints:go_default_library",
-        "//vendor/github.com/aws/aws-sdk-go/internal/context:go_default_library",
-        "//vendor/github.com/aws/aws-sdk-go/internal/sdkio:go_default_library",
+        "//vendor/github.com/aws/aws-sdk-go/aws/awserr",
+        "//vendor/github.com/aws/aws-sdk-go/aws/credentials",
+        "//vendor/github.com/aws/aws-sdk-go/aws/endpoints",
+        "//vendor/github.com/aws/aws-sdk-go/internal/context",
+        "//vendor/github.com/aws/aws-sdk-go/internal/sdkio",
     ],
 )

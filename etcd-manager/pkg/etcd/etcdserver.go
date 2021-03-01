@@ -19,6 +19,7 @@ package etcd
 import (
 	"fmt"
 	"io/ioutil"
+	"net"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -63,6 +64,10 @@ type EtcdServer struct {
 
 	// listenMetricsURLs is the set of URLs where etcd should listen for metrics
 	listenMetricsURLs []string
+
+	// peerClientIPs is the set of IPs from which we connect to peers, used for the deeper cert validation in etcd 3.2
+	// (see https://github.com/kopeio/etcd-manager/issues/371)
+	peerClientIPs []net.IP
 }
 
 type preparedState struct {
@@ -70,7 +75,7 @@ type preparedState struct {
 	clusterToken string
 }
 
-func NewEtcdServer(baseDir string, clusterName string, listenAddress string, listenMetricsURLs []string, etcdNodeConfiguration *protoetcd.EtcdNode, peerServer *privateapi.Server, dnsProvider dns.Provider, etcdClientsCA *pki.Keypair, etcdPeersCA *pki.Keypair) (*EtcdServer, error) {
+func NewEtcdServer(baseDir string, clusterName string, listenAddress string, listenMetricsURLs []string, etcdNodeConfiguration *protoetcd.EtcdNode, peerServer *privateapi.Server, dnsProvider dns.Provider, etcdClientsCA *pki.Keypair, etcdPeersCA *pki.Keypair, peerClientIPs []net.IP) (*EtcdServer, error) {
 	s := &EtcdServer{
 		baseDir:               baseDir,
 		clusterName:           clusterName,
@@ -81,6 +86,7 @@ func NewEtcdServer(baseDir string, clusterName string, listenAddress string, lis
 		etcdClientsCA:         etcdClientsCA,
 		etcdPeersCA:           etcdPeersCA,
 		listenMetricsURLs:     listenMetricsURLs,
+		peerClientIPs:         peerClientIPs,
 	}
 
 	// Make sure we have read state from disk before serving
@@ -239,7 +245,7 @@ func (s *EtcdServer) UpdateEndpoints(ctx context.Context, request *protoetcd.Upd
 		}
 
 		if len(addressToHosts) != 0 {
-			klog.Infof("updating hosts: %v", addressToHosts)
+			klog.V(3).Infof("updating hosts: %v", addressToHosts)
 			if err := s.dnsProvider.UpdateHosts(addressToHosts); err != nil {
 				klog.Warningf("error updating hosts: %v", err)
 				return nil, err
@@ -593,7 +599,7 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 	}
 
 	// We always generate the keypairs, as this allows us to switch to TLS without a restart
-	if err := p.createKeypairs(s.etcdPeersCA, s.etcdClientsCA, pkiDir, meNode); err != nil {
+	if err := p.createKeypairs(s.etcdPeersCA, s.etcdClientsCA, pkiDir, meNode, s.peerClientIPs); err != nil {
 		return err
 	}
 

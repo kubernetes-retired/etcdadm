@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "go_default_library",
+    name = "godo",
     srcs = [
         "1-click.go",
         "account.go",
@@ -46,7 +46,7 @@ go_library(
     importpath = "github.com/digitalocean/godo",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/google/go-querystring/query:go_default_library",
-        "//vendor/golang.org/x/oauth2:go_default_library",
+        "//vendor/github.com/google/go-querystring/query",
+        "//vendor/golang.org/x/oauth2",
     ],
 )
