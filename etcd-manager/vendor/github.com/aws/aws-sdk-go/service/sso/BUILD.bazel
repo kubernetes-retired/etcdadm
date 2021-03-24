@@ -1,0 +1,25 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "sso",
+    srcs = [
+        "api.go",
+        "doc.go",
+        "errors.go",
+        "service.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/aws/aws-sdk-go/service/sso",
+    importpath = "github.com/aws/aws-sdk-go/service/sso",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/aws/aws-sdk-go/aws",
+        "//vendor/github.com/aws/aws-sdk-go/aws/awsutil",
+        "//vendor/github.com/aws/aws-sdk-go/aws/client",
+        "//vendor/github.com/aws/aws-sdk-go/aws/client/metadata",
+        "//vendor/github.com/aws/aws-sdk-go/aws/credentials",
+        "//vendor/github.com/aws/aws-sdk-go/aws/request",
+        "//vendor/github.com/aws/aws-sdk-go/aws/signer/v4:signer",
+        "//vendor/github.com/aws/aws-sdk-go/private/protocol",
+        "//vendor/github.com/aws/aws-sdk-go/private/protocol/restjson",
+    ],
+)
