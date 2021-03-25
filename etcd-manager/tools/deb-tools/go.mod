@@ -1,4 +1,4 @@
-module kope.io/etcd-manager/tools/deb-tools
+module sigs.k8s.io/etcdadm/etcd-manager/tools/deb-tools
 
 go 1.12
 
