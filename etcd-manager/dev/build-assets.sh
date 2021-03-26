@@ -17,6 +17,10 @@ VERSION=$1
 PLATFORMS="linux_amd64 darwin_amd64 windows_amd64"
 CMDS="etcd-manager-ctl"
 
+# cd to the etcd-manager root
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "${REPO_ROOT}"/etcd-manager
+
 # Ensure the dist folder exists and is clean
 rm -fr dist/ && mkdir -p dist/
 
