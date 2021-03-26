@@ -1,0 +1,19 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "jsonrpc",
+    srcs = [
+        "jsonrpc.go",
+        "unmarshal_error.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/aws/aws-sdk-go/private/protocol/jsonrpc",
+    importpath = "github.com/aws/aws-sdk-go/private/protocol/jsonrpc",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/aws/aws-sdk-go/aws/awserr",
+        "//vendor/github.com/aws/aws-sdk-go/aws/request",
+        "//vendor/github.com/aws/aws-sdk-go/private/protocol",
+        "//vendor/github.com/aws/aws-sdk-go/private/protocol/json/jsonutil",
+        "//vendor/github.com/aws/aws-sdk-go/private/protocol/rest",
+    ],
+)

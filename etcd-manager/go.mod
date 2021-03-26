@@ -82,7 +82,7 @@ require (
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.3
 	github.com/Azure/go-autorest/autorest/to v0.2.0
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.264
-	github.com/aws/aws-sdk-go v1.36.0
+	github.com/aws/aws-sdk-go v1.38.3
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/digitalocean/godo v1.54.0
 	github.com/go-logr/logr v0.3.0 // indirect
