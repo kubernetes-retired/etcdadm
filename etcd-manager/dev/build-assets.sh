@@ -36,12 +36,14 @@ for CMD in ${CMDS}; do
         fi
 
         # Build
-        bazel build --platforms=@io_bazel_rules_go//go/toolchain:${PLATFORM} //cmd/${CMD}
+        bazel build --@io_bazel_rules_go//go/config:pure --platforms=@io_bazel_rules_go//go/toolchain:${PLATFORM} //cmd/${CMD}
 
         if [ -e "bazel-bin/cmd/${CMD}/${PLATFORM}_stripped/${CMD}${EXTENSION}" ]; then
             cp bazel-bin/cmd/${CMD}/${PLATFORM}_stripped/${CMD}${EXTENSION} ${CMD_DIST_PATH}
         elif [ -e "bazel-bin/cmd/${CMD}/${PLATFORM}_pure_stripped/${CMD}${EXTENSION}" ]; then
             cp bazel-bin/cmd/${CMD}/${PLATFORM}_pure_stripped/${CMD}${EXTENSION} ${CMD_DIST_PATH}
+        elif [ -e "bazel-bin/cmd/${CMD}/${CMD}_/${CMD}${EXTENSION}" ]; then
+            cp bazel-bin/cmd/${CMD}/${CMD}_/${CMD}${EXTENSION} ${CMD_DIST_PATH}
         else
             echo "Unable to find compiled binary for ${CMD} ${PLATFORM}"
             exit 1
