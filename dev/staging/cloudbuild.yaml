@@ -10,6 +10,7 @@ steps:
   - DOCKER_REGISTRY=$_DOCKER_REGISTRY
   - DOCKER_IMAGE_PREFIX=$_DOCKER_IMAGE_PREFIX
   - ARTIFACT_LOCATION=$_ARTIFACT_LOCATION
+  - INSTALL_BAZELISK=y
   entrypoint: dev/staging/push.sh
 substitutions:
   _GIT_TAG: 'dev'

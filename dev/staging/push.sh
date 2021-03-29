@@ -37,6 +37,15 @@ if [[ -z "${ARTIFACT_LOCATION:-}" ]]; then
   exit 1
 fi
 
+if [[ -n "${INSTALL_BAZELISK:-}" ]]; then
+  DOWNLOAD_URL="https://github.com/bazelbuild/bazelisk/releases/download/v1.7.2/bazelisk-linux-amd64"
+  echo "Downloading bazelisk from $DOWNLOAD_URL"
+  curl -L --output "/tmp/bazelisk" "${DOWNLOAD_URL}"
+  chmod +x "/tmp/bazelisk"
+  # Install to /usr/local/bin, as bazel
+  mv "/tmp/bazelisk" "/usr/local/bin/bazel"
+fi
+
 # Build and upload etcdadm binary
 make etcdadm
 gsutil -h "Cache-Control:private, max-age=0, no-transform" -m cp -n etcdadm ${ARTIFACT_LOCATION}/${VERSION}/etcdadm
