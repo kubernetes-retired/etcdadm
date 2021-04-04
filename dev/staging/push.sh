@@ -37,6 +37,11 @@ if [[ -z "${ARTIFACT_LOCATION:-}" ]]; then
   exit 1
 fi
 
+# Make sure ARTIFACT_LOCATION ends in a slash
+if [[ "${ARTIFACT_LOCATION}" != */ ]]; then
+  ARTIFACT_LOCATION="${ARTIFACT_LOCATION}/"
+fi
+
 if [[ -n "${INSTALL_BAZELISK:-}" ]]; then
   DOWNLOAD_URL="https://github.com/bazelbuild/bazelisk/releases/download/v1.7.2/bazelisk-linux-amd64"
   echo "Downloading bazelisk from $DOWNLOAD_URL"
@@ -48,9 +53,9 @@ fi
 
 # Build and upload etcdadm binary
 make etcdadm
-gsutil -h "Cache-Control:private, max-age=0, no-transform" -m cp -n etcdadm ${ARTIFACT_LOCATION}/${VERSION}/etcdadm
+gsutil -h "Cache-Control:private, max-age=0, no-transform" -m cp -n etcdadm ${ARTIFACT_LOCATION}${VERSION}/etcdadm
 
 # Build and upload etcd-manager images & binaries
 DOCKER_REGISTRY=${DOCKER_REGISTRY} DOCKER_IMAGE_PREFIX=${DOCKER_IMAGE_PREFIX} DOCKER_TAG=${VERSION} make -C etcd-manager push
 ./etcd-manager/dev/build-assets.sh ${VERSION}
-gsutil -h "Cache-Control:private, max-age=0, no-transform" -m cp -n dist/ ${ARTIFACT_LOCATION}/${VERSION}/etcd-manager/
+gsutil -h "Cache-Control:private, max-age=0, no-transform" -m cp -n etcd-manager/dist/ ${ARTIFACT_LOCATION}${VERSION}/etcd-manager/
