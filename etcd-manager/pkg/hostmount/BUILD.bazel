@@ -7,7 +7,7 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//vendor/k8s.io/klog/v2:klog",
-        "//vendor/k8s.io/utils/mount",
+        "//vendor/k8s.io/mount-utils",
         "//vendor/k8s.io/utils/nsenter",
     ],
 )

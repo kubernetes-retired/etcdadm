@@ -44,9 +44,6 @@ go_library(
         "@io_bazel_rules_go//go/platform:linux": [
             "//vendor/github.com/coreos/go-systemd/journal",
         ],
-        "@io_bazel_rules_go//go/platform:nacl": [
-            "//vendor/github.com/coreos/go-systemd/journal",
-        ],
         "@io_bazel_rules_go//go/platform:netbsd": [
             "//vendor/github.com/coreos/go-systemd/journal",
         ],
