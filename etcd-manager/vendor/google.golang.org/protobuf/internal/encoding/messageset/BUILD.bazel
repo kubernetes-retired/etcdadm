@@ -10,6 +10,5 @@ go_library(
         "//vendor/google.golang.org/protobuf/encoding/protowire",
         "//vendor/google.golang.org/protobuf/internal/errors",
         "//vendor/google.golang.org/protobuf/reflect/protoreflect",
-        "//vendor/google.golang.org/protobuf/reflect/protoregistry",
     ],
 )

@@ -23,6 +23,7 @@ go_library(
         "//vendor/google.golang.org/protobuf/encoding/prototext",
         "//vendor/google.golang.org/protobuf/encoding/protowire",
         "//vendor/google.golang.org/protobuf/proto",
+        "//vendor/google.golang.org/protobuf/reflect/protodesc",
         "//vendor/google.golang.org/protobuf/reflect/protoreflect",
         "//vendor/google.golang.org/protobuf/reflect/protoregistry",
         "//vendor/google.golang.org/protobuf/runtime/protoiface",

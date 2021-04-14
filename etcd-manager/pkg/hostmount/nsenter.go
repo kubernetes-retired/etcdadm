@@ -20,7 +20,7 @@ import (
 	"fmt"
 
 	"k8s.io/klog/v2"
-	"k8s.io/utils/mount"
+	"k8s.io/mount-utils"
 	"k8s.io/utils/nsenter"
 )
 
@@ -140,4 +140,8 @@ func (mounter *Mounter) IsLikelyNotMountPoint(file string) (bool, error) {
 
 func (n *Mounter) Unmount(target string) error {
 	return fmt.Errorf("Unmount not implemented for containerized mounter")
+}
+
+func (n *Mounter) MountSensitiveWithoutSystemd(source string, target string, fstype string, options []string, sensitiveOptions []string) error {
+	return fmt.Errorf("MountSensitiveWithoutSystemd not implemented for containerized mounter")
 }

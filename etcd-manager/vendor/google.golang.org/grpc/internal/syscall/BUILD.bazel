@@ -39,9 +39,6 @@ go_library(
             "//vendor/golang.org/x/sys/unix",
             "//vendor/google.golang.org/grpc/grpclog",
         ],
-        "@io_bazel_rules_go//go/platform:nacl": [
-            "//vendor/google.golang.org/grpc/grpclog",
-        ],
         "@io_bazel_rules_go//go/platform:netbsd": [
             "//vendor/google.golang.org/grpc/grpclog",
         ],

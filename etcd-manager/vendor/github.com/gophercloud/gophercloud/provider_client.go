@@ -13,7 +13,10 @@ import (
 )
 
 // DefaultUserAgent is the default User-Agent string set in the request header.
-const DefaultUserAgent = "gophercloud/2.0.0"
+const (
+	DefaultUserAgent         = "gophercloud/2.0.0"
+	DefaultMaxBackoffRetries = 60
+)
 
 // UserAgent represents a User-Agent header.
 type UserAgent struct {
@@ -21,6 +24,8 @@ type UserAgent struct {
 	// All the strings to prepend are accumulated and prepended in the Join method.
 	prepend []string
 }
+
+type RetryFunc func(context.Context, *ErrUnexpectedResponseCode, error, uint) error
 
 // Prepend prepends a user-defined string to the default User-Agent string. Users
 // may pass in one or more strings to prepend.
@@ -80,6 +85,12 @@ type ProviderClient struct {
 	// Context is the context passed to the HTTP request.
 	Context context.Context
 
+	// Retry backoff func
+	RetryBackoffFunc RetryFunc
+
+	// MaxBackoffRetries set the maximum number of backoffs. When not set, defaults to DefaultMaxBackoffRetries
+	MaxBackoffRetries uint
+
 	// mut is a mutex for the client. It protects read and write access to client attributes such as getting
 	// and setting the TokenID.
 	mut *sync.RWMutex
@@ -94,10 +105,32 @@ type ProviderClient struct {
 // reauthlock represents a set of attributes used to help in the reauthentication process.
 type reauthlock struct {
 	sync.RWMutex
-	// This channel is non-nil during reauthentication. It can be used to ask the
-	// goroutine doing Reauthenticate() for its result. Look at the implementation
-	// of Reauthenticate() for details.
-	ongoing chan<- (chan<- error)
+	ongoing *reauthFuture
+}
+
+// reauthFuture represents future result of the reauthentication process.
+// while done channel is not closed, reauthentication is in progress.
+// when done channel is closed, err contains the result of reauthentication.
+type reauthFuture struct {
+	done chan struct{}
+	err  error
+}
+
+func newReauthFuture() *reauthFuture {
+	return &reauthFuture{
+		make(chan struct{}),
+		nil,
+	}
+}
+
+func (f *reauthFuture) Set(err error) {
+	f.err = err
+	close(f.done)
+}
+
+func (f *reauthFuture) Get() error {
+	<-f.done
+	return f.err
 }
 
 // AuthenticatedHeaders returns a map of HTTP headers that are common for all
@@ -112,9 +145,7 @@ func (client *ProviderClient) AuthenticatedHeaders() (m map[string]string) {
 		ongoing := client.reauthmut.ongoing
 		client.reauthmut.Unlock()
 		if ongoing != nil {
-			responseChannel := make(chan error)
-			ongoing <- responseChannel
-			_ = <-responseChannel
+			_ = ongoing.Get()
 		}
 	}
 	t := client.Token()
@@ -237,21 +268,19 @@ func (client *ProviderClient) Reauthenticate(previousToken string) error {
 		return client.ReauthFunc()
 	}
 
-	messages := make(chan (chan<- error))
+	future := newReauthFuture()
 
 	// Check if a Reauthenticate is in progress, or start one if not.
 	client.reauthmut.Lock()
 	ongoing := client.reauthmut.ongoing
 	if ongoing == nil {
-		client.reauthmut.ongoing = messages
+		client.reauthmut.ongoing = future
 	}
 	client.reauthmut.Unlock()
 
 	// If Reauthenticate is running elsewhere, wait for its result.
 	if ongoing != nil {
-		responseChannel := make(chan error)
-		ongoing <- responseChannel
-		return <-responseChannel
+		return ongoing.Get()
 	}
 
 	// Perform the actual reauthentication.
@@ -264,22 +293,10 @@ func (client *ProviderClient) Reauthenticate(previousToken string) error {
 
 	// Mark Reauthenticate as finished.
 	client.reauthmut.Lock()
+	client.reauthmut.ongoing.Set(err)
 	client.reauthmut.ongoing = nil
 	client.reauthmut.Unlock()
 
-	// Report result to all other interested goroutines.
-	//
-	// This happens in a separate goroutine because another goroutine might have
-	// acquired a copy of `client.reauthmut.ongoing` before we cleared it, but not
-	// have come around to sending its request. By answering in a goroutine, we
-	// can have that goroutine linger until all responseChannels have been sent.
-	// When GC has collected all sendings ends of the channel, our receiving end
-	// will be closed and the goroutine will end.
-	go func() {
-		for responseChannel := range messages {
-			responseChannel <- err
-		}
-	}()
 	return err
 }
 
@@ -317,6 +334,8 @@ type requestState struct {
 	// reauthenticate, but keep getting 401 responses with the fresh token, reauthenticating some more
 	// will just get us into an infinite loop.
 	hasReauthenticated bool
+	// Retry-After backoff counter, increments during each backoff call
+	retries uint
 }
 
 var applicationJSON = "application/json"
@@ -492,10 +511,28 @@ func (client *ProviderClient) doRequest(method, url string, options *RequestOpts
 			if error409er, ok := errType.(Err409er); ok {
 				err = error409er.Error409(respErr)
 			}
-		case 429:
+		case http.StatusTooManyRequests, 498:
 			err = ErrDefault429{respErr}
 			if error429er, ok := errType.(Err429er); ok {
 				err = error429er.Error429(respErr)
+			}
+
+			maxTries := client.MaxBackoffRetries
+			if maxTries == 0 {
+				maxTries = DefaultMaxBackoffRetries
+			}
+
+			if f := client.RetryBackoffFunc; f != nil && state.retries < maxTries {
+				var e error
+
+				state.retries = state.retries + 1
+				e = f(client.Context, &respErr, err, state.retries)
+
+				if e != nil {
+					return resp, e
+				}
+
+				return client.doRequest(method, url, options, state)
 			}
 		case http.StatusInternalServerError:
 			err = ErrDefault500{respErr}

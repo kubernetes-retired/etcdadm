@@ -2,7 +2,11 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "http",
-    srcs = ["dial.go"],
+    srcs = [
+        "default_transport_go113.go",
+        "default_transport_not_go113.go",
+        "dial.go",
+    ],
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/google.golang.org/api/transport/http",
     importpath = "google.golang.org/api/transport/http",
     visibility = ["//visibility:public"],
@@ -14,5 +18,6 @@ go_library(
         "//vendor/google.golang.org/api/option",
         "//vendor/google.golang.org/api/transport/cert",
         "//vendor/google.golang.org/api/transport/http/internal/propagation",
+        "//vendor/google.golang.org/api/transport/internal/dca",
     ],
 )

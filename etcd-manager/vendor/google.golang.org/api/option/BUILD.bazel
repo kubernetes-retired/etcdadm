@@ -14,6 +14,7 @@ go_library(
         "//vendor/golang.org/x/oauth2",
         "//vendor/golang.org/x/oauth2/google",
         "//vendor/google.golang.org/api/internal",
+        "//vendor/google.golang.org/api/internal/impersonate",
         "//vendor/google.golang.org/grpc",
     ],
 )

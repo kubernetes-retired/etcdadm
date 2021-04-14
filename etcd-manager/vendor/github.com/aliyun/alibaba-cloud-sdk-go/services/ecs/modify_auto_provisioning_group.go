@@ -21,7 +21,6 @@ import (
 )
 
 // ModifyAutoProvisioningGroup invokes the ecs.ModifyAutoProvisioningGroup API synchronously
-// api document: https://help.aliyun.com/api/ecs/modifyautoprovisioninggroup.html
 func (client *Client) ModifyAutoProvisioningGroup(request *ModifyAutoProvisioningGroupRequest) (response *ModifyAutoProvisioningGroupResponse, err error) {
 	response = CreateModifyAutoProvisioningGroupResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) ModifyAutoProvisioningGroup(request *ModifyAutoProvisionin
 }
 
 // ModifyAutoProvisioningGroupWithChan invokes the ecs.ModifyAutoProvisioningGroup API asynchronously
-// api document: https://help.aliyun.com/api/ecs/modifyautoprovisioninggroup.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ModifyAutoProvisioningGroupWithChan(request *ModifyAutoProvisioningGroupRequest) (<-chan *ModifyAutoProvisioningGroupResponse, <-chan error) {
 	responseChan := make(chan *ModifyAutoProvisioningGroupResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) ModifyAutoProvisioningGroupWithChan(request *ModifyAutoPro
 }
 
 // ModifyAutoProvisioningGroupWithCallback invokes the ecs.ModifyAutoProvisioningGroup API asynchronously
-// api document: https://help.aliyun.com/api/ecs/modifyautoprovisioninggroup.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ModifyAutoProvisioningGroupWithCallback(request *ModifyAutoProvisioningGroupRequest, callback func(response *ModifyAutoProvisioningGroupResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -76,19 +71,29 @@ func (client *Client) ModifyAutoProvisioningGroupWithCallback(request *ModifyAut
 // ModifyAutoProvisioningGroupRequest is the request struct for api ModifyAutoProvisioningGroup
 type ModifyAutoProvisioningGroupRequest struct {
 	*requests.RpcRequest
-	ResourceOwnerId                  requests.Integer `position:"Query" name:"ResourceOwnerId"`
-	TerminateInstancesWithExpiration requests.Boolean `position:"Query" name:"TerminateInstancesWithExpiration"`
-	DefaultTargetCapacityType        string           `position:"Query" name:"DefaultTargetCapacityType"`
-	ExcessCapacityTerminationPolicy  string           `position:"Query" name:"ExcessCapacityTerminationPolicy"`
-	ResourceOwnerAccount             string           `position:"Query" name:"ResourceOwnerAccount"`
-	OwnerAccount                     string           `position:"Query" name:"OwnerAccount"`
-	OwnerId                          requests.Integer `position:"Query" name:"OwnerId"`
-	AutoProvisioningGroupId          string           `position:"Query" name:"AutoProvisioningGroupId"`
-	PayAsYouGoTargetCapacity         string           `position:"Query" name:"PayAsYouGoTargetCapacity"`
-	TotalTargetCapacity              string           `position:"Query" name:"TotalTargetCapacity"`
-	SpotTargetCapacity               string           `position:"Query" name:"SpotTargetCapacity"`
-	MaxSpotPrice                     requests.Float   `position:"Query" name:"MaxSpotPrice"`
-	AutoProvisioningGroupName        string           `position:"Query" name:"AutoProvisioningGroupName"`
+	ResourceOwnerId                  requests.Integer                                   `position:"Query" name:"ResourceOwnerId"`
+	TerminateInstancesWithExpiration requests.Boolean                                   `position:"Query" name:"TerminateInstancesWithExpiration"`
+	DefaultTargetCapacityType        string                                             `position:"Query" name:"DefaultTargetCapacityType"`
+	ExcessCapacityTerminationPolicy  string                                             `position:"Query" name:"ExcessCapacityTerminationPolicy"`
+	LaunchTemplateConfig             *[]ModifyAutoProvisioningGroupLaunchTemplateConfig `position:"Query" name:"LaunchTemplateConfig"  type:"Repeated"`
+	ResourceOwnerAccount             string                                             `position:"Query" name:"ResourceOwnerAccount"`
+	OwnerAccount                     string                                             `position:"Query" name:"OwnerAccount"`
+	OwnerId                          requests.Integer                                   `position:"Query" name:"OwnerId"`
+	AutoProvisioningGroupId          string                                             `position:"Query" name:"AutoProvisioningGroupId"`
+	PayAsYouGoTargetCapacity         string                                             `position:"Query" name:"PayAsYouGoTargetCapacity"`
+	TotalTargetCapacity              string                                             `position:"Query" name:"TotalTargetCapacity"`
+	SpotTargetCapacity               string                                             `position:"Query" name:"SpotTargetCapacity"`
+	MaxSpotPrice                     requests.Float                                     `position:"Query" name:"MaxSpotPrice"`
+	AutoProvisioningGroupName        string                                             `position:"Query" name:"AutoProvisioningGroupName"`
+}
+
+// ModifyAutoProvisioningGroupLaunchTemplateConfig is a repeated param struct in ModifyAutoProvisioningGroupRequest
+type ModifyAutoProvisioningGroupLaunchTemplateConfig struct {
+	InstanceType     string `name:"InstanceType"`
+	MaxPrice         string `name:"MaxPrice"`
+	VSwitchId        string `name:"VSwitchId"`
+	WeightedCapacity string `name:"WeightedCapacity"`
+	Priority         string `name:"Priority"`
 }
 
 // ModifyAutoProvisioningGroupResponse is the response struct for api ModifyAutoProvisioningGroup

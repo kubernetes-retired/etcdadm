@@ -13,8 +13,8 @@ go_library(
     deps = [
         "//pkg/hostmount",
         "//vendor/k8s.io/klog/v2:klog",
+        "//vendor/k8s.io/mount-utils",
         "//vendor/k8s.io/utils/exec",
-        "//vendor/k8s.io/utils/mount",
         "//vendor/k8s.io/utils/nsenter",
     ],
 )

@@ -1,143 +1,223 @@
-Generated from https://github.com/Azure/azure-rest-api-specs/tree/3c764635e7d442b3e74caf593029fcd440b3ef82
+Generated from https://github.com/Azure/azure-rest-api-specs/tree/3c764635e7d442b3e74caf593029fcd440b3ef82//specification/network/resource-manager/readme.md tag: `package-2020-06`
 
-Code generator @microsoft.azure/autorest.go@~2.1.161
+Code generator @microsoft.azure/autorest.go@2.1.178
 
-## Breaking Changes
 
-- Function `NewInterfaceIPConfigurationListResultPage` parameter(s) have been changed from `(func(context.Context, InterfaceIPConfigurationListResult) (InterfaceIPConfigurationListResult, error))` to `(InterfaceIPConfigurationListResult, func(context.Context, InterfaceIPConfigurationListResult) (InterfaceIPConfigurationListResult, error))`
-- Function `NewPrivateEndpointConnectionListResultPage` parameter(s) have been changed from `(func(context.Context, PrivateEndpointConnectionListResult) (PrivateEndpointConnectionListResult, error))` to `(PrivateEndpointConnectionListResult, func(context.Context, PrivateEndpointConnectionListResult) (PrivateEndpointConnectionListResult, error))`
-- Function `NewRouteTableListResultPage` parameter(s) have been changed from `(func(context.Context, RouteTableListResult) (RouteTableListResult, error))` to `(RouteTableListResult, func(context.Context, RouteTableListResult) (RouteTableListResult, error))`
-- Function `NewApplicationGatewayPrivateLinkResourceListResultPage` parameter(s) have been changed from `(func(context.Context, ApplicationGatewayPrivateLinkResourceListResult) (ApplicationGatewayPrivateLinkResourceListResult, error))` to `(ApplicationGatewayPrivateLinkResourceListResult, func(context.Context, ApplicationGatewayPrivateLinkResourceListResult) (ApplicationGatewayPrivateLinkResourceListResult, error))`
-- Function `NewVirtualRouterListResultPage` parameter(s) have been changed from `(func(context.Context, VirtualRouterListResult) (VirtualRouterListResult, error))` to `(VirtualRouterListResult, func(context.Context, VirtualRouterListResult) (VirtualRouterListResult, error))`
-- Function `NewBgpServiceCommunityListResultPage` parameter(s) have been changed from `(func(context.Context, BgpServiceCommunityListResult) (BgpServiceCommunityListResult, error))` to `(BgpServiceCommunityListResult, func(context.Context, BgpServiceCommunityListResult) (BgpServiceCommunityListResult, error))`
-- Function `NewExpressRouteCircuitPeeringListResultPage` parameter(s) have been changed from `(func(context.Context, ExpressRouteCircuitPeeringListResult) (ExpressRouteCircuitPeeringListResult, error))` to `(ExpressRouteCircuitPeeringListResult, func(context.Context, ExpressRouteCircuitPeeringListResult) (ExpressRouteCircuitPeeringListResult, error))`
-- Function `NewOperationListResultPage` parameter(s) have been changed from `(func(context.Context, OperationListResult) (OperationListResult, error))` to `(OperationListResult, func(context.Context, OperationListResult) (OperationListResult, error))`
-- Function `NewExpressRouteServiceProviderListResultPage` parameter(s) have been changed from `(func(context.Context, ExpressRouteServiceProviderListResult) (ExpressRouteServiceProviderListResult, error))` to `(ExpressRouteServiceProviderListResult, func(context.Context, ExpressRouteServiceProviderListResult) (ExpressRouteServiceProviderListResult, error))`
-- Function `NewRouteFilterListResultPage` parameter(s) have been changed from `(func(context.Context, RouteFilterListResult) (RouteFilterListResult, error))` to `(RouteFilterListResult, func(context.Context, RouteFilterListResult) (RouteFilterListResult, error))`
-- Function `NewPrivateDNSZoneGroupListResultPage` parameter(s) have been changed from `(func(context.Context, PrivateDNSZoneGroupListResult) (PrivateDNSZoneGroupListResult, error))` to `(PrivateDNSZoneGroupListResult, func(context.Context, PrivateDNSZoneGroupListResult) (PrivateDNSZoneGroupListResult, error))`
-- Function `NewProfileListResultPage` parameter(s) have been changed from `(func(context.Context, ProfileListResult) (ProfileListResult, error))` to `(ProfileListResult, func(context.Context, ProfileListResult) (ProfileListResult, error))`
-- Function `NewVirtualNetworkTapListResultPage` parameter(s) have been changed from `(func(context.Context, VirtualNetworkTapListResult) (VirtualNetworkTapListResult, error))` to `(VirtualNetworkTapListResult, func(context.Context, VirtualNetworkTapListResult) (VirtualNetworkTapListResult, error))`
-- Function `NewIPAllocationListResultPage` parameter(s) have been changed from `(func(context.Context, IPAllocationListResult) (IPAllocationListResult, error))` to `(IPAllocationListResult, func(context.Context, IPAllocationListResult) (IPAllocationListResult, error))`
-- Function `NewLoadBalancerBackendAddressPoolListResultPage` parameter(s) have been changed from `(func(context.Context, LoadBalancerBackendAddressPoolListResult) (LoadBalancerBackendAddressPoolListResult, error))` to `(LoadBalancerBackendAddressPoolListResult, func(context.Context, LoadBalancerBackendAddressPoolListResult) (LoadBalancerBackendAddressPoolListResult, error))`
-- Function `NewExpressRoutePortsLocationListResultPage` parameter(s) have been changed from `(func(context.Context, ExpressRoutePortsLocationListResult) (ExpressRoutePortsLocationListResult, error))` to `(ExpressRoutePortsLocationListResult, func(context.Context, ExpressRoutePortsLocationListResult) (ExpressRoutePortsLocationListResult, error))`
-- Function `NewListVirtualHubBgpConnectionResultsPage` parameter(s) have been changed from `(func(context.Context, ListVirtualHubBgpConnectionResults) (ListVirtualHubBgpConnectionResults, error))` to `(ListVirtualHubBgpConnectionResults, func(context.Context, ListVirtualHubBgpConnectionResults) (ListVirtualHubBgpConnectionResults, error))`
-- Function `NewListVirtualHubIPConfigurationResultsPage` parameter(s) have been changed from `(func(context.Context, ListVirtualHubIPConfigurationResults) (ListVirtualHubIPConfigurationResults, error))` to `(ListVirtualHubIPConfigurationResults, func(context.Context, ListVirtualHubIPConfigurationResults) (ListVirtualHubIPConfigurationResults, error))`
-- Function `NewListVpnServerConfigurationsResultPage` parameter(s) have been changed from `(func(context.Context, ListVpnServerConfigurationsResult) (ListVpnServerConfigurationsResult, error))` to `(ListVpnServerConfigurationsResult, func(context.Context, ListVpnServerConfigurationsResult) (ListVpnServerConfigurationsResult, error))`
-- Function `NewExpressRouteCircuitConnectionListResultPage` parameter(s) have been changed from `(func(context.Context, ExpressRouteCircuitConnectionListResult) (ExpressRouteCircuitConnectionListResult, error))` to `(ExpressRouteCircuitConnectionListResult, func(context.Context, ExpressRouteCircuitConnectionListResult) (ExpressRouteCircuitConnectionListResult, error))`
-- Function `NewFirewallPolicyListResultPage` parameter(s) have been changed from `(func(context.Context, FirewallPolicyListResult) (FirewallPolicyListResult, error))` to `(FirewallPolicyListResult, func(context.Context, FirewallPolicyListResult) (FirewallPolicyListResult, error))`
-- Function `NewPrivateLinkServiceListResultPage` parameter(s) have been changed from `(func(context.Context, PrivateLinkServiceListResult) (PrivateLinkServiceListResult, error))` to `(PrivateLinkServiceListResult, func(context.Context, PrivateLinkServiceListResult) (PrivateLinkServiceListResult, error))`
-- Function `NewVirtualNetworkPeeringListResultPage` parameter(s) have been changed from `(func(context.Context, VirtualNetworkPeeringListResult) (VirtualNetworkPeeringListResult, error))` to `(VirtualNetworkPeeringListResult, func(context.Context, VirtualNetworkPeeringListResult) (VirtualNetworkPeeringListResult, error))`
-- Function `NewApplicationSecurityGroupListResultPage` parameter(s) have been changed from `(func(context.Context, ApplicationSecurityGroupListResult) (ApplicationSecurityGroupListResult, error))` to `(ApplicationSecurityGroupListResult, func(context.Context, ApplicationSecurityGroupListResult) (ApplicationSecurityGroupListResult, error))`
-- Function `NewPeerExpressRouteCircuitConnectionListResultPage` parameter(s) have been changed from `(func(context.Context, PeerExpressRouteCircuitConnectionListResult) (PeerExpressRouteCircuitConnectionListResult, error))` to `(PeerExpressRouteCircuitConnectionListResult, func(context.Context, PeerExpressRouteCircuitConnectionListResult) (PeerExpressRouteCircuitConnectionListResult, error))`
-- Function `NewLocalNetworkGatewayListResultPage` parameter(s) have been changed from `(func(context.Context, LocalNetworkGatewayListResult) (LocalNetworkGatewayListResult, error))` to `(LocalNetworkGatewayListResult, func(context.Context, LocalNetworkGatewayListResult) (LocalNetworkGatewayListResult, error))`
-- Function `NewCustomIPPrefixListResultPage` parameter(s) have been changed from `(func(context.Context, CustomIPPrefixListResult) (CustomIPPrefixListResult, error))` to `(CustomIPPrefixListResult, func(context.Context, CustomIPPrefixListResult) (CustomIPPrefixListResult, error))`
-- Function `NewExpressRouteCrossConnectionPeeringListPage` parameter(s) have been changed from `(func(context.Context, ExpressRouteCrossConnectionPeeringList) (ExpressRouteCrossConnectionPeeringList, error))` to `(ExpressRouteCrossConnectionPeeringList, func(context.Context, ExpressRouteCrossConnectionPeeringList) (ExpressRouteCrossConnectionPeeringList, error))`
-- Function `NewListVpnSiteLinkConnectionsResultPage` parameter(s) have been changed from `(func(context.Context, ListVpnSiteLinkConnectionsResult) (ListVpnSiteLinkConnectionsResult, error))` to `(ListVpnSiteLinkConnectionsResult, func(context.Context, ListVpnSiteLinkConnectionsResult) (ListVpnSiteLinkConnectionsResult, error))`
-- Function `NewLoadBalancerOutboundRuleListResultPage` parameter(s) have been changed from `(func(context.Context, LoadBalancerOutboundRuleListResult) (LoadBalancerOutboundRuleListResult, error))` to `(LoadBalancerOutboundRuleListResult, func(context.Context, LoadBalancerOutboundRuleListResult) (LoadBalancerOutboundRuleListResult, error))`
-- Function `NewRouteFilterRuleListResultPage` parameter(s) have been changed from `(func(context.Context, RouteFilterRuleListResult) (RouteFilterRuleListResult, error))` to `(RouteFilterRuleListResult, func(context.Context, RouteFilterRuleListResult) (RouteFilterRuleListResult, error))`
-- Function `NewServiceEndpointPolicyListResultPage` parameter(s) have been changed from `(func(context.Context, ServiceEndpointPolicyListResult) (ServiceEndpointPolicyListResult, error))` to `(ServiceEndpointPolicyListResult, func(context.Context, ServiceEndpointPolicyListResult) (ServiceEndpointPolicyListResult, error))`
-- Function `NewListVirtualHubRouteTableV2sResultPage` parameter(s) have been changed from `(func(context.Context, ListVirtualHubRouteTableV2sResult) (ListVirtualHubRouteTableV2sResult, error))` to `(ListVirtualHubRouteTableV2sResult, func(context.Context, ListVirtualHubRouteTableV2sResult) (ListVirtualHubRouteTableV2sResult, error))`
-- Function `NewVirtualNetworkGatewayListResultPage` parameter(s) have been changed from `(func(context.Context, VirtualNetworkGatewayListResult) (VirtualNetworkGatewayListResult, error))` to `(VirtualNetworkGatewayListResult, func(context.Context, VirtualNetworkGatewayListResult) (VirtualNetworkGatewayListResult, error))`
-- Function `NewIPGroupListResultPage` parameter(s) have been changed from `(func(context.Context, IPGroupListResult) (IPGroupListResult, error))` to `(IPGroupListResult, func(context.Context, IPGroupListResult) (IPGroupListResult, error))`
-- Function `NewAuthorizationListResultPage` parameter(s) have been changed from `(func(context.Context, AuthorizationListResult) (AuthorizationListResult, error))` to `(AuthorizationListResult, func(context.Context, AuthorizationListResult) (AuthorizationListResult, error))`
-- Function `NewListHubRouteTablesResultPage` parameter(s) have been changed from `(func(context.Context, ListHubRouteTablesResult) (ListHubRouteTablesResult, error))` to `(ListHubRouteTablesResult, func(context.Context, ListHubRouteTablesResult) (ListHubRouteTablesResult, error))`
-- Function `NewBastionSessionDeleteResultPage` parameter(s) have been changed from `(func(context.Context, BastionSessionDeleteResult) (BastionSessionDeleteResult, error))` to `(BastionSessionDeleteResult, func(context.Context, BastionSessionDeleteResult) (BastionSessionDeleteResult, error))`
-- Function `NewServiceEndpointPolicyDefinitionListResultPage` parameter(s) have been changed from `(func(context.Context, ServiceEndpointPolicyDefinitionListResult) (ServiceEndpointPolicyDefinitionListResult, error))` to `(ServiceEndpointPolicyDefinitionListResult, func(context.Context, ServiceEndpointPolicyDefinitionListResult) (ServiceEndpointPolicyDefinitionListResult, error))`
-- Function `NewAzureFirewallListResultPage` parameter(s) have been changed from `(func(context.Context, AzureFirewallListResult) (AzureFirewallListResult, error))` to `(AzureFirewallListResult, func(context.Context, AzureFirewallListResult) (AzureFirewallListResult, error))`
-- Function `NewBastionShareableLinkListResultPage` parameter(s) have been changed from `(func(context.Context, BastionShareableLinkListResult) (BastionShareableLinkListResult, error))` to `(BastionShareableLinkListResult, func(context.Context, BastionShareableLinkListResult) (BastionShareableLinkListResult, error))`
-- Function `NewDscpConfigurationListResultPage` parameter(s) have been changed from `(func(context.Context, DscpConfigurationListResult) (DscpConfigurationListResult, error))` to `(DscpConfigurationListResult, func(context.Context, DscpConfigurationListResult) (DscpConfigurationListResult, error))`
-- Function `NewRouteListResultPage` parameter(s) have been changed from `(func(context.Context, RouteListResult) (RouteListResult, error))` to `(RouteListResult, func(context.Context, RouteListResult) (RouteListResult, error))`
-- Function `NewVirtualApplianceSiteListResultPage` parameter(s) have been changed from `(func(context.Context, VirtualApplianceSiteListResult) (VirtualApplianceSiteListResult, error))` to `(VirtualApplianceSiteListResult, func(context.Context, VirtualApplianceSiteListResult) (VirtualApplianceSiteListResult, error))`
-- Function `NewAzureFirewallFqdnTagListResultPage` parameter(s) have been changed from `(func(context.Context, AzureFirewallFqdnTagListResult) (AzureFirewallFqdnTagListResult, error))` to `(AzureFirewallFqdnTagListResult, func(context.Context, AzureFirewallFqdnTagListResult) (AzureFirewallFqdnTagListResult, error))`
-- Function `NewInterfaceTapConfigurationListResultPage` parameter(s) have been changed from `(func(context.Context, InterfaceTapConfigurationListResult) (InterfaceTapConfigurationListResult, error))` to `(InterfaceTapConfigurationListResult, func(context.Context, InterfaceTapConfigurationListResult) (InterfaceTapConfigurationListResult, error))`
-- Function `NewAvailableDelegationsResultPage` parameter(s) have been changed from `(func(context.Context, AvailableDelegationsResult) (AvailableDelegationsResult, error))` to `(AvailableDelegationsResult, func(context.Context, AvailableDelegationsResult) (AvailableDelegationsResult, error))`
-- Function `NewBastionHostListResultPage` parameter(s) have been changed from `(func(context.Context, BastionHostListResult) (BastionHostListResult, error))` to `(BastionHostListResult, func(context.Context, BastionHostListResult) (BastionHostListResult, error))`
-- Function `NewUsagesListResultPage` parameter(s) have been changed from `(func(context.Context, UsagesListResult) (UsagesListResult, error))` to `(UsagesListResult, func(context.Context, UsagesListResult) (UsagesListResult, error))`
-- Function `NewExpressRouteLinkListResultPage` parameter(s) have been changed from `(func(context.Context, ExpressRouteLinkListResult) (ExpressRouteLinkListResult, error))` to `(ExpressRouteLinkListResult, func(context.Context, ExpressRouteLinkListResult) (ExpressRouteLinkListResult, error))`
-- Function `NewPublicIPAddressListResultPage` parameter(s) have been changed from `(func(context.Context, PublicIPAddressListResult) (PublicIPAddressListResult, error))` to `(PublicIPAddressListResult, func(context.Context, PublicIPAddressListResult) (PublicIPAddressListResult, error))`
-- Function `NewExpressRouteCrossConnectionListResultPage` parameter(s) have been changed from `(func(context.Context, ExpressRouteCrossConnectionListResult) (ExpressRouteCrossConnectionListResult, error))` to `(ExpressRouteCrossConnectionListResult, func(context.Context, ExpressRouteCrossConnectionListResult) (ExpressRouteCrossConnectionListResult, error))`
-- Function `NewEndpointServicesListResultPage` parameter(s) have been changed from `(func(context.Context, EndpointServicesListResult) (EndpointServicesListResult, error))` to `(EndpointServicesListResult, func(context.Context, EndpointServicesListResult) (EndpointServicesListResult, error))`
-- Function `NewListHubVirtualNetworkConnectionsResultPage` parameter(s) have been changed from `(func(context.Context, ListHubVirtualNetworkConnectionsResult) (ListHubVirtualNetworkConnectionsResult, error))` to `(ListHubVirtualNetworkConnectionsResult, func(context.Context, ListHubVirtualNetworkConnectionsResult) (ListHubVirtualNetworkConnectionsResult, error))`
-- Function `NewWebApplicationFirewallPolicyListResultPage` parameter(s) have been changed from `(func(context.Context, WebApplicationFirewallPolicyListResult) (WebApplicationFirewallPolicyListResult, error))` to `(WebApplicationFirewallPolicyListResult, func(context.Context, WebApplicationFirewallPolicyListResult) (WebApplicationFirewallPolicyListResult, error))`
-- Function `NewApplicationGatewayAvailableSslPredefinedPoliciesPage` parameter(s) have been changed from `(func(context.Context, ApplicationGatewayAvailableSslPredefinedPolicies) (ApplicationGatewayAvailableSslPredefinedPolicies, error))` to `(ApplicationGatewayAvailableSslPredefinedPolicies, func(context.Context, ApplicationGatewayAvailableSslPredefinedPolicies) (ApplicationGatewayAvailableSslPredefinedPolicies, error))`
-- Function `NewListVpnGatewaysResultPage` parameter(s) have been changed from `(func(context.Context, ListVpnGatewaysResult) (ListVpnGatewaysResult, error))` to `(ListVpnGatewaysResult, func(context.Context, ListVpnGatewaysResult) (ListVpnGatewaysResult, error))`
-- Function `NewVirtualNetworkGatewayListConnectionsResultPage` parameter(s) have been changed from `(func(context.Context, VirtualNetworkGatewayListConnectionsResult) (VirtualNetworkGatewayListConnectionsResult, error))` to `(VirtualNetworkGatewayListConnectionsResult, func(context.Context, VirtualNetworkGatewayListConnectionsResult) (VirtualNetworkGatewayListConnectionsResult, error))`
-- Function `NewVirtualNetworkListUsageResultPage` parameter(s) have been changed from `(func(context.Context, VirtualNetworkListUsageResult) (VirtualNetworkListUsageResult, error))` to `(VirtualNetworkListUsageResult, func(context.Context, VirtualNetworkListUsageResult) (VirtualNetworkListUsageResult, error))`
-- Function `NewSecurityGroupListResultPage` parameter(s) have been changed from `(func(context.Context, SecurityGroupListResult) (SecurityGroupListResult, error))` to `(SecurityGroupListResult, func(context.Context, SecurityGroupListResult) (SecurityGroupListResult, error))`
-- Function `NewSubnetListResultPage` parameter(s) have been changed from `(func(context.Context, SubnetListResult) (SubnetListResult, error))` to `(SubnetListResult, func(context.Context, SubnetListResult) (SubnetListResult, error))`
-- Function `NewListVpnConnectionsResultPage` parameter(s) have been changed from `(func(context.Context, ListVpnConnectionsResult) (ListVpnConnectionsResult, error))` to `(ListVpnConnectionsResult, func(context.Context, ListVpnConnectionsResult) (ListVpnConnectionsResult, error))`
-- Function `NewNatGatewayListResultPage` parameter(s) have been changed from `(func(context.Context, NatGatewayListResult) (NatGatewayListResult, error))` to `(NatGatewayListResult, func(context.Context, NatGatewayListResult) (NatGatewayListResult, error))`
-- Function `NewLoadBalancerProbeListResultPage` parameter(s) have been changed from `(func(context.Context, LoadBalancerProbeListResult) (LoadBalancerProbeListResult, error))` to `(LoadBalancerProbeListResult, func(context.Context, LoadBalancerProbeListResult) (LoadBalancerProbeListResult, error))`
-- Function `NewSecurityRuleListResultPage` parameter(s) have been changed from `(func(context.Context, SecurityRuleListResult) (SecurityRuleListResult, error))` to `(SecurityRuleListResult, func(context.Context, SecurityRuleListResult) (SecurityRuleListResult, error))`
-- Function `NewAutoApprovedPrivateLinkServicesResultPage` parameter(s) have been changed from `(func(context.Context, AutoApprovedPrivateLinkServicesResult) (AutoApprovedPrivateLinkServicesResult, error))` to `(AutoApprovedPrivateLinkServicesResult, func(context.Context, AutoApprovedPrivateLinkServicesResult) (AutoApprovedPrivateLinkServicesResult, error))`
-- Function `NewInboundNatRuleListResultPage` parameter(s) have been changed from `(func(context.Context, InboundNatRuleListResult) (InboundNatRuleListResult, error))` to `(InboundNatRuleListResult, func(context.Context, InboundNatRuleListResult) (InboundNatRuleListResult, error))`
-- Function `NewBastionActiveSessionListResultPage` parameter(s) have been changed from `(func(context.Context, BastionActiveSessionListResult) (BastionActiveSessionListResult, error))` to `(BastionActiveSessionListResult, func(context.Context, BastionActiveSessionListResult) (BastionActiveSessionListResult, error))`
-- Function `NewVirtualNetworkListResultPage` parameter(s) have been changed from `(func(context.Context, VirtualNetworkListResult) (VirtualNetworkListResult, error))` to `(VirtualNetworkListResult, func(context.Context, VirtualNetworkListResult) (VirtualNetworkListResult, error))`
-- Function `NewDdosProtectionPlanListResultPage` parameter(s) have been changed from `(func(context.Context, DdosProtectionPlanListResult) (DdosProtectionPlanListResult, error))` to `(DdosProtectionPlanListResult, func(context.Context, DdosProtectionPlanListResult) (DdosProtectionPlanListResult, error))`
-- Function `NewListVpnSitesResultPage` parameter(s) have been changed from `(func(context.Context, ListVpnSitesResult) (ListVpnSitesResult, error))` to `(ListVpnSitesResult, func(context.Context, ListVpnSitesResult) (ListVpnSitesResult, error))`
-- Function `NewListP2SVpnGatewaysResultPage` parameter(s) have been changed from `(func(context.Context, ListP2SVpnGatewaysResult) (ListP2SVpnGatewaysResult, error))` to `(ListP2SVpnGatewaysResult, func(context.Context, ListP2SVpnGatewaysResult) (ListP2SVpnGatewaysResult, error))`
-- Function `NewPublicIPPrefixListResultPage` parameter(s) have been changed from `(func(context.Context, PublicIPPrefixListResult) (PublicIPPrefixListResult, error))` to `(PublicIPPrefixListResult, func(context.Context, PublicIPPrefixListResult) (PublicIPPrefixListResult, error))`
-- Function `NewVirtualApplianceListResultPage` parameter(s) have been changed from `(func(context.Context, VirtualApplianceListResult) (VirtualApplianceListResult, error))` to `(VirtualApplianceListResult, func(context.Context, VirtualApplianceListResult) (VirtualApplianceListResult, error))`
-- Function `NewLoadBalancerListResultPage` parameter(s) have been changed from `(func(context.Context, LoadBalancerListResult) (LoadBalancerListResult, error))` to `(LoadBalancerListResult, func(context.Context, LoadBalancerListResult) (LoadBalancerListResult, error))`
-- Function `NewListVirtualWANsResultPage` parameter(s) have been changed from `(func(context.Context, ListVirtualWANsResult) (ListVirtualWANsResult, error))` to `(ListVirtualWANsResult, func(context.Context, ListVirtualWANsResult) (ListVirtualWANsResult, error))`
-- Function `NewFlowLogListResultPage` parameter(s) have been changed from `(func(context.Context, FlowLogListResult) (FlowLogListResult, error))` to `(FlowLogListResult, func(context.Context, FlowLogListResult) (FlowLogListResult, error))`
-- Function `NewListVpnSiteLinksResultPage` parameter(s) have been changed from `(func(context.Context, ListVpnSiteLinksResult) (ListVpnSiteLinksResult, error))` to `(ListVpnSiteLinksResult, func(context.Context, ListVpnSiteLinksResult) (ListVpnSiteLinksResult, error))`
-- Function `NewVirtualRouterPeeringListResultPage` parameter(s) have been changed from `(func(context.Context, VirtualRouterPeeringListResult) (VirtualRouterPeeringListResult, error))` to `(VirtualRouterPeeringListResult, func(context.Context, VirtualRouterPeeringListResult) (VirtualRouterPeeringListResult, error))`
-- Function `NewListVirtualHubsResultPage` parameter(s) have been changed from `(func(context.Context, ListVirtualHubsResult) (ListVirtualHubsResult, error))` to `(ListVirtualHubsResult, func(context.Context, ListVirtualHubsResult) (ListVirtualHubsResult, error))`
-- Function `NewVirtualApplianceSkuListResultPage` parameter(s) have been changed from `(func(context.Context, VirtualApplianceSkuListResult) (VirtualApplianceSkuListResult, error))` to `(VirtualApplianceSkuListResult, func(context.Context, VirtualApplianceSkuListResult) (VirtualApplianceSkuListResult, error))`
-- Function `NewPrivateEndpointListResultPage` parameter(s) have been changed from `(func(context.Context, PrivateEndpointListResult) (PrivateEndpointListResult, error))` to `(PrivateEndpointListResult, func(context.Context, PrivateEndpointListResult) (PrivateEndpointListResult, error))`
-- Function `NewFirewallPolicyRuleCollectionGroupListResultPage` parameter(s) have been changed from `(func(context.Context, FirewallPolicyRuleCollectionGroupListResult) (FirewallPolicyRuleCollectionGroupListResult, error))` to `(FirewallPolicyRuleCollectionGroupListResult, func(context.Context, FirewallPolicyRuleCollectionGroupListResult) (FirewallPolicyRuleCollectionGroupListResult, error))`
-- Function `NewVirtualNetworkGatewayConnectionListResultPage` parameter(s) have been changed from `(func(context.Context, VirtualNetworkGatewayConnectionListResult) (VirtualNetworkGatewayConnectionListResult, error))` to `(VirtualNetworkGatewayConnectionListResult, func(context.Context, VirtualNetworkGatewayConnectionListResult) (VirtualNetworkGatewayConnectionListResult, error))`
-- Function `NewApplicationGatewayPrivateEndpointConnectionListResultPage` parameter(s) have been changed from `(func(context.Context, ApplicationGatewayPrivateEndpointConnectionListResult) (ApplicationGatewayPrivateEndpointConnectionListResult, error))` to `(ApplicationGatewayPrivateEndpointConnectionListResult, func(context.Context, ApplicationGatewayPrivateEndpointConnectionListResult) (ApplicationGatewayPrivateEndpointConnectionListResult, error))`
-- Function `NewLoadBalancerFrontendIPConfigurationListResultPage` parameter(s) have been changed from `(func(context.Context, LoadBalancerFrontendIPConfigurationListResult) (LoadBalancerFrontendIPConfigurationListResult, error))` to `(LoadBalancerFrontendIPConfigurationListResult, func(context.Context, LoadBalancerFrontendIPConfigurationListResult) (LoadBalancerFrontendIPConfigurationListResult, error))`
-- Function `NewSecurityPartnerProviderListResultPage` parameter(s) have been changed from `(func(context.Context, SecurityPartnerProviderListResult) (SecurityPartnerProviderListResult, error))` to `(SecurityPartnerProviderListResult, func(context.Context, SecurityPartnerProviderListResult) (SecurityPartnerProviderListResult, error))`
-- Function `NewApplicationGatewayListResultPage` parameter(s) have been changed from `(func(context.Context, ApplicationGatewayListResult) (ApplicationGatewayListResult, error))` to `(ApplicationGatewayListResult, func(context.Context, ApplicationGatewayListResult) (ApplicationGatewayListResult, error))`
-- Function `NewInterfaceListResultPage` parameter(s) have been changed from `(func(context.Context, InterfaceListResult) (InterfaceListResult, error))` to `(InterfaceListResult, func(context.Context, InterfaceListResult) (InterfaceListResult, error))`
-- Function `NewLoadBalancerLoadBalancingRuleListResultPage` parameter(s) have been changed from `(func(context.Context, LoadBalancerLoadBalancingRuleListResult) (LoadBalancerLoadBalancingRuleListResult, error))` to `(LoadBalancerLoadBalancingRuleListResult, func(context.Context, LoadBalancerLoadBalancingRuleListResult) (LoadBalancerLoadBalancingRuleListResult, error))`
-- Function `NewInterfaceLoadBalancerListResultPage` parameter(s) have been changed from `(func(context.Context, InterfaceLoadBalancerListResult) (InterfaceLoadBalancerListResult, error))` to `(InterfaceLoadBalancerListResult, func(context.Context, InterfaceLoadBalancerListResult) (InterfaceLoadBalancerListResult, error))`
-- Function `NewAvailableServiceAliasesResultPage` parameter(s) have been changed from `(func(context.Context, AvailableServiceAliasesResult) (AvailableServiceAliasesResult, error))` to `(AvailableServiceAliasesResult, func(context.Context, AvailableServiceAliasesResult) (AvailableServiceAliasesResult, error))`
-- Function `NewAvailablePrivateEndpointTypesResultPage` parameter(s) have been changed from `(func(context.Context, AvailablePrivateEndpointTypesResult) (AvailablePrivateEndpointTypesResult, error))` to `(AvailablePrivateEndpointTypesResult, func(context.Context, AvailablePrivateEndpointTypesResult) (AvailablePrivateEndpointTypesResult, error))`
-- Function `NewExpressRoutePortListResultPage` parameter(s) have been changed from `(func(context.Context, ExpressRoutePortListResult) (ExpressRoutePortListResult, error))` to `(ExpressRoutePortListResult, func(context.Context, ExpressRoutePortListResult) (ExpressRoutePortListResult, error))`
-- Function `NewExpressRouteCircuitListResultPage` parameter(s) have been changed from `(func(context.Context, ExpressRouteCircuitListResult) (ExpressRouteCircuitListResult, error))` to `(ExpressRouteCircuitListResult, func(context.Context, ExpressRouteCircuitListResult) (ExpressRouteCircuitListResult, error))`
-- Type of `HopLink.Context` has been changed from `*[]map[string]*string` to `map[string]*string`
-- Type of `EffectiveRoutesParameters.ResourceID` has been changed from `*Resource` to `*string`
-- Type of `HubRouteTableProperties.AssociatedConnections` has been changed from `*[]SubResource` to `*[]string`
-- Type of `HubRouteTableProperties.PropagatingConnections` has been changed from `*[]SubResource` to `*[]string`
-- Struct `VirtualHubEffectiveRouteEffectiveRouteList` has been removed
+### New Funcs
 
-## New Content
-
-- New const `InboundSecurityRulesProtocolUDP`
-- New const `InboundSecurityRulesProtocolTCP`
-- New function `InboundSecurityRuleClient.CreateOrUpdate(context.Context, string, string, string, InboundSecurityRule) (InboundSecurityRuleCreateOrUpdateFuture, error)`
-- New function `*InboundSecurityRule.UnmarshalJSON([]byte) error`
-- New function `VirtualHubBgpConnectionsClient.ListLearnedRoutesSender(*http.Request) (VirtualHubBgpConnectionsListLearnedRoutesFuture, error)`
-- New function `VirtualHubBgpConnectionsClient.ListAdvertisedRoutesSender(*http.Request) (VirtualHubBgpConnectionsListAdvertisedRoutesFuture, error)`
-- New function `VirtualHubBgpConnectionsClient.ListLearnedRoutes(context.Context, string, string, string) (VirtualHubBgpConnectionsListLearnedRoutesFuture, error)`
-- New function `VirtualHubBgpConnectionsClient.ListLearnedRoutesResponder(*http.Response) (PeerRouteList, error)`
-- New function `InboundSecurityRuleClient.CreateOrUpdateSender(*http.Request) (InboundSecurityRuleCreateOrUpdateFuture, error)`
-- New function `VirtualHubBgpConnectionsClient.ListLearnedRoutesPreparer(context.Context, string, string, string) (*http.Request, error)`
-- New function `NewInboundSecurityRuleClientWithBaseURI(string, string) InboundSecurityRuleClient`
-- New function `PossibleInboundSecurityRulesProtocolValues() []InboundSecurityRulesProtocol`
-- New function `*VirtualHubBgpConnectionsListAdvertisedRoutesFuture.Result(VirtualHubBgpConnectionsClient) (PeerRouteList, error)`
-- New function `NewInboundSecurityRuleClient(string) InboundSecurityRuleClient`
-- New function `InboundSecurityRuleClient.CreateOrUpdatePreparer(context.Context, string, string, string, InboundSecurityRule) (*http.Request, error)`
-- New function `InboundSecurityRule.MarshalJSON() ([]byte, error)`
-- New function `InboundSecurityRuleProperties.MarshalJSON() ([]byte, error)`
-- New function `*VirtualHubBgpConnectionsListLearnedRoutesFuture.Result(VirtualHubBgpConnectionsClient) (PeerRouteList, error)`
-- New function `VirtualHubBgpConnectionsClient.ListAdvertisedRoutesResponder(*http.Response) (PeerRouteList, error)`
-- New function `InboundSecurityRuleClient.CreateOrUpdateResponder(*http.Response) (InboundSecurityRule, error)`
-- New function `VirtualHubBgpConnectionsClient.ListAdvertisedRoutesPreparer(context.Context, string, string, string) (*http.Request, error)`
-- New function `*InboundSecurityRuleCreateOrUpdateFuture.Result(InboundSecurityRuleClient) (InboundSecurityRule, error)`
-- New function `VirtualHubBgpConnectionsClient.ListAdvertisedRoutes(context.Context, string, string, string) (VirtualHubBgpConnectionsListAdvertisedRoutesFuture, error)`
-- New struct `InboundSecurityRule`
-- New struct `InboundSecurityRuleClient`
-- New struct `InboundSecurityRuleCreateOrUpdateFuture`
-- New struct `InboundSecurityRuleProperties`
-- New struct `InboundSecurityRules`
-- New struct `PeerRoute`
-- New struct `PeerRouteList`
-- New struct `VirtualHubBgpConnectionsListAdvertisedRoutesFuture`
-- New struct `VirtualHubBgpConnectionsListLearnedRoutesFuture`
-- New struct `VirtualHubEffectiveRouteList`
-- New field `InboundSecurityRules` in struct `VirtualAppliancePropertiesFormat`
+1. *ApplicationGatewayPrivateEndpointConnectionsDeleteFuture.UnmarshalJSON([]byte) error
+1. *ApplicationGatewayPrivateEndpointConnectionsUpdateFuture.UnmarshalJSON([]byte) error
+1. *ApplicationGatewaysBackendHealthFuture.UnmarshalJSON([]byte) error
+1. *ApplicationGatewaysBackendHealthOnDemandFuture.UnmarshalJSON([]byte) error
+1. *ApplicationGatewaysCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *ApplicationGatewaysDeleteFuture.UnmarshalJSON([]byte) error
+1. *ApplicationGatewaysStartFuture.UnmarshalJSON([]byte) error
+1. *ApplicationGatewaysStopFuture.UnmarshalJSON([]byte) error
+1. *ApplicationSecurityGroupsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *ApplicationSecurityGroupsDeleteFuture.UnmarshalJSON([]byte) error
+1. *AzureFirewallsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *AzureFirewallsDeleteFuture.UnmarshalJSON([]byte) error
+1. *AzureFirewallsUpdateTagsFuture.UnmarshalJSON([]byte) error
+1. *BastionHostsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *BastionHostsDeleteFuture.UnmarshalJSON([]byte) error
+1. *ConnectionMonitorsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *ConnectionMonitorsDeleteFuture.UnmarshalJSON([]byte) error
+1. *ConnectionMonitorsQueryFuture.UnmarshalJSON([]byte) error
+1. *ConnectionMonitorsStartFuture.UnmarshalJSON([]byte) error
+1. *ConnectionMonitorsStopFuture.UnmarshalJSON([]byte) error
+1. *CustomIPPrefixesCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *CustomIPPrefixesDeleteFuture.UnmarshalJSON([]byte) error
+1. *DdosCustomPoliciesCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *DdosCustomPoliciesDeleteFuture.UnmarshalJSON([]byte) error
+1. *DdosProtectionPlansCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *DdosProtectionPlansDeleteFuture.UnmarshalJSON([]byte) error
+1. *DeleteBastionShareableLinkFuture.UnmarshalJSON([]byte) error
+1. *DscpConfigurationCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *DscpConfigurationDeleteFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteCircuitAuthorizationsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteCircuitAuthorizationsDeleteFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteCircuitConnectionsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteCircuitConnectionsDeleteFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteCircuitPeeringsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteCircuitPeeringsDeleteFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteCircuitsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteCircuitsDeleteFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteCircuitsListArpTableFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteCircuitsListRoutesTableFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteCircuitsListRoutesTableSummaryFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteConnectionsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteConnectionsDeleteFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteCrossConnectionPeeringsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteCrossConnectionPeeringsDeleteFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteCrossConnectionsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteCrossConnectionsListArpTableFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteCrossConnectionsListRoutesTableFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteCrossConnectionsListRoutesTableSummaryFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteGatewaysCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *ExpressRouteGatewaysDeleteFuture.UnmarshalJSON([]byte) error
+1. *ExpressRoutePortsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *ExpressRoutePortsDeleteFuture.UnmarshalJSON([]byte) error
+1. *FirewallPoliciesCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *FirewallPoliciesDeleteFuture.UnmarshalJSON([]byte) error
+1. *FirewallPolicyRuleCollectionGroupsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *FirewallPolicyRuleCollectionGroupsDeleteFuture.UnmarshalJSON([]byte) error
+1. *FlowLogsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *FlowLogsDeleteFuture.UnmarshalJSON([]byte) error
+1. *GeneratevirtualwanvpnserverconfigurationvpnprofileFuture.UnmarshalJSON([]byte) error
+1. *GetActiveSessionsAllFuture.UnmarshalJSON([]byte) error
+1. *GetActiveSessionsFuture.UnmarshalJSON([]byte) error
+1. *HubRouteTablesCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *HubRouteTablesDeleteFuture.UnmarshalJSON([]byte) error
+1. *HubVirtualNetworkConnectionsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *HubVirtualNetworkConnectionsDeleteFuture.UnmarshalJSON([]byte) error
+1. *IPAllocationsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *IPAllocationsDeleteFuture.UnmarshalJSON([]byte) error
+1. *IPGroupsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *IPGroupsDeleteFuture.UnmarshalJSON([]byte) error
+1. *InboundNatRulesCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *InboundNatRulesDeleteFuture.UnmarshalJSON([]byte) error
+1. *InboundSecurityRuleCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *InterfaceTapConfigurationsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *InterfaceTapConfigurationsDeleteFuture.UnmarshalJSON([]byte) error
+1. *InterfacesCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *InterfacesDeleteFuture.UnmarshalJSON([]byte) error
+1. *InterfacesGetEffectiveRouteTableFuture.UnmarshalJSON([]byte) error
+1. *InterfacesListEffectiveNetworkSecurityGroupsFuture.UnmarshalJSON([]byte) error
+1. *LoadBalancerBackendAddressPoolsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *LoadBalancerBackendAddressPoolsDeleteFuture.UnmarshalJSON([]byte) error
+1. *LoadBalancersCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *LoadBalancersDeleteFuture.UnmarshalJSON([]byte) error
+1. *LocalNetworkGatewaysCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *LocalNetworkGatewaysDeleteFuture.UnmarshalJSON([]byte) error
+1. *NatGatewaysCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *NatGatewaysDeleteFuture.UnmarshalJSON([]byte) error
+1. *P2SVpnGatewaysResetFuture.UnmarshalJSON([]byte) error
+1. *P2sVpnGatewaysCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *P2sVpnGatewaysDeleteFuture.UnmarshalJSON([]byte) error
+1. *P2sVpnGatewaysDisconnectP2sVpnConnectionsFuture.UnmarshalJSON([]byte) error
+1. *P2sVpnGatewaysGenerateVpnProfileFuture.UnmarshalJSON([]byte) error
+1. *P2sVpnGatewaysGetP2sVpnConnectionHealthDetailedFuture.UnmarshalJSON([]byte) error
+1. *P2sVpnGatewaysGetP2sVpnConnectionHealthFuture.UnmarshalJSON([]byte) error
+1. *P2sVpnGatewaysUpdateTagsFuture.UnmarshalJSON([]byte) error
+1. *PacketCapturesCreateFuture.UnmarshalJSON([]byte) error
+1. *PacketCapturesDeleteFuture.UnmarshalJSON([]byte) error
+1. *PacketCapturesGetStatusFuture.UnmarshalJSON([]byte) error
+1. *PacketCapturesStopFuture.UnmarshalJSON([]byte) error
+1. *PrivateDNSZoneGroupsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *PrivateDNSZoneGroupsDeleteFuture.UnmarshalJSON([]byte) error
+1. *PrivateEndpointsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *PrivateEndpointsDeleteFuture.UnmarshalJSON([]byte) error
+1. *PrivateLinkServicesCheckPrivateLinkServiceVisibilityByResourceGroupFuture.UnmarshalJSON([]byte) error
+1. *PrivateLinkServicesCheckPrivateLinkServiceVisibilityFuture.UnmarshalJSON([]byte) error
+1. *PrivateLinkServicesCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *PrivateLinkServicesDeleteFuture.UnmarshalJSON([]byte) error
+1. *PrivateLinkServicesDeletePrivateEndpointConnectionFuture.UnmarshalJSON([]byte) error
+1. *ProfilesDeleteFuture.UnmarshalJSON([]byte) error
+1. *PublicIPAddressesCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *PublicIPAddressesDeleteFuture.UnmarshalJSON([]byte) error
+1. *PublicIPPrefixesCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *PublicIPPrefixesDeleteFuture.UnmarshalJSON([]byte) error
+1. *PutBastionShareableLinkAllFuture.UnmarshalJSON([]byte) error
+1. *PutBastionShareableLinkFuture.UnmarshalJSON([]byte) error
+1. *RouteFilterRulesCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *RouteFilterRulesDeleteFuture.UnmarshalJSON([]byte) error
+1. *RouteFiltersCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *RouteFiltersDeleteFuture.UnmarshalJSON([]byte) error
+1. *RouteTablesCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *RouteTablesDeleteFuture.UnmarshalJSON([]byte) error
+1. *RoutesCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *RoutesDeleteFuture.UnmarshalJSON([]byte) error
+1. *SecurityGroupsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *SecurityGroupsDeleteFuture.UnmarshalJSON([]byte) error
+1. *SecurityPartnerProvidersCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *SecurityPartnerProvidersDeleteFuture.UnmarshalJSON([]byte) error
+1. *SecurityRulesCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *SecurityRulesDeleteFuture.UnmarshalJSON([]byte) error
+1. *ServiceEndpointPoliciesCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *ServiceEndpointPoliciesDeleteFuture.UnmarshalJSON([]byte) error
+1. *ServiceEndpointPolicyDefinitionsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *ServiceEndpointPolicyDefinitionsDeleteFuture.UnmarshalJSON([]byte) error
+1. *SubnetsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *SubnetsDeleteFuture.UnmarshalJSON([]byte) error
+1. *SubnetsPrepareNetworkPoliciesFuture.UnmarshalJSON([]byte) error
+1. *SubnetsUnprepareNetworkPoliciesFuture.UnmarshalJSON([]byte) error
+1. *VirtualApplianceSitesCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *VirtualApplianceSitesDeleteFuture.UnmarshalJSON([]byte) error
+1. *VirtualAppliancesCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *VirtualAppliancesDeleteFuture.UnmarshalJSON([]byte) error
+1. *VirtualHubBgpConnectionCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *VirtualHubBgpConnectionDeleteFuture.UnmarshalJSON([]byte) error
+1. *VirtualHubBgpConnectionsListAdvertisedRoutesFuture.UnmarshalJSON([]byte) error
+1. *VirtualHubBgpConnectionsListLearnedRoutesFuture.UnmarshalJSON([]byte) error
+1. *VirtualHubIPConfigurationCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *VirtualHubIPConfigurationDeleteFuture.UnmarshalJSON([]byte) error
+1. *VirtualHubRouteTableV2sCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *VirtualHubRouteTableV2sDeleteFuture.UnmarshalJSON([]byte) error
+1. *VirtualHubsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *VirtualHubsDeleteFuture.UnmarshalJSON([]byte) error
+1. *VirtualHubsGetEffectiveVirtualHubRoutesFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewayConnectionsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewayConnectionsDeleteFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewayConnectionsResetSharedKeyFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewayConnectionsSetSharedKeyFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewayConnectionsStartPacketCaptureFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewayConnectionsStopPacketCaptureFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewayConnectionsUpdateTagsFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewaysCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewaysDeleteFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewaysDisconnectVirtualNetworkGatewayVpnConnectionsFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewaysGenerateVpnProfileFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewaysGeneratevpnclientpackageFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewaysGetAdvertisedRoutesFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewaysGetBgpPeerStatusFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewaysGetLearnedRoutesFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewaysGetVpnProfilePackageURLFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewaysGetVpnclientConnectionHealthFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewaysGetVpnclientIpsecParametersFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewaysResetFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewaysResetVpnClientSharedKeyFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewaysSetVpnclientIpsecParametersFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewaysStartPacketCaptureFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewaysStopPacketCaptureFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkGatewaysUpdateTagsFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkPeeringsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkPeeringsDeleteFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkTapsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworkTapsDeleteFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworksCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *VirtualNetworksDeleteFuture.UnmarshalJSON([]byte) error
+1. *VirtualRouterPeeringsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *VirtualRouterPeeringsDeleteFuture.UnmarshalJSON([]byte) error
+1. *VirtualRoutersCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *VirtualRoutersDeleteFuture.UnmarshalJSON([]byte) error
+1. *VirtualWansCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *VirtualWansDeleteFuture.UnmarshalJSON([]byte) error
+1. *VpnConnectionsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *VpnConnectionsDeleteFuture.UnmarshalJSON([]byte) error
+1. *VpnConnectionsStartPacketCaptureFuture.UnmarshalJSON([]byte) error
+1. *VpnConnectionsStopPacketCaptureFuture.UnmarshalJSON([]byte) error
+1. *VpnGatewaysCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *VpnGatewaysDeleteFuture.UnmarshalJSON([]byte) error
+1. *VpnGatewaysResetFuture.UnmarshalJSON([]byte) error
+1. *VpnGatewaysStartPacketCaptureFuture.UnmarshalJSON([]byte) error
+1. *VpnGatewaysStopPacketCaptureFuture.UnmarshalJSON([]byte) error
+1. *VpnGatewaysUpdateTagsFuture.UnmarshalJSON([]byte) error
+1. *VpnServerConfigurationsAssociatedWithVirtualWanListFuture.UnmarshalJSON([]byte) error
+1. *VpnServerConfigurationsCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *VpnServerConfigurationsDeleteFuture.UnmarshalJSON([]byte) error
+1. *VpnSitesConfigurationDownloadFuture.UnmarshalJSON([]byte) error
+1. *VpnSitesCreateOrUpdateFuture.UnmarshalJSON([]byte) error
+1. *VpnSitesDeleteFuture.UnmarshalJSON([]byte) error
+1. *WatchersCheckConnectivityFuture.UnmarshalJSON([]byte) error
+1. *WatchersDeleteFuture.UnmarshalJSON([]byte) error
+1. *WatchersGetAzureReachabilityReportFuture.UnmarshalJSON([]byte) error
+1. *WatchersGetFlowLogStatusFuture.UnmarshalJSON([]byte) error
+1. *WatchersGetNetworkConfigurationDiagnosticFuture.UnmarshalJSON([]byte) error
+1. *WatchersGetNextHopFuture.UnmarshalJSON([]byte) error
+1. *WatchersGetTroubleshootingFuture.UnmarshalJSON([]byte) error
+1. *WatchersGetTroubleshootingResultFuture.UnmarshalJSON([]byte) error
+1. *WatchersGetVMSecurityRulesFuture.UnmarshalJSON([]byte) error
+1. *WatchersListAvailableProvidersFuture.UnmarshalJSON([]byte) error
+1. *WatchersSetFlowLogConfigurationFuture.UnmarshalJSON([]byte) error
+1. *WatchersVerifyIPFlowFuture.UnmarshalJSON([]byte) error
+1. *WebApplicationFirewallPoliciesDeleteFuture.UnmarshalJSON([]byte) error
