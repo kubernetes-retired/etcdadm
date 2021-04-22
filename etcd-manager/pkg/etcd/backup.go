@@ -38,11 +38,7 @@ func DoBackup(backupStore backup.Store, info *protoetcd.BackupInfo, dataDir stri
 		return nil, fmt.Errorf("EtcdVersion not set")
 	}
 
-	if etcdclient.IsV2(etcdVersion) {
-		return DoBackupV2(backupStore, info, dataDir)
-	} else {
-		return DoBackupV3(backupStore, info, clientUrls, tlsConfig)
-	}
+	return DoBackupV3(backupStore, info, clientUrls, tlsConfig)
 }
 
 // DoBackupV2 performs a backup of etcd v2, it needs etcdctl available
@@ -110,8 +106,6 @@ func DoBackupV2(backupStore backup.Store, info *protoetcd.BackupInfo, dataDir st
 
 // DoBackupV3 performs a backup of etcd v3; using the etcd v3 API
 func DoBackupV3(backupStore backup.Store, info *protoetcd.BackupInfo, clientUrls []string, tlsConfig *tls.Config) (*protoetcd.DoBackupResponse, error) {
-	etcdVersion := info.EtcdVersion
-
 	tempDir, err := ioutil.TempDir("", "")
 	if err != nil {
 		return nil, fmt.Errorf("error creating etcd backup temp directory: %v", err)
@@ -124,7 +118,7 @@ func DoBackupV3(backupStore backup.Store, info *protoetcd.BackupInfo, clientUrls
 		}
 	}()
 
-	client, err := etcdclient.NewClient(etcdVersion, clientUrls, tlsConfig)
+	client, err := etcdclient.NewClient(clientUrls, tlsConfig)
 	if err != nil {
 		return nil, fmt.Errorf("error building etcd client to etcd: %v", err)
 	}

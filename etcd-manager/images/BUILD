@@ -6,17 +6,6 @@ load(
     "container_layer",
     "container_push",
 )
-
-# Layer for etcd 2.2.1, the version of etcd2 that was originally recommended
-container_layer(
-    name = "etcd-2.2.1-layer-amd64",
-    directory = "/opt/etcd-v2.2.1-linux-amd64/",
-    files = [
-        "@etcd_v2_2_1_source//:etcd",
-        "@etcd_v2_2_1_source//etcdctl",
-    ],
-)
-
 load("etcd.bzl", "supported_etcd_arch_and_version")
 
 # Layer for etcd 3.1.12, as used in k8s 1.10
@@ -63,7 +52,6 @@ container_image(
     directory = "/opt",
     layers = select({
         "@io_bazel_rules_go//go/platform:amd64": [
-            "etcd-2.2.1-layer-amd64",
             "etcd-3.1.12-layer-amd64",
             "etcd-3.2.18-layer-amd64",
             "etcd-3.2.24-layer-amd64",

@@ -21,12 +21,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
-	"net"
-	"net/http"
-	"strings"
-	"time"
 
-	etcd_client_v2 "go.etcd.io/etcd/client/v2"
 	"k8s.io/klog/v2"
 )
 
@@ -78,64 +73,12 @@ type LocalNodeInfo struct {
 	IsLeader bool
 }
 
-func NewClient(etcdVersion string, clientURLs []string, tlsConfig *tls.Config) (EtcdClient, error) {
+func NewClient(clientURLs []string, tlsConfig *tls.Config) (EtcdClient, error) {
 	if len(clientURLs) == 0 {
 		return nil, fmt.Errorf("no client URLs were provided")
 	}
 
-	if IsV2(etcdVersion) {
-		return NewV2Client(clientURLs, tlsConfig)
-	}
-	if IsV3(etcdVersion) {
-		return NewV3Client(clientURLs, tlsConfig)
-	}
-	return nil, fmt.Errorf("unhandled etcd version %q", etcdVersion)
-}
-
-// IsV2 returns true if the specified etcdVersion is a 2.x version
-func IsV2(etcdVersion string) bool {
-	return strings.HasPrefix(etcdVersion, "2.")
-}
-
-// IsV3 returns true if the specified etcdVersion is a 3.x version
-func IsV3(etcdVersion string) bool {
-	return strings.HasPrefix(etcdVersion, "3.")
-}
-
-// ServerVersion attempts to find the version of etcd
-// If you already have a client, prefer calling ServerVersion on that
-func ServerVersion(ctx context.Context, endpoints []string, tlsConfig *tls.Config) (string, error) {
-	if len(endpoints) == 0 {
-		return "", fmt.Errorf("no endpoints provided")
-	}
-
-	var transport etcd_client_v2.CancelableTransport = etcd_client_v2.DefaultTransport
-	if tlsConfig != nil {
-		transport = &http.Transport{
-			Proxy: http.ProxyFromEnvironment,
-			Dial: (&net.Dialer{
-				Timeout:   30 * time.Second,
-				KeepAlive: 30 * time.Second,
-			}).Dial,
-			TLSClientConfig:     tlsConfig,
-			TLSHandshakeTimeout: 10 * time.Second,
-		}
-	}
-
-	cfg := etcd_client_v2.Config{
-		Endpoints:               endpoints,
-		Transport:               transport,
-		HeaderTimeoutPerRequest: 10 * time.Second,
-	}
-	etcdClient, err := etcd_client_v2.New(cfg)
-	if err != nil {
-		return "", fmt.Errorf("error building etcd client for %s: %v", endpoints, err)
-	}
-	v, err := etcdClient.GetVersion(ctx)
-	if err != nil {
-		return "", err
-	}
-	return v.Server, nil
+	return NewV3Client(clientURLs, tlsConfig)
 }
 
 // LoggedClose closes the etcdclient, warning on error

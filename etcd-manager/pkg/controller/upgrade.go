@@ -129,9 +129,6 @@ func (m *EtcdController) stopForUpgrade(parentContext context.Context, clusterSp
 		klog.Infof("stopped etcd on peer %q: %v", peer.peer.Id, response)
 	}
 
-	// TODO: Enforce the upgrade sequence 2.2.1 2.3.7 3.0.17 3.1.11
-	// TODO: The 2 -> 3 upgrade is a dump anyway
-
 	return true, nil
 }
 

@@ -694,7 +694,7 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 			continue
 		}
 
-		etcdClient, err := etcdclient.NewClient(p.info.EtcdState.EtcdVersion, clientUrls, m.etcdClientTLSConfig)
+		etcdClient, err := etcdclient.NewClient(clientUrls, m.etcdClientTLSConfig)
 		if err != nil {
 			klog.Warningf("unable to reach member %s: %v", p, err)
 			continue

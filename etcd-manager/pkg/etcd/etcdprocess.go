@@ -236,11 +236,8 @@ func (p *etcdProcess) Start() error {
 		env["ETCD_INITIAL_CLUSTER_STATE"] = "existing"
 	}
 
-	// For etcd3, we disable the etcd2 endpoint
-	// The etcd2 endpoint runs a weird "second copy" of etcd
-	if !strings.HasPrefix(p.EtcdVersion, "2.") {
-		env["ETCD_ENABLE_V2"] = "false"
-	}
+	// Disable the etcd2 endpoint (needed for etcd <= v3.3)
+	env["ETCD_ENABLE_V2"] = "false"
 
 	env["ETCD_NAME"] = p.MyNodeName
 	if p.Cluster.ClusterToken != "" {
@@ -369,15 +366,7 @@ func (p *etcdProcess) NewClient() (etcdclient.EtcdClient, error) {
 		clientUrls = me.QuarantinedClientUrls
 	}
 
-	return etcdclient.NewClient(p.EtcdVersion, clientUrls, p.etcdClientTLSConfig)
-}
-
-// isV2 checks if this is etcd v2
-func (p *etcdProcess) isV2() bool {
-	if p.EtcdVersion == "" {
-		klog.Fatalf("EtcdVersion not set")
-	}
-	return etcdclient.IsV2(p.EtcdVersion)
+	return etcdclient.NewClient(clientUrls, p.etcdClientTLSConfig)
 }
 
 // DoBackup performs a backup/snapshot of the data
@@ -397,10 +386,6 @@ func (p *etcdProcess) DoBackup(store backup.Store, info *protoetcd.BackupInfo) (
 
 // RestoreV3Snapshot calls etcdctl snapshot restore
 func (p *etcdProcess) RestoreV3Snapshot(snapshotFile string) error {
-	if p.isV2() {
-		return fmt.Errorf("unexpected version when calling RestoreV2Snapshot: %q", p.EtcdVersion)
-	}
-
 	me := p.findMyNode()
 	if me == nil {
 		return fmt.Errorf("unable to find self node %q in %v", p.MyNodeName, p.Cluster.Nodes)
