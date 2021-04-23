@@ -18,11 +18,15 @@ package etcdclient
 
 import (
 	"context"
-
 	"k8s.io/klog/v2"
 )
 
-func (c *V3Client) LocalNodeInfo(ctx context.Context) (*LocalNodeInfo, error) {
+// LocalNodeInfo has information about the etcd member node we are connected to
+type LocalNodeInfo struct {
+	IsLeader bool
+}
+
+func (c *EtcdClient) LocalNodeInfo(ctx context.Context) (*LocalNodeInfo, error) {
 	var lastErr error
 	for _, endpoint := range c.endpoints {
 		response, err := c.client.Status(ctx, endpoint)

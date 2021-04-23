@@ -350,7 +350,7 @@ func BuildTLSClientConfig(keypairs *pki.Keypairs, cn string) (*tls.Config, error
 	return c, nil
 }
 
-func (p *etcdProcess) NewClient() (etcdclient.EtcdClient, error) {
+func (p *etcdProcess) NewClient() (*etcdclient.EtcdClient, error) {
 	var me *protoetcd.EtcdNode
 	for _, node := range p.Cluster.Nodes {
 		if node.Name == p.MyNodeName {

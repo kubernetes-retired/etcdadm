@@ -3,10 +3,9 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "etcdclient",
     srcs = [
-        "interfaces.go",
+        "client.go",
         "localnode.go",
         "member.go",
-        "v3.go",
     ],
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdclient",
     visibility = ["//visibility:public"],

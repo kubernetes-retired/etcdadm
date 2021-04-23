@@ -97,7 +97,7 @@ func (p *etcdClusterPeerInfo) String() string {
 // because clientURLs as reported by etcd might not be correct,
 // because it's ultimately controlled by command line flags, and does
 // not go through raft.
-func (s *etcdClusterState) newEtcdClient(member *etcdclient.EtcdProcessMember) (etcdclient.EtcdClient, error) {
+func (s *etcdClusterState) newEtcdClient(member *etcdclient.EtcdProcessMember) (*etcdclient.EtcdClient, error) {
 	clientURLs := member.ClientURLs
 
 	var node *protoetcd.GetInfoResponse
