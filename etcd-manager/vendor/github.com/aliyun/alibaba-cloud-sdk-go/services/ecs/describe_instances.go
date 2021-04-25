@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeInstances invokes the ecs.DescribeInstances API synchronously
-// api document: https://help.aliyun.com/api/ecs/describeinstances.html
 func (client *Client) DescribeInstances(request *DescribeInstancesRequest) (response *DescribeInstancesResponse, err error) {
 	response = CreateDescribeInstancesResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeInstances(request *DescribeInstancesRequest) (resp
 }
 
 // DescribeInstancesWithChan invokes the ecs.DescribeInstances API asynchronously
-// api document: https://help.aliyun.com/api/ecs/describeinstances.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeInstancesWithChan(request *DescribeInstancesRequest) (<-chan *DescribeInstancesResponse, <-chan error) {
 	responseChan := make(chan *DescribeInstancesResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeInstancesWithChan(request *DescribeInstancesReques
 }
 
 // DescribeInstancesWithCallback invokes the ecs.DescribeInstances API asynchronously
-// api document: https://help.aliyun.com/api/ecs/describeinstances.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeInstancesWithCallback(request *DescribeInstancesRequest, callback func(response *DescribeInstancesResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -99,6 +94,7 @@ type DescribeInstancesRequest struct {
 	InstanceIds             string                  `position:"Query" name:"InstanceIds"`
 	InternetChargeType      string                  `position:"Query" name:"InternetChargeType"`
 	ZoneId                  string                  `position:"Query" name:"ZoneId"`
+	MaxResults              requests.Integer        `position:"Query" name:"MaxResults"`
 	InstanceNetworkType     string                  `position:"Query" name:"InstanceNetworkType"`
 	Status                  string                  `position:"Query" name:"Status"`
 	ImageId                 string                  `position:"Query" name:"ImageId"`
@@ -107,6 +103,7 @@ type DescribeInstancesRequest struct {
 	SecurityGroupId         string                  `position:"Query" name:"SecurityGroupId"`
 	Filter4Key              string                  `position:"Query" name:"Filter.4.Key"`
 	PageNumber              requests.Integer        `position:"Query" name:"PageNumber"`
+	NextToken               string                  `position:"Query" name:"NextToken"`
 	RdmaIpAddresses         string                  `position:"Query" name:"RdmaIpAddresses"`
 	HttpEndpoint            string                  `position:"Query" name:"HttpEndpoint"`
 	PageSize                requests.Integer        `position:"Query" name:"PageSize"`
@@ -136,6 +133,7 @@ type DescribeInstancesResponse struct {
 	TotalCount int                          `json:"TotalCount" xml:"TotalCount"`
 	PageNumber int                          `json:"PageNumber" xml:"PageNumber"`
 	PageSize   int                          `json:"PageSize" xml:"PageSize"`
+	NextToken  string                       `json:"NextToken" xml:"NextToken"`
 	Instances  InstancesInDescribeInstances `json:"Instances" xml:"Instances"`
 }
 

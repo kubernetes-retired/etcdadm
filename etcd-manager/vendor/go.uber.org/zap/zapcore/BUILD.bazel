@@ -11,6 +11,7 @@ go_library(
         "error.go",
         "field.go",
         "hook.go",
+        "increase_level.go",
         "json_encoder.go",
         "level.go",
         "level_strings.go",

@@ -7,7 +7,9 @@ go_library(
     importpath = "google.golang.org/protobuf/types/known/anypb",
     visibility = ["//visibility:public"],
     deps = [
+        "//vendor/google.golang.org/protobuf/proto",
         "//vendor/google.golang.org/protobuf/reflect/protoreflect",
+        "//vendor/google.golang.org/protobuf/reflect/protoregistry",
         "//vendor/google.golang.org/protobuf/runtime/protoimpl",
     ],
 )

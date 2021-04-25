@@ -37,11 +37,14 @@ type DedicatedHost struct {
 	ExpiredTime                         string                                                `json:"ExpiredTime" xml:"ExpiredTime"`
 	AutoReleaseTime                     string                                                `json:"AutoReleaseTime" xml:"AutoReleaseTime"`
 	ResourceGroupId                     string                                                `json:"ResourceGroupId" xml:"ResourceGroupId"`
+	DedicatedHostClusterId              string                                                `json:"DedicatedHostClusterId" xml:"DedicatedHostClusterId"`
+	CpuOverCommitRatio                  float64                                               `json:"CpuOverCommitRatio" xml:"CpuOverCommitRatio"`
 	SupportedInstanceTypeFamilies       SupportedInstanceTypeFamiliesInDescribeDedicatedHosts `json:"SupportedInstanceTypeFamilies" xml:"SupportedInstanceTypeFamilies"`
 	SupportedCustomInstanceTypeFamilies SupportedCustomInstanceTypeFamilies                   `json:"SupportedCustomInstanceTypeFamilies" xml:"SupportedCustomInstanceTypeFamilies"`
 	SupportedInstanceTypesList          SupportedInstanceTypesListInDescribeDedicatedHosts    `json:"SupportedInstanceTypesList" xml:"SupportedInstanceTypesList"`
 	Capacity                            Capacity                                              `json:"Capacity" xml:"Capacity"`
 	NetworkAttributes                   NetworkAttributes                                     `json:"NetworkAttributes" xml:"NetworkAttributes"`
+	HostDetailInfo                      HostDetailInfo                                        `json:"HostDetailInfo" xml:"HostDetailInfo"`
 	Instances                           InstancesInDescribeDedicatedHosts                     `json:"Instances" xml:"Instances"`
 	OperationLocks                      OperationLocksInDescribeDedicatedHosts                `json:"OperationLocks" xml:"OperationLocks"`
 	Tags                                TagsInDescribeDedicatedHosts                          `json:"Tags" xml:"Tags"`

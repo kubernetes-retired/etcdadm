@@ -20,6 +20,7 @@ go_library(
         "//vendor/go.opencensus.io/internal/tagencoding",
         "//vendor/go.opencensus.io/metric/metricdata",
         "//vendor/go.opencensus.io/metric/metricproducer",
+        "//vendor/go.opencensus.io/resource",
         "//vendor/go.opencensus.io/stats",
         "//vendor/go.opencensus.io/stats/internal",
         "//vendor/go.opencensus.io/tag",

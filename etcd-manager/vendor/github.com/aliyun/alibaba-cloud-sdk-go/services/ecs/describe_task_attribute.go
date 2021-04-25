@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeTaskAttribute invokes the ecs.DescribeTaskAttribute API synchronously
-// api document: https://help.aliyun.com/api/ecs/describetaskattribute.html
 func (client *Client) DescribeTaskAttribute(request *DescribeTaskAttributeRequest) (response *DescribeTaskAttributeResponse, err error) {
 	response = CreateDescribeTaskAttributeResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeTaskAttribute(request *DescribeTaskAttributeReques
 }
 
 // DescribeTaskAttributeWithChan invokes the ecs.DescribeTaskAttribute API asynchronously
-// api document: https://help.aliyun.com/api/ecs/describetaskattribute.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeTaskAttributeWithChan(request *DescribeTaskAttributeRequest) (<-chan *DescribeTaskAttributeResponse, <-chan error) {
 	responseChan := make(chan *DescribeTaskAttributeResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeTaskAttributeWithChan(request *DescribeTaskAttribu
 }
 
 // DescribeTaskAttributeWithCallback invokes the ecs.DescribeTaskAttribute API asynchronously
-// api document: https://help.aliyun.com/api/ecs/describetaskattribute.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeTaskAttributeWithCallback(request *DescribeTaskAttributeRequest, callback func(response *DescribeTaskAttributeResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -85,19 +80,19 @@ type DescribeTaskAttributeRequest struct {
 // DescribeTaskAttributeResponse is the response struct for api DescribeTaskAttribute
 type DescribeTaskAttributeResponse struct {
 	*responses.BaseResponse
-	RequestId            string               `json:"RequestId" xml:"RequestId"`
-	TaskId               string               `json:"TaskId" xml:"TaskId"`
-	RegionId             string               `json:"RegionId" xml:"RegionId"`
-	TaskAction           string               `json:"TaskAction" xml:"TaskAction"`
-	TaskStatus           string               `json:"TaskStatus" xml:"TaskStatus"`
-	TaskProcess          string               `json:"TaskProcess" xml:"TaskProcess"`
-	SupportCancel        string               `json:"SupportCancel" xml:"SupportCancel"`
-	TotalCount           int                  `json:"TotalCount" xml:"TotalCount"`
-	SuccessCount         int                  `json:"SuccessCount" xml:"SuccessCount"`
-	FailedCount          int                  `json:"FailedCount" xml:"FailedCount"`
-	CreationTime         string               `json:"CreationTime" xml:"CreationTime"`
-	FinishedTime         string               `json:"FinishedTime" xml:"FinishedTime"`
-	OperationProgressSet OperationProgressSet `json:"OperationProgressSet" xml:"OperationProgressSet"`
+	RequestId            string                                      `json:"RequestId" xml:"RequestId"`
+	TaskId               string                                      `json:"TaskId" xml:"TaskId"`
+	RegionId             string                                      `json:"RegionId" xml:"RegionId"`
+	TaskAction           string                                      `json:"TaskAction" xml:"TaskAction"`
+	TaskStatus           string                                      `json:"TaskStatus" xml:"TaskStatus"`
+	TaskProcess          string                                      `json:"TaskProcess" xml:"TaskProcess"`
+	SupportCancel        string                                      `json:"SupportCancel" xml:"SupportCancel"`
+	TotalCount           int                                         `json:"TotalCount" xml:"TotalCount"`
+	SuccessCount         int                                         `json:"SuccessCount" xml:"SuccessCount"`
+	FailedCount          int                                         `json:"FailedCount" xml:"FailedCount"`
+	CreationTime         string                                      `json:"CreationTime" xml:"CreationTime"`
+	FinishedTime         string                                      `json:"FinishedTime" xml:"FinishedTime"`
+	OperationProgressSet OperationProgressSetInDescribeTaskAttribute `json:"OperationProgressSet" xml:"OperationProgressSet"`
 }
 
 // CreateDescribeTaskAttributeRequest creates a request to invoke DescribeTaskAttribute API

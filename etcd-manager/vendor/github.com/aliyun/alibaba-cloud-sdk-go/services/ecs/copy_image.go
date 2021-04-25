@@ -21,7 +21,6 @@ import (
 )
 
 // CopyImage invokes the ecs.CopyImage API synchronously
-// api document: https://help.aliyun.com/api/ecs/copyimage.html
 func (client *Client) CopyImage(request *CopyImageRequest) (response *CopyImageResponse, err error) {
 	response = CreateCopyImageResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) CopyImage(request *CopyImageRequest) (response *CopyImageR
 }
 
 // CopyImageWithChan invokes the ecs.CopyImage API asynchronously
-// api document: https://help.aliyun.com/api/ecs/copyimage.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CopyImageWithChan(request *CopyImageRequest) (<-chan *CopyImageResponse, <-chan error) {
 	responseChan := make(chan *CopyImageResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) CopyImageWithChan(request *CopyImageRequest) (<-chan *Copy
 }
 
 // CopyImageWithCallback invokes the ecs.CopyImage API asynchronously
-// api document: https://help.aliyun.com/api/ecs/copyimage.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CopyImageWithCallback(request *CopyImageRequest, callback func(response *CopyImageResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -80,6 +75,7 @@ type CopyImageRequest struct {
 	ImageId                string           `position:"Query" name:"ImageId"`
 	EncryptAlgorithm       string           `position:"Query" name:"EncryptAlgorithm"`
 	DestinationRegionId    string           `position:"Query" name:"DestinationRegionId"`
+	ResourceGroupId        string           `position:"Query" name:"ResourceGroupId"`
 	Tag                    *[]CopyImageTag  `position:"Query" name:"Tag"  type:"Repeated"`
 	ResourceOwnerAccount   string           `position:"Query" name:"ResourceOwnerAccount"`
 	DestinationImageName   string           `position:"Query" name:"DestinationImageName"`

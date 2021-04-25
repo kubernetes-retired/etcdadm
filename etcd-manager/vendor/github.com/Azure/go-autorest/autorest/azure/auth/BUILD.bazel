@@ -11,6 +11,7 @@ go_library(
         "//vendor/github.com/Azure/go-autorest/autorest/adal",
         "//vendor/github.com/Azure/go-autorest/autorest/azure",
         "//vendor/github.com/Azure/go-autorest/autorest/azure/cli",
+        "//vendor/github.com/Azure/go-autorest/logger",
         "//vendor/github.com/dimchansky/utfbom",
     ],
 )

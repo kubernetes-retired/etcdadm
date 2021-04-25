@@ -36,7 +36,11 @@ type InstanceType struct {
 	InstanceFamilyLevel         string  `json:"InstanceFamilyLevel" xml:"InstanceFamilyLevel"`
 	TotalEniQueueQuantity       int     `json:"TotalEniQueueQuantity" xml:"TotalEniQueueQuantity"`
 	GPUSpec                     string  `json:"GPUSpec" xml:"GPUSpec"`
+	SecondaryEniQueueNumber     int     `json:"SecondaryEniQueueNumber" xml:"SecondaryEniQueueNumber"`
 	InstanceBandwidthTx         int     `json:"InstanceBandwidthTx" xml:"InstanceBandwidthTx"`
+	MaximumQueueNumberPerEni    int     `json:"MaximumQueueNumberPerEni" xml:"MaximumQueueNumberPerEni"`
+	DiskQuantity                int     `json:"DiskQuantity" xml:"DiskQuantity"`
+	PrimaryEniQueueNumber       int     `json:"PrimaryEniQueueNumber" xml:"PrimaryEniQueueNumber"`
 	Memory                      int     `json:"Memory" xml:"Memory"`
 	BaselineCredit              int     `json:"BaselineCredit" xml:"BaselineCredit"`
 	EniTrunkSupported           bool    `json:"EniTrunkSupported" xml:"EniTrunkSupported"`

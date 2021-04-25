@@ -1,0 +1,14 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "descriptorpb",
+    srcs = ["descriptor.pb.go"],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/google.golang.org/protobuf/types/descriptorpb",
+    importpath = "google.golang.org/protobuf/types/descriptorpb",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/google.golang.org/protobuf/reflect/protoreflect",
+        "//vendor/google.golang.org/protobuf/runtime/protoiface",
+        "//vendor/google.golang.org/protobuf/runtime/protoimpl",
+    ],
+)
