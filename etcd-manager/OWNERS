@@ -1,0 +1,15 @@
+# See the OWNERS docs at https://go.k8s.io/owners
+
+# These OWNERS files should stay in sync (if they are members of the kubernetes-sigs org):
+# https://github.com/kubernetes/test-infra/blob/master/config/jobs/kubernetes/kops/OWNERS
+# https://github.com/kubernetes/test-infra/blob/master/config/testgrids/kubernetes/kops/OWNERS
+
+approvers:
+- hakman
+- justinsb
+- olemarkus
+- rifelpet
+reviewers:
+- hakman
+- justinsb
+- olemarkus
