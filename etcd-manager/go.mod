@@ -99,7 +99,6 @@ require (
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20200910180754-dd1b699fc489
 	golang.org/x/net v0.0.0-20210410081132-afb366fc7cd1
 	golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602
-	golang.org/x/tools v0.1.0 // indirect
 	google.golang.org/api v0.44.0
 	google.golang.org/grpc v1.36.1
 	gopkg.in/gcfg.v1 v1.2.3

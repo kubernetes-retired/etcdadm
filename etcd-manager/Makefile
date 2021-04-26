@@ -106,6 +106,7 @@ dep-ensure:
 
 .PHONY: vendor
 vendor:
+	go mod tidy
 	go mod vendor
 	find vendor/ -name "BUILD" -delete
 	find vendor/ -name "BUILD.bazel" -delete
