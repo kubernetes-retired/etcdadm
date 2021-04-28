@@ -47,7 +47,7 @@ func init() {
 	// TODO: Use a flag?
 
 	// used to fix glog parse error.
-	flag.CommandLine.Parse([]string{})
+	_ = flag.CommandLine.Parse([]string{})
 
 	if os.Getenv("TEST_SRCDIR") != "" && os.Getenv("TEST_WORKSPACE") != "" {
 		d := filepath.Join(os.Getenv("TEST_SRCDIR"), os.Getenv("TEST_WORKSPACE"))
@@ -214,7 +214,12 @@ func (p *etcdProcess) Start() error {
 	env := make(map[string]string)
 	env["ETCD_DATA_DIR"] = p.DataDir
 
-	// etcd3.2 requires that we listen on an IP, not a DNS name
+	// etcd 3.4 deprecates '--logger=capnslog'
+	//   [WARNING] Deprecated '--logger=capnslog' flag is set; use '--logger=zap' flag instead
+	env["ETCD_LOGGER"] = "zap"
+	env["ETCD_LOG_OUTPUTS"] = "stdout"
+
+	// etcd 3.2 requires that we listen on an IP, not a DNS name
 	env["ETCD_LISTEN_PEER_URLS"] = strings.Join(changeHost(me.PeerUrls, p.ListenAddress), ",")
 	env["ETCD_LISTEN_CLIENT_URLS"] = strings.Join(changeHost(clientUrls, p.ListenAddress), ",")
 	env["ETCD_ADVERTISE_CLIENT_URLS"] = strings.Join(clientUrls, ",")
