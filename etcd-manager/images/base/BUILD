@@ -22,6 +22,7 @@ packages = [
     "coreutils",  # General tools
     "libacl1",  # Needed by coreutils
     "libattr1",  # Needed by coreutils
+    "udev",  # Needed by OpenStack
 ]
 
 architectures = [
