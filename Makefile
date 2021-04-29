@@ -23,7 +23,7 @@ BIN := etcdadm
 PACKAGE_GOPATH := /go/src/sigs.k8s.io/$(BIN)
 LDFLAGS := $(shell source ./version.sh ; KUBE_ROOT=. ; KUBE_GIT_VERSION=${VERSION_OVERRIDE} ; kube::version::ldflags)
 GIT_STORAGE_MOUNT := $(shell source ./git_utils.sh; container_git_storage_mount)
-GO_IMAGE ?= golang:1.12
+GO_IMAGE ?= golang:1.16
 
 .PHONY: clean container-build default ensure diagrams $(BIN)
 
