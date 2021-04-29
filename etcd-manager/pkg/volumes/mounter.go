@@ -125,6 +125,7 @@ func (k *VolumeMountController) safeFormatAndMount(volume *Volume, mountpoint st
 	klog.Infof("Found volume %q mounted at device %q", volume.ProviderID, device)
 
 	safeFormatAndMount := &mount.SafeFormatAndMount{}
+	resize := &mount.ResizeFs{}
 
 	if Containerized {
 		ne, err := nsenter.NewNsenter(PathFor("/"), utilexec.New())
@@ -132,15 +133,18 @@ func (k *VolumeMountController) safeFormatAndMount(volume *Volume, mountpoint st
 			return fmt.Errorf("error building ns-enter helper: %v", err)
 		}
 
-		// Build mount & exec implementations that execute in the host namespaces
+		// Build mount & exec & resize implementations that execute in the host namespaces
 		safeFormatAndMount.Interface = hostmount.New(ne)
 		safeFormatAndMount.Exec = ne
+		resize = mount.NewResizeFs(ne)
 
 		// Note that we don't use PathFor for operations going through safeFormatAndMount,
 		// because NewNsenterMounter and NewNsEnterExec will operate in the host
 	} else {
+		ue := utilexec.New()
 		safeFormatAndMount.Interface = mount.New("")
-		safeFormatAndMount.Exec = utilexec.New()
+		safeFormatAndMount.Exec = ue
+		resize = mount.NewResizeFs(ue)
 	}
 
 	// Check if it is already mounted
@@ -190,6 +194,12 @@ func (k *VolumeMountController) safeFormatAndMount(volume *Volume, mountpoint st
 		} else {
 			klog.Infof("Found existing mount of %q at %q", device, mountpoint)
 		}
+	}
+
+	// Resize to max size
+	_, err = resize.Resize(device, mountpoint)
+	if err != nil {
+		return fmt.Errorf("error resizing disk %q on %q: %v", device, mountpoint, err)
 	}
 
 	// If we're containerized we also want to mount the device (again) into our container
