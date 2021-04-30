@@ -58,4 +58,4 @@ gsutil -h "Cache-Control:private, max-age=0, no-transform" -m cp -n etcdadm ${AR
 # Build and upload etcd-manager images & binaries
 DOCKER_REGISTRY=${DOCKER_REGISTRY} DOCKER_IMAGE_PREFIX=${DOCKER_IMAGE_PREFIX} DOCKER_TAG=${VERSION} make -C etcd-manager push
 ./etcd-manager/dev/build-assets.sh ${VERSION}
-gsutil -h "Cache-Control:private, max-age=0, no-transform" -m cp -n etcd-manager/dist/ ${ARTIFACT_LOCATION}${VERSION}/etcd-manager/
+gsutil -h "Cache-Control:private, max-age=0, no-transform" -m cp -r -n etcd-manager/dist/ ${ARTIFACT_LOCATION}${VERSION}/etcd-manager/
