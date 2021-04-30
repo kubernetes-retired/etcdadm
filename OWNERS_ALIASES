@@ -10,3 +10,6 @@ aliases:
   etcdadm-maintainers:
     - dlipovetsky
     - justinsb
+    - hakman
+    - olemarkus
+    - rifelpet
