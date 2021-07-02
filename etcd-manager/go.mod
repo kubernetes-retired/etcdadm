@@ -2,17 +2,6 @@ module sigs.k8s.io/etcdadm/etcd-manager
 
 go 1.16
 
-replace k8s.io/kops => k8s.io/kops v1.21.0-alpha.3
-
-// Version kubernetes-1.15.3
-//replace k8s.io/kubernetes => k8s.io/kubernetes v1.19.0
-//replace k8s.io/api => k8s.io/api kubernetes-1.19.0
-//replace k8s.io/apimachinery => k8s.io/apimachinery kubernetes-1.19.0
-//replace k8s.io/client-go => k8s.io/client-go kubernetes-1.19.0
-//replace k8s.io/cloud-provider => k8s.io/cloud-provider kubernetes-1.19.0
-//replace k8s.io/legacy-cloud-providers => k8s.io/legacy-cloud-providers kubernetes-1.19.0
-//replace k8s.io/kubectl => k8s.io/kubectl kubernetes-1.19.0
-
 replace k8s.io/kubernetes => k8s.io/kubernetes v1.21.0
 
 replace k8s.io/api => k8s.io/api v0.21.0
@@ -86,28 +75,28 @@ replace google.golang.org/grpc => google.golang.org/grpc v1.29.1
 
 require (
 	cloud.google.com/go v0.81.0
-	github.com/Azure/azure-sdk-for-go v53.1.0+incompatible
+	github.com/Azure/azure-sdk-for-go v53.4.0+incompatible
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.7
 	github.com/Azure/go-autorest/autorest/to v0.4.0
-	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1022
-	github.com/aws/aws-sdk-go v1.38.17
+	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1059
+	github.com/aws/aws-sdk-go v1.38.29
 	github.com/blang/semver v3.5.1+incompatible
-	github.com/digitalocean/godo v1.59.0
+	github.com/digitalocean/godo v1.60.0
 	github.com/golang/protobuf v1.5.2
-	github.com/gophercloud/gophercloud v0.17.0
+	github.com/gophercloud/gophercloud v0.18.0
 	github.com/prometheus/client_golang v1.10.0
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20200910180754-dd1b699fc489
-	golang.org/x/net v0.0.0-20210410081132-afb366fc7cd1
-	golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602
-	google.golang.org/api v0.44.0
-	google.golang.org/grpc v1.36.1
+	golang.org/x/net v0.0.0-20210525063256-abc453219eb5
+	golang.org/x/oauth2 v0.0.0-20210514164344-f6687ab2804c
+	google.golang.org/api v0.45.0
+	google.golang.org/grpc v1.37.0
 	gopkg.in/gcfg.v1 v1.2.3
 	gopkg.in/yaml.v2 v2.4.0
 	honnef.co/go/tools v0.0.1-2020.1.6
 	k8s.io/apimachinery v0.21.0
 	k8s.io/client-go v0.21.0
 	k8s.io/klog/v2 v2.8.0
-	k8s.io/kops v1.21.0-alpha.3
+	k8s.io/kops v1.21.0
 	k8s.io/mount-utils v0.21.0
 	k8s.io/utils v0.0.0-20210305010621-2afb4311ab10
 )
