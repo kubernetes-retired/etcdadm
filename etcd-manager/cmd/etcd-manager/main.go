@@ -369,8 +369,8 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 	var grpcServerTLS *tls.Config
 	var grpcClientTLS *tls.Config
 
-	var etcdClientsCA *pki.Keypair
-	var etcdPeersCA *pki.Keypair
+	var etcdClientsCA *pki.CA
+	var etcdPeersCA *pki.CA
 	if !o.Insecure {
 		if o.PKIDir == "" {
 			return fmt.Errorf("pki-dir is required for secure configurations")
@@ -379,7 +379,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 		store := pki.NewFSStore(o.PKIDir)
 		keypairs := &pki.Keypairs{Store: store}
 
-		ca, err := store.LoadKeypair("etcd-manager-ca")
+		ca, err := store.LoadCA("etcd-manager-ca")
 		if err != nil {
 			return err
 		}
@@ -403,12 +403,12 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 
 		store := pki.NewFSStore(o.PKIDir)
 
-		etcdPeersCA, err = store.LoadKeypair("etcd-peers-ca")
+		etcdPeersCA, err = store.LoadCA("etcd-peers-ca")
 		if err != nil {
 			return fmt.Errorf("error loading etcd-peers-ca keypair: %v", err)
 		}
 
-		etcdClientsCA, err = store.LoadKeypair("etcd-clients-ca")
+		etcdClientsCA, err = store.LoadCA("etcd-clients-ca")
 		if err != nil {
 			return fmt.Errorf("error loading etcd-clients-ca keypair: %v", err)
 		}

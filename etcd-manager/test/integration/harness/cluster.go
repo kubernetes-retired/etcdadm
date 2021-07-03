@@ -39,9 +39,9 @@ const testCycleInterval = time.Second
 type TestHarness struct {
 	T *testing.T
 
-	grpcCA        *pki.Keypair
-	etcdClientsCA *pki.Keypair
-	etcdPeersCA   *pki.Keypair
+	grpcCA        *pki.CA
+	etcdClientsCA *pki.CA
+	etcdPeersCA   *pki.CA
 
 	ClusterName       string
 	LockPath          string

@@ -114,10 +114,10 @@ func writePrivateKey(path string, privateKey *rsa.PrivateKey) error {
 	return nil
 }
 
-func (s *FSStore) WriteCertificate(name string, keypair *Keypair) error {
-	p := filepath.Join(s.basedir, name+".crt")
+func (s *FSStore) WriteCABundle(ca *CA) error {
+	p := filepath.Join(s.basedir, "ca.crt")
 
-	return writeCertificate(p, keypair.Certificate)
+	return writeCertificate(p, ca.keypair.Certificate)
 }
 
 func writeCertificate(path string, certificate *x509.Certificate) error {
@@ -144,7 +144,7 @@ func writeCertificate(path string, certificate *x509.Certificate) error {
 	return nil
 }
 
-func (s *FSStore) LoadKeypair(name string) (*Keypair, error) {
+func (s *FSStore) LoadCA(name string) (*CA, error) {
 	keypair := &Keypair{}
 	if err := loadPrivateKey(filepath.Join(s.basedir, name+".key"), keypair); err != nil {
 		return nil, err
@@ -152,7 +152,7 @@ func (s *FSStore) LoadKeypair(name string) (*Keypair, error) {
 	if err := loadCertificate(filepath.Join(s.basedir, name+".crt"), keypair); err != nil {
 		return nil, err
 	}
-	return keypair, nil
+	return &CA{keypair: keypair}, nil
 }
 
 func loadPrivateKey(privateKeyPath string, keypair *Keypair) error {

@@ -95,7 +95,7 @@ type MutableKeypair interface {
 	MutateKeypair(mutator func(keypair *Keypair) error) (*Keypair, error)
 }
 
-func EnsureKeypair(store MutableKeypair, config certutil.Config, signer *Keypair) (*Keypair, error) {
+func EnsureKeypair(store MutableKeypair, config certutil.Config, signer *CA) (*Keypair, error) {
 	p := config.CommonName
 
 	mutator := func(keypair *Keypair) error {
@@ -178,7 +178,7 @@ func EnsureKeypair(store MutableKeypair, config certutil.Config, signer *Keypair
 			var err error
 			if signer != nil {
 				duration := CertDuration
-				cert, err = NewSignedCert(&config, keypair.PrivateKey, signer.Certificate, signer.PrivateKey, duration)
+				cert, err = newSignedCert(&config, keypair.PrivateKey, signer, duration)
 			} else {
 				cert, err = certutil.NewSelfSignedCACert(config, keypair.PrivateKey)
 			}

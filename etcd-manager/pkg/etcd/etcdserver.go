@@ -59,8 +59,8 @@ type EtcdServer struct {
 	// listenAddress is the address we configure etcd to bind to
 	listenAddress string
 
-	etcdClientsCA *pki.Keypair
-	etcdPeersCA   *pki.Keypair
+	etcdClientsCA *pki.CA
+	etcdPeersCA   *pki.CA
 
 	// listenMetricsURLs is the set of URLs where etcd should listen for metrics
 	listenMetricsURLs []string
@@ -75,7 +75,7 @@ type preparedState struct {
 	clusterToken string
 }
 
-func NewEtcdServer(baseDir string, clusterName string, listenAddress string, listenMetricsURLs []string, etcdNodeConfiguration *protoetcd.EtcdNode, peerServer *privateapi.Server, dnsProvider dns.Provider, etcdClientsCA *pki.Keypair, etcdPeersCA *pki.Keypair, peerClientIPs []net.IP) (*EtcdServer, error) {
+func NewEtcdServer(baseDir string, clusterName string, listenAddress string, listenMetricsURLs []string, etcdNodeConfiguration *protoetcd.EtcdNode, peerServer *privateapi.Server, dnsProvider dns.Provider, etcdClientsCA *pki.CA, etcdPeersCA *pki.CA, peerClientIPs []net.IP) (*EtcdServer, error) {
 	s := &EtcdServer{
 		baseDir:               baseDir,
 		clusterName:           clusterName,

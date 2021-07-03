@@ -30,8 +30,7 @@ func GRPCClientConfig(keypairs *pki.Keypairs, myPeerID string) (*tls.Config, err
 		return nil, err
 	}
 
-	caPool := x509.NewCertPool()
-	caPool.AddCert(ca.Certificate)
+	caPool := ca.CertPool()
 
 	keypair, err := keypairs.EnsureKeypair("etcd-manager-client-"+myPeerID, certutil.Config{
 		CommonName: "etcd-manager-client-" + myPeerID,
@@ -59,8 +58,7 @@ func GRPCServerConfig(keypairs *pki.Keypairs, myPeerID string) (*tls.Config, err
 		return nil, err
 	}
 
-	caPool := x509.NewCertPool()
-	caPool.AddCert(ca.Certificate)
+	caPool := ca.CertPool()
 
 	name := "etcd-manager-server-" + myPeerID
 	config := certutil.Config{

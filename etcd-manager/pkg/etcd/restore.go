@@ -170,7 +170,7 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 		DisableTLS:              false,
 	}
 
-	var etcdClientsCA *pki.Keypair
+	var etcdClientsCA *pki.CA
 	{
 		store := pki.NewInMemoryStore()
 		keypairs := pki.Keypairs{Store: store}
@@ -181,7 +181,7 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 		etcdClientsCA = ca
 	}
 
-	var etcdPeersCA *pki.Keypair
+	var etcdPeersCA *pki.CA
 	{
 		store := pki.NewInMemoryStore()
 		keypairs := pki.Keypairs{Store: store}

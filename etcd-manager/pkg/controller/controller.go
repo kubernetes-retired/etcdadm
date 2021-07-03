@@ -116,7 +116,7 @@ type leadershipState struct {
 }
 
 // NewEtcdController is the constructor for an EtcdController
-func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, backupInterval time.Duration, controlStore commands.Store, controlRefreshInterval time.Duration, clusterName string, dnsSuffix string, peers privateapi.Peers, etcdClientsCA *pki.Keypair, disableEtcdTLS bool) (*EtcdController, error) {
+func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, backupInterval time.Duration, controlStore commands.Store, controlRefreshInterval time.Duration, clusterName string, dnsSuffix string, peers privateapi.Peers, etcdClientsCA *pki.CA, disableEtcdTLS bool) (*EtcdController, error) {
 	if clusterName == "" {
 		return nil, fmt.Errorf("ClusterName is required")
 	}

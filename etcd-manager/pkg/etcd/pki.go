@@ -29,14 +29,14 @@ import (
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/pki"
 )
 
-func (p *etcdProcess) createKeypairs(peersCA *pki.Keypair, clientsCA *pki.Keypair, pkiDir string, me *protoetcd.EtcdNode, peerClientIPs []net.IP) error {
+func (p *etcdProcess) createKeypairs(peersCA *pki.CA, clientsCA *pki.CA, pkiDir string, me *protoetcd.EtcdNode, peerClientIPs []net.IP) error {
 	if peersCA != nil {
 		peersDir := filepath.Join(pkiDir, "peers")
 		p.PKIPeersDir = peersDir
 
 		// Create a peer certificate
 		store := pki.NewFSStore(peersDir)
-		if err := store.WriteCertificate("ca", peersCA); err != nil {
+		if err := store.WriteCABundle(peersCA); err != nil {
 			return err
 		}
 
@@ -82,7 +82,7 @@ func (p *etcdProcess) createKeypairs(peersCA *pki.Keypair, clientsCA *pki.Keypai
 
 		// Create a client certificate
 		store := pki.NewFSStore(clientsDir)
-		if err := store.WriteCertificate("ca", clientsCA); err != nil {
+		if err := store.WriteCABundle(clientsCA); err != nil {
 			return err
 		}
 

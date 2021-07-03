@@ -31,11 +31,11 @@ type Keypairs struct {
 	Store Store
 
 	mutex sync.Mutex
-	ca    *Keypair
+	ca    *CA
 }
 
 // SetCA allows the CA to be set (if it has not yet been generated)
-func (k *Keypairs) SetCA(ca *Keypair) {
+func (k *Keypairs) SetCA(ca *CA) {
 	k.mutex.Lock()
 	defer k.mutex.Unlock()
 
@@ -45,7 +45,7 @@ func (k *Keypairs) SetCA(ca *Keypair) {
 	k.ca = ca
 }
 
-func (k *Keypairs) EnsureKeypair(name string, config certutil.Config, signer *Keypair) (*Keypair, error) {
+func (k *Keypairs) EnsureKeypair(name string, config certutil.Config, signer *CA) (*Keypair, error) {
 	k.mutex.Lock()
 	defer k.mutex.Unlock()
 
@@ -55,7 +55,7 @@ func (k *Keypairs) EnsureKeypair(name string, config certutil.Config, signer *Ke
 	return keypair, err
 }
 
-func (k *Keypairs) CA() (*Keypair, error) {
+func (k *Keypairs) CA() (*CA, error) {
 	k.mutex.Lock()
 	defer k.mutex.Unlock()
 
@@ -66,7 +66,7 @@ func (k *Keypairs) CA() (*Keypair, error) {
 		if err != nil {
 			return nil, err
 		}
-		k.ca = keypair
+		k.ca = &CA{keypair: keypair}
 	}
 	return k.ca, nil
 }
