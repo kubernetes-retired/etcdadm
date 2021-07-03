@@ -95,7 +95,9 @@ type MutableKeypair interface {
 	MutateKeypair(mutator func(keypair *Keypair) error) (*Keypair, error)
 }
 
-func newCAKeypair(store MutableKeypair, config certutil.Config) (*Keypair, error) {
+func NewCA(s Store) (*CA, error) {
+	config := certutil.Config{CommonName: "ca"}
+	store := s.Keypair("ca")
 	p := config.CommonName
 
 	mutator := func(keypair *Keypair) error {
@@ -120,7 +122,7 @@ func newCAKeypair(store MutableKeypair, config certutil.Config) (*Keypair, error
 		return nil, err
 	}
 
-	return keypair, nil
+	return &CA{keypair: keypair}, nil
 }
 
 func ensureKeypair(store MutableKeypair, config certutil.Config, signer *CA) (*Keypair, error) {

@@ -50,16 +50,6 @@ func (k *Keypairs) EnsureKeypair(name string, config certutil.Config, signer *CA
 	return keypair, err
 }
 
-func NewCA(s Store) (*CA, error) {
-	caConfig := certutil.Config{CommonName: "ca"}
-	slot := s.Keypair("ca")
-	keypair, err := newCAKeypair(slot, caConfig)
-	if err != nil {
-		return nil, err
-	}
-	return &CA{keypair: keypair}, nil
-}
-
 func (k *Keypairs) CA() *CA {
 	return k.ca
 }
