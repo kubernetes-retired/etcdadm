@@ -330,11 +330,7 @@ func changeHost(urls []string, host string) []string {
 }
 
 func BuildTLSClientConfig(keypairs *pki.Keypairs, cn string) (*tls.Config, error) {
-	ca, err := keypairs.CA()
-	if err != nil {
-		return nil, err
-	}
-
+	ca := keypairs.CA()
 	caPool := ca.CertPool()
 
 	keypair, err := keypairs.EnsureKeypair("client", certutil.Config{

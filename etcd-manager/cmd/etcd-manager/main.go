@@ -377,13 +377,12 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 		}
 
 		store := pki.NewFSStore(o.PKIDir)
-		keypairs := &pki.Keypairs{Store: store}
-
 		ca, err := store.LoadCA("etcd-manager-ca")
 		if err != nil {
 			return err
 		}
-		keypairs.SetCA(ca)
+
+		keypairs := pki.NewKeypairs(store, ca)
 
 		grpcServerTLS, err = tlsconfig.GRPCServerConfig(keypairs, string(myPeerId))
 		if err != nil {

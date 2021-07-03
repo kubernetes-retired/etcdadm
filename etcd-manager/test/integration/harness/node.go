@@ -75,9 +75,7 @@ func (n *TestHarnessNode) Init() error {
 	}
 
 	if !n.InsecureMode && n.TestHarness.etcdClientsCA != nil {
-		store := pki.NewInMemoryStore()
-		keypairs := &pki.Keypairs{Store: store}
-		keypairs.SetCA(n.TestHarness.etcdClientsCA)
+		keypairs := pki.NewKeypairs(pki.NewInMemoryStore(), n.TestHarness.etcdClientsCA)
 
 		c, err := etcd.BuildTLSClientConfig(keypairs, string(uniqueID))
 		if err != nil {
@@ -135,8 +133,7 @@ func (n *TestHarnessNode) Run() {
 	var clientTLSConfig *tls.Config
 	if !n.InsecureMode {
 		store := pki.NewFSStore(filepath.Join(n.NodeDir, "pki"))
-		keypairs := &pki.Keypairs{Store: store}
-		keypairs.SetCA(n.TestHarness.grpcCA)
+		keypairs := pki.NewKeypairs(store, n.TestHarness.grpcCA)
 
 		serverTLSConfig, err = tlsconfig.GRPCServerConfig(keypairs, string(uniqueID))
 		if err != nil {

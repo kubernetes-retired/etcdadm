@@ -28,28 +28,23 @@ type Store interface {
 
 // Keypairs manages a set of keypairs, providing utilities for fetching / creating them
 type Keypairs struct {
-	Store Store
-
+	store Store
 	mutex sync.Mutex
 	ca    *CA
 }
 
-// SetCA allows the CA to be set (if it has not yet been generated)
-func (k *Keypairs) SetCA(ca *CA) {
-	k.mutex.Lock()
-	defer k.mutex.Unlock()
-
-	if k.ca != nil {
-		panic("SetCA called when CA already set")
+func NewKeypairs(store Store, ca *CA) *Keypairs {
+	return &Keypairs{
+		store: store,
+		ca:    ca,
 	}
-	k.ca = ca
 }
 
 func (k *Keypairs) EnsureKeypair(name string, config certutil.Config, signer *CA) (*Keypair, error) {
 	k.mutex.Lock()
 	defer k.mutex.Unlock()
 
-	slot := k.Store.Keypair(name)
+	slot := k.store.Keypair(name)
 	keypair, err := ensureKeypair(slot, config, signer)
 
 	return keypair, err
@@ -65,9 +60,6 @@ func NewCA(s Store) (*CA, error) {
 	return &CA{keypair: keypair}, nil
 }
 
-func (k *Keypairs) CA() (*CA, error) {
-	k.mutex.Lock()
-	defer k.mutex.Unlock()
-
-	return k.ca, nil
+func (k *Keypairs) CA() *CA {
+	return k.ca
 }
