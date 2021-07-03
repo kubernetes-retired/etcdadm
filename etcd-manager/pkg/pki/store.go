@@ -50,23 +50,24 @@ func (k *Keypairs) EnsureKeypair(name string, config certutil.Config, signer *CA
 	defer k.mutex.Unlock()
 
 	slot := k.Store.Keypair(name)
-	keypair, err := EnsureKeypair(slot, config, signer)
+	keypair, err := ensureKeypair(slot, config, signer)
 
 	return keypair, err
+}
+
+func NewCA(s Store) (*CA, error) {
+	caConfig := certutil.Config{CommonName: "ca"}
+	slot := s.Keypair("ca")
+	keypair, err := ensureKeypair(slot, caConfig, nil)
+	if err != nil {
+		return nil, err
+	}
+	return &CA{keypair: keypair}, nil
 }
 
 func (k *Keypairs) CA() (*CA, error) {
 	k.mutex.Lock()
 	defer k.mutex.Unlock()
 
-	if k.ca == nil {
-		caConfig := certutil.Config{CommonName: "ca"}
-		slot := k.Store.Keypair("ca")
-		keypair, err := EnsureKeypair(slot, caConfig, nil)
-		if err != nil {
-			return nil, err
-		}
-		k.ca = &CA{keypair: keypair}
-	}
 	return k.ca, nil
 }

@@ -95,12 +95,12 @@ type MutableKeypair interface {
 	MutateKeypair(mutator func(keypair *Keypair) error) (*Keypair, error)
 }
 
-func EnsureKeypair(store MutableKeypair, config certutil.Config, signer *CA) (*Keypair, error) {
+func ensureKeypair(store MutableKeypair, config certutil.Config, signer *CA) (*Keypair, error) {
 	p := config.CommonName
 
 	mutator := func(keypair *Keypair) error {
 		if keypair.PrivateKey == nil {
-			privateKey, err := NewPrivateKey()
+			privateKey, err := newPrivateKey()
 			if err != nil {
 				return fmt.Errorf("unable to create private key %q: %v", p, err)
 			}

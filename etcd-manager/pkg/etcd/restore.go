@@ -170,26 +170,14 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 		DisableTLS:              false,
 	}
 
-	var etcdClientsCA *pki.CA
-	{
-		store := pki.NewInMemoryStore()
-		keypairs := pki.Keypairs{Store: store}
-		ca, err := keypairs.CA()
-		if err != nil {
-			return nil, fmt.Errorf("error building CA: %v", err)
-		}
-		etcdClientsCA = ca
+	etcdClientsCA, err := pki.NewCA(pki.NewInMemoryStore())
+	if err != nil {
+		return nil, fmt.Errorf("error building CA: %v", err)
 	}
 
-	var etcdPeersCA *pki.CA
-	{
-		store := pki.NewInMemoryStore()
-		keypairs := pki.Keypairs{Store: store}
-		ca, err := keypairs.CA()
-		if err != nil {
-			return nil, fmt.Errorf("error building CA: %v", err)
-		}
-		etcdPeersCA = ca
+	etcdPeersCA, err := pki.NewCA(pki.NewInMemoryStore())
+	if err != nil {
+		return nil, fmt.Errorf("error building CA: %v", err)
 	}
 
 	var peerClientIPs []net.IP // We restore using a single localhost server, so no additional cert SANs needed
