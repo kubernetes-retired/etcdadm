@@ -95,6 +95,34 @@ type MutableKeypair interface {
 	MutateKeypair(mutator func(keypair *Keypair) error) (*Keypair, error)
 }
 
+func newCAKeypair(store MutableKeypair, config certutil.Config) (*Keypair, error) {
+	p := config.CommonName
+
+	mutator := func(keypair *Keypair) error {
+		privateKey, err := newPrivateKey()
+		if err != nil {
+			return fmt.Errorf("unable to create private key %q: %v", p, err)
+		}
+		keypair.PrivateKey = privateKey
+
+		klog.Infof("generating certificate for %q", p)
+		cert, err := certutil.NewSelfSignedCACert(config, keypair.PrivateKey)
+		if err != nil {
+			return fmt.Errorf("error signing certificate for %q: %v", p, err)
+		}
+		keypair.Certificate = cert
+
+		return nil
+	}
+
+	keypair, err := store.MutateKeypair(mutator)
+	if err != nil {
+		return nil, err
+	}
+
+	return keypair, nil
+}
+
 func ensureKeypair(store MutableKeypair, config certutil.Config, signer *CA) (*Keypair, error) {
 	p := config.CommonName
 
@@ -174,15 +202,7 @@ func ensureKeypair(store MutableKeypair, config certutil.Config, signer *CA) (*K
 
 		if keypair.Certificate == nil {
 			klog.Infof("generating certificate for %q", p)
-			var cert *x509.Certificate
-			var err error
-			if signer != nil {
-				duration := CertDuration
-				cert, err = newSignedCert(&config, keypair.PrivateKey, signer, duration)
-			} else {
-				cert, err = certutil.NewSelfSignedCACert(config, keypair.PrivateKey)
-			}
-
+			cert, err := newSignedCert(&config, keypair.PrivateKey, signer, CertDuration)
 			if err != nil {
 				return fmt.Errorf("error signing certificate for %q: %v", p, err)
 			}

@@ -53,7 +53,7 @@ func (k *Keypairs) EnsureKeypair(name string, config certutil.Config, signer *CA
 func NewCA(s Store) (*CA, error) {
 	caConfig := certutil.Config{CommonName: "ca"}
 	slot := s.Keypair("ca")
-	keypair, err := ensureKeypair(slot, caConfig, nil)
+	keypair, err := newCAKeypair(slot, caConfig)
 	if err != nil {
 		return nil, err
 	}
