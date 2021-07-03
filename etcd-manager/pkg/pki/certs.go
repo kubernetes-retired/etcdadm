@@ -37,7 +37,7 @@ import (
 // it to two years, with kubernetes LTS proposing one year's support.
 var CertDuration = 2 * 365 * 24 * time.Hour
 
-// CertRenewalMinTimeLeft is the minimum amount of validity required on
+// CertMinTimeLeft is the minimum amount of validity required on
 // a certificate to reuse it.  Because we set this (much) higher than
 // CertDuration, we will now always reissue certificates.
 var CertMinTimeLeft = 20 * 365 * 24 * time.Hour
@@ -87,10 +87,8 @@ func init() {
 }
 
 type Keypair struct {
-	Certificate    *x509.Certificate
-	CertificatePEM []byte
-	PrivateKey     *rsa.PrivateKey
-	PrivateKeyPEM  []byte
+	Certificate *x509.Certificate
+	PrivateKey  *rsa.PrivateKey
 }
 
 type MutableKeypair interface {
@@ -98,8 +96,6 @@ type MutableKeypair interface {
 }
 
 func EnsureKeypair(store MutableKeypair, config certutil.Config, signer *Keypair) (*Keypair, error) {
-	// TODO: Use the kops Keyset type
-
 	p := config.CommonName
 
 	mutator := func(keypair *Keypair) error {
@@ -108,9 +104,7 @@ func EnsureKeypair(store MutableKeypair, config certutil.Config, signer *Keypair
 			if err != nil {
 				return fmt.Errorf("unable to create private key %q: %v", p, err)
 			}
-			b := EncodePrivateKeyPEM(privateKey)
 			keypair.PrivateKey = privateKey
-			keypair.PrivateKeyPEM = b
 		}
 
 		if keypair.Certificate != nil {
@@ -175,7 +169,6 @@ func EnsureKeypair(store MutableKeypair, config certutil.Config, signer *Keypair
 
 			if !match {
 				keypair.Certificate = nil
-				keypair.CertificatePEM = nil
 			}
 		}
 
@@ -194,9 +187,7 @@ func EnsureKeypair(store MutableKeypair, config certutil.Config, signer *Keypair
 				return fmt.Errorf("error signing certificate for %q: %v", p, err)
 			}
 
-			b := EncodeCertPEM(cert)
 			keypair.Certificate = cert
-			keypair.CertificatePEM = b
 		}
 
 		return nil

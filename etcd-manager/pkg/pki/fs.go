@@ -17,31 +17,16 @@ limitations under the License.
 package pki
 
 import (
-	"bytes"
 	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
 	"k8s.io/client-go/util/keyutil"
-	"k8s.io/klog/v2"
 )
-
-func LoadCAFromDisk(dir string) (*Keypair, error) {
-	klog.Infof("Loading certificate authority from %v", dir)
-
-	keypair := &Keypair{}
-
-	if err := loadPrivateKey(filepath.Join(dir, "ca.key"), keypair); err != nil {
-		return nil, err
-	}
-	if err := loadCertificate(filepath.Join(dir, "ca.crt"), keypair); err != nil {
-		return nil, err
-	}
-
-	return keypair, nil
-}
 
 type MutableKeypairFromFile struct {
 	PrivateKeyPath  string
@@ -71,24 +56,15 @@ func (s *MutableKeypairFromFile) MutateKeypair(mutator func(keypair *Keypair) er
 		return nil, err
 	}
 
-	if !bytes.Equal(original.PrivateKeyPEM, keypair.PrivateKeyPEM) {
-		if err := os.MkdirAll(filepath.Dir(s.PrivateKeyPath), 0755); err != nil {
-			return nil, fmt.Errorf("error creating directories for private key file %q: %v", s.PrivateKeyPath, err)
-		}
-
-		if err := ioutil.WriteFile(s.PrivateKeyPath, keypair.PrivateKeyPEM, 0600); err != nil {
-			return nil, fmt.Errorf("error writing private key file %q: %v", s.PrivateKeyPath, err)
+	if original.PrivateKey == nil || !original.PrivateKey.Equal(keypair.PrivateKey) {
+		if err := writePrivateKey(s.PrivateKeyPath, keypair.PrivateKey); err != nil {
+			return nil, err
 		}
 	}
 
-	if !bytes.Equal(original.CertificatePEM, keypair.CertificatePEM) {
-		// TODO: Replace with simpler call to WriteCertificate?
-		if err := os.MkdirAll(filepath.Dir(s.CertificatePath), 0755); err != nil {
-			return nil, fmt.Errorf("error creating directories for certificate file %q: %v", s.CertificatePath, err)
-		}
-
-		if err := ioutil.WriteFile(s.CertificatePath, keypair.CertificatePEM, 0644); err != nil {
-			return nil, fmt.Errorf("error writing certificate key file %q: %v", s.CertificatePath, err)
+	if original.Certificate == nil || !original.Certificate.Equal(keypair.Certificate) {
+		if err := writeCertificate(s.CertificatePath, keypair.Certificate); err != nil {
+			return nil, err
 		}
 	}
 
@@ -114,15 +90,55 @@ func (s *FSStore) Keypair(name string) MutableKeypair {
 	}
 }
 
+func writePrivateKey(path string, privateKey *rsa.PrivateKey) error {
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		return fmt.Errorf("creating directories for private key file %q: %v", path, err)
+	}
+
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		return fmt.Errorf("opening private key file %q: %v", path, err)
+	}
+
+	err = pem.Encode(f, &pem.Block{Type: RSAPrivateKeyBlockType, Bytes: x509.MarshalPKCS1PrivateKey(privateKey)})
+	if err != nil {
+		_ = f.Close()
+		return fmt.Errorf("writing private key file %q: %v", path, err)
+	}
+
+	err = f.Close()
+	if err != nil {
+		return fmt.Errorf("closing private key file %q: %v", path, err)
+	}
+
+	return nil
+}
+
 func (s *FSStore) WriteCertificate(name string, keypair *Keypair) error {
 	p := filepath.Join(s.basedir, name+".crt")
 
-	if err := os.MkdirAll(filepath.Dir(p), 0755); err != nil {
-		return fmt.Errorf("error creating directories for certificate file %q: %v", p, err)
+	return writeCertificate(p, keypair.Certificate)
+}
+
+func writeCertificate(path string, certificate *x509.Certificate) error {
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		return fmt.Errorf("creating directories for certificate file %q: %v", path, err)
 	}
 
-	if err := ioutil.WriteFile(p, keypair.CertificatePEM, 0644); err != nil {
-		return fmt.Errorf("error writing certificate key file %q: %v", p, err)
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		return fmt.Errorf("opening certificate file %q: %v", path, err)
+	}
+
+	err = pem.Encode(f, &pem.Block{Type: CertificateBlockType, Bytes: certificate.Raw})
+	if err != nil {
+		_ = f.Close()
+		return fmt.Errorf("writing certificate file %q: %v", path, err)
+	}
+
+	err = f.Close()
+	if err != nil {
+		return fmt.Errorf("closing certificate file %q: %v", path, err)
 	}
 
 	return nil
@@ -160,7 +176,6 @@ func loadPrivateKey(privateKeyPath string, keypair *Keypair) error {
 			return fmt.Errorf("unexpected private key type in %q: %T", privateKeyPath, key)
 		}
 		keypair.PrivateKey = rsaKey
-		keypair.PrivateKeyPEM = privateKeyBytes
 	}
 
 	return nil
@@ -182,7 +197,6 @@ func loadCertificate(certificatePath string, keypair *Keypair) error {
 		}
 
 		keypair.Certificate = cert
-		keypair.CertificatePEM = certBytes
 	}
 
 	return nil
