@@ -17,3 +17,6 @@ bazel-testlogs
 
 # Release assets
 dist/
+
+# Don't ignore vendoring
+!vendor
