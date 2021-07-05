@@ -116,7 +116,7 @@ type leadershipState struct {
 }
 
 // NewEtcdController is the constructor for an EtcdController
-func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, backupInterval time.Duration, controlStore commands.Store, controlRefreshInterval time.Duration, clusterName string, dnsSuffix string, peers privateapi.Peers, etcdClientsCA *pki.Keypair, disableEtcdTLS bool) (*EtcdController, error) {
+func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, backupInterval time.Duration, controlStore commands.Store, controlRefreshInterval time.Duration, clusterName string, dnsSuffix string, peers privateapi.Peers, etcdClientsCA *pki.CA, disableEtcdTLS bool) (*EtcdController, error) {
 	if clusterName == "" {
 		return nil, fmt.Errorf("ClusterName is required")
 	}
@@ -135,9 +135,7 @@ func NewEtcdController(leaderLock locking.Lock, backupStore backup.Store, backup
 
 	// Generate a keypair & tls config for talking to etcd (as a client)
 	if etcdClientsCA != nil {
-		store := pki.NewInMemoryStore()
-		keypairs := &pki.Keypairs{Store: store}
-		keypairs.SetCA(etcdClientsCA)
+		keypairs := pki.NewKeypairs(pki.NewInMemoryStore(), etcdClientsCA)
 
 		cn := "etcd-manager-" + string(peers.MyPeerId())
 		c, err := etcd.BuildTLSClientConfig(keypairs, cn)

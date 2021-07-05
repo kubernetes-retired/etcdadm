@@ -66,7 +66,7 @@ type etcdProcess struct {
 	PKIPeersDir   string
 	PKIClientsDir string
 
-	etcdClientsCA *pki.Keypair
+	etcdClientsCA *pki.CA
 	// etcdClientTLSConfig is the tls.Config we can use to talk to the etcd process,
 	// including a client certificate & CA configuration (if needed)
 	etcdClientTLSConfig *tls.Config
@@ -330,18 +330,13 @@ func changeHost(urls []string, host string) []string {
 }
 
 func BuildTLSClientConfig(keypairs *pki.Keypairs, cn string) (*tls.Config, error) {
-	ca, err := keypairs.CA()
-	if err != nil {
-		return nil, err
-	}
-
-	caPool := x509.NewCertPool()
-	caPool.AddCert(ca.Certificate)
+	ca := keypairs.CA()
+	caPool := ca.CertPool()
 
 	keypair, err := keypairs.EnsureKeypair("client", certutil.Config{
 		CommonName: cn,
 		Usages:     []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
-	}, ca)
+	})
 	if err != nil {
 		return nil, err
 	}

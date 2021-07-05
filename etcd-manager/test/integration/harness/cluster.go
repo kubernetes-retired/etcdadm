@@ -39,9 +39,9 @@ const testCycleInterval = time.Second
 type TestHarness struct {
 	T *testing.T
 
-	grpcCA        *pki.Keypair
-	etcdClientsCA *pki.Keypair
-	etcdPeersCA   *pki.Keypair
+	grpcCA        *pki.CA
+	etcdClientsCA *pki.CA
+	etcdPeersCA   *pki.CA
 
 	ClusterName       string
 	LockPath          string
@@ -72,34 +72,19 @@ func NewTestHarness(t *testing.T, ctx context.Context) *TestHarness {
 		Context:     ctx,
 	}
 
-	{
-		store := pki.NewFSStore(filepath.Join(h.WorkDir, "pki/grpc"))
-		keypairs := pki.Keypairs{Store: store}
-		ca, err := keypairs.CA()
-		if err != nil {
-			t.Fatalf("error building CA: %v", err)
-		}
-		h.grpcCA = ca
+	h.grpcCA, err = pki.NewCA(pki.NewFSStore(filepath.Join(h.WorkDir, "pki/grpc")))
+	if err != nil {
+		t.Fatalf("error building CA: %v", err)
 	}
 
-	{
-		store := pki.NewFSStore(filepath.Join(h.WorkDir, "pki/clients"))
-		keypairs := pki.Keypairs{Store: store}
-		ca, err := keypairs.CA()
-		if err != nil {
-			t.Fatalf("error building CA: %v", err)
-		}
-		h.etcdClientsCA = ca
+	h.etcdClientsCA, err = pki.NewCA(pki.NewFSStore(filepath.Join(h.WorkDir, "pki/clients")))
+	if err != nil {
+		t.Fatalf("error building CA: %v", err)
 	}
 
-	{
-		store := pki.NewFSStore(filepath.Join(h.WorkDir, "pki/peers"))
-		keypairs := pki.Keypairs{Store: store}
-		ca, err := keypairs.CA()
-		if err != nil {
-			t.Fatalf("error building CA: %v", err)
-		}
-		h.etcdPeersCA = ca
+	h.etcdPeersCA, err = pki.NewCA(pki.NewFSStore(filepath.Join(h.WorkDir, "pki/peers")))
+	if err != nil {
+		t.Fatalf("error building CA: %v", err)
 	}
 
 	// To test with S3:

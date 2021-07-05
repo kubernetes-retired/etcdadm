@@ -29,19 +29,18 @@ import (
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/pki"
 )
 
-func (p *etcdProcess) createKeypairs(peersCA *pki.Keypair, clientsCA *pki.Keypair, pkiDir string, me *protoetcd.EtcdNode, peerClientIPs []net.IP) error {
+func (p *etcdProcess) createKeypairs(peersCA *pki.CA, clientsCA *pki.CA, pkiDir string, me *protoetcd.EtcdNode, peerClientIPs []net.IP) error {
 	if peersCA != nil {
 		peersDir := filepath.Join(pkiDir, "peers")
 		p.PKIPeersDir = peersDir
 
 		// Create a peer certificate
 		store := pki.NewFSStore(peersDir)
-		if err := store.WriteCertificate("ca", peersCA); err != nil {
+		if err := store.WriteCABundle(peersCA); err != nil {
 			return err
 		}
 
-		keypairs := pki.Keypairs{Store: store}
-		keypairs.SetCA(peersCA)
+		keypairs := pki.NewKeypairs(store, peersCA)
 
 		certConfig := certutil.Config{
 			CommonName: me.Name,
@@ -66,7 +65,7 @@ func (p *etcdProcess) createKeypairs(peersCA *pki.Keypair, clientsCA *pki.Keypai
 
 		klog.Infof("generating peer keypair for etcd: %+v", certConfig)
 
-		_, err := keypairs.EnsureKeypair("me", certConfig, peersCA)
+		_, err := keypairs.EnsureKeypair("me", certConfig)
 		if err != nil {
 			return err
 		}
@@ -82,12 +81,11 @@ func (p *etcdProcess) createKeypairs(peersCA *pki.Keypair, clientsCA *pki.Keypai
 
 		// Create a client certificate
 		store := pki.NewFSStore(clientsDir)
-		if err := store.WriteCertificate("ca", clientsCA); err != nil {
+		if err := store.WriteCABundle(clientsCA); err != nil {
 			return err
 		}
 
-		keypairs := pki.Keypairs{Store: store}
-		keypairs.SetCA(clientsCA)
+		keypairs := pki.NewKeypairs(store, clientsCA)
 
 		// The server cert is used by the gRPC library of etcd as a client cert for meta checks, like health
 		// See https://github.com/etcd-io/etcd/issues/9785
@@ -109,7 +107,7 @@ func (p *etcdProcess) createKeypairs(peersCA *pki.Keypair, clientsCA *pki.Keypai
 
 		klog.Infof("building client-serving certificate: %+v", certConfig)
 
-		_, err := keypairs.EnsureKeypair("server", certConfig, clientsCA)
+		_, err := keypairs.EnsureKeypair("server", certConfig)
 		if err != nil {
 			return err
 		}
@@ -118,9 +116,7 @@ func (p *etcdProcess) createKeypairs(peersCA *pki.Keypair, clientsCA *pki.Keypai
 	}
 
 	if clientsCA != nil {
-		store := pki.NewInMemoryStore()
-		keypairs := &pki.Keypairs{Store: store}
-		keypairs.SetCA(clientsCA)
+		keypairs := pki.NewKeypairs(pki.NewInMemoryStore(), clientsCA)
 
 		c, err := BuildTLSClientConfig(keypairs, me.Name)
 		if err != nil {

@@ -22,7 +22,6 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
-	"encoding/pem"
 	"fmt"
 	"math"
 	"math/big"
@@ -41,31 +40,15 @@ const (
 	rsaKeySize = 2048
 )
 
-// EncodeCertPEM returns PEM-endcoded certificate data
-func EncodeCertPEM(cert *x509.Certificate) []byte {
-	block := pem.Block{
-		Type:  CertificateBlockType,
-		Bytes: cert.Raw,
-	}
-	return pem.EncodeToMemory(&block)
-}
-
-// EncodePrivateKeyPEM returns PEM-encoded private key data
-func EncodePrivateKeyPEM(key *rsa.PrivateKey) []byte {
-	block := pem.Block{
-		Type:  RSAPrivateKeyBlockType,
-		Bytes: x509.MarshalPKCS1PrivateKey(key),
-	}
-	return pem.EncodeToMemory(&block)
-}
-
-// NewPrivateKey creates an RSA private key
-func NewPrivateKey() (*rsa.PrivateKey, error) {
+// newPrivateKey creates an RSA private key
+func newPrivateKey() (*rsa.PrivateKey, error) {
 	return rsa.GenerateKey(cryptorand.Reader, rsaKeySize)
 }
 
-// NewSignedCert creates a signed certificate using the given CA certificate and key
-func NewSignedCert(cfg *certutil.Config, key crypto.Signer, caCert *x509.Certificate, caKey crypto.Signer, duration time.Duration) (*x509.Certificate, error) {
+// newSignedCert creates a signed certificate using the given CA.
+func newSignedCert(cfg *certutil.Config, key crypto.Signer, ca *CA, duration time.Duration) (*x509.Certificate, error) {
+	caCert := ca.keypair.Certificate
+	caKey := ca.keypair.PrivateKey
 	serial, err := cryptorand.Int(cryptorand.Reader, new(big.Int).SetInt64(math.MaxInt64))
 	if err != nil {
 		return nil, err

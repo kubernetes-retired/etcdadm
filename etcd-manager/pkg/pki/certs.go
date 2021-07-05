@@ -37,7 +37,7 @@ import (
 // it to two years, with kubernetes LTS proposing one year's support.
 var CertDuration = 2 * 365 * 24 * time.Hour
 
-// CertRenewalMinTimeLeft is the minimum amount of validity required on
+// CertMinTimeLeft is the minimum amount of validity required on
 // a certificate to reuse it.  Because we set this (much) higher than
 // CertDuration, we will now always reissue certificates.
 var CertMinTimeLeft = 20 * 365 * 24 * time.Hour
@@ -87,30 +87,54 @@ func init() {
 }
 
 type Keypair struct {
-	Certificate    *x509.Certificate
-	CertificatePEM []byte
-	PrivateKey     *rsa.PrivateKey
-	PrivateKeyPEM  []byte
+	Certificate *x509.Certificate
+	PrivateKey  *rsa.PrivateKey
 }
 
 type MutableKeypair interface {
 	MutateKeypair(mutator func(keypair *Keypair) error) (*Keypair, error)
 }
 
-func EnsureKeypair(store MutableKeypair, config certutil.Config, signer *Keypair) (*Keypair, error) {
-	// TODO: Use the kops Keyset type
+func NewCA(s Store) (*CA, error) {
+	config := certutil.Config{CommonName: "ca"}
+	store := s.Keypair("ca")
+	p := config.CommonName
 
+	mutator := func(keypair *Keypair) error {
+		privateKey, err := newPrivateKey()
+		if err != nil {
+			return fmt.Errorf("unable to create private key %q: %v", p, err)
+		}
+		keypair.PrivateKey = privateKey
+
+		klog.Infof("generating certificate for %q", p)
+		cert, err := certutil.NewSelfSignedCACert(config, keypair.PrivateKey)
+		if err != nil {
+			return fmt.Errorf("error signing certificate for %q: %v", p, err)
+		}
+		keypair.Certificate = cert
+
+		return nil
+	}
+
+	keypair, err := store.MutateKeypair(mutator)
+	if err != nil {
+		return nil, err
+	}
+
+	return &CA{keypair: keypair}, nil
+}
+
+func ensureKeypair(store MutableKeypair, config certutil.Config, signer *CA) (*Keypair, error) {
 	p := config.CommonName
 
 	mutator := func(keypair *Keypair) error {
 		if keypair.PrivateKey == nil {
-			privateKey, err := NewPrivateKey()
+			privateKey, err := newPrivateKey()
 			if err != nil {
 				return fmt.Errorf("unable to create private key %q: %v", p, err)
 			}
-			b := EncodePrivateKeyPEM(privateKey)
 			keypair.PrivateKey = privateKey
-			keypair.PrivateKeyPEM = b
 		}
 
 		if keypair.Certificate != nil {
@@ -175,28 +199,17 @@ func EnsureKeypair(store MutableKeypair, config certutil.Config, signer *Keypair
 
 			if !match {
 				keypair.Certificate = nil
-				keypair.CertificatePEM = nil
 			}
 		}
 
 		if keypair.Certificate == nil {
 			klog.Infof("generating certificate for %q", p)
-			var cert *x509.Certificate
-			var err error
-			if signer != nil {
-				duration := CertDuration
-				cert, err = NewSignedCert(&config, keypair.PrivateKey, signer.Certificate, signer.PrivateKey, duration)
-			} else {
-				cert, err = certutil.NewSelfSignedCACert(config, keypair.PrivateKey)
-			}
-
+			cert, err := newSignedCert(&config, keypair.PrivateKey, signer, CertDuration)
 			if err != nil {
 				return fmt.Errorf("error signing certificate for %q: %v", p, err)
 			}
 
-			b := EncodeCertPEM(cert)
 			keypair.Certificate = cert
-			keypair.CertificatePEM = b
 		}
 
 		return nil
