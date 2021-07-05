@@ -31,7 +31,7 @@ func GRPCClientConfig(keypairs *pki.Keypairs, myPeerID string) (*tls.Config, err
 	keypair, err := keypairs.EnsureKeypair("etcd-manager-client-"+myPeerID, certutil.Config{
 		CommonName: "etcd-manager-client-" + myPeerID,
 		Usages:     []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
-	}, ca)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func GRPCServerConfig(keypairs *pki.Keypairs, myPeerID string) (*tls.Config, err
 		Usages: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 	}
 
-	keypair, err := keypairs.EnsureKeypair("etcd-manager-server-"+myPeerID, config, ca)
+	keypair, err := keypairs.EnsureKeypair("etcd-manager-server-"+myPeerID, config)
 	if err != nil {
 		return nil, err
 	}

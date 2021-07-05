@@ -65,7 +65,7 @@ func (p *etcdProcess) createKeypairs(peersCA *pki.CA, clientsCA *pki.CA, pkiDir 
 
 		klog.Infof("generating peer keypair for etcd: %+v", certConfig)
 
-		_, err := keypairs.EnsureKeypair("me", certConfig, peersCA)
+		_, err := keypairs.EnsureKeypair("me", certConfig)
 		if err != nil {
 			return err
 		}
@@ -107,7 +107,7 @@ func (p *etcdProcess) createKeypairs(peersCA *pki.CA, clientsCA *pki.CA, pkiDir 
 
 		klog.Infof("building client-serving certificate: %+v", certConfig)
 
-		_, err := keypairs.EnsureKeypair("server", certConfig, clientsCA)
+		_, err := keypairs.EnsureKeypair("server", certConfig)
 		if err != nil {
 			return err
 		}

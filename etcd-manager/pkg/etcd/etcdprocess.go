@@ -336,7 +336,7 @@ func BuildTLSClientConfig(keypairs *pki.Keypairs, cn string) (*tls.Config, error
 	keypair, err := keypairs.EnsureKeypair("client", certutil.Config{
 		CommonName: cn,
 		Usages:     []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
-	}, ca)
+	})
 	if err != nil {
 		return nil, err
 	}

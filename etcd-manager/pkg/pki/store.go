@@ -40,12 +40,12 @@ func NewKeypairs(store Store, ca *CA) *Keypairs {
 	}
 }
 
-func (k *Keypairs) EnsureKeypair(name string, config certutil.Config, signer *CA) (*Keypair, error) {
+func (k *Keypairs) EnsureKeypair(name string, config certutil.Config) (*Keypair, error) {
 	k.mutex.Lock()
 	defer k.mutex.Unlock()
 
 	slot := k.store.Keypair(name)
-	keypair, err := ensureKeypair(slot, config, signer)
+	keypair, err := ensureKeypair(slot, config, k.ca)
 
 	return keypair, err
 }
