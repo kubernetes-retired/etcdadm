@@ -17,15 +17,20 @@ limitations under the License.
 package pki
 
 import (
+	"crypto/rsa"
 	"crypto/x509"
 )
 
 type CA struct {
-	keypair *Keypair
+	primaryCertificate *x509.Certificate
+	privateKey         *rsa.PrivateKey
+	certificates       []*x509.Certificate
 }
 
 func (c *CA) CertPool() *x509.CertPool {
 	pool := x509.NewCertPool()
-	pool.AddCert(c.keypair.Certificate)
+	for _, cert := range c.certificates {
+		pool.AddCert(cert)
+	}
 	return pool
 }

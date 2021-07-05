@@ -47,8 +47,8 @@ func newPrivateKey() (*rsa.PrivateKey, error) {
 
 // newSignedCert creates a signed certificate using the given CA.
 func newSignedCert(cfg *certutil.Config, key crypto.Signer, ca *CA, duration time.Duration) (*x509.Certificate, error) {
-	caCert := ca.keypair.Certificate
-	caKey := ca.keypair.PrivateKey
+	caCert := ca.primaryCertificate
+	caKey := ca.privateKey
 	serial, err := cryptorand.Int(cryptorand.Reader, new(big.Int).SetInt64(math.MaxInt64))
 	if err != nil {
 		return nil, err

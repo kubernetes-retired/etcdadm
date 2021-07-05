@@ -17,6 +17,7 @@ limitations under the License.
 package pki
 
 import (
+	"bytes"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
@@ -24,7 +25,9 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 
+	certutil "k8s.io/client-go/util/cert"
 	"k8s.io/client-go/util/keyutil"
 )
 
@@ -37,7 +40,9 @@ var _ MutableKeypair = &MutableKeypairFromFile{}
 
 func (s *MutableKeypairFromFile) MutateKeypair(mutator func(keypair *Keypair) error) (*Keypair, error) {
 	keypair := &Keypair{}
-	if err := loadPrivateKey(s.PrivateKeyPath, keypair); err != nil {
+	var err error
+	keypair.PrivateKey, err = loadPrivateKey(s.PrivateKeyPath)
+	if err != nil {
 		if !os.IsNotExist(err) {
 			return nil, err
 		}
@@ -63,7 +68,7 @@ func (s *MutableKeypairFromFile) MutateKeypair(mutator func(keypair *Keypair) er
 	}
 
 	if original.Certificate == nil || !original.Certificate.Equal(keypair.Certificate) {
-		if err := writeCertificate(s.CertificatePath, keypair.Certificate); err != nil {
+		if err := writeCertificates(s.CertificatePath, keypair.Certificate); err != nil {
 			return nil, err
 		}
 	}
@@ -117,10 +122,10 @@ func writePrivateKey(path string, privateKey *rsa.PrivateKey) error {
 func (s *FSStore) WriteCABundle(ca *CA) error {
 	p := filepath.Join(s.basedir, "ca.crt")
 
-	return writeCertificate(p, ca.keypair.Certificate)
+	return writeCertificates(p, ca.certificates...)
 }
 
-func writeCertificate(path string, certificate *x509.Certificate) error {
+func writeCertificates(path string, certificates ...*x509.Certificate) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 		return fmt.Errorf("creating directories for certificate file %q: %v", path, err)
 	}
@@ -130,10 +135,12 @@ func writeCertificate(path string, certificate *x509.Certificate) error {
 		return fmt.Errorf("opening certificate file %q: %v", path, err)
 	}
 
-	err = pem.Encode(f, &pem.Block{Type: CertificateBlockType, Bytes: certificate.Raw})
-	if err != nil {
-		_ = f.Close()
-		return fmt.Errorf("writing certificate file %q: %v", path, err)
+	for _, cert := range certificates {
+		err = pem.Encode(f, &pem.Block{Type: CertificateBlockType, Bytes: cert.Raw})
+		if err != nil {
+			_ = f.Close()
+			return fmt.Errorf("writing certificate file %q: %v", path, err)
+		}
 	}
 
 	err = f.Close()
@@ -145,40 +152,61 @@ func writeCertificate(path string, certificate *x509.Certificate) error {
 }
 
 func (s *FSStore) LoadCA(name string) (*CA, error) {
-	keypair := &Keypair{}
-	if err := loadPrivateKey(filepath.Join(s.basedir, name+".key"), keypair); err != nil {
+	ca := &CA{}
+	var err error
+	ca.privateKey, err = loadPrivateKey(filepath.Join(s.basedir, name+".key"))
+	if err != nil {
 		return nil, err
 	}
-	if err := loadCertificate(filepath.Join(s.basedir, name+".crt"), keypair); err != nil {
+
+	ca.certificates, err = loadCertificateBundle(filepath.Join(s.basedir, name+".crt"))
+	if err != nil {
 		return nil, err
 	}
-	return &CA{keypair: keypair}, nil
+
+	sort.Slice(ca.certificates, func(i, j int) bool {
+		return bytes.Compare(ca.certificates[i].Raw, ca.certificates[j].Raw) < 0
+	})
+
+	publicKey := ca.privateKey.PublicKey
+	for _, cert := range ca.certificates {
+		if publicKey.Equal(cert.PublicKey) {
+			ca.primaryCertificate = cert
+			break
+		}
+	}
+
+	if ca.primaryCertificate == nil {
+		return nil, fmt.Errorf("did not find certificate for private key %s", name)
+	}
+
+	return ca, nil
 }
 
-func loadPrivateKey(privateKeyPath string, keypair *Keypair) error {
+func loadPrivateKey(privateKeyPath string) (*rsa.PrivateKey, error) {
 	privateKeyBytes, err := ioutil.ReadFile(privateKeyPath)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			return fmt.Errorf("unable to read key %v: %v", privateKeyPath, err)
+			return nil, fmt.Errorf("unable to read key %v: %v", privateKeyPath, err)
 		} else {
-			return err
+			return nil, err
 		}
 	}
 
 	if privateKeyBytes != nil {
 		key, err := keyutil.ParsePrivateKeyPEM(privateKeyBytes)
 		if err != nil {
-			return fmt.Errorf("unable to parse private key %q: %v", privateKeyPath, err)
+			return nil, fmt.Errorf("unable to parse private key %q: %v", privateKeyPath, err)
 		}
 
 		rsaKey, ok := key.(*rsa.PrivateKey)
 		if !ok {
-			return fmt.Errorf("unexpected private key type in %q: %T", privateKeyPath, key)
+			return nil, fmt.Errorf("unexpected private key type in %q: %T", privateKeyPath, key)
 		}
-		keypair.PrivateKey = rsaKey
+		return rsaKey, nil
 	}
 
-	return nil
+	return nil, nil
 }
 
 func loadCertificate(certificatePath string, keypair *Keypair) error {
@@ -200,4 +228,25 @@ func loadCertificate(certificatePath string, keypair *Keypair) error {
 	}
 
 	return nil
+}
+
+func loadCertificateBundle(certificatePath string) ([]*x509.Certificate, error) {
+	certBytes, err := ioutil.ReadFile(certificatePath)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return nil, fmt.Errorf("unable to read certificate %v: %v", certificatePath, err)
+		}
+		certBytes = nil
+	}
+
+	if certBytes != nil {
+		certs, err := certutil.ParseCertsPEM(certBytes)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing certificate data in %q: %v", certificatePath, err)
+		}
+
+		return certs, nil
+	}
+
+	return nil, nil
 }
