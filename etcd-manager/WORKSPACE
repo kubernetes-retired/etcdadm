@@ -216,6 +216,18 @@ go_repository(
     build_file_proto_mode = "disable_global",
 )
 
+http_file(
+    name = "etcd_3.5.0_amd64_tar",
+    sha256 = "864baa0437f8368e0713d44b83afe21dce1fb4ee7dae4ca0f9dd5f0df22d01c4",
+    urls = ["https://github.com/etcd-io/etcd/releases/download/v3.5.0/etcd-v3.5.0-linux-amd64.tar.gz"],
+)
+
+http_file(
+    name = "etcd_3.5.0_arm64_tar",
+    sha256 = "444e10e6880595d75aaf55762901c722049b29d56fef50b2f23464bb7f9db74d",
+    urls = ["https://github.com/etcd-io/etcd/releases/download/v3.5.0/etcd-v3.5.0-linux-arm64.tar.gz"],
+)
+
 #=============================================================================
 
 http_file(

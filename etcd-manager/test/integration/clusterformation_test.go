@@ -77,7 +77,7 @@ func TestClusterWithThreeMembers(t *testing.T) {
 	defer cancel()
 
 	h := harness.NewTestHarness(t, ctx)
-	h.SeedNewCluster(&protoetcd.ClusterSpec{MemberCount: 3, EtcdVersion: "3.4.13"})
+	h.SeedNewCluster(&protoetcd.ClusterSpec{MemberCount: 3, EtcdVersion: "3.5.0"})
 	defer h.Close()
 
 	n1 := h.NewNode("127.0.0.1")
@@ -107,7 +107,7 @@ func TestClusterExpansion(t *testing.T) {
 	defer cancel()
 
 	h := harness.NewTestHarness(t, ctx)
-	h.SeedNewCluster(&protoetcd.ClusterSpec{MemberCount: 3, EtcdVersion: "3.4.13"})
+	h.SeedNewCluster(&protoetcd.ClusterSpec{MemberCount: 3, EtcdVersion: "3.5.0"})
 	defer h.Close()
 
 	n1 := h.NewNode("127.0.0.1")
@@ -159,7 +159,7 @@ func TestWeOnlyFormASingleCluster(t *testing.T) {
 	defer cancel()
 
 	h := harness.NewTestHarness(t, ctx)
-	h.SeedNewCluster(&protoetcd.ClusterSpec{MemberCount: 1, EtcdVersion: "3.4.13"})
+	h.SeedNewCluster(&protoetcd.ClusterSpec{MemberCount: 1, EtcdVersion: "3.5.0"})
 	defer h.Close()
 
 	n1 := h.NewNode("127.0.0.1")
