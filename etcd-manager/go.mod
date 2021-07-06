@@ -37,7 +37,7 @@ require (
 	github.com/Azure/go-autorest/autorest/to v0.4.0
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1059
 	github.com/aws/aws-sdk-go v1.38.29
-	github.com/blang/semver v3.5.1+incompatible
+	github.com/blang/semver/v4 v4.0.0
 	github.com/digitalocean/godo v1.60.0
 	github.com/golang/protobuf v1.5.2
 	github.com/gophercloud/gophercloud v0.18.0

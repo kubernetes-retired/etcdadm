@@ -9,7 +9,7 @@ go_library(
         "sort.go",
         "sql.go",
     ],
-    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/blang/semver",
-    importpath = "github.com/blang/semver",
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/blang/semver/v4",
+    importpath = "github.com/blang/semver/v4",
     visibility = ["//visibility:public"],
 )
