@@ -7,9 +7,9 @@ go_library(
     importpath = "honnef.co/go/tools/cmd/staticcheck",
     visibility = ["//visibility:private"],
     deps = [
-        "//vendor/golang.org/x/tools/go/analysis",
-        "//vendor/honnef.co/go/tools/lint",
-        "//vendor/honnef.co/go/tools/lint/lintutil",
+        "//vendor/honnef.co/go/tools/lintcmd",
+        "//vendor/honnef.co/go/tools/lintcmd/version",
+        "//vendor/honnef.co/go/tools/quickfix",
         "//vendor/honnef.co/go/tools/simple",
         "//vendor/honnef.co/go/tools/staticcheck",
         "//vendor/honnef.co/go/tools/stylecheck",
