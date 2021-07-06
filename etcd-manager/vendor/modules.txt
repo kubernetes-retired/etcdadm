@@ -496,7 +496,6 @@ gopkg.in/square/go-jose.v2/jwt
 # gopkg.in/warnings.v0 v0.1.2
 gopkg.in/warnings.v0
 # gopkg.in/yaml.v2 v2.4.0
-## explicit
 gopkg.in/yaml.v2
 # honnef.co/go/tools v0.2.0
 ## explicit
@@ -561,6 +560,9 @@ k8s.io/utils/exec
 k8s.io/utils/io
 k8s.io/utils/keymutex
 k8s.io/utils/nsenter
+# sigs.k8s.io/yaml v1.2.0
+## explicit
+sigs.k8s.io/yaml
 # k8s.io/api => k8s.io/api v0.21.1
 # k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.21.1
 # k8s.io/apimachinery => k8s.io/apimachinery v0.21.1
