@@ -37,7 +37,7 @@ require (
 	github.com/Azure/go-autorest/autorest/to v0.4.0
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1059
 	github.com/aws/aws-sdk-go v1.38.29
-	github.com/blang/semver v3.5.1+incompatible
+	github.com/blang/semver/v4 v4.0.0
 	github.com/digitalocean/godo v1.60.0
 	github.com/golang/protobuf v1.5.2
 	github.com/gophercloud/gophercloud v0.18.0
@@ -51,7 +51,6 @@ require (
 	google.golang.org/api v0.45.0
 	google.golang.org/grpc v1.38.0
 	gopkg.in/gcfg.v1 v1.2.3
-	gopkg.in/yaml.v2 v2.4.0
 	honnef.co/go/tools v0.2.0
 	k8s.io/apimachinery v0.21.1
 	k8s.io/client-go v0.21.1
@@ -59,4 +58,5 @@ require (
 	k8s.io/kops v1.21.0
 	k8s.io/mount-utils v0.21.1
 	k8s.io/utils v0.0.0-20210629042839-4a2b36d8d73f
+	sigs.k8s.io/yaml v1.2.0
 )

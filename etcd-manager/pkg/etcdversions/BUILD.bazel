@@ -6,7 +6,7 @@ go_library(
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdversions",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/blang/semver",
+        "//vendor/github.com/blang/semver/v4:semver",
         "//vendor/k8s.io/klog/v2:klog",
     ],
 )

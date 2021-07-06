@@ -9,7 +9,7 @@ go_library(
         "//pkg/apis/etcd",
         "//pkg/commands",
         "//pkg/etcdversions",
-        "//vendor/gopkg.in/yaml.v2:yaml_v2",
         "//vendor/k8s.io/klog/v2:klog",
+        "//vendor/sigs.k8s.io/yaml",
     ],
 )
