@@ -30,8 +30,6 @@ replace (
 	k8s.io/sample-apiserver => k8s.io/sample-apiserver v0.21.1
 )
 
-replace google.golang.org/grpc => google.golang.org/grpc v1.29.1
-
 require (
 	cloud.google.com/go v0.81.0
 	github.com/Azure/azure-sdk-for-go v53.4.0+incompatible
