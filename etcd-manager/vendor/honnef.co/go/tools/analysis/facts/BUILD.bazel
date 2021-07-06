@@ -1,0 +1,22 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "facts",
+    srcs = [
+        "deprecated.go",
+        "directives.go",
+        "generated.go",
+        "purity.go",
+        "token.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/honnef.co/go/tools/analysis/facts",
+    importpath = "honnef.co/go/tools/analysis/facts",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/golang.org/x/tools/go/analysis",
+        "//vendor/honnef.co/go/tools/analysis/lint",
+        "//vendor/honnef.co/go/tools/go/ir",
+        "//vendor/honnef.co/go/tools/go/ir/irutil",
+        "//vendor/honnef.co/go/tools/internal/passes/buildir",
+    ],
+)

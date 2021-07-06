@@ -1,0 +1,24 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "runner",
+    srcs = [
+        "runner.go",
+        "stats.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/honnef.co/go/tools/lintcmd/runner",
+    importpath = "honnef.co/go/tools/lintcmd/runner",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/golang.org/x/tools/go/analysis",
+        "//vendor/golang.org/x/tools/go/packages",
+        "//vendor/golang.org/x/tools/go/types/objectpath",
+        "//vendor/honnef.co/go/tools/analysis/lint",
+        "//vendor/honnef.co/go/tools/analysis/report",
+        "//vendor/honnef.co/go/tools/config",
+        "//vendor/honnef.co/go/tools/go/loader",
+        "//vendor/honnef.co/go/tools/internal/cache",
+        "//vendor/honnef.co/go/tools/internal/sync",
+        "//vendor/honnef.co/go/tools/unused",
+    ],
+)

@@ -13,10 +13,14 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//vendor/golang.org/x/tools/go/analysis",
-        "//vendor/honnef.co/go/tools/code",
+        "//vendor/honnef.co/go/tools/analysis/code",
+        "//vendor/honnef.co/go/tools/analysis/facts",
+        "//vendor/honnef.co/go/tools/analysis/lint",
+        "//vendor/honnef.co/go/tools/analysis/report",
+        "//vendor/honnef.co/go/tools/go/ast/astutil",
+        "//vendor/honnef.co/go/tools/go/ir",
         "//vendor/honnef.co/go/tools/go/types/typeutil",
         "//vendor/honnef.co/go/tools/internal/passes/buildir",
-        "//vendor/honnef.co/go/tools/ir",
-        "//vendor/honnef.co/go/tools/lint",
+        "//vendor/honnef.co/go/tools/unused/typemap",
     ],
 )

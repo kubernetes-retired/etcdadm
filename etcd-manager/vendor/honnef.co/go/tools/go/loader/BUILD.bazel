@@ -1,0 +1,20 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "loader",
+    srcs = [
+        "buildid.go",
+        "hash.go",
+        "loader.go",
+        "note.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/honnef.co/go/tools/go/loader",
+    importpath = "honnef.co/go/tools/go/loader",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/golang.org/x/tools/go/packages",
+        "//vendor/honnef.co/go/tools/config",
+        "//vendor/honnef.co/go/tools/internal/cache",
+        "//vendor/honnef.co/go/tools/internal/go/gcimporter",
+    ],
+)

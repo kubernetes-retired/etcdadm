@@ -1,0 +1,9 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "sync",
+    srcs = ["sync.go"],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/honnef.co/go/tools/internal/sync",
+    importpath = "honnef.co/go/tools/internal/sync",
+    visibility = ["//vendor/honnef.co/go/tools:__subpackages__"],
+)

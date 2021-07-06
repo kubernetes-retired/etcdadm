@@ -1,0 +1,15 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "nilness",
+    srcs = ["nilness.go"],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/honnef.co/go/tools/analysis/facts/nilness",
+    importpath = "honnef.co/go/tools/analysis/facts/nilness",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/golang.org/x/tools/go/analysis",
+        "//vendor/honnef.co/go/tools/go/ir",
+        "//vendor/honnef.co/go/tools/go/types/typeutil",
+        "//vendor/honnef.co/go/tools/internal/passes/buildir",
+    ],
+)

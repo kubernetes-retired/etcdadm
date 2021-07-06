@@ -3,12 +3,12 @@ package simple
 import (
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
-	"honnef.co/go/tools/facts"
+	"honnef.co/go/tools/analysis/facts"
+	"honnef.co/go/tools/analysis/lint"
 	"honnef.co/go/tools/internal/passes/buildir"
-	"honnef.co/go/tools/lint/lintutil"
 )
 
-var Analyzers = lintutil.InitializeAnalyzers(Docs, map[string]*analysis.Analyzer{
+var Analyzers = lint.InitializeAnalyzers(Docs, map[string]*analysis.Analyzer{
 	"S1000": {
 		Run:      CheckSingleCaseSelect,
 		Requires: []*analysis.Analyzer{inspect.Analyzer, facts.Generated},
@@ -143,6 +143,10 @@ var Analyzers = lintutil.InitializeAnalyzers(Docs, map[string]*analysis.Analyzer
 	},
 	"S1039": {
 		Run:      CheckSprintLiteral,
+		Requires: []*analysis.Analyzer{inspect.Analyzer, facts.Generated},
+	},
+	"S1040": {
+		Run:      CheckSameTypeTypeAssertion,
 		Requires: []*analysis.Analyzer{inspect.Analyzer, facts.Generated},
 	},
 })

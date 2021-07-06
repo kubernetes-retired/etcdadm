@@ -1,0 +1,23 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "irutil",
+    srcs = [
+        "load.go",
+        "loops.go",
+        "stub.go",
+        "switch.go",
+        "terminates.go",
+        "util.go",
+        "visit.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/honnef.co/go/tools/go/ir/irutil",
+    importpath = "honnef.co/go/tools/go/ir/irutil",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/golang.org/x/tools/go/loader",
+        "//vendor/golang.org/x/tools/go/packages",
+        "//vendor/honnef.co/go/tools/go/ir",
+        "//vendor/honnef.co/go/tools/go/types/typeutil",
+    ],
+)

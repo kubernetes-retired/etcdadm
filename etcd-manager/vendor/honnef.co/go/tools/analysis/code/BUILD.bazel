@@ -1,0 +1,21 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "code",
+    srcs = [
+        "code.go",
+        "visit.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/honnef.co/go/tools/analysis/code",
+    importpath = "honnef.co/go/tools/analysis/code",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/golang.org/x/tools/go/analysis",
+        "//vendor/golang.org/x/tools/go/analysis/passes/inspect",
+        "//vendor/golang.org/x/tools/go/ast/inspector",
+        "//vendor/honnef.co/go/tools/analysis/facts",
+        "//vendor/honnef.co/go/tools/go/ast/astutil",
+        "//vendor/honnef.co/go/tools/go/types/typeutil",
+        "//vendor/honnef.co/go/tools/pattern",
+    ],
+)
