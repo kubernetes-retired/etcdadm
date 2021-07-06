@@ -1,0 +1,10 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "srv",
+    srcs = ["srv.go"],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/go.etcd.io/etcd/client/pkg/v3/srv",
+    importpath = "go.etcd.io/etcd/client/pkg/v3/srv",
+    visibility = ["//visibility:public"],
+    deps = ["//vendor/go.etcd.io/etcd/client/pkg/v3/types"],
+)

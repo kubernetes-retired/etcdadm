@@ -12,10 +12,10 @@ go_library(
     importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdclient",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/go.etcd.io/etcd/client",
-        "//vendor/go.etcd.io/etcd/clientv3",
-        "//vendor/go.etcd.io/etcd/pkg/pathutil",
-        "//vendor/go.etcd.io/etcd/version",
+        "//vendor/go.etcd.io/etcd/api/v3/version",
+        "//vendor/go.etcd.io/etcd/client/pkg/v3/pathutil",
+        "//vendor/go.etcd.io/etcd/client/v2:client",
+        "//vendor/go.etcd.io/etcd/client/v3:client",
         "//vendor/k8s.io/klog/v2:klog",
     ],
 )

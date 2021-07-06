@@ -22,8 +22,8 @@ import (
 	"net/http"
 	"net/url"
 
-	etcd_client_v2 "go.etcd.io/etcd/client"
-	"go.etcd.io/etcd/pkg/pathutil"
+	"go.etcd.io/etcd/client/pkg/v3/pathutil"
+	etcd_client_v2 "go.etcd.io/etcd/client/v2"
 	"k8s.io/klog/v2"
 )
 

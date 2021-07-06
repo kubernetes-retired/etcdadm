@@ -25,7 +25,7 @@ import (
 	"strings"
 	"time"
 
-	etcd_client_v2 "go.etcd.io/etcd/client"
+	etcd_client_v2 "go.etcd.io/etcd/client/v2"
 	"k8s.io/klog/v2"
 )
 
