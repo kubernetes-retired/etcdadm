@@ -1,14 +1,9 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_test")
 
 go_test(
-    name = "integration_test",
+    name = "upgradedowngrade_test",
     size = "enormous",  # Takes more than 900 seconds to run on travis
-    srcs = [
-        "clusterformation_test.go",
-        "datapersists_test.go",
-        "etcdinstalled_test.go",
-        "resize_cluster_test.go",
-    ],
+    srcs = ["upgradedowngrade_test.go"],
     data = [
         "//:etcd-v3.1.12-linux-amd64_etcd",
         "//:etcd-v3.1.12-linux-amd64_etcdctl",
@@ -33,7 +28,6 @@ go_test(
     ],
     deps = [
         "//pkg/apis/etcd",
-        "//pkg/etcd",
         "//pkg/etcdversions",
         "//test/integration/harness",
         "//vendor/k8s.io/klog/v2:klog",
