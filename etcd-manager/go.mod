@@ -30,8 +30,6 @@ replace (
 	k8s.io/sample-apiserver => k8s.io/sample-apiserver v0.21.1
 )
 
-replace google.golang.org/grpc => google.golang.org/grpc v1.29.1
-
 require (
 	cloud.google.com/go v0.81.0
 	github.com/Azure/azure-sdk-for-go v53.4.0+incompatible
@@ -43,12 +41,15 @@ require (
 	github.com/digitalocean/godo v1.60.0
 	github.com/golang/protobuf v1.5.2
 	github.com/gophercloud/gophercloud v0.18.0
-	github.com/prometheus/client_golang v1.10.0
-	go.etcd.io/etcd v0.5.0-alpha.5.0.20200910180754-dd1b699fc489
+	github.com/prometheus/client_golang v1.11.0
+	go.etcd.io/etcd/api/v3 v3.5.0
+	go.etcd.io/etcd/client/pkg/v3 v3.5.0
+	go.etcd.io/etcd/client/v2 v2.305.0
+	go.etcd.io/etcd/client/v3 v3.5.0
 	golang.org/x/net v0.0.0-20210525063256-abc453219eb5
 	golang.org/x/oauth2 v0.0.0-20210514164344-f6687ab2804c
 	google.golang.org/api v0.45.0
-	google.golang.org/grpc v1.37.0
+	google.golang.org/grpc v1.38.0
 	gopkg.in/gcfg.v1 v1.2.3
 	gopkg.in/yaml.v2 v2.4.0
 	honnef.co/go/tools v0.2.0

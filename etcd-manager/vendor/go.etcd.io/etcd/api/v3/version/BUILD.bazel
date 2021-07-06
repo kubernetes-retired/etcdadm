@@ -1,0 +1,10 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "version",
+    srcs = ["version.go"],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/go.etcd.io/etcd/api/v3/version",
+    importpath = "go.etcd.io/etcd/api/v3/version",
+    visibility = ["//visibility:public"],
+    deps = ["//vendor/github.com/coreos/go-semver/semver"],
+)

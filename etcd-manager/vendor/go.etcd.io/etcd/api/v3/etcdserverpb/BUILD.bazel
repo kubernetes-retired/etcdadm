@@ -1,0 +1,25 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "etcdserverpb",
+    srcs = [
+        "etcdserver.pb.go",
+        "raft_internal.pb.go",
+        "raft_internal_stringer.go",
+        "rpc.pb.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/go.etcd.io/etcd/api/v3/etcdserverpb",
+    importpath = "go.etcd.io/etcd/api/v3/etcdserverpb",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/gogo/protobuf/gogoproto",
+        "//vendor/github.com/golang/protobuf/proto",
+        "//vendor/go.etcd.io/etcd/api/v3/authpb",
+        "//vendor/go.etcd.io/etcd/api/v3/membershippb",
+        "//vendor/go.etcd.io/etcd/api/v3/mvccpb",
+        "//vendor/google.golang.org/genproto/googleapis/api/annotations",
+        "//vendor/google.golang.org/grpc",
+        "//vendor/google.golang.org/grpc/codes",
+        "//vendor/google.golang.org/grpc/status",
+    ],
+)

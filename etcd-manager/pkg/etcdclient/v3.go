@@ -30,8 +30,8 @@ import (
 	"strings"
 	"time"
 
-	etcd_client_v3 "go.etcd.io/etcd/clientv3"
-	"go.etcd.io/etcd/version"
+	"go.etcd.io/etcd/api/v3/version"
+	etcd_client_v3 "go.etcd.io/etcd/client/v3"
 	"k8s.io/klog/v2"
 )
 
