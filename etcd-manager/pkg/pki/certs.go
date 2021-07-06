@@ -122,7 +122,12 @@ func NewCA(s Store) (*CA, error) {
 		return nil, err
 	}
 
-	return &CA{keypair: keypair}, nil
+	ca := &CA{
+		primaryCertificate: keypair.Certificate,
+		privateKey:         keypair.PrivateKey,
+		certificates:       []*x509.Certificate{keypair.Certificate},
+	}
+	return ca, nil
 }
 
 func ensureKeypair(store MutableKeypair, config certutil.Config, signer *CA) (*Keypair, error) {
