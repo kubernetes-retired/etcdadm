@@ -37,8 +37,8 @@ type EtcdProcessMember struct {
 	idv3 uint64
 }
 
-func (m *EtcdProcessMember) NewClient(clientURLs []string, tlsConfig *tls.Config) (EtcdClient, error) {
-	return NewClient(m.etcdVersion, clientURLs, tlsConfig)
+func (m *EtcdProcessMember) NewClient(clientURLs []string, tlsConfig *tls.Config) (*EtcdClient, error) {
+	return NewClient(clientURLs, tlsConfig)
 }
 
 func (m *EtcdProcessMember) String() string {

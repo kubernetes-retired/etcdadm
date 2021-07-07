@@ -80,18 +80,14 @@ func (m *BackupController) Run(ctx context.Context) {
 func (m *BackupController) run(ctx context.Context) error {
 	klog.V(2).Infof("starting backup controller iteration")
 
-	etcdVersion, err := etcdclient.ServerVersion(ctx, m.clientUrls, m.etcdClientTLSConfig)
-	if err != nil {
-		return fmt.Errorf("unable to find server version of etcd on %s: %v", m.clientUrls, err)
-	}
-
-	if etcdclient.IsV2(etcdVersion) && m.dataDir == "" {
-		return fmt.Errorf("DataDir is required for etcd v2")
-	}
-
-	etcdClient, err := etcdclient.NewClient(etcdVersion, m.clientUrls, m.etcdClientTLSConfig)
+	etcdClient, err := etcdclient.NewClient(m.clientUrls, m.etcdClientTLSConfig)
 	if err != nil {
 		return fmt.Errorf("unable to reach etcd on %s: %v", m.clientUrls, err)
+	}
+
+	etcdVersion, err := etcdClient.ServerVersion(ctx)
+	if err != nil {
+		return fmt.Errorf("unable to find server version of etcd on %s: %v", m.clientUrls, err)
 	}
 
 	members, err := etcdClient.ListMembers(ctx)

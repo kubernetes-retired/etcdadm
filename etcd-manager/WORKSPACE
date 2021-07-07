@@ -92,14 +92,6 @@ container_pull(
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
 
-# We build etcd 2.2 from source, because the released version has some critical problems,
-# particularly visible around caching of /etc/hosts
-#http_file(
-#    name = "etcd_2.2.1_tar",
-#    sha256 = "59f7985c81b6bc551246c165c2fd83e33a063875e4e0c61920b1d90a4910f462",
-#    urls = ["https://github.com/coreos/etcd/releases/download/v2.2.1/etcd-v2.2.1-linux-amd64.tar.gz"],
-#)
-
 http_file(
     name = "etcd_3.1.12_amd64_tar",
     sha256 = "4b22184bef1bba8b4908b14bae6af4a6d33ec2b91e4f7a240780e07fa43f2111",
@@ -195,25 +187,6 @@ http_file(
     name = "etcd_3.4.13_arm64_tar",
     sha256 = "1934ebb9f9f6501f706111b78e5e321a7ff8d7792d3d96a76e2d01874e42a300",
     urls = ["https://github.com/etcd-io/etcd/releases/download/v3.4.13/etcd-v3.4.13-linux-arm64.tar.gz"],
-)
-
-#=============================================================================
-# Build etcd from source
-# This picks up a number of critical bug fixes, for example:
-#  * Caching of /etc/hosts https://github.com/golang/go/issues/13340
-#  * General GC etc improvements
-#  * Misc security fixes that are not backported
-
-# Download via HTTP
-go_repository(
-    name = "etcd_v2_2_1_source",
-    urls = ["https://github.com/etcd-io/etcd/archive/v2.2.1.tar.gz"],
-    sha256 = "1c0ce63812ef951f79c0a544c91f9f1ba3c6b50cb3e8197de555732454864d05",
-    importpath = "github.com/coreos/etcd",
-    strip_prefix = "etcd-2.2.1/",
-    build_external = "vendored",
-    build_file_name = "BUILD.bazel",  # See https://github.com/bazelbuild/rules_go/issues/456
-    build_file_proto_mode = "disable_global",
 )
 
 http_file(

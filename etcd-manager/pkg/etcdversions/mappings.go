@@ -27,7 +27,6 @@ import (
 // on an inconsistent update
 
 const (
-	Version_2_2_1  = "2.2.1"
 	Version_3_1_12 = "3.1.12"
 	Version_3_2_18 = "3.2.18"
 	Version_3_2_24 = "3.2.24"
@@ -40,7 +39,6 @@ const (
 )
 
 var AllEtcdVersions = []string{
-	Version_2_2_1,
 	Version_3_1_12,
 	Version_3_2_18,
 	Version_3_2_24,
@@ -107,8 +105,6 @@ func EtcdVersionForAdoption(fromVersion string) string {
 
 	family := fmt.Sprintf("%d.%d", fromSemver.Major, fromSemver.Minor)
 	switch family {
-	case "2.2":
-		return Version_2_2_1
 	case "3.0":
 		return Version_3_1_12
 	case "3.1":
@@ -149,8 +145,6 @@ func EtcdVersionForRestore(fromVersion string) string {
 
 	family := fmt.Sprintf("%d.%d", fromSemver.Major, fromSemver.Minor)
 	switch family {
-	case "2.2":
-		return Version_2_2_1
 	case "3.0":
 		return Version_3_1_12
 	case "3.1":

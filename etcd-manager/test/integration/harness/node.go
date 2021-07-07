@@ -246,8 +246,8 @@ func (n *TestHarnessNode) ListMembers(ctx context.Context) ([]*etcdclient.EtcdPr
 	return client.ListMembers(ctx)
 }
 
-func (n *TestHarnessNode) NewClient() (etcdclient.EtcdClient, error) {
-	client, err := etcdclient.NewClient(n.EtcdVersion, []string{n.ClientURL}, n.etcdClientTLSConfig)
+func (n *TestHarnessNode) NewClient() (*etcdclient.EtcdClient, error) {
+	client, err := etcdclient.NewClient([]string{n.ClientURL}, n.etcdClientTLSConfig)
 	if err != nil {
 		return nil, err
 	}

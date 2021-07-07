@@ -35,7 +35,7 @@ import (
 	"k8s.io/klog/v2"
 )
 
-type V3Client struct {
+type EtcdClient struct {
 	endpoints   []string
 	client      *etcd_client_v3.Client
 	kv          etcd_client_v3.KV
@@ -44,9 +44,14 @@ type V3Client struct {
 	tlsConfig   *tls.Config
 }
 
-var _ EtcdClient = &V3Client{}
+// NodeSink is implemented by a target for CopyTo
+type NodeSink interface {
+	io.Closer
 
-func NewV3Client(endpoints []string, tlsConfig *tls.Config) (EtcdClient, error) {
+	Put(ctx context.Context, key string, value []byte) error
+}
+
+func NewClient(endpoints []string, tlsConfig *tls.Config) (*EtcdClient, error) {
 	if len(endpoints) == 0 {
 		return nil, fmt.Errorf("no endpoints provided")
 	}
@@ -64,7 +69,7 @@ func NewV3Client(endpoints []string, tlsConfig *tls.Config) (EtcdClient, error) 
 
 	kv := etcd_client_v3.NewKV(etcdClient)
 	maintenance := etcd_client_v3.NewMaintenance(etcdClient)
-	return &V3Client{
+	return &EtcdClient{
 		endpoints:   endpoints,
 		client:      etcdClient,
 		kv:          kv,
@@ -74,16 +79,23 @@ func NewV3Client(endpoints []string, tlsConfig *tls.Config) (EtcdClient, error) 
 	}, nil
 }
 
-func (c *V3Client) Close() error {
+// LoggedClose closes the etcdclient, warning on error
+func LoggedClose(etcdClient *EtcdClient) {
+	if err := etcdClient.Close(); err != nil {
+		klog.Warningf("error closing etcd client: %v", err)
+	}
+}
+
+func (c *EtcdClient) Close() error {
 	return c.client.Close()
 }
 
-func (c *V3Client) String() string {
-	return "V3Client:[" + strings.Join(c.endpoints, ",") + "]"
+func (c *EtcdClient) String() string {
+	return "EtcdClient:[" + strings.Join(c.endpoints, ",") + "]"
 }
 
 // ServerVersion returns the version of etcd running
-func (c *V3Client) ServerVersion(ctx context.Context) (string, error) {
+func (c *EtcdClient) ServerVersion(ctx context.Context) (string, error) {
 	tr := &http.Transport{
 		TLSClientConfig: c.tlsConfig,
 	}
@@ -125,7 +137,7 @@ func (c *V3Client) ServerVersion(ctx context.Context) (string, error) {
 	return "", fmt.Errorf("could not fetch server version")
 }
 
-func (c *V3Client) Get(ctx context.Context, key string, quorum bool) ([]byte, error) {
+func (c *EtcdClient) Get(ctx context.Context, key string, quorum bool) ([]byte, error) {
 	var opts []etcd_client_v3.OpOption
 	if quorum {
 		// Quorum is the default in etcd3
@@ -142,7 +154,7 @@ func (c *V3Client) Get(ctx context.Context, key string, quorum bool) ([]byte, er
 	return r.Kvs[0].Value, nil
 }
 
-func (c *V3Client) Create(ctx context.Context, key string, value []byte) error {
+func (c *EtcdClient) Create(ctx context.Context, key string, value []byte) error {
 	txn := c.kv.Txn(ctx)
 	txn.If(etcd_client_v3.Compare(etcd_client_v3.CreateRevision(key), "=", 0))
 	txn.Then(etcd_client_v3.OpPut(key, string(value)))
@@ -156,7 +168,7 @@ func (c *V3Client) Create(ctx context.Context, key string, value []byte) error {
 	return nil
 }
 
-func (c *V3Client) Put(ctx context.Context, key string, value []byte) error {
+func (c *EtcdClient) Put(ctx context.Context, key string, value []byte) error {
 	response, err := c.kv.Put(ctx, key, string(value))
 	if err != nil {
 		return err
@@ -165,7 +177,7 @@ func (c *V3Client) Put(ctx context.Context, key string, value []byte) error {
 	return nil
 }
 
-func (c *V3Client) CopyTo(ctx context.Context, dest NodeSink) (int, error) {
+func (c *EtcdClient) CopyTo(ctx context.Context, dest NodeSink) (int, error) {
 	count := 0
 
 	limit := etcd_client_v3.WithLimit(1000)
@@ -204,7 +216,7 @@ func (c *V3Client) CopyTo(ctx context.Context, dest NodeSink) (int, error) {
 	return count, nil
 }
 
-func (c *V3Client) ListMembers(ctx context.Context) ([]*EtcdProcessMember, error) {
+func (c *EtcdClient) ListMembers(ctx context.Context) ([]*EtcdProcessMember, error) {
 	response, err := c.cluster.MemberList(ctx)
 	if err != nil {
 		return nil, err
@@ -223,7 +235,7 @@ func (c *V3Client) ListMembers(ctx context.Context) ([]*EtcdProcessMember, error
 	return members, nil
 }
 
-func (c *V3Client) LeaderID(ctx context.Context) (string, error) {
+func (c *EtcdClient) LeaderID(ctx context.Context) (string, error) {
 	response, err := c.maintenance.Status(ctx, c.endpoints[0])
 	if err != nil {
 		return "", err
@@ -236,22 +248,22 @@ func (c *V3Client) LeaderID(ctx context.Context) (string, error) {
 	return strconv.FormatUint(leaderID, 10), nil
 }
 
-func (c *V3Client) AddMember(ctx context.Context, peerURLs []string) error {
+func (c *EtcdClient) AddMember(ctx context.Context, peerURLs []string) error {
 	_, err := c.cluster.MemberAdd(ctx, peerURLs)
 	return err
 }
 
-func (c *V3Client) SetPeerURLs(ctx context.Context, member *EtcdProcessMember, peerURLs []string) error {
+func (c *EtcdClient) SetPeerURLs(ctx context.Context, member *EtcdProcessMember, peerURLs []string) error {
 	_, err := c.cluster.MemberUpdate(ctx, member.idv3, peerURLs)
 	return err
 }
 
-func (c *V3Client) RemoveMember(ctx context.Context, member *EtcdProcessMember) error {
+func (c *EtcdClient) RemoveMember(ctx context.Context, member *EtcdProcessMember) error {
 	_, err := c.cluster.MemberRemove(ctx, member.idv3)
 	return err
 }
 
-func (c *V3Client) SnapshotSave(ctx context.Context, path string) error {
+func (c *EtcdClient) SnapshotSave(ctx context.Context, path string) error {
 	out, err := os.Create(path)
 	if err != nil {
 		return fmt.Errorf("error creating snapshot file: %v", err)
@@ -274,8 +286,4 @@ func (c *V3Client) SnapshotSave(ctx context.Context, path string) error {
 	}
 
 	return nil
-}
-
-func (c *V3Client) SupportsSnapshot() bool {
-	return true
 }

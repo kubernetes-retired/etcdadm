@@ -65,7 +65,7 @@ func (n *TestHarnessNode) Put(ctx context.Context, key string, value string) err
 	return nil
 }
 
-func (n *TestHarnessNode) waitForClient(deadline time.Time) etcdclient.EtcdClient {
+func (n *TestHarnessNode) waitForClient(deadline time.Time) *etcdclient.EtcdClient {
 	t := n.TestHarness.T
 
 	for {

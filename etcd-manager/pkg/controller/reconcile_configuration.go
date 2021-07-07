@@ -43,7 +43,7 @@ func (m *EtcdController) updatePeerURLs(ctx context.Context, peerID privateapi.P
 
 	klog.Infof("updating peer %q with peerURLs %v", peerID, setPeerURLs)
 
-	etcdClient, err := etcdclient.NewClient(p.info.EtcdState.EtcdVersion, clientURLs, m.etcdClientTLSConfig)
+	etcdClient, err := etcdclient.NewClient(clientURLs, m.etcdClientTLSConfig)
 	if err != nil {
 		return changed, fmt.Errorf("unable to reach peer %s: %v", peerID, err)
 	}
