@@ -93,31 +93,6 @@ container_pull(
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
 
 http_file(
-    name = "etcd_3.1.12_amd64_tar",
-    sha256 = "4b22184bef1bba8b4908b14bae6af4a6d33ec2b91e4f7a240780e07fa43f2111",
-    urls = ["https://github.com/coreos/etcd/releases/download/v3.1.12/etcd-v3.1.12-linux-amd64.tar.gz"],
-)
-
-# 3.1.12 was not released for arm64
-#http_file(
-#    name = "etcd_3.1.12_arm64_tar",
-#    sha256 = "4b22184bef1bba8b4908b14bae6af4a6d33ec2b91e4f7a240780e07fa43f2123",
-#    urls = ["https://github.com/coreos/etcd/releases/download/v3.1.12/etcd-v3.1.12-linux-arm64.tar.gz"],
-#)
-
-http_file(
-    name = "etcd_3.2.18_amd64_tar",
-    sha256 = "b729db0732448064271ea6fdcb901773c4fe917763ca07776f22d0e5e0bd4097",
-    urls = ["https://github.com/coreos/etcd/releases/download/v3.2.18/etcd-v3.2.18-linux-amd64.tar.gz"],
-)
-
-http_file(
-    name = "etcd_3.2.18_arm64_tar",
-    sha256 = "085c13764af02ca2762cbacade374583a532d4f75a7b996a62f67f8f044641e6",
-    urls = ["https://github.com/coreos/etcd/releases/download/v3.2.18/etcd-v3.2.18-linux-arm64.tar.gz"],
-)
-
-http_file(
     name = "etcd_3.2.24_amd64_tar",
     sha256 = "947849dbcfa13927c81236fb76a7c01d587bbab42ab1e807184cd91b026ebed7",
     urls = ["https://github.com/coreos/etcd/releases/download/v3.2.24/etcd-v3.2.24-linux-amd64.tar.gz"],
@@ -127,30 +102,6 @@ http_file(
     name = "etcd_3.2.24_arm64_tar",
     sha256 = "7d3db622fb8d22a669a9351e1002ed2a7a776004a4a35888734bf39323889390",
     urls = ["https://github.com/coreos/etcd/releases/download/v3.2.24/etcd-v3.2.24-linux-arm64.tar.gz"],
-)
-
-http_file(
-    name = "etcd_3.3.10_amd64_tar",
-    sha256 = "1620a59150ec0a0124a65540e23891243feb2d9a628092fb1edcc23974724a45",
-    urls = ["https://github.com/coreos/etcd/releases/download/v3.3.10/etcd-v3.3.10-linux-amd64.tar.gz"],
-)
-
-http_file(
-    name = "etcd_3.3.10_arm64_tar",
-    sha256 = "5ec97b0b872adce275b8130d19db314f7f2b803aeb24c4aae17a19e2d66853c4",
-    urls = ["https://github.com/coreos/etcd/releases/download/v3.3.10/etcd-v3.3.10-linux-arm64.tar.gz"],
-)
-
-http_file(
-    name = "etcd_3.3.13_amd64_tar",
-    sha256 = "2c2e2a9867c1c61697ea0d8c0f74c7e9f1b1cf53b75dff95ca3bc03feb19ea7e",
-    urls = ["https://github.com/coreos/etcd/releases/download/v3.3.13/etcd-v3.3.13-linux-amd64.tar.gz"],
-)
-
-http_file(
-    name = "etcd_3.3.13_arm64_tar",
-    sha256 = "ff76e534db8378f112b48c445944069fc9923bef04dae4d66e36801da13cc8a1",
-    urls = ["https://github.com/coreos/etcd/releases/download/v3.3.13/etcd-v3.3.13-linux-arm64.tar.gz"],
 )
 
 http_file(

@@ -27,11 +27,7 @@ import (
 // on an inconsistent update
 
 const (
-	Version_3_1_12 = "3.1.12"
-	Version_3_2_18 = "3.2.18"
 	Version_3_2_24 = "3.2.24"
-	Version_3_3_10 = "3.3.10"
-	Version_3_3_13 = "3.3.13"
 	Version_3_3_17 = "3.3.17"
 	Version_3_4_3  = "3.4.3"
 	Version_3_4_13 = "3.4.13"
@@ -39,11 +35,7 @@ const (
 )
 
 var AllEtcdVersions = []string{
-	Version_3_1_12,
-	Version_3_2_18,
 	Version_3_2_24,
-	Version_3_3_10,
-	Version_3_3_13,
 	Version_3_3_17,
 	Version_3_4_3,
 	Version_3_4_13,
@@ -105,24 +97,10 @@ func EtcdVersionForAdoption(fromVersion string) string {
 
 	family := fmt.Sprintf("%d.%d", fromSemver.Major, fromSemver.Minor)
 	switch family {
-	case "3.0":
-		return Version_3_1_12
-	case "3.1":
-		return Version_3_1_12
-	case "3.2":
-		if fromSemver.Patch <= 18 {
-			return Version_3_2_18
-		} else {
-			return Version_3_2_24
-		}
+	case "3.0", "3.1", "3.2":
+		return Version_3_2_24
 	case "3.3":
-		if fromSemver.Patch <= 10 {
-			return Version_3_3_10
-		} else if fromSemver.Patch <= 13 {
-			return Version_3_3_13
-		} else {
-			return Version_3_3_17
-		}
+		return Version_3_3_17
 	case "3.4":
 		if fromSemver.Patch <= 3 {
 			return Version_3_4_3
@@ -145,24 +123,10 @@ func EtcdVersionForRestore(fromVersion string) string {
 
 	family := fmt.Sprintf("%d.%d", fromSemver.Major, fromSemver.Minor)
 	switch family {
-	case "3.0":
-		return Version_3_1_12
-	case "3.1":
-		return Version_3_1_12
-	case "3.2":
-		if fromSemver.Patch <= 18 {
-			return Version_3_2_18
-		} else {
-			return Version_3_2_24
-		}
+	case "3.0", "3.1", "3.2":
+		return Version_3_2_24
 	case "3.3":
-		if fromSemver.Patch <= 10 {
-			return Version_3_3_10
-		} else if fromSemver.Patch <= 13 {
-			return Version_3_3_13
-		} else {
-			return Version_3_3_17
-		}
+		return Version_3_3_17
 	case "3.4":
 		if fromSemver.Patch <= 3 {
 			return Version_3_4_3

@@ -8,11 +8,11 @@ load(
 )
 load("etcd.bzl", "supported_etcd_arch_and_version")
 
-# Layer for etcd 3.1.12, as used in k8s 1.10
-# Layer for etcd 3.2.18, as originally used in k8s 1.11
+# Layer for etcd 3.1.12, as used in k8s 1.10 - REMOVED to reduce image size, using etc 3.2.24 instead
+# Layer for etcd 3.2.18, as originally used in k8s 1.11 - REMOVED to reduce image size, using etc 3.2.24 instead
 # Layer for etcd 3.2.24, updated recommendation for k8s 1.11 and later
-# Layer for etcd 3.3.10, updated recommendation for k8s 1.14 and later
-# Layer for etcd 3.3.13, updated recommendation for k8s 1.14 and later
+# Layer for etcd 3.3.10, updated recommendation for k8s 1.14 and later - REMOVED to reduce image size, using etc 3.3.17 instead
+# Layer for etcd 3.3.13, updated recommendation for k8s 1.14 and later - REMOVED to reduce image size, using etc 3.3.17 instead
 # Layer for etcd 3.3.17, updated recommendation for k8s 1.16.3 and later
 # Layer for etcd 3.4.3, updated recommendation for k8s 1.17 and later
 # Layer for etcd 3.4.13, updated recommendation for k8s 1.19 and later
@@ -52,21 +52,14 @@ container_image(
     directory = "/opt",
     layers = select({
         "@io_bazel_rules_go//go/platform:amd64": [
-            "etcd-3.1.12-layer-amd64",
-            "etcd-3.2.18-layer-amd64",
             "etcd-3.2.24-layer-amd64",
-            "etcd-3.3.10-layer-amd64",
-            "etcd-3.3.13-layer-amd64",
             "etcd-3.3.17-layer-amd64",
             "etcd-3.4.3-layer-amd64",
             "etcd-3.4.13-layer-amd64",
             "etcd-3.5.0-layer-amd64",
         ],
         "@io_bazel_rules_go//go/platform:arm64": [
-            "etcd-3.2.18-layer-arm64",
             "etcd-3.2.24-layer-arm64",
-            "etcd-3.3.10-layer-arm64",
-            "etcd-3.3.13-layer-arm64",
             "etcd-3.3.17-layer-arm64",
             "etcd-3.4.3-layer-arm64",
             "etcd-3.4.13-layer-arm64",
