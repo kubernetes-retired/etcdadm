@@ -29,7 +29,7 @@ import (
 
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
-	cinderv2 "github.com/gophercloud/gophercloud/openstack/blockstorage/v2/volumes"
+	cinderv3 "github.com/gophercloud/gophercloud/openstack/blockstorage/v3/volumes"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/availabilityzones"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/volumeattach"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
@@ -177,8 +177,8 @@ func (stack *OpenstackVolumes) getClients() error {
 		return fmt.Errorf("error authenticating openstack client: %v", err)
 	}
 
-	cinderClient, err := openstack.NewBlockStorageV2(provider, gophercloud.EndpointOpts{
-		Type:   "volumev2",
+	cinderClient, err := openstack.NewBlockStorageV3(provider, gophercloud.EndpointOpts{
+		Type:   "volumev3",
 		Region: region,
 	})
 	if err != nil {
@@ -254,7 +254,7 @@ func (stack *OpenstackVolumes) MyIP() (string, error) {
 	return stack.internalIP.String(), nil
 }
 
-func (stack *OpenstackVolumes) buildOpenstackVolume(d *cinderv2.Volume) (*volumes.Volume, error) {
+func (stack *OpenstackVolumes) buildOpenstackVolume(d *cinderv3.Volume) (*volumes.Volume, error) {
 	etcdName := d.Name
 
 	if plainText, ok := d.Metadata[stack.nameTag]; ok {
@@ -282,7 +282,7 @@ func (stack *OpenstackVolumes) buildOpenstackVolume(d *cinderv2.Volume) (*volume
 	return vol, nil
 }
 
-func (stack *OpenstackVolumes) matchesTags(d *cinderv2.Volume, filterByAZ bool) bool {
+func (stack *OpenstackVolumes) matchesTags(d *cinderv3.Volume, filterByAZ bool) bool {
 	for _, k := range stack.matchTagKeys {
 		_, found := d.Metadata[k]
 		if !found {
@@ -317,13 +317,13 @@ func (stack *OpenstackVolumes) findVolumes(filterByAZ bool) ([]*volumes.Volume, 
 	klog.V(2).Infof("Listing Openstack disks in %s/%s", stack.project, stack.meta.AvailabilityZone)
 
 	mc := NewMetricContext("volumes", "list")
-	pages, err := cinderv2.List(stack.volumeClient, cinderv2.ListOpts{
+	pages, err := cinderv3.List(stack.volumeClient, cinderv3.ListOpts{
 		TenantID: stack.project,
 	}).AllPages()
 	if mc.ObserveRequest(err) != nil {
 		return volumes, fmt.Errorf("FindVolumes: Failed to list volumes: %v", err)
 	}
-	vols, err := cinderv2.ExtractVolumes(pages)
+	vols, err := cinderv3.ExtractVolumes(pages)
 	if err != nil {
 		return volumes, fmt.Errorf("FindVolumes: Failed to extract volumes: %v", err)
 	}
