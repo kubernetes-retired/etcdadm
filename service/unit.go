@@ -63,25 +63,3 @@ func BuildEnvironment(cfg *apis.EtcdAdmConfig) ([]byte, error) {
 	}
 	return b.Bytes(), nil
 }
-
-// WriteUnitFile writes etcd service unit file
-// TODO: Move to systemd-specific area
-func WriteUnitFile(cfg *apis.EtcdAdmConfig) error {
-	t := template.Must(template.New("unit").Parse(constants.UnitFileTemplate))
-
-	unitFileDir := filepath.Dir(cfg.UnitFile)
-	if err := os.MkdirAll(unitFileDir, 0755); err != nil {
-		return fmt.Errorf("unable to create unit file directory %q: %s", unitFileDir, err)
-	}
-
-	f, err := os.OpenFile(cfg.UnitFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
-	if err != nil {
-		return fmt.Errorf("unable to open the etcd service unit file %s: %s", cfg.UnitFile, err)
-	}
-	defer f.Close()
-
-	if err := t.Execute(f, cfg); err != nil {
-		return fmt.Errorf("unable to apply etcd environment: %s", err)
-	}
-	return nil
-}

@@ -22,12 +22,21 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"time"
 
 	"k8s.io/klog"
 	"sigs.k8s.io/etcdadm/apis"
 	"sigs.k8s.io/etcdadm/service"
 	"sigs.k8s.io/yaml"
 )
+
+const DefaultEtcdStartupTimeout = 30 * time.Second
+
+func New(config *apis.EtcdAdmConfig) *InitSystem {
+	return &InitSystem{
+		desiredConfig: config,
+	}
+}
 
 // InitSystem runs etcd under the kubelet
 type InitSystem struct {
@@ -160,7 +169,7 @@ func (s *InitSystem) buildPod(name string, cfg *apis.EtcdAdmConfig) (*pod, error
 		"memory": "100Mi",
 	}
 
-	container.Image = "k8s.gcr.io/etcd:" + cfg.Version
+	container.Image = s.image()
 	container.Command = []string{"etcd"}
 
 	for k, v := range env {
@@ -229,6 +238,10 @@ func (s *InitSystem) buildPod(name string, cfg *apis.EtcdAdmConfig) (*pod, error
 	return pod, nil
 }
 
+func (s *InitSystem) image() string {
+	return fmt.Sprintf("%s:v%s", s.desiredConfig.ImageRepository, s.desiredConfig.Version)
+}
+
 // pod (and the other types) are a minimal version of the k8s Pod API
 // This avoids having to pull in all of the kubernetes API and infrastructure
 type pod struct {
@@ -288,4 +301,20 @@ type podVolume struct {
 type hostPath struct {
 	Path string `json:"path"`
 	Type string `json:"type"`
+}
+
+func (s InitSystem) Install() error {
+	// TODO: preload etcd image to make start up times more reliable?
+	return nil
+}
+
+// Configure boostraps the necessary configuration files for the etcd service
+func (s InitSystem) Configure() error {
+	// TODO: move manifest generation here?
+	return nil
+}
+
+// StartupTimeout defines the max time that the system should wait for etcd to be up
+func (s InitSystem) StartupTimeout() time.Duration {
+	return DefaultEtcdStartupTimeout
 }

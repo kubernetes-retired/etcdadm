@@ -23,9 +23,10 @@ const (
 	DefaultVersion    = "3.5.0"
 	DefaultInstallDir = "/opt/bin/"
 
-	DefaultReleaseURL     = "https://github.com/coreos/etcd/releases/download"
-	DefaultBindAddressv4  = "0.0.0.0"
-	DefaultCertificateDir = "/etc/etcd/pki"
+	DefaultReleaseURL      = "https://github.com/coreos/etcd/releases/download"
+	DefaultImageRepository = "quay.io/coreos/etcd"
+	DefaultBindAddressv4   = "0.0.0.0"
+	DefaultCertificateDir  = "/etc/etcd/pki"
 
 	UnitFileBaseName = "etcd.service"
 	UnitFile         = "/etc/systemd/system/etcd.service"

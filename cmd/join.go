@@ -27,7 +27,6 @@ import (
 
 	"github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes"
 	"sigs.k8s.io/etcdadm/apis"
-	"sigs.k8s.io/etcdadm/binary"
 	"sigs.k8s.io/etcdadm/certs"
 	"sigs.k8s.io/etcdadm/constants"
 	"sigs.k8s.io/etcdadm/etcd"
@@ -53,7 +52,7 @@ var joinCmd = &cobra.Command{
 			log.Fatalf("[defaults] Error: %s", err)
 		}
 
-		initSystem, err := initsystem.GetInitSystem()
+		initSystem, err := initsystem.GetInitSystem(&etcdAdmConfig)
 		if err != nil {
 			log.Fatalf("[initsystem] Error detecting the init system: %s", err)
 		}
@@ -148,37 +147,10 @@ var joinCmd = &cobra.Command{
 			etcdAdmConfig.InitialCluster = etcd.InitialClusterFromMembers(members)
 		}
 
-		// etcd binaries installation
-		inCache, err := binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir)
-		if err != nil {
-			log.Fatalf("[install] Artifact could not be installed from cache: %s", err)
-		}
-		if !inCache {
-			log.Printf("[install] Artifact not found in cache. Trying to fetch from upstream: %s", etcdAdmConfig.ReleaseURL)
-			if err = binary.Download(etcdAdmConfig.ReleaseURL, etcdAdmConfig.Version, etcdAdmConfig.CacheDir); err != nil {
-				log.Fatalf("[install] Unable to fetch artifact from upstream: %s", err)
-			}
-			// Try installing binaries from cache now
-			inCache, err := binary.InstallFromCache(etcdAdmConfig.Version, etcdAdmConfig.InstallDir, etcdAdmConfig.CacheDir)
-			if err != nil {
-				log.Fatalf("[install] Artifact could not be installed from cache: %s", err)
-			}
-			if !inCache {
-				log.Fatalf("[install] Artifact not found in cache after download. Exiting.")
-			}
-		}
-		installed, err := binary.IsInstalled(etcdAdmConfig.Version, etcdAdmConfig.InstallDir)
-		if err != nil {
+		if err = initSystem.Install(); err != nil {
 			log.Fatalf("[install] Error: %s", err)
 		}
-		if !installed {
-			log.Fatalf("[install] Binaries not found in install dir. Exiting.")
-		}
-
-		if err := service.WriteEnvironmentFile(&etcdAdmConfig); err != nil {
-			log.Fatalf("[configure] Error: %s", err)
-		}
-		if err := service.WriteUnitFile(&etcdAdmConfig); err != nil {
+		if err = initSystem.Configure(); err != nil {
 			log.Fatalf("[configure] Error: %s", err)
 		}
 		if err := initSystem.EnableAndStartService(constants.UnitFileBaseName); err != nil {
@@ -196,7 +168,7 @@ var joinCmd = &cobra.Command{
 		if err != nil {
 			log.Printf("[health] Error checking health: %v", err)
 		}
-		ctx, cancel = context.WithTimeout(context.Background(), constants.DefaultEtcdRequestTimeout)
+		ctx, cancel = context.WithTimeout(context.Background(), initSystem.StartupTimeout())
 		_, err = client.Get(ctx, constants.EtcdHealthCheckKey)
 		cancel()
 		// Healthy because the cluster reaches consensus for the get request,
@@ -219,4 +191,6 @@ func init() {
 	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.InstallDir, "install-dir", constants.DefaultInstallDir, "install directory")
 	joinCmd.PersistentFlags().StringArrayVar(&etcdAdmConfig.EtcdDiskPriorities, "disk-priorities", constants.DefaultEtcdDiskPriorities, "Setting etcd disk priority")
 	joinCmd.PersistentFlags().BoolVar(&etcdAdmConfig.Retry, "retry", true, "Enable or disable backoff retry when join etcd member to cluster")
+	joinCmd.PersistentFlags().StringVar((*string)(&etcdAdmConfig.InitSystem), "init-system", string(apis.Systemd), "init system type (systemd or kubelet)")
+	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.ImageRepository, "image-repository", constants.DefaultImageRepository, "image repository when using kubelet init system")
 }
