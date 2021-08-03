@@ -32,7 +32,7 @@ import (
 	"sigs.k8s.io/etcdadm/service"
 )
 
-const DefaultEtcdStartupTimeout = 5 * time.Second
+const defaultEtcdStartupTimeout = 5 * time.Second
 
 // SystemdInitSystem defines systemd init system
 type SystemdInitSystem struct {
@@ -171,7 +171,7 @@ func (s SystemdInitSystem) Install() error {
 		return fmt.Errorf("artifact could not be installed from cache: %w", err)
 	}
 	if !inCache {
-		log.Printf("[install] Artifact not found in cache. Trying to fetch from upstream: %w", s.etcdAdmConfig.ReleaseURL)
+		log.Printf("[install] Artifact not found in cache. Trying to fetch from upstream: %s", s.etcdAdmConfig.ReleaseURL)
 		if err = binary.Download(s.etcdAdmConfig.ReleaseURL, s.etcdAdmConfig.Version, s.etcdAdmConfig.CacheDir); err != nil {
 			return fmt.Errorf("unable to fetch artifact from upstream: %w", err)
 		}
@@ -231,5 +231,5 @@ func (s SystemdInitSystem) writeUnitFile() error {
 
 // StartupTimeout defines the max time that the system should wait for etcd to be up
 func (s SystemdInitSystem) StartupTimeout() time.Duration {
-	return DefaultEtcdStartupTimeout
+	return defaultEtcdStartupTimeout
 }

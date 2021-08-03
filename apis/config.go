@@ -94,10 +94,13 @@ type EtcdAdmConfig struct {
 	InitSystem InitSystem
 }
 
+// InitSystem represents the different types of init system
 type InitSystem string
 
 const (
+	// Systemd represents the systemd init system
 	Systemd InitSystem = "systemd"
+	// Kubelet represents the kubelet init system
 	Kubelet InitSystem = "kubelet"
 )
 

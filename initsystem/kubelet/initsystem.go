@@ -30,8 +30,9 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-const DefaultEtcdStartupTimeout = 30 * time.Second
+const defaultEtcdStartupTimeout = 30 * time.Second
 
+// New creates a new kubelet init system
 func New(config *apis.EtcdAdmConfig) *InitSystem {
 	return &InitSystem{
 		desiredConfig: config,
@@ -303,6 +304,7 @@ type hostPath struct {
 	Type string `json:"type"`
 }
 
+// Install downloads all the necessary components
 func (s InitSystem) Install() error {
 	// TODO: preload etcd image to make start up times more reliable?
 	return nil
@@ -316,5 +318,5 @@ func (s InitSystem) Configure() error {
 
 // StartupTimeout defines the max time that the system should wait for etcd to be up
 func (s InitSystem) StartupTimeout() time.Duration {
-	return DefaultEtcdStartupTimeout
+	return defaultEtcdStartupTimeout
 }
