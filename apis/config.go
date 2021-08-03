@@ -303,7 +303,7 @@ func DefaultAdvertiseClientURLs(cfg *EtcdAdmConfig) error {
 	return nil
 }
 
-// Returns the address associated with the host's default interface.
+// Returns the user-defined address; if that is undefined, returns the address associated with the host's default interface.
 func defaultExternalAddress(addr string) (net.IP, error) {
 	var (
 		ip  net.IP
