@@ -18,6 +18,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes"
@@ -33,82 +34,9 @@ import (
 	"sigs.k8s.io/etcdadm/util"
 )
 
-var initCmd = &cobra.Command{
-	Use:   "init",
-	Short: "Initialize a new etcd cluster",
-	Run: func(cmd *cobra.Command, args []string) {
-		apis.SetDefaults(&etcdAdmConfig)
-		if err := apis.SetInitDynamicDefaults(&etcdAdmConfig); err != nil {
-			log.Fatalf("[defaults] Error: %s", err)
-		}
-
-		initSystem, err := initsystem.GetInitSystem(&etcdAdmConfig)
-		if err != nil {
-			log.Fatalf("[initsystem] Error detecting the init system: %s", err)
-		}
-
-		if err := initSystem.DisableAndStopService(); err != nil {
-			log.Fatalf("[install] Error disabling and stopping etcd service: %s", err)
-		}
-
-		exists, err := util.Exists(etcdAdmConfig.DataDir)
-		if err != nil {
-			log.Fatalf("Unable to verify whether data dir exists: %v", err)
-		}
-		if exists {
-			log.Printf("[install] Removing existing data dir %q", etcdAdmConfig.DataDir)
-			os.RemoveAll(etcdAdmConfig.DataDir)
-		}
-
-		if err = initSystem.Install(); err != nil {
-			log.Fatalf("[install] Error: %s", err)
-		}
-		// cert management
-		if err = certs.CreatePKIAssets(&etcdAdmConfig); err != nil {
-			log.Fatalf("[certificates] Error: %s", err)
-		}
-		if etcdAdmConfig.Snapshot != "" {
-			if err := etcd.RestoreSnapshot(&etcdAdmConfig); err != nil {
-				log.Fatalf("[snapshot] Error restoring snapshot: %v", err)
-			}
-		}
-		if err = initSystem.Configure(); err != nil {
-			log.Fatalf("[configure] Error: %s", err)
-		}
-		if err = initSystem.EnableAndStartService(); err != nil {
-			log.Fatalf("[start] Error: %s", err)
-		}
-		if err = service.WriteEtcdctlEnvFile(&etcdAdmConfig); err != nil {
-			log.Printf("[configure] Warning: %s", err)
-		}
-		if err = service.WriteEtcdctlShellWrapper(&etcdAdmConfig); err != nil {
-			log.Printf("[configure] Warning: %s", err)
-		}
-
-		log.Println("[health] Checking local etcd endpoint health")
-		client, err := etcd.ClientForEndpoint(etcdAdmConfig.LoopbackClientURL.String(), &etcdAdmConfig)
-		if err != nil {
-			log.Printf("[health] Error checking health: %v", err)
-		}
-		ctx, cancel := context.WithTimeout(context.Background(), initSystem.StartupTimeout())
-		_, err = client.Get(ctx, constants.EtcdHealthCheckKey)
-		cancel()
-		// Healthy because the cluster reaches consensus for the get request,
-		// even if permission (to get the key) is denied.
-		if err == nil || err == rpctypes.ErrPermissionDenied {
-			log.Println("[health] Local etcd endpoint is healthy")
-		} else {
-			log.Fatalf("[health] Local etcd endpoint is unhealthy: %v", err)
-		}
-
-		// Output etcdadm join command
-		// TODO print all advertised client URLs (first, join must parse than one endpoint)
-		log.Println("To add another member to the cluster, copy the CA cert/key to its certificate dir and run:")
-		log.Printf(`	etcdadm join %s`, etcdAdmConfig.AdvertiseClientURLs[0].String())
-	},
-}
-
 func init() {
+	runner := newInitRunner()
+	initCmd := newInitCmd(runner)
 	rootCmd.AddCommand(initCmd)
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.Name, "name", "", "etcd member name")
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.Version, "version", constants.DefaultVersion, "etcd version")
@@ -123,4 +51,176 @@ func init() {
 	initCmd.PersistentFlags().StringArrayVar(&etcdAdmConfig.EtcdDiskPriorities, "disk-priorities", constants.DefaultEtcdDiskPriorities, "Setting etcd disk priority")
 	initCmd.PersistentFlags().StringVar((*string)(&etcdAdmConfig.InitSystem), "init-system", string(apis.Systemd), "init system type (systemd or kubelet)")
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.ImageRepository, "image-repository", constants.DefaultImageRepository, "image repository when using kubelet init system")
+
+	runner.registerPhasesAsSubcommands(initCmd)
+}
+
+func newInitCmd(runner *runner) *cobra.Command {
+	return &cobra.Command{
+		Use:   "init",
+		Short: "Initialize a new etcd cluster",
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runner.run(); err != nil {
+				log.Fatal(err)
+			}
+		},
+	}
+}
+
+func newInitRunner() *runner {
+	runner := newRunner(setup)
+	runner.registerPhases(
+		install(),
+		certificates(),
+		snapshot(),
+		configure(),
+		start(),
+		etcdctl(),
+		healthcheck(),
+	)
+
+	return runner
+}
+
+func setup() (*phaseInput, error) {
+	apis.SetDefaults(&etcdAdmConfig)
+	if err := apis.SetInitDynamicDefaults(&etcdAdmConfig); err != nil {
+		return nil, fmt.Errorf("[defaults] error setting init dynamic defaults: %w", err)
+	}
+
+	initSystem, err := initsystem.GetInitSystem(&etcdAdmConfig)
+	if err != nil {
+		return nil, fmt.Errorf("[initsystem] error detecting the init system: %w", err)
+	}
+
+	in := &phaseInput{
+		initSystem:    initSystem,
+		etcdAdmConfig: &etcdAdmConfig,
+	}
+
+	return in, nil
+}
+
+func install() phase {
+	return &singlePhase{
+		phaseName: "install",
+		runFunc: func(in *phaseInput) error {
+			if err := in.initSystem.DisableAndStopService(); err != nil {
+				return fmt.Errorf("error disabling and stopping etcd service: %w", err)
+			}
+			exists, err := util.Exists(in.etcdAdmConfig.DataDir)
+			if err != nil {
+				return fmt.Errorf("unable to verify whether data dir exists: %w", err)
+			}
+			if exists {
+				log.Printf("[install] Removing existing data dir %q", in.etcdAdmConfig.DataDir)
+				os.RemoveAll(in.etcdAdmConfig.DataDir)
+			}
+			if err = in.initSystem.Install(); err != nil {
+				return fmt.Errorf("failed installing init system components: %w", err)
+			}
+
+			return nil
+		},
+	}
+}
+
+func certificates() phase {
+	return &singlePhase{
+		phaseName: "certificates",
+		runFunc: func(in *phaseInput) error {
+			if err := certs.CreatePKIAssets(in.etcdAdmConfig); err != nil {
+				return fmt.Errorf("failed creating PKI assets: %w", err)
+			}
+
+			return nil
+		},
+	}
+}
+
+func snapshot() phase {
+	return &singlePhase{
+		phaseName: "snapshot",
+		runFunc: func(in *phaseInput) error {
+			if in.etcdAdmConfig.Snapshot != "" {
+				if err := etcd.RestoreSnapshot(&etcdAdmConfig); err != nil {
+					return fmt.Errorf("error restoring snapshot: %w", err)
+				}
+			}
+
+			return nil
+		},
+	}
+}
+
+func configure() phase {
+	return &singlePhase{
+		phaseName: "configure",
+		runFunc: func(in *phaseInput) error {
+			if err := in.initSystem.Configure(); err != nil {
+				return fmt.Errorf("error configuring init system: %w", err)
+			}
+
+			return nil
+		},
+	}
+}
+
+func start() phase {
+	return &singlePhase{
+		phaseName: "start",
+		runFunc: func(in *phaseInput) error {
+			if err := in.initSystem.EnableAndStartService(); err != nil {
+				return fmt.Errorf("error starting etcd: %w", err)
+			}
+
+			return nil
+		},
+	}
+}
+
+func etcdctl() phase {
+	return &singlePhase{
+		phaseName: "etcdctl",
+		runFunc: func(in *phaseInput) error {
+			if err := service.WriteEtcdctlEnvFile(in.etcdAdmConfig); err != nil {
+				log.Printf("[etcdctl] Warning: %s", err)
+			}
+			if err := service.WriteEtcdctlShellWrapper(in.etcdAdmConfig); err != nil {
+				log.Printf("[etcdctl] Warning: %s", err)
+			}
+
+			return nil
+		},
+	}
+}
+
+func healthcheck() phase {
+	return &singlePhase{
+		phaseName: "health",
+		runFunc: func(in *phaseInput) error {
+			log.Println("[health] Checking local etcd endpoint health")
+			client, err := etcd.ClientForEndpoint(in.etcdAdmConfig.LoopbackClientURL.String(), in.etcdAdmConfig)
+			if err != nil {
+				return fmt.Errorf("error creating health endpoint client: %w", err)
+			}
+			ctx, cancel := context.WithTimeout(context.Background(), in.initSystem.StartupTimeout())
+			_, err = client.Get(ctx, constants.EtcdHealthCheckKey)
+			cancel()
+			// Healthy because the cluster reaches consensus for the get request,
+			// even if permission (to get the key) is denied.
+			if err == nil || err == rpctypes.ErrPermissionDenied {
+				log.Println("[health] Local etcd endpoint is healthy")
+			} else {
+				return fmt.Errorf("local etcd endpoint is unhealthy: %w", err)
+			}
+
+			// Output etcdadm join command
+			// TODO print all advertised client URLs (first, join must parse than one endpoint)
+			log.Println("To add another member to the cluster, copy the CA cert/key to its certificate dir and run:")
+			log.Printf(`	etcdadm join %s`, etcdAdmConfig.AdvertiseClientURLs[0].String())
+
+			return nil
+		},
+	}
 }
