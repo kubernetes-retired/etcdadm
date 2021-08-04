@@ -39,8 +39,9 @@ type phase interface {
 }
 
 type singlePhase struct {
-	phaseName string
-	runFunc  runFunc
+	phaseName     string
+	runFunc       runFunc
+	prerequisites []phase
 }
 
 func (p *singlePhase) name() string {
@@ -56,7 +57,10 @@ func (p *singlePhase) registerInCommand(cmd *cobra.Command, runner *runner) {
 		Use:   p.phaseName,
 		Short: fmt.Sprintf("Run %s phase", p.phaseName),
 		Run: func(cmd *cobra.Command, args []string) {
-			if err := runner.runPhases(p); err != nil {
+			phases := make([]phase, 0, len(p.prerequisites)+1)
+			phases = append(phases, p.prerequisites...)
+			phases = append(phases, p)
+			if err := runner.runPhases(cmd, args, phases...); err != nil {
 				log.Fatal(err)
 			}
 		},
@@ -64,7 +68,7 @@ func (p *singlePhase) registerInCommand(cmd *cobra.Command, runner *runner) {
 	cmd.AddCommand(phaseCmd)
 }
 
-type initFunc func() (*phaseInput, error)
+type initFunc func(cmd *cobra.Command, args []string) (*phaseInput, error)
 
 type runner struct {
 	phases []phase
@@ -82,12 +86,12 @@ func (r *runner) registerPhases(phases ...phase) {
 	r.phases = append(r.phases, phases...)
 }
 
-func (r *runner) run() error {
-	return r.runPhases(r.phases...)
+func (r *runner) run(cmd *cobra.Command, args []string) error {
+	return r.runPhases(cmd, args, r.phases...)
 }
 
-func (r *runner) runPhases(phases ...phase) error {
-	phaseInput, err := r.init()
+func (r *runner) runPhases(cmd *cobra.Command, args []string, phases ...phase) error {
+	phaseInput, err := r.init(cmd, args)
 	if err != nil {
 		return err
 	}
