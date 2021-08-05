@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"time"
@@ -105,7 +106,7 @@ func (s *InitSystem) IsActive() (bool, error) {
 
 func (s *InitSystem) podFile(cfg *apis.EtcdAdmConfig) string {
 	name := s.name(cfg)
-	return "/etc/kubernetes/manifests/" + name + ".manifest"
+	return filepath.Join(s.desiredConfig.PodSpecDir, name+".manifest")
 }
 
 func (s *InitSystem) name(cfg *apis.EtcdAdmConfig) string {
