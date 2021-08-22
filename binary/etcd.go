@@ -22,6 +22,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -110,7 +111,7 @@ func Download(releaseURL, version, locationDir string) error {
 }
 
 func releaseFile(version string) string {
-	return fmt.Sprintf("etcd-v%s-linux-amd64.tar.gz", version)
+	return fmt.Sprintf("etcd-v%s-linux-%s.tar.gz", version, runtime.GOARCH)
 }
 
 func downloadURL(releaseURL, version string) string {
