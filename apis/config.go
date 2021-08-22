@@ -257,7 +257,7 @@ func DefaultClientURLs(cfg *EtcdAdmConfig) error {
 
 // DefaultInitialAdvertisePeerURLs TODO: add description
 func DefaultInitialAdvertisePeerURLs(cfg *EtcdAdmConfig) error {
-	externalAddress, err := defaultExternalAddress(cfg.BindAddr)
+	externalAddress, err := ensureValidExternalAddress(cfg.BindAddr)
 
 	if err != nil {
 		return fmt.Errorf("failed to set default InitialAdvertisePeerURLs: %s", err)
@@ -292,7 +292,7 @@ func DefaultListenClientURLs(cfg *EtcdAdmConfig) error {
 
 // DefaultAdvertiseClientURLs TODO: add description
 func DefaultAdvertiseClientURLs(cfg *EtcdAdmConfig) error {
-	externalAddress, err := defaultExternalAddress(cfg.BindAddr)
+	externalAddress, err := ensureValidExternalAddress(cfg.BindAddr)
 	if err != nil {
 		return fmt.Errorf("failed to set default AdvertiseClientURLs: %s", err)
 	}
@@ -303,14 +303,16 @@ func DefaultAdvertiseClientURLs(cfg *EtcdAdmConfig) error {
 	return nil
 }
 
-// Returns the user-defined address; if that is undefined, returns the address associated with the host's default interface.
-func defaultExternalAddress(addr string) (net.IP, error) {
+// Returns a valid external address.
+// if the user has provided one, ensure it is a valid unicast address in the system.
+// if address is undefined returns the address associated with the host's default interface.
+func ensureValidExternalAddress(userAddr string) (net.IP, error) {
 	var (
 		ip  net.IP
 		err error
 	)
 
-	if addr == "" || addr == "0.0.0.0" {
+	if userAddr == "" || userAddr == "0.0.0.0" {
 		ip, err := netutil.ResolveBindAddress(net.ParseIP("0.0.0.0"))
 		if err != nil {
 			return nil, fmt.Errorf("failed to find a default external address: %s", err)
@@ -318,9 +320,9 @@ func defaultExternalAddress(addr string) (net.IP, error) {
 		return ip, nil
 	}
 
-	ip = net.ParseIP(addr)
+	ip = net.ParseIP(userAddr)
 	if ip == nil {
-		return nil, fmt.Errorf(`invalid bind address "%s": invalid ip format`, addr)
+		return nil, fmt.Errorf(`invalid bind address "%s": invalid ip format`, userAddr)
 	}
 
 	systemAddrs, err := net.InterfaceAddrs()
@@ -336,5 +338,5 @@ func defaultExternalAddress(addr string) (net.IP, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("invalid bind address %s: not found in system interfaces", addr)
+	return nil, fmt.Errorf("invalid bind address %s: not found in system interfaces", userAddr)
 }
