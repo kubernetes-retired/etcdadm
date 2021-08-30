@@ -115,10 +115,10 @@ vendor:
 
 .PHONY: staticcheck-all
 staticcheck-all:
-	go list ./... | xargs go run honnef.co/go/tools/cmd/staticcheck
+	go list ./... | xargs go run honnef.co/go/tools/cmd/staticcheck@v0.2.1
 
 # staticcheck-working is the subset of packages that we have cleaned up
 # We gradually want to sync up staticcheck-all with staticcheck-working
 .PHONY: staticcheck-working
 staticcheck-working:
-	go list ./... | grep -v "etcd-manager/pkg/[cepv]" | xargs go run honnef.co/go/tools/cmd/staticcheck
+	go list ./... | grep -v "etcd-manager/pkg/[cepv]" | xargs go run honnef.co/go/tools/cmd/staticcheck@v0.2.1

@@ -49,7 +49,6 @@ require (
 	google.golang.org/api v0.45.0
 	google.golang.org/grpc v1.38.0
 	gopkg.in/gcfg.v1 v1.2.3
-	honnef.co/go/tools v0.2.0
 	k8s.io/apimachinery v0.21.1
 	k8s.io/client-go v0.21.1
 	k8s.io/klog/v2 v2.8.0
