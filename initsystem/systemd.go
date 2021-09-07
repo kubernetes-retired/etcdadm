@@ -17,12 +17,27 @@ limitations under the License.
 package initsystem
 
 import (
+	"errors"
 	"fmt"
+	"html/template"
+	"log"
+	"os"
 	"os/exec"
+	"path/filepath"
+	"time"
+
+	"sigs.k8s.io/etcdadm/apis"
+	"sigs.k8s.io/etcdadm/binary"
+	"sigs.k8s.io/etcdadm/constants"
+	"sigs.k8s.io/etcdadm/service"
 )
 
+const defaultEtcdStartupTimeout = 5 * time.Second
+
 // SystemdInitSystem defines systemd init system
-type SystemdInitSystem struct{}
+type SystemdInitSystem struct {
+	etcdAdmConfig *apis.EtcdAdmConfig
+}
 
 func (s SystemdInitSystem) reloadSystemd() error {
 	if err := exec.Command("systemctl", "daemon-reload").Run(); err != nil {
@@ -147,4 +162,74 @@ func (s SystemdInitSystem) isEnabled(service string) (bool, error) {
 		}
 	}
 	return true, nil
+}
+
+// Install downloads the necessary bianries (if not in cache already) in moves them to the right directory
+func (s SystemdInitSystem) Install() error {
+	inCache, err := binary.InstallFromCache(s.etcdAdmConfig.Version, s.etcdAdmConfig.InstallDir, s.etcdAdmConfig.CacheDir)
+	if err != nil {
+		return fmt.Errorf("artifact could not be installed from cache: %w", err)
+	}
+	if !inCache {
+		log.Printf("[install] Artifact not found in cache. Trying to fetch from upstream: %s", s.etcdAdmConfig.ReleaseURL)
+		if err = binary.Download(s.etcdAdmConfig.ReleaseURL, s.etcdAdmConfig.Version, s.etcdAdmConfig.CacheDir); err != nil {
+			return fmt.Errorf("unable to fetch artifact from upstream: %w", err)
+		}
+		// Try installing binaries from cache now
+		inCache, err := binary.InstallFromCache(s.etcdAdmConfig.Version, s.etcdAdmConfig.InstallDir, s.etcdAdmConfig.CacheDir)
+		if err != nil {
+			return fmt.Errorf("artifact could not be installed from cache: %w", err)
+		}
+		if !inCache {
+			return errors.New("artifact not found in cache after download")
+		}
+	}
+	installed, err := binary.IsInstalled(s.etcdAdmConfig.Version, s.etcdAdmConfig.InstallDir)
+	if err != nil {
+		return fmt.Errorf("failed checking if binary is installed: %w", err)
+	}
+	if !installed {
+		return fmt.Errorf("binaries not found in install dir")
+	}
+
+	return nil
+}
+
+// Configure boostraps the necessary configuration files for the etcd service
+func (s SystemdInitSystem) Configure() error {
+	if err := service.WriteEnvironmentFile(s.etcdAdmConfig); err != nil {
+		return fmt.Errorf("failed writing environment file for etcd service: %w", err)
+	}
+
+	if err := s.writeUnitFile(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// writeUnitFile writes etcd service unit file
+func (s SystemdInitSystem) writeUnitFile() error {
+	t := template.Must(template.New("unit").Parse(constants.UnitFileTemplate))
+
+	unitFileDir := filepath.Dir(s.etcdAdmConfig.UnitFile)
+	if err := os.MkdirAll(unitFileDir, 0755); err != nil {
+		return fmt.Errorf("unable to create unit file directory %q: %s", unitFileDir, err)
+	}
+
+	f, err := os.OpenFile(s.etcdAdmConfig.UnitFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
+	if err != nil {
+		return fmt.Errorf("unable to open the etcd service unit file %s: %s", s.etcdAdmConfig.UnitFile, err)
+	}
+	defer f.Close()
+
+	if err := t.Execute(f, s.etcdAdmConfig); err != nil {
+		return fmt.Errorf("unable to apply etcd environment: %s", err)
+	}
+	return nil
+}
+
+// StartupTimeout defines the max time that the system should wait for etcd to be up
+func (s SystemdInitSystem) StartupTimeout() time.Duration {
+	return defaultEtcdStartupTimeout
 }

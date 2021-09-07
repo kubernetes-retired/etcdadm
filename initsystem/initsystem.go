@@ -19,21 +19,39 @@ package initsystem
 import (
 	"fmt"
 	"os/exec"
+	"time"
+
+	"sigs.k8s.io/etcdadm/apis"
+	"sigs.k8s.io/etcdadm/initsystem/kubelet"
 )
 
 // InitSystem is the interface that describe behaviors of an init system
 type InitSystem interface {
+	Install() error
+	Configure() error
 	IsActive(service string) (bool, error)
 	EnableAndStartService(service string) error
 	DisableAndStopService(service string) error
+	StartupTimeout() time.Duration
 }
 
 // GetInitSystem returns an InitSystem for the current system, or error
 // if we cannot detect a supported init system.
-func GetInitSystem() (InitSystem, error) {
+func GetInitSystem(config *apis.EtcdAdmConfig) (InitSystem, error) {
+	switch config.InitSystem {
+	case apis.Systemd:
+		return systemd(config)
+	case apis.Kubelet:
+		return kubelet.New(config), nil
+	default:
+		return nil, fmt.Errorf("invalid init system %s", config.InitSystem)
+	}
+}
+
+func systemd(config *apis.EtcdAdmConfig) (InitSystem, error) {
 	_, err := exec.LookPath("systemctl")
 	if err == nil {
-		return &SystemdInitSystem{}, nil
+		return &SystemdInitSystem{etcdAdmConfig: config}, nil
 	}
 
 	return nil, fmt.Errorf("systemd not detected; ensure that `systemctl` is in the PATH")

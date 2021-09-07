@@ -17,6 +17,7 @@ limitations under the License.
 package service
 
 import (
+	"bytes"
 	"fmt"
 	"html/template"
 	"os"
@@ -28,7 +29,10 @@ import (
 
 // WriteEnvironmentFile writes the environment file used by the etcd service unit
 func WriteEnvironmentFile(cfg *apis.EtcdAdmConfig) error {
-	t := template.Must(template.New("environment").Parse(constants.EnvFileTemplate))
+	b, err := BuildEnvironment(cfg)
+	if err != nil {
+		return err
+	}
 
 	environmentFileDir := filepath.Dir(cfg.EnvironmentFile)
 	if err := os.MkdirAll(environmentFileDir, 0755); err != nil {
@@ -41,29 +45,21 @@ func WriteEnvironmentFile(cfg *apis.EtcdAdmConfig) error {
 	}
 	defer f.Close()
 
-	if err := t.Execute(f, cfg); err != nil {
-		return fmt.Errorf("unable to apply the etcd environment: %s", err)
+	if _, err := f.Write(b); err != nil {
+		return fmt.Errorf("error writing etcd environment file %s: %w", cfg.EnvironmentFile, err)
 	}
+
 	return nil
 }
 
-// WriteUnitFile writes etcd service unit file
-func WriteUnitFile(cfg *apis.EtcdAdmConfig) error {
-	t := template.Must(template.New("unit").Parse(constants.UnitFileTemplate))
+// BuildEnvironment returns the environment variables corresponding to the desired configuration
+func BuildEnvironment(cfg *apis.EtcdAdmConfig) ([]byte, error) {
+	t := template.Must(template.New("environment").Parse(constants.EnvFileTemplate))
 
-	unitFileDir := filepath.Dir(cfg.UnitFile)
-	if err := os.MkdirAll(unitFileDir, 0755); err != nil {
-		return fmt.Errorf("unable to create unit file directory %q: %s", unitFileDir, err)
-	}
+	var b bytes.Buffer
 
-	f, err := os.OpenFile(cfg.UnitFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
-	if err != nil {
-		return fmt.Errorf("unable to open the etcd service unit file %s: %s", cfg.UnitFile, err)
+	if err := t.Execute(&b, cfg); err != nil {
+		return nil, fmt.Errorf("unable to apply the etcd environment: %s", err)
 	}
-	defer f.Close()
-
-	if err := t.Execute(f, cfg); err != nil {
-		return fmt.Errorf("unable to apply etcd environment: %s", err)
-	}
-	return nil
+	return b.Bytes(), nil
 }

@@ -29,4 +29,6 @@ require (
 	k8s.io/apimachinery v0.0.0-20191128180518-03184f823e28
 	k8s.io/client-go v0.0.0-20191204082519-e9644b2e3edc
 	k8s.io/component-base v0.0.0-20191204083906-3ac1376c73aa
+	k8s.io/klog v1.0.0
+	sigs.k8s.io/yaml v1.1.0
 )

@@ -44,7 +44,7 @@ var resetCmd = &cobra.Command{
 			log.Fatalf("[defaults] Error: %s", err)
 		}
 
-		initSystem, err := initsystem.GetInitSystem()
+		initSystem, err := initsystem.GetInitSystem(&etcdAdmConfig)
 		if err != nil {
 			log.Fatalf("[initsystem] Error detecting the init system: %s", err)
 		}

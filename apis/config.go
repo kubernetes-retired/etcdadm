@@ -36,6 +36,7 @@ import (
 type EtcdAdmConfig struct {
 	Version         string
 	ReleaseURL      string
+	ImageRepository string
 	CertificatesDir string
 
 	DownloadConnectTimeout time.Duration
@@ -89,7 +90,19 @@ type EtcdAdmConfig struct {
 	// Retry sets enable or disable backoff retry when join etcd member to cluster.
 	// Default true, it mean that enable backoff retry.
 	Retry bool
+
+	InitSystem InitSystem
 }
+
+// InitSystem represents the different types of init system
+type InitSystem string
+
+const (
+	// Systemd represents the systemd init system
+	Systemd InitSystem = "systemd"
+	// Kubelet represents the kubelet init system
+	Kubelet InitSystem = "kubelet"
+)
 
 // EndpointStatus TODO: add description
 type EndpointStatus struct {
