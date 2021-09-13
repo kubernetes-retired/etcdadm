@@ -56,6 +56,8 @@ type EtcdAdmConfig struct {
 	InstallDir string
 	CacheDir   string
 
+	BindAddr string
+
 	UnitFile            string
 	EnvironmentFile     string
 	EtcdExecutable      string
@@ -268,7 +270,8 @@ func DefaultClientURLs(cfg *EtcdAdmConfig) error {
 
 // DefaultInitialAdvertisePeerURLs TODO: add description
 func DefaultInitialAdvertisePeerURLs(cfg *EtcdAdmConfig) error {
-	externalAddress, err := defaultExternalAddress()
+	externalAddress, err := ensureValidExternalAddress(cfg.BindAddr)
+
 	if err != nil {
 		return fmt.Errorf("failed to set default InitialAdvertisePeerURLs: %s", err)
 	}
@@ -302,7 +305,7 @@ func DefaultListenClientURLs(cfg *EtcdAdmConfig) error {
 
 // DefaultAdvertiseClientURLs TODO: add description
 func DefaultAdvertiseClientURLs(cfg *EtcdAdmConfig) error {
-	externalAddress, err := defaultExternalAddress()
+	externalAddress, err := ensureValidExternalAddress(cfg.BindAddr)
 	if err != nil {
 		return fmt.Errorf("failed to set default AdvertiseClientURLs: %s", err)
 	}
@@ -313,11 +316,40 @@ func DefaultAdvertiseClientURLs(cfg *EtcdAdmConfig) error {
 	return nil
 }
 
-// Returns the address associated with the host's default interface.
-func defaultExternalAddress() (net.IP, error) {
-	ip, err := netutil.ResolveBindAddress(net.ParseIP("0.0.0.0"))
-	if err != nil {
-		return nil, fmt.Errorf("failed to find a default external address: %s", err)
+// Returns a valid external address.
+// if the user has provided one, ensure it is a valid unicast address in the system.
+// if address is undefined returns the address associated with the host's default interface.
+func ensureValidExternalAddress(userAddr string) (net.IP, error) {
+	var (
+		ip  net.IP
+		err error
+	)
+
+	if userAddr == "" || userAddr == "0.0.0.0" {
+		ip, err := netutil.ResolveBindAddress(net.ParseIP("0.0.0.0"))
+		if err != nil {
+			return nil, fmt.Errorf("failed to find a default external address: %s", err)
+		}
+		return ip, nil
 	}
-	return ip, nil
+
+	ip = net.ParseIP(userAddr)
+	if ip == nil {
+		return nil, fmt.Errorf(`invalid bind address "%s": invalid ip format`, userAddr)
+	}
+
+	systemAddrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return nil, fmt.Errorf("unable to list system unicast addresses to validate bind address: %w", err)
+	}
+
+	for _, sa := range systemAddrs {
+		if ipNet, ok := sa.(*net.IPNet); ok {
+			if ipNet.IP.Equal(ip) {
+				return ip, nil
+			}
+		}
+	}
+
+	return nil, fmt.Errorf("invalid bind address %s: not found in system interfaces", userAddr)
 }
