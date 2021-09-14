@@ -14,8 +14,7 @@
 #
 # Usage:
 # make                 # builds the artifact
-# make ensure          # runs dep ensure
-# make container-build # build artifact on a Linux based container using golang:1.12
+# make container-build # build artifact on a Linux based container using golang:1.16
 
 SHELL := /usr/bin/env bash
 CWD := $(shell pwd)
@@ -30,7 +29,7 @@ GO_IMAGE ?= golang:1.16
 default: $(BIN)
 
 container-build:
-	docker run --rm -e VERSION_OVERRIDE=${VERSION_OVERRIDE} -v $(PWD):$(PACKAGE_GOPATH) -w $(PACKAGE_GOPATH) $(GIT_STORAGE_MOUNT) ${GO_IMAGE} /bin/bash -c "make ensure && make"
+	docker run --rm -e VERSION_OVERRIDE=${VERSION_OVERRIDE} -v $(PWD):$(PACKAGE_GOPATH) -w $(PACKAGE_GOPATH) $(GIT_STORAGE_MOUNT) ${GO_IMAGE} /bin/bash -c "make"
 
 $(BIN):
 	GO111MODULE=on go build -ldflags "$(LDFLAGS)"
