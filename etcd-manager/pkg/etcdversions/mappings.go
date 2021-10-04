@@ -50,6 +50,14 @@ var AllEtcdVersions = []string{
 	Version_3_5_0,
 }
 
+var LatestEtcdVersions = []string{
+	Version_3_1_12,
+	Version_3_2_24,
+	Version_3_3_17,
+	Version_3_4_13,
+	Version_3_5_0,
+}
+
 func UpgradeInPlaceSupported(fromVersion, toVersion string) bool {
 	fromSemver, err := semver.ParseTolerant(fromVersion)
 	if err != nil {
