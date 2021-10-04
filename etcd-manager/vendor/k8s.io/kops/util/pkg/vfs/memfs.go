@@ -24,6 +24,8 @@ import (
 	"path"
 	"strings"
 	"sync"
+
+	"k8s.io/kops/upup/pkg/fi/cloudup/terraformWriter"
 )
 
 type MemFSPath struct {
@@ -36,6 +38,7 @@ type MemFSPath struct {
 }
 
 var _ Path = &MemFSPath{}
+var _ TerraformPath = &MemFSPath{}
 
 type MemFSContext struct {
 	clusterReadable bool
@@ -183,4 +186,59 @@ func (p *MemFSPath) Remove() error {
 
 func (p *MemFSPath) RemoveAllVersions() error {
 	return p.Remove()
+}
+
+func (p *MemFSPath) Location() string {
+	return p.location
+}
+
+// Terraform support for integration tests.
+
+func (p *MemFSPath) TerraformProvider() (*TerraformProvider, error) {
+	return &TerraformProvider{
+		Name: "aws",
+		Arguments: map[string]string{
+			"region": "us-test-1",
+		},
+	}, nil
+}
+
+type terraformMemFSFile struct {
+	Bucket   string                   `json:"bucket" cty:"bucket"`
+	Key      string                   `json:"key" cty:"key"`
+	Content  *terraformWriter.Literal `json:"content,omitempty" cty:"content"`
+	Acl      *string                  `json:"acl,omitempty" cty:"acl"`
+	SSE      string                   `json:"server_side_encryption,omitempty" cty:"server_side_encryption"`
+	Provider *terraformWriter.Literal `json:"provider,omitempty" cty:"provider"`
+}
+
+func (p *MemFSPath) RenderTerraform(w *terraformWriter.TerraformWriter, name string, data io.Reader, acl ACL) error {
+	bytes, err := ioutil.ReadAll(data)
+	if err != nil {
+		return fmt.Errorf("reading data: %v", err)
+	}
+
+	content, err := w.AddFileBytes("aws_s3_bucket_object", name, "content", bytes, false)
+	if err != nil {
+		return fmt.Errorf("rendering S3 file: %v", err)
+	}
+
+	var requestAcl *string
+	if acl != nil {
+		s3Acl, ok := acl.(*S3Acl)
+		if !ok {
+			return fmt.Errorf("write to %s with ACL of unexpected type %T", p, acl)
+		}
+		requestAcl = s3Acl.RequestACL
+	}
+
+	tf := &terraformMemFSFile{
+		Bucket:   "testingBucket",
+		Key:      p.location,
+		Content:  content,
+		SSE:      "AES256",
+		Acl:      requestAcl,
+		Provider: terraformWriter.LiteralTokens("aws", "files"),
+	}
+	return w.RenderResource("aws_s3_bucket_object", name, tf)
 }

@@ -42,7 +42,7 @@ var (
 	// https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
 	// TODO: perhaps make region regex more specific, i.e. (us|eu|ap|cn|ca|sa), to prevent matching bucket names that match region format?
 	//       but that will mean updating this list when AWS introduces new regions
-	s3UrlRegexp = regexp.MustCompile(`(s3([-.](?P<region>\w{2}-\w+-\d{1})|[-.](?P<bucket>[\w.\-\_]+)|)?|(?P<bucket>[\w.\-\_]+).s3.(?P<region>\w{2}-\w+-\d{1})).amazonaws.com(.cn)?(?P<path>.*)?`)
+	s3UrlRegexp = regexp.MustCompile(`(s3([-.](?P<region>\w{2}-\w+-\d{1})|[-.](?P<bucket>[\w.\-\_]+)|)?|(?P<bucket>[\w.\-\_]+)[.]s3([.](?P<region>\w{2}-\w+-\d{1}))?)[.]amazonaws[.]com([.]cn)?(?P<path>.*)?`)
 )
 
 type S3BucketDetails struct {
@@ -96,7 +96,10 @@ func (s *S3Context) getClient(region string) (*s3.S3, error) {
 			}
 		}
 
-		sess, err := session.NewSession(config)
+		sess, err := session.NewSessionWithOptions(session.Options{
+			Config:            *config,
+			SharedConfigState: session.SharedConfigEnable,
+		})
 		if err != nil {
 			return nil, fmt.Errorf("error starting new AWS session: %v", err)
 		}
@@ -284,7 +287,10 @@ func bruteforceBucketLocation(region *string, request *s3.GetBucketLocationInput
 	config := &aws.Config{Region: region}
 	config = config.WithCredentialsChainVerboseErrors(true)
 
-	session, err := session.NewSession(config)
+	session, err := session.NewSessionWithOptions(session.Options{
+		Config:            *config,
+		SharedConfigState: session.SharedConfigEnable,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("error creating aws session: %v", err)
 	}
