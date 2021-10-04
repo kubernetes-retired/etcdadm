@@ -13,7 +13,7 @@ jobs:
 
     - name: Install bazelisk
       run: |
-        curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.7.2/bazelisk-linux-amd64"
+        curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.10.1/bazelisk-linux-amd64"
         mkdir -p "${GITHUB_WORKSPACE}/bin/"
         mv bazelisk-linux-amd64 "${GITHUB_WORKSPACE}/bin/bazelisk"
         chmod +x "${GITHUB_WORKSPACE}/bin/bazelisk"
@@ -31,7 +31,7 @@ jobs:
 
     - name: Install bazelisk
       run: |
-        curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.7.2/bazelisk-linux-amd64"
+        curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.10.1/bazelisk-linux-amd64"
         mkdir -p "${GITHUB_WORKSPACE}/bin/"
         mv bazelisk-linux-amd64 "${GITHUB_WORKSPACE}/bin/bazelisk"
         chmod +x "${GITHUB_WORKSPACE}/bin/bazelisk"
@@ -49,7 +49,7 @@ jobs:
 
     - name: Install bazelisk
       run: |
-        curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.7.2/bazelisk-linux-amd64"
+        curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.10.1/bazelisk-linux-amd64"
         mkdir -p "${GITHUB_WORKSPACE}/bin/"
         mv bazelisk-linux-amd64 "${GITHUB_WORKSPACE}/bin/bazelisk"
         chmod +x "${GITHUB_WORKSPACE}/bin/bazelisk"
