@@ -1,11 +1,14 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+#=============================================================================
+# Go rules
+
 http_archive(
     name = "io_bazel_rules_go",
-    sha256 = "69de5c704a05ff37862f7e0f5534d4f479418afc21806c887db544a316f3cb6b",
+    sha256 = "2b1641428dff9018f9e85c0384f03ec6c10660d935b750e3fa1492a281a53b0f",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.27.0/rules_go-v0.27.0.tar.gz",
-        "https://github.com/bazelbuild/rules_go/releases/download/v0.27.0/rules_go-v0.27.0.tar.gz",
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.29.0/rules_go-v0.29.0.zip",
+        "https://github.com/bazelbuild/rules_go/releases/download/v0.29.0/rules_go-v0.29.0.zip",
     ],
 )
 
@@ -23,7 +26,7 @@ load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_depe
 go_rules_dependencies()
 
 go_register_toolchains(
-    go_version = "1.16.3",
+    go_version = "1.17.1",
 )
 
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
@@ -31,12 +34,13 @@ load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
 gazelle_dependencies()
 
 #=============================================================================
+# Docker rules
 
 http_archive(
     name = "io_bazel_rules_docker",
-    sha256 = "4521794f0fba2e20f3bf15846ab5e01d5332e587e9ce81629c7f96c793bb7036",
-    strip_prefix = "rules_docker-0.14.4",
-    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.14.4/rules_docker-v0.14.4.tar.gz"],
+    sha256 = "1f4e59843b61981a96835dc4ac377ad4da9f8c334ebe5e0bb3f58f80c09735f4",
+    strip_prefix = "rules_docker-0.19.0",
+    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.19.0/rules_docker-v0.19.0.tar.gz"],
 )
 
 load(
@@ -49,10 +53,6 @@ container_repositories()
 load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
 
 container_deps()
-
-load("@io_bazel_rules_docker//repositories:pip_repositories.bzl", "pip_deps")
-
-pip_deps()
 
 load(
     "@io_bazel_rules_docker//repositories:go_repositories.bzl",
@@ -218,7 +218,7 @@ http_file(
 container_pull(
     name = "distroless-base-amd64",
     architecture = "amd64",
-    digest = "sha256:3d0daa49182f9eb6796e8f5e47387e11d3b61e8c118e6fffedfa5fdc6e353cc4",
+    digest = "sha256:7d57eac73dd3bbe097632d6b3b2cb1fee8368f8731ade38f49c67df9285bc473",
     registry = "gcr.io/distroless",
     repository = "base-debian10",
 )
@@ -226,7 +226,7 @@ container_pull(
 container_pull(
     name = "distroless-base-amd64-debug",
     architecture = "amd64",
-    digest = "sha256:bc7547acdc118fdbb9516e11988ef391151aa367f63d748a7997640f624d7495",
+    digest = "sha256:faeef0829d9736cf18ea3113898634ced46542c9d4445cbe15af8a19dda9ce0c",
     registry = "gcr.io/distroless",
     repository = "base-debian10",
 )
@@ -234,7 +234,7 @@ container_pull(
 container_pull(
     name = "distroless-base-arm64",
     architecture = "arm64",
-    digest = "sha256:7c6c26ae988a6e2fcbdddd798644245c6effd9e6375ec2679599d71cdffc3e02",
+    digest = "sha256:2b90e75fde5abf0ee5e5f5f9f34760005258bfb05e72cade687e46d6643b6c8b",
     registry = "gcr.io/distroless",
     repository = "base-debian10",
 )
@@ -242,7 +242,7 @@ container_pull(
 container_pull(
     name = "distroless-base-arm64-debug",
     architecture = "arm64",
-    digest = "sha256:fe081a649b63147009c1bd32d65da1f399d214420e9497b8fe383ecbcc2ce60d",
+    digest = "sha256:bb3ad4bd962ba6368c6c307939d9b94e4b79719c7b55e5a4a34b8d28360b5c23",
     registry = "gcr.io/distroless",
     repository = "base-debian10",
 )
