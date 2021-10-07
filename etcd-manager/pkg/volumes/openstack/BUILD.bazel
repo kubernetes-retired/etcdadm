@@ -17,7 +17,7 @@ go_library(
         "//pkg/volumes",
         "//vendor/github.com/gophercloud/gophercloud",
         "//vendor/github.com/gophercloud/gophercloud/openstack",
-        "//vendor/github.com/gophercloud/gophercloud/openstack/blockstorage/v2/volumes",
+        "//vendor/github.com/gophercloud/gophercloud/openstack/blockstorage/v3/volumes",
         "//vendor/github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/availabilityzones",
         "//vendor/github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/volumeattach",
         "//vendor/github.com/gophercloud/gophercloud/openstack/compute/v2/servers",
