@@ -93,7 +93,7 @@ func (s *EtcdServer) DoRestore(ctx context.Context, request *protoetcd.DoRestore
 	}
 	defer destClient.Close()
 
-	if err := copyEtcd(p, destClient); err != nil {
+	if err := copyEtcd(context.TODO(), p, destClient); err != nil {
 		return nil, err
 	}
 
@@ -224,7 +224,7 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 	return p, nil
 }
 
-func copyEtcd(source *etcdProcess, dest etcdclient.NodeSink) error {
+func copyEtcd(ctx context.Context, source *etcdProcess, dest etcdclient.NodeSink) error {
 	sourceClient, err := source.NewClient()
 	if err != nil {
 		return fmt.Errorf("error building etcd client: %v", err)
@@ -232,17 +232,20 @@ func copyEtcd(source *etcdProcess, dest etcdclient.NodeSink) error {
 	defer sourceClient.Close()
 
 	for i := 0; i < 60; i++ {
-		ctx := context.TODO()
-		_, err := sourceClient.Get(ctx, "/", true)
+		_, err := sourceClient.Get(ctx, "/", true, 2*time.Second)
 		if err == nil {
 			break
+		}
+
+		exitError, exitState := source.ExitState()
+		if exitError != nil || exitState != nil {
+			return fmt.Errorf("source etcd process exited (state=%v): %w", exitState, exitError)
 		}
 		klog.Infof("Waiting for etcd to start (%v)", err)
 		time.Sleep(time.Second)
 	}
 
 	klog.Infof("copying etcd keys from backup-restore process to new cluster")
-	ctx := context.TODO()
 	if n, err := sourceClient.CopyTo(ctx, dest); err != nil {
 		return fmt.Errorf("error copying keys: %v", err)
 	} else {

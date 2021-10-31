@@ -117,10 +117,16 @@ func runDump(backupFile string, out string) error {
 
 	for i := 0; i < 60; i++ {
 		ctx := context.TODO()
-		_, err := sourceClient.Get(ctx, "/", true)
+		_, err := sourceClient.Get(ctx, "/", true, 2*time.Second)
 		if err == nil {
 			break
 		}
+
+		exitError, exitState := process.ExitState()
+		if exitError != nil || exitState != nil {
+			return fmt.Errorf("etcd process exited (state=%v): %w", exitState, exitError)
+		}
+
 		klog.Infof("Waiting for etcd to start (%v)", err)
 		time.Sleep(time.Second)
 	}
