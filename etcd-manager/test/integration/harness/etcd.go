@@ -40,7 +40,7 @@ func (n *TestHarnessNode) get(ctx context.Context, key string, quorum bool) (str
 	}
 	defer client.Close()
 
-	response, err := client.Get(ctx, key, quorum)
+	response, err := client.Get(ctx, key, quorum, 2*time.Second)
 	if err != nil {
 		return "", fmt.Errorf("error reading from member %s: %v", n.ClientURL, err)
 	}

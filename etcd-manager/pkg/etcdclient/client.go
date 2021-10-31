@@ -137,7 +137,10 @@ func (c *EtcdClient) ServerVersion(ctx context.Context) (string, error) {
 	return "", fmt.Errorf("could not fetch server version")
 }
 
-func (c *EtcdClient) Get(ctx context.Context, key string, quorum bool) ([]byte, error) {
+func (c *EtcdClient) Get(ctx context.Context, key string, quorum bool, timeout time.Duration) ([]byte, error) {
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
 	var opts []etcd_client_v3.OpOption
 	if quorum {
 		// Quorum is the default in etcd3

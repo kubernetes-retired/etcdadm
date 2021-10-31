@@ -21,6 +21,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"time"
 
 	"k8s.io/klog/v2"
 	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
@@ -176,7 +177,7 @@ func (s *etcdClusterState) etcdGet(ctx context.Context, key string) ([]byte, err
 			continue
 		}
 
-		response, err := etcdClient.Get(ctx, key, true)
+		response, err := etcdClient.Get(ctx, key, true, 2*time.Second)
 		etcdclient.LoggedClose(etcdClient)
 		if err != nil {
 			klog.Warningf("error reading from member %s: %v", member, err)
