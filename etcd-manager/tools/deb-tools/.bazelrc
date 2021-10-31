@@ -4,5 +4,3 @@ test  --symlink_prefix=.bazel-
 # Also suppress the generation of the bazel-out symlink, which always appears,no
 # matter what you set --symlink_prefix to.
 build --experimental_no_product_name_out_symlink
-
-build --workspace_status_command=./tools/get_workspace_status.sh
