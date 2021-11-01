@@ -10,6 +10,7 @@ bazel-etcd-manager
 bazel-genfiles
 bazel-out
 bazel-testlogs
+.bazel-*
 
 # We often create some local symlinks
 /etcd-manager

@@ -17,6 +17,7 @@ STABLE_DOCKER_IMAGE_PREFIX := $(shell tools/get_workspace_status.sh | grep STABL
 STABLE_DOCKER_TAG          := $(shell tools/get_workspace_status.sh | grep STABLE_DOCKER_TAG | cut -d ' ' -f 2)
 IMAGE_BASE                 := $(STABLE_DOCKER_REGISTRY)/$(STABLE_DOCKER_IMAGE_PREFIX)
 
+BAZEL?=bazelisk
 BAZEL_FLAGS=--features=pure --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64
 
 .PHONY: all
@@ -24,11 +25,11 @@ all: test
 
 .PHONY: test
 test:
-	bazel test //... --test_output=streamed
+	${BAZEL} test //... --test_output=streamed
 
 .PHONY: stress-test
 stress-test:
-	bazel test //... --test_output=streamed --runs_per_test=10
+	${BAZEL} test //... --test_output=streamed --runs_per_test=10
 
 .PHONY: gofmt
 gofmt:
@@ -40,8 +41,8 @@ goimports:
 
 .PHONY: push-etcd-manager
 push-etcd-manager:
-	bazel run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //images:push-etcd-manager
-	bazel run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_arm64 //images:push-etcd-manager
+	${BAZEL} run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //images:push-etcd-manager
+	${BAZEL} run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_arm64 //images:push-etcd-manager
 
 .PHONY: push-etcd-manager-manifest
 push-etcd-manager-manifest:
@@ -54,8 +55,8 @@ push-etcd-manager-manifest:
 
 .PHONY: push-etcd-dump
 push-etcd-dump:
-	bazel run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //images:push-etcd-dump
-	bazel run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_arm64 //images:push-etcd-dump
+	${BAZEL} run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //images:push-etcd-dump
+	${BAZEL} run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_arm64 //images:push-etcd-dump
 
 .PHONY: push-etcd-dump-manifest
 push-etcd-dump-manifest:
@@ -68,8 +69,8 @@ push-etcd-dump-manifest:
 
 .PHONY: push-etcd-backup
 push-etcd-backup:
-	bazel run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //images:push-etcd-backup
-	bazel run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_arm64 //images:push-etcd-backup
+	${BAZEL} run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //images:push-etcd-backup
+	${BAZEL} run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_arm64 //images:push-etcd-backup
 
 .PHONY: push-etcd-backup-manifest
 push-etcd-backup-manifest:
@@ -93,8 +94,8 @@ push: push-images push-manifests
 
 .PHONY: gazelle
 gazelle:
-	bazel run //:gazelle -- fix
-	cd tools/deb-tools && bazel run //:gazelle -- fix
+	${BAZEL} run //:gazelle -- fix
+	cd tools/deb-tools && ${BAZEL} run //:gazelle -- fix
 	git checkout -- vendor
 	rm -f vendor/github.com/coreos/etcd/cmd/etcd
 	#rm vendor/github.com/golang/protobuf/protoc-gen-go/testdata/multi/BUILD.bazel
@@ -110,7 +111,7 @@ vendor:
 	go mod vendor
 	find vendor/ -name "BUILD" -delete
 	find vendor/ -name "BUILD.bazel" -delete
-	bazel run //:gazelle
+	${BAZEL} run //:gazelle
 	make -C tools/deb-tools vendor
 
 .PHONY: staticcheck-all
