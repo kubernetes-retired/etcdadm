@@ -146,6 +146,10 @@ func addAltNames(certConfig *certutil.Config, urls []string) error {
 				certConfig.AltNames.IPs = append(certConfig.AltNames.IPs, ip)
 			}
 
+		case "unix", "unixs":
+			h := u.Hostname() // Hostname does not include port
+			certConfig.AltNames.DNSNames = append(certConfig.AltNames.DNSNames, h)
+
 		default:
 			return fmt.Errorf("unknown URL %q", urlString)
 		}

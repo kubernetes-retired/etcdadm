@@ -110,18 +110,12 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 		return nil, err
 	}
 
-	isV2 := false
 	if strings.HasPrefix(backupInfo.EtcdVersion, "2.") {
-		isV2 = true
+		return nil, fmt.Errorf("this version of etcd-manager does not support etcd v2")
 	}
 
-	var downloadFile string
-	if isV2 {
-		downloadFile = filepath.Join(basedir, "download", "backup.tar.gz")
-	} else {
-		// V3 requires that data dir not exist
-		downloadFile = filepath.Join(basedir, "download", "snapshot.db.gz")
-	}
+	// V3 requires that data dir not exist
+	downloadFile := filepath.Join(basedir, "download", "snapshot.db.gz")
 
 	klog.Infof("Downloading backup %q to %s", backupName, downloadFile)
 	if err := backupStore.DownloadBackup(backupName, downloadFile); err != nil {
@@ -143,17 +137,22 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 		return nil, err
 	}
 
-	// TODO: randomize port
-	port := 8002
-	peerPort := 8003 // Needed because otherwise etcd won't start (sadly)
-	clientUrl := "https://127.0.0.1:" + strconv.Itoa(port)
-	peerUrl := "https://127.0.0.1:" + strconv.Itoa(peerPort)
 	myNodeName := "restore"
 	myNode := &protoetcd.EtcdNode{
-		Name:       myNodeName,
-		ClientUrls: []string{clientUrl},
-		PeerUrls:   []string{peerUrl},
+		Name: myNodeName,
 	}
+
+	// Using unix domain sockets is more secure and avoids port conflicts.
+	// We have to construct the path to look like a host:port until https://github.com/etcd-io/etcd/pull/12469 lands.
+
+	// We have to set the etcd working directory so that we can pass a relative path as the socket
+	currentDir := basedir
+
+	clientPath := "127.0.0.1:8002"
+	peerPath := "127.0.0.1:8003"
+	myNode.ClientUrls = []string{"unixs://" + clientPath}
+	myNode.PeerUrls = []string{"unixs://" + peerPath}
+
 	p := &etcdProcess{
 		CreateNewCluster: true,
 		ForceNewCluster:  true,
@@ -168,6 +167,7 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 		MyNodeName:              myNodeName,
 		ListenAddress:           "127.0.0.1",
 		DisableTLS:              false,
+		CurrentDir:              currentDir,
 	}
 
 	etcdClientsCA, err := pki.NewCA(pki.NewInMemoryStore())
@@ -186,34 +186,16 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 		return nil, err
 	}
 
-	if isV2 {
-		if err := os.MkdirAll(dataDir, 0700); err != nil {
-			return nil, fmt.Errorf("error creating datadir %q: %v", dataDir, err)
-		}
+	klog.Infof("restoring snapshot")
 
-		archive := tgzArchive{File: downloadFile}
-		if err := archive.Extract(dataDir); err != nil {
-			return nil, fmt.Errorf("error expanding backup: %v", err)
-		}
-
-		// Not all backup stores store directories, but etcd2 requires a particular directory structure
-		// Create the directories even if there are no files
-		if err := os.MkdirAll(filepath.Join(p.DataDir, "member", "snap"), 0755); err != nil {
-			return nil, fmt.Errorf("error creating member/snap directory: %v", err)
-		}
+	snapshotFile := filepath.Join(basedir, "download", "snapshot.db")
+	archive := &gzFile{File: downloadFile}
+	if err := archive.expand(snapshotFile); err != nil {
+		return nil, fmt.Errorf("error expanding snapshot: %v", err)
 	}
-	if !isV2 {
-		klog.Infof("restoring snapshot")
 
-		snapshotFile := filepath.Join(basedir, "download", "snapshot.db")
-		archive := &gzFile{File: downloadFile}
-		if err := archive.expand(snapshotFile); err != nil {
-			return nil, fmt.Errorf("error expanding snapshot: %v", err)
-		}
-
-		if err := p.RestoreV3Snapshot(snapshotFile); err != nil {
-			return nil, err
-		}
+	if err := p.RestoreV3Snapshot(snapshotFile); err != nil {
+		return nil, err
 	}
 
 	klog.Infof("starting etcd to read backup")

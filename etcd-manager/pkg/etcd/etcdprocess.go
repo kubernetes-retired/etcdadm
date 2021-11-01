@@ -63,6 +63,9 @@ type etcdProcess struct {
 	BinDir  string
 	DataDir string
 
+	// CurrentDir is the directory in which we launch the binary (cwd)
+	CurrentDir string
+
 	PKIPeersDir   string
 	PKIClientsDir string
 
@@ -197,6 +200,8 @@ func (p *etcdProcess) findMyNode() *protoetcd.EtcdNode {
 
 func (p *etcdProcess) Start() error {
 	c := exec.Command(path.Join(p.BinDir, "etcd"))
+	c.Dir = p.CurrentDir
+
 	if p.ForceNewCluster {
 		c.Args = append(c.Args, "--force-new-cluster")
 	}
@@ -291,6 +296,7 @@ func (p *etcdProcess) Start() error {
 	if err != nil {
 		return fmt.Errorf("error starting etcd: %v", err)
 	}
+	klog.Infof("started etcd with datadir %s; pid=%d", p.DataDir, c.Process.Pid)
 	p.cmd = c
 
 	go func() {
@@ -302,6 +308,11 @@ func (p *etcdProcess) Start() error {
 		p.exitState = processState
 		p.exitError = err
 		p.mutex.Unlock()
+		exitCode := -2
+		if processState != nil {
+			exitCode = processState.ExitCode()
+		}
+		klog.Infof("etcd process exited (datadir %s; pid=%d); exitCode=%d, exitErr=%v", p.DataDir, p.cmd.Process.Pid, exitCode, err)
 	}()
 
 	return nil
@@ -361,12 +372,46 @@ func (p *etcdProcess) NewClient() (*etcdclient.EtcdClient, error) {
 		return nil, fmt.Errorf("unable to find self node %q in %v", p.MyNodeName, p.Cluster.Nodes)
 	}
 
-	clientUrls := me.ClientUrls
+	clientURLs := me.ClientUrls
 	if p.Quarantined {
-		clientUrls = me.QuarantinedClientUrls
+		clientURLs = me.QuarantinedClientUrls
 	}
 
-	return etcdclient.NewClient(clientUrls, p.etcdClientTLSConfig)
+	// If there are any relative paths, make them absolute for the client.
+	// This is a workaround for https://github.com/etcd-io/etcd/issues/12450
+	for i, clientURL := range clientURLs {
+		scheme := ""
+		if strings.HasPrefix(clientURL, "unix://") {
+			scheme = "unix"
+		} else if strings.HasPrefix(clientURL, "unixs://") {
+			scheme = "unixs"
+		}
+		if scheme == "" {
+			// Not unix domain socket
+			continue
+		}
+
+		if strings.HasPrefix(clientURL, scheme+":///") {
+			// Already absolute
+			continue
+		}
+
+		path := strings.TrimPrefix(clientURL, scheme+"://")
+
+		if p.CurrentDir == "" {
+			return nil, fmt.Errorf("clientURL was set to relative path %q, but process directory was not set", clientURL)
+		}
+
+		if !filepath.IsAbs(p.CurrentDir) {
+			return nil, fmt.Errorf("process directory %q was not absolute", p.CurrentDir)
+		}
+
+		rewrote := scheme + "://" + filepath.Join(p.CurrentDir, path)
+		klog.Infof("rewrote client url %q to %q", clientURLs[i], rewrote)
+		clientURLs[i] = rewrote
+	}
+
+	return etcdclient.NewClient(clientURLs, p.etcdClientTLSConfig)
 }
 
 // DoBackup performs a backup/snapshot of the data
