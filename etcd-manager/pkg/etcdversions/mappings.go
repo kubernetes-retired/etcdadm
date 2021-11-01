@@ -72,31 +72,7 @@ func UpgradeInPlaceSupported(fromVersion, toVersion string) bool {
 	}
 
 	if fromSemver.Major == 3 && toSemver.Major == 3 {
-		if fromSemver.Minor == 0 && toSemver.Minor == 0 {
-			return true
-		}
-		if fromSemver.Minor == 0 && toSemver.Minor == 1 {
-			return true
-		}
-		if fromSemver.Minor == 1 && toSemver.Minor == 1 {
-			return true
-		}
-		if fromSemver.Minor == 1 && toSemver.Minor == 2 {
-			return true
-		}
-		if fromSemver.Minor == 2 && toSemver.Minor == 2 {
-			return true
-		}
-		if fromSemver.Minor == 2 && toSemver.Minor == 3 {
-			return true
-		}
-		if fromSemver.Minor == 3 && toSemver.Minor == 3 {
-			return true
-		}
-		if fromSemver.Minor == 3 && toSemver.Minor == 4 {
-			return true
-		}
-		if fromSemver.Minor == 4 && toSemver.Minor == 4 {
+		if toSemver.Minor-fromSemver.Minor <= 1 && toSemver.Minor >= fromSemver.Minor {
 			return true
 		}
 	}
