@@ -190,7 +190,7 @@ func (n *TestHarnessNode) Run() {
 	if err != nil {
 		t.Fatalf("error initializing backup store: %v", err)
 	}
-	backupInterval := 15 * time.Minute
+	backupInterval := n.TestHarness.BackupInterval
 
 	commandStore, err := commands.NewStore(n.TestHarness.BackupStorePath)
 	if err != nil {

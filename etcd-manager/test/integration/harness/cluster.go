@@ -28,6 +28,7 @@ import (
 
 	"k8s.io/klog/v2"
 	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/backup"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/commands"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/pki"
 )
@@ -53,6 +54,8 @@ type TestHarness struct {
 	Nodes map[string]*TestHarnessNode
 
 	Context context.Context
+
+	BackupInterval time.Duration
 }
 
 func NewTestHarness(t *testing.T, ctx context.Context) *TestHarness {
@@ -65,11 +68,12 @@ func NewTestHarness(t *testing.T, ctx context.Context) *TestHarness {
 
 	clusterName := "testharnesscluster"
 	h := &TestHarness{
-		T:           t,
-		ClusterName: clusterName,
-		WorkDir:     path.Join(tmpDir, clusterName),
-		Nodes:       make(map[string]*TestHarnessNode),
-		Context:     ctx,
+		T:              t,
+		ClusterName:    clusterName,
+		WorkDir:        path.Join(tmpDir, clusterName),
+		Nodes:          make(map[string]*TestHarnessNode),
+		Context:        ctx,
+		BackupInterval: 15 * time.Minute,
 	}
 
 	h.grpcCA, err = pki.NewCA(pki.NewFSStore(filepath.Join(h.WorkDir, "pki/grpc")))
@@ -211,6 +215,17 @@ func (h *TestHarness) SetClusterSpec(spec *protoetcd.ClusterSpec) {
 	}
 }
 
+func (h *TestHarness) AddCommand(cmd *protoetcd.Command) {
+	t := h.T
+	controlStore, err := commands.NewStore(h.BackupStorePath)
+	if err != nil {
+		t.Fatalf("error initializing control store: %v", err)
+	}
+	if err := controlStore.AddCommand(cmd); err != nil {
+		t.Fatalf("error adding command: %v", err)
+	}
+}
+
 func (h *TestHarness) InvalidateControlStore(nodes ...*TestHarnessNode) {
 	t := h.T
 
@@ -228,4 +243,29 @@ func (h *TestHarness) InvalidateControlStore(nodes ...*TestHarnessNode) {
 			t.Fatalf("error invaliding control store: %v", err)
 		}
 	}
+}
+
+func (h *TestHarness) WaitForBackup(t *testing.T, timeout time.Duration) {
+	backupStore, err := backup.NewStore(h.BackupStorePath)
+	if err != nil {
+		t.Fatalf("error initializing backup store: %v", err)
+	}
+
+	backups, err := backupStore.ListBackups()
+	if err != nil {
+		t.Fatalf("error listing backups: %v", err)
+	}
+	wantBackups := len(backups) + 1
+
+	description := fmt.Sprintf("wait for new backup")
+	h.WaitFor(timeout, description, func() error {
+		backups, err := backupStore.ListBackups()
+		if err != nil {
+			return fmt.Errorf("error listing backups: %w", err)
+		}
+		if len(backups) >= wantBackups {
+			return nil
+		}
+		return fmt.Errorf("insufficient backups; got %d, want %d", len(backups), wantBackups)
+	})
 }

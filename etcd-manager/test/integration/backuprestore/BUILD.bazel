@@ -1,0 +1,34 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_test")
+
+go_test(
+    name = "backuprestore_test",
+    size = "enormous",  # Takes more than 900 seconds to run on travis
+    srcs = ["backuprestore_test.go"],
+    data = [
+        "//:etcd-v3.1.12-linux-amd64_etcd",
+        "//:etcd-v3.1.12-linux-amd64_etcdctl",
+        "//:etcd-v3.2.18-linux-amd64_etcd",
+        "//:etcd-v3.2.18-linux-amd64_etcdctl",
+        "//:etcd-v3.2.24-linux-amd64_etcd",
+        "//:etcd-v3.2.24-linux-amd64_etcdctl",
+        "//:etcd-v3.3.10-linux-amd64_etcd",
+        "//:etcd-v3.3.10-linux-amd64_etcdctl",
+        "//:etcd-v3.3.13-linux-amd64_etcd",
+        "//:etcd-v3.3.13-linux-amd64_etcdctl",
+        "//:etcd-v3.3.17-linux-amd64_etcd",
+        "//:etcd-v3.3.17-linux-amd64_etcdctl",
+        "//:etcd-v3.4.13-linux-amd64_etcd",
+        "//:etcd-v3.4.13-linux-amd64_etcdctl",
+        "//:etcd-v3.4.3-linux-amd64_etcd",
+        "//:etcd-v3.4.3-linux-amd64_etcdctl",
+        "//:etcd-v3.5.0-linux-amd64_etcd",
+        "//:etcd-v3.5.0-linux-amd64_etcdctl",
+    ],
+    deps = [
+        "//pkg/apis/etcd",
+        "//pkg/backup",
+        "//pkg/etcdversions",
+        "//test/integration/harness",
+        "//vendor/k8s.io/klog/v2:klog",
+    ],
+)
