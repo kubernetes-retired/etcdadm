@@ -21,15 +21,7 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "${REPO_ROOT}"
 
 if [[ -z "${VERSION:-}" ]]; then
-  VERSION=$(git describe --always)
-fi
-
-if [[ -z "${DOCKER_REGISTRY:-}" ]]; then
-  DOCKER_REGISTRY=gcr.io
-fi
-
-if [[ -z "${DOCKER_IMAGE_PREFIX:-}" ]]; then
-  DOCKER_IMAGE_PREFIX=k8s-staging-etcdadm/
+  VERSION=$(git describe --always --exclude 'etcd-manager/*')
 fi
 
 if [[ -z "${ARTIFACT_LOCATION:-}" ]]; then
@@ -42,22 +34,6 @@ if [[ "${ARTIFACT_LOCATION}" != */ ]]; then
   ARTIFACT_LOCATION="${ARTIFACT_LOCATION}/"
 fi
 
-if [[ -n "${INSTALL_BAZELISK:-}" ]]; then
-  DOWNLOAD_URL="https://github.com/bazelbuild/bazelisk/releases/download/v1.7.2/bazelisk-linux-amd64"
-  echo "Downloading bazelisk from $DOWNLOAD_URL"
-  curl -L --output "/tmp/bazelisk" "${DOWNLOAD_URL}"
-  chmod +x "/tmp/bazelisk"
-  # Install to /usr/local/bin
-  mv "/tmp/bazelisk" "/usr/local/bin/bazelisk"
-  # Use bazelisk for commands that invoke bazel
-  ln -sf "/usr/local/bin/bazelisk" "/usr/local/bin/bazel"
-fi
-
 # Build and upload etcdadm binary
 make etcdadm
 gsutil -h "Cache-Control:private, max-age=0, no-transform" -m cp -n etcdadm ${ARTIFACT_LOCATION}${VERSION}/etcdadm
-
-# Build and upload etcd-manager images & binaries
-DOCKER_REGISTRY=${DOCKER_REGISTRY} DOCKER_IMAGE_PREFIX=${DOCKER_IMAGE_PREFIX} DOCKER_TAG=${VERSION} make -C etcd-manager push
-./etcd-manager/dev/build-assets.sh ${VERSION}
-gsutil -h "Cache-Control:private, max-age=0, no-transform" -m cp -r -n etcd-manager/dist/ ${ARTIFACT_LOCATION}${VERSION}/etcd-manager/
