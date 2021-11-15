@@ -11,7 +11,16 @@ steps:
   - DOCKER_IMAGE_PREFIX=$_DOCKER_IMAGE_PREFIX
   - ARTIFACT_LOCATION=$_ARTIFACT_LOCATION
   - INSTALL_BAZELISK=y
-  entrypoint: dev/staging/push.sh
+  entrypoint: dev/staging/push-etcdadm.sh
+- name: gcr.io/k8s-testimages/krte:latest-master
+  env:
+  - PULL_BASE_REF=$_PULL_BASE_REF
+  - VERSION=$_GIT_TAG
+  - DOCKER_REGISTRY=$_DOCKER_REGISTRY
+  - DOCKER_IMAGE_PREFIX=$_DOCKER_IMAGE_PREFIX
+  - ARTIFACT_LOCATION=$_ARTIFACT_LOCATION
+  - INSTALL_BAZELISK=y
+  entrypoint: dev/staging/push-etcdmanager.sh
 substitutions:
   _GIT_TAG: 'dev'
   _PULL_BASE_REF: 'dev'
