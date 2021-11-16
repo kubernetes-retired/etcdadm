@@ -13,8 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -o errexit
+set -o nounset
+set -o pipefail
+
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <version>"
+    exit 1
+fi
+
 VERSION=$1
-PLATFORMS="linux_amd64 darwin_amd64 windows_amd64"
+PLATFORMS="linux_amd64 linux_arm64 darwin_amd64 windows_amd64"
 CMDS="etcd-manager-ctl"
 
 # cd to the etcd-manager root
@@ -44,6 +53,8 @@ for CMD in ${CMDS}; do
             cp bazel-bin/cmd/${CMD}/${PLATFORM}_pure_stripped/${CMD}${EXTENSION} ${CMD_DIST_PATH}
         elif [ -e "bazel-bin/cmd/${CMD}/${CMD}_/${CMD}${EXTENSION}" ]; then
             cp bazel-bin/cmd/${CMD}/${CMD}_/${CMD}${EXTENSION} ${CMD_DIST_PATH}
+        elif [ -e ".bazel-bin/cmd/${CMD}/${CMD}_/${CMD}${EXTENSION}" ]; then
+            cp .bazel-bin/cmd/${CMD}/${CMD}_/${CMD}${EXTENSION} ${CMD_DIST_PATH}
         else
             echo "Unable to find compiled binary for ${CMD} ${PLATFORM}"
             exit 1
@@ -53,3 +64,4 @@ for CMD in ${CMDS}; do
         shasum -a 256 ${CMD_DIST_PATH} | cut -d ' ' -f 1 > ${CMD_DIST_PATH}-sha-256
     done
 done
+tail dist/*-sha-256
