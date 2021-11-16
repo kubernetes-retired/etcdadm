@@ -43,7 +43,7 @@ if [[ "${ARTIFACT_LOCATION}" != */ ]]; then
 fi
 
 if [[ -n "${INSTALL_BAZELISK:-}" ]]; then
-  DOWNLOAD_URL="https://github.com/bazelbuild/bazelisk/releases/download/v1.7.2/bazelisk-linux-amd64"
+  DOWNLOAD_URL="https://github.com/bazelbuild/bazelisk/releases/download/v1.10.1/bazelisk-linux-amd64"
   echo "Downloading bazelisk from $DOWNLOAD_URL"
   curl -L --output "/tmp/bazelisk" "${DOWNLOAD_URL}"
   chmod +x "/tmp/bazelisk"
