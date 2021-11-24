@@ -7,9 +7,7 @@ go_library(
     importpath = "google.golang.org/api/storage/v1",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/googleapis/gax-go/v2:gax-go",
         "//vendor/google.golang.org/api/googleapi",
-        "//vendor/google.golang.org/api/internal",
         "//vendor/google.golang.org/api/internal/gensupport",
         "//vendor/google.golang.org/api/option",
         "//vendor/google.golang.org/api/option/internaloption",

@@ -2,9 +2,10 @@ package sftp
 
 import (
 	"encoding"
-	"fmt"
 	"io"
 	"sync"
+
+	"github.com/pkg/errors"
 )
 
 // conn implements a bidirectional channel on which client and server
@@ -15,6 +16,8 @@ type conn struct {
 	// this is the same allocator used in packet manager
 	alloc      *allocator
 	sync.Mutex // used to serialise writes to sendPacket
+	// sendPacketTest is needed to replicate packet issues in testing
+	sendPacketTest func(w io.Writer, m encoding.BinaryMarshaler) error
 }
 
 // the orderID is used in server mode if the allocator is enabled.
@@ -26,7 +29,9 @@ func (c *conn) recvPacket(orderID uint32) (uint8, []byte, error) {
 func (c *conn) sendPacket(m encoding.BinaryMarshaler) error {
 	c.Lock()
 	defer c.Unlock()
-
+	if c.sendPacketTest != nil {
+		return c.sendPacketTest(c, m)
+	}
 	return sendPacket(c, m)
 }
 
@@ -79,17 +84,14 @@ func (c *clientConn) recv() error {
 		if err != nil {
 			return err
 		}
-		sid, _, err := unmarshalUint32Safe(data)
-		if err != nil {
-			return err
-		}
+		sid, _ := unmarshalUint32(data)
 
 		ch, ok := c.getChannel(sid)
 		if !ok {
 			// This is an unexpected occurrence. Send the error
 			// back to all listeners so that they terminate
 			// gracefully.
-			return fmt.Errorf("sid not found: %d", sid)
+			return errors.Errorf("sid not found: %v", sid)
 		}
 
 		ch <- result{typ: typ, data: data}

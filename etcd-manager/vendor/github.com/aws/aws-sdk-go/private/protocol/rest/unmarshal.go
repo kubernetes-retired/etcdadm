@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"math"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -141,7 +140,7 @@ func unmarshalLocationElements(resp *http.Response, v reflect.Value, lowerCaseHe
 				prefix := field.Tag.Get("locationName")
 				err := unmarshalHeaderMap(m, resp.Header, prefix, lowerCaseHeaderMaps)
 				if err != nil {
-					return awserr.New(request.ErrCodeSerialization, "failed to decode REST response", err)
+					awserr.New(request.ErrCodeSerialization, "failed to decode REST response", err)
 				}
 			}
 		}
@@ -205,13 +204,6 @@ func unmarshalHeader(v reflect.Value, header string, tag reflect.StructTag) erro
 
 	switch v.Interface().(type) {
 	case *string:
-		if tag.Get("suppressedJSONValue") == "true" && tag.Get("location") == "header" {
-			b, err := base64.StdEncoding.DecodeString(header)
-			if err != nil {
-				return fmt.Errorf("failed to decode JSONValue, %v", err)
-			}
-			header = string(b)
-		}
 		v.Set(reflect.ValueOf(&header))
 	case []byte:
 		b, err := base64.StdEncoding.DecodeString(header)
@@ -232,20 +224,9 @@ func unmarshalHeader(v reflect.Value, header string, tag reflect.StructTag) erro
 		}
 		v.Set(reflect.ValueOf(&i))
 	case *float64:
-		var f float64
-		switch {
-		case strings.EqualFold(header, floatNaN):
-			f = math.NaN()
-		case strings.EqualFold(header, floatInf):
-			f = math.Inf(1)
-		case strings.EqualFold(header, floatNegInf):
-			f = math.Inf(-1)
-		default:
-			var err error
-			f, err = strconv.ParseFloat(header, 64)
-			if err != nil {
-				return err
-			}
+		f, err := strconv.ParseFloat(header, 64)
+		if err != nil {
+			return err
 		}
 		v.Set(reflect.ValueOf(&f))
 	case *time.Time:

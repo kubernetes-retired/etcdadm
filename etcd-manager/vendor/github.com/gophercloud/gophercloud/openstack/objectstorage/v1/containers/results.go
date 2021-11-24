@@ -28,12 +28,8 @@ type ContainerPage struct {
 	pagination.MarkerPageBase
 }
 
-// IsEmpty returns true if a ListResult contains no container names.
+//IsEmpty returns true if a ListResult contains no container names.
 func (r ContainerPage) IsEmpty() (bool, error) {
-	if r.StatusCode == 204 {
-		return true, nil
-	}
-
 	names, err := ExtractNames(r)
 	return len(names) == 0, err
 }
@@ -108,7 +104,6 @@ type GetHeader struct {
 	StoragePolicy    string    `json:"X-Storage-Policy"`
 	TempURLKey       string    `json:"X-Container-Meta-Temp-URL-Key"`
 	TempURLKey2      string    `json:"X-Container-Meta-Temp-URL-Key-2"`
-	Timestamp        float64   `json:"X-Timestamp,string"`
 }
 
 func (r *GetHeader) UnmarshalJSON(b []byte) error {
@@ -119,7 +114,6 @@ func (r *GetHeader) UnmarshalJSON(b []byte) error {
 		Read  string                  `json:"X-Container-Read"`
 		Date  gophercloud.JSONRFC1123 `json:"Date"`
 	}
-
 	err := json.Unmarshal(b, &s)
 	if err != nil {
 		return err

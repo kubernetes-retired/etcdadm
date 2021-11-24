@@ -3,7 +3,6 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "prometheus",
     srcs = [
-        "build_info_collector.go",
         "collector.go",
         "counter.go",
         "desc.go",
@@ -11,17 +10,12 @@ go_library(
         "expvar_collector.go",
         "fnv.go",
         "gauge.go",
-        "get_pid.go",
         "go_collector.go",
-        "go_collector_go116.go",
-        "go_collector_latest.go",
         "histogram.go",
         "labels.go",
         "metric.go",
-        "num_threads.go",
         "observer.go",
         "process_collector.go",
-        "process_collector_js.go",
         "process_collector_other.go",
         "process_collector_windows.go",
         "registry.go",
@@ -39,11 +33,11 @@ go_library(
         "//vendor/github.com/beorn7/perks/quantile",
         "//vendor/github.com/cespare/xxhash/v2:xxhash",
         "//vendor/github.com/golang/protobuf/proto",
+        "//vendor/github.com/golang/protobuf/ptypes",
         "//vendor/github.com/prometheus/client_golang/prometheus/internal",
         "//vendor/github.com/prometheus/client_model/go",
         "//vendor/github.com/prometheus/common/expfmt",
         "//vendor/github.com/prometheus/common/model",
-        "//vendor/google.golang.org/protobuf/types/known/timestamppb",
     ] + select({
         "@io_bazel_rules_go//go/platform:aix": [
             "//vendor/github.com/prometheus/procfs",
@@ -64,6 +58,9 @@ go_library(
             "//vendor/github.com/prometheus/procfs",
         ],
         "@io_bazel_rules_go//go/platform:ios": [
+            "//vendor/github.com/prometheus/procfs",
+        ],
+        "@io_bazel_rules_go//go/platform:js": [
             "//vendor/github.com/prometheus/procfs",
         ],
         "@io_bazel_rules_go//go/platform:linux": [

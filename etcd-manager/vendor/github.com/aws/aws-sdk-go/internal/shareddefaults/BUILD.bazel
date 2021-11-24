@@ -5,8 +5,6 @@ go_library(
     srcs = [
         "ecs_container.go",
         "shared_config.go",
-        "shared_config_resolve_home.go",
-        "shared_config_resolve_home_go1.12.go",
     ],
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/aws/aws-sdk-go/internal/shareddefaults",
     importpath = "github.com/aws/aws-sdk-go/internal/shareddefaults",

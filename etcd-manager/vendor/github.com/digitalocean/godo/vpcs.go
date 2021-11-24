@@ -10,7 +10,7 @@ const vpcsBasePath = "/v2/vpcs"
 
 // VPCsService is an interface for managing Virtual Private Cloud configurations with the
 // DigitalOcean API.
-// See: https://docs.digitalocean.com/reference/api/api-reference/#tag/VPCs
+// See: https://developers.digitalocean.com/documentation/v2#vpcs
 type VPCsService interface {
 	Create(context.Context, *VPCCreateRequest) (*VPC, *Response, error)
 	Get(context.Context, string) (*VPC, *Response, error)

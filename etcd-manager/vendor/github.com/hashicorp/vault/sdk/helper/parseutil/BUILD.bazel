@@ -1,0 +1,15 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "parseutil",
+    srcs = ["parseutil.go"],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/hashicorp/vault/sdk/helper/parseutil",
+    importpath = "github.com/hashicorp/vault/sdk/helper/parseutil",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/hashicorp/errwrap",
+        "//vendor/github.com/hashicorp/go-sockaddr",
+        "//vendor/github.com/hashicorp/vault/sdk/helper/strutil",
+        "//vendor/github.com/mitchellh/mapstructure",
+    ],
+)

@@ -14,7 +14,6 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//vendor/github.com/Azure/go-autorest/autorest",
-        "//vendor/github.com/Azure/go-autorest/logger",
         "//vendor/github.com/Azure/go-autorest/tracing",
     ],
 )

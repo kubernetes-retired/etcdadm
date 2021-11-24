@@ -6,5 +6,4 @@ go_library(
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/google.golang.org/grpc/encoding",
     importpath = "google.golang.org/grpc/encoding",
     visibility = ["//visibility:public"],
-    deps = ["//vendor/google.golang.org/grpc/internal/grpcutil"],
 )

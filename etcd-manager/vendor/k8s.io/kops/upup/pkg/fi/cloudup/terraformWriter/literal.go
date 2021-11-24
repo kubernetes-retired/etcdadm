@@ -17,49 +17,42 @@ limitations under the License.
 package terraformWriter
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
 
-	"golang.org/x/exp/constraints"
+	"k8s.io/klog/v2"
 )
 
 // Literal represents a literal in terraform syntax
 type Literal struct {
-	// String is the Terraform representation.
-	String string `cty:"string"`
+	// Value is only used in JSON output via the TerraformJSON feature flag
+	// "${}" interpolation is supported.
+	Value string `cty:"value"`
+
+	// Tokens are portions of a literal reference joined by periods.
+	// example: {"aws_vpc", "foo", "id"}
+	Tokens []string `cty:"tokens"`
+
+	// FnName represents the name of a terraform function.
+	FnName string `cty:"fn_name"`
+	// FnArgs contains string representations of arguments to the function call.
+	// Any string arguments must be quoted.
+	FnArgs []string `cty:"fn_arg"`
 }
 
 var _ json.Marshaler = &Literal{}
 
 func (l *Literal) MarshalJSON() ([]byte, error) {
-	return json.Marshal(&l.String)
+	return json.Marshal(&l.Value)
 }
 
-func (l *Literal) IsSingleValue() bool {
-	return true
-}
-
-func (l *Literal) Write(buffer *bytes.Buffer, indent int, key string) {
-	buffer.WriteString("= ")
-	buffer.WriteString(l.String)
-	buffer.WriteString("\n")
-}
-
-// LiteralFunctionExpression constructs a Literal representing the result of
-// calling the supplied functionName with the supplied args.
-func LiteralFunctionExpression(functionName string, args ...*Literal) *Literal {
-	s := functionName + "("
-	for i, arg := range args {
-		if i != 0 {
-			s += ", "
-		}
-		s += arg.String
-	}
+func LiteralFunctionExpression(functionName string, args []string) *Literal {
 	return &Literal{
-		String: s + ")",
+		Value:  fmt.Sprintf("${%v(%v)}", functionName, strings.Join(args, ", ")),
+		FnName: functionName,
+		FnArgs: args,
 	}
 }
 
@@ -67,94 +60,70 @@ func LiteralSelfLink(resourceType, resourceName string) *Literal {
 	return LiteralProperty(resourceType, resourceName, "self_link")
 }
 
-func LiteralData(dataSourceType, dataSourceName, prop string) *Literal {
-	tfName := sanitizeName(dataSourceName)
-	return &Literal{
-		String: "data." + dataSourceType + "." + tfName + "." + prop + "",
-	}
-}
-
 func LiteralProperty(resourceType, resourceName, prop string) *Literal {
 	tfName := sanitizeName(resourceName)
+	expr := "${" + resourceType + "." + tfName + "." + prop + "}"
 	return &Literal{
-		String: resourceType + "." + tfName + "." + prop,
+		Value:  expr,
+		Tokens: []string{resourceType, tfName, prop},
 	}
 }
 
 func LiteralTokens(tokens ...string) *Literal {
+	expr := "${" + strings.Join(tokens, ".") + "}"
 	return &Literal{
-		String: strings.Join(tokens, "."),
-	}
-}
-
-func LiteralFromIntValue[T constraints.Integer](i T) *Literal {
-	return &Literal{
-		String: fmt.Sprintf("%d", i),
+		Value:  expr,
+		Tokens: tokens,
 	}
 }
 
 func LiteralFromStringValue(s string) *Literal {
-	return &Literal{
-		String: "\"" + s + "\"",
-	}
+	return &Literal{Value: s}
 }
 
-func LiteralWithIndex(s string) *Literal {
-	return &Literal{
-		String: fmt.Sprintf("\"%s-${count.index}\"", s),
-	}
+type literalWithJSON struct {
+	literal *Literal
+	key     string
 }
 
-// LiteralBinaryExpression constructs a Literal with the result of a binary operator expression.
-// It is the caller's responsibility to ensure the supplied parameters do not use operators
-// with lower precedence than the supplied operator.
-func LiteralBinaryExpression(lhs *Literal, operator string, rhs *Literal) *Literal {
-	return &Literal{
-		String: fmt.Sprintf("%s %s %s", lhs.String, operator, rhs.String),
-	}
+type byKey []*literalWithJSON
+
+func (a byKey) Len() int      { return len(a) }
+func (a byKey) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a byKey) Less(i, j int) bool {
+	return a[i].key < a[j].key
 }
 
-// LiteralIndexExpression constructs a Literal with the result of accessing the
-// supplied collection using the supplied index.
-// It is the caller's responsibility to ensure the supplied collection does not use operators
-// with lower precedence than the index operator.
-func LiteralIndexExpression(collection *Literal, index *Literal) *Literal {
-	return &Literal{
-		String: fmt.Sprintf("%s[%s]", collection.String, index.String),
-	}
-}
-
-// LiteralListExpression constructs a Literal consisting of a list of supplied Literals.
-func LiteralListExpression(args ...*Literal) *Literal {
-	var b strings.Builder
-	b.WriteRune('[')
-	for i, arg := range args {
-		if i != 0 {
-			b.WriteString(", ")
+// buildSortProxies maps a list of Literals to a list of literalWithJSON
+func buildSortProxies(v []*Literal) ([]*literalWithJSON, error) {
+	var proxies []*literalWithJSON
+	for _, l := range v {
+		k, err := json.Marshal(l)
+		if err != nil {
+			return nil, err
 		}
-		b.WriteString(arg.String)
+		proxies = append(proxies, &literalWithJSON{
+			literal: l,
+			key:     string(k),
+		})
 	}
-	b.WriteRune(']')
-	return &Literal{
-		String: b.String(),
-	}
-}
 
-// LiteralNullConditionalExpression constructs a Literal which returns `null`
-// if the supplied "nullable" expression is null, otherwise returns "value".
-// It is the caller's responsibility to ensure the supplied parameters do not use operators
-// with lower precedence than the conditional operator.
-func LiteralNullConditionalExpression(nullable, value *Literal) *Literal {
-	return &Literal{
-		String: fmt.Sprintf("%s == null ? null : %s", nullable.String, value.String),
-	}
+	return proxies, nil
 }
 
 // SortLiterals sorts a list of Literal, by key.  It does so in-place
 func SortLiterals(v []*Literal) {
-	sort.Slice(v, func(i, j int) bool {
-		return v[i].String < v[j].String
-	})
+	proxies, err := buildSortProxies(v)
+	if err != nil {
+		// Very unexpected
+		klog.Fatalf("error processing terraform Literal: %v", err)
+	}
+
+	sort.Sort(byKey(proxies))
+
+	for i := range proxies {
+		v[i] = proxies[i].literal
+	}
 }
 
 // dedupLiterals removes any duplicate Literals before returning the slice.
@@ -164,14 +133,19 @@ func dedupLiterals(v []*Literal) ([]*Literal, error) {
 		return nil, nil
 	}
 
-	SortLiterals(v)
+	proxies, err := buildSortProxies(v)
+	if err != nil {
+		return nil, err
+	}
+
+	sort.Sort(byKey(proxies))
 
 	var deduped []*Literal
-	for i, p := range v {
-		if i != 0 && v[i-1].String == v[i].String {
+	for i, p := range proxies {
+		if i != 0 && proxies[i-1].key == proxies[i].key {
 			continue
 		}
-		deduped = append(deduped, p)
+		deduped = append(deduped, p.literal)
 	}
 
 	return deduped, nil

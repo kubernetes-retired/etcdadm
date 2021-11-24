@@ -2,11 +2,9 @@ package azblob
 
 import (
 	"context"
+	"github.com/Azure/azure-pipeline-go/pipeline"
 	"net/url"
 	"strings"
-	"time"
-
-	"github.com/Azure/azure-pipeline-go/pipeline"
 )
 
 // A BlobURL represents a URL to an Azure Storage blob; the blob may be a block blob, append blob, or page blob.
@@ -16,8 +14,8 @@ type BlobURL struct {
 
 type BlobTagsMap map[string]string
 
-var DefaultAccessTier = AccessTierNone
-var DefaultPremiumBlobAccessTier = PremiumPageBlobAccessTierNone
+var DefaultAccessTier AccessTierType = AccessTierNone
+var DefaultPremiumBlobAccessTier PremiumPageBlobAccessTierType = PremiumPageBlobAccessTierNone
 
 // NewBlobURL creates a BlobURL object using the specified URL and request policy pipeline.
 func NewBlobURL(url url.URL, p pipeline.Pipeline) BlobURL {
@@ -77,7 +75,7 @@ func (b BlobURL) ToPageBlobURL() PageBlobURL {
 }
 
 func SerializeBlobTagsHeader(blobTagsMap BlobTagsMap) *string {
-	if len(blobTagsMap) == 0 {
+	if blobTagsMap == nil {
 		return nil
 	}
 	tags := make([]string, 0)
@@ -90,7 +88,7 @@ func SerializeBlobTagsHeader(blobTagsMap BlobTagsMap) *string {
 }
 
 func SerializeBlobTags(blobTagsMap BlobTagsMap) BlobTags {
-	if len(blobTagsMap) == 0 {
+	if blobTagsMap == nil {
 		return BlobTags{}
 	}
 	blobTagSet := make([]BlobTag, 0, len(blobTagsMap))
@@ -141,33 +139,22 @@ func (b BlobURL) Delete(ctx context.Context, deleteOptions DeleteSnapshotsOption
 	return b.blobClient.Delete(ctx, nil, nil, nil, ac.LeaseAccessConditions.pointers(), deleteOptions,
 		ifModifiedSince, ifUnmodifiedSince, ifMatchETag, ifNoneMatchETag,
 		nil, // Blob ifTags
-		nil, BlobDeleteNone)
-}
-
-// PermanentDelete permanently deletes soft-deleted snapshots & soft-deleted version blobs and is a dangerous operation and SHOULD NOT BE USED.
-// WARNING: This operation should not be used unless you know exactly the implications. We will not provide support for this API.
-// For more information, see https://docs.microsoft.com/rest/api/storageservices/delete-blob.
-func (b BlobURL) PermanentDelete(ctx context.Context, deleteOptions DeleteSnapshotsOptionType, ac BlobAccessConditions) (*BlobDeleteResponse, error) {
-	ifModifiedSince, ifUnmodifiedSince, ifMatchETag, ifNoneMatchETag := ac.ModifiedAccessConditions.pointers()
-	return b.blobClient.Delete(ctx, nil, nil, nil, ac.LeaseAccessConditions.pointers(), deleteOptions,
-		ifModifiedSince, ifUnmodifiedSince, ifMatchETag, ifNoneMatchETag,
-		nil, // Blob ifTags
-		nil, BlobDeletePermanent)
+		nil)
 }
 
 // SetTags operation enables users to set tags on a blob or specific blob version, but not snapshot.
 // Each call to this operation replaces all existing tags attached to the blob.
 // To remove all tags from the blob, call this operation with no tags set.
 // https://docs.microsoft.com/en-us/rest/api/storageservices/set-blob-tags
-func (b BlobURL) SetTags(ctx context.Context, transactionalContentMD5 []byte, transactionalContentCrc64 []byte, ifTags *string, blobTagsMap BlobTagsMap) (*BlobSetTagsResponse, error) {
+func (b BlobURL) SetTags(ctx context.Context, timeout *int32, versionID *string, transactionalContentMD5 []byte, transactionalContentCrc64 []byte, requestID *string, ifTags *string, blobTagsMap BlobTagsMap) (*BlobSetTagsResponse, error) {
 	tags := SerializeBlobTags(blobTagsMap)
-	return b.blobClient.SetTags(ctx, nil, nil, transactionalContentMD5, transactionalContentCrc64, nil, ifTags, nil, &tags)
+	return b.blobClient.SetTags(ctx, timeout, versionID, transactionalContentMD5, transactionalContentCrc64, requestID, ifTags, &tags)
 }
 
 // GetTags operation enables users to get tags on a blob or specific blob version, or snapshot.
 // https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-tags
-func (b BlobURL) GetTags(ctx context.Context, ifTags *string) (*BlobTags, error) {
-	return b.blobClient.GetTags(ctx, nil, nil, nil, nil, ifTags, nil)
+func (b BlobURL) GetTags(ctx context.Context, timeout *int32, requestID *string, snapshot *string, versionID *string, ifTags *string) (*BlobTags, error) {
+	return b.blobClient.GetTags(ctx, timeout, requestID, snapshot, versionID, ifTags)
 }
 
 // Undelete restores the contents and metadata of a soft-deleted blob and any associated soft-deleted snapshots.
@@ -183,11 +170,10 @@ func (b BlobURL) Undelete(ctx context.Context) (*BlobUndeleteResponse, error) {
 // Note: VersionId is an optional parameter which is part of request URL query params.
 // It can be explicitly set by calling WithVersionID(versionID string) function and hence it not required to pass it here.
 // For detailed information about block blob level tiering see https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blob-storage-tiers.
-func (b BlobURL) SetTier(ctx context.Context, tier AccessTierType, lac LeaseAccessConditions, rehydratePriority RehydratePriorityType) (*BlobSetTierResponse, error) {
+func (b BlobURL) SetTier(ctx context.Context, tier AccessTierType, lac LeaseAccessConditions) (*BlobSetTierResponse, error) {
 	return b.blobClient.SetTier(ctx, tier, nil,
 		nil, // Blob versioning
-		nil, rehydratePriority, nil, lac.pointers(),
-		nil) // Blob ifTags
+		nil, RehydratePriorityNone, nil, lac.pointers())
 }
 
 // GetProperties returns the blob's properties.
@@ -323,41 +309,11 @@ func (b BlobURL) StartCopyFromURL(ctx context.Context, source url.URL, metadata 
 		dstLeaseID,
 		nil,
 		blobTagsString, // Blob tags
-		nil,
-		// immutability policy
-		nil, BlobImmutabilityPolicyModeNone, nil,
-	)
+		nil)
 }
 
 // AbortCopyFromURL stops a pending copy that was previously started and leaves a destination blob with 0 length and metadata.
 // For more information, see https://docs.microsoft.com/rest/api/storageservices/abort-copy-blob.
 func (b BlobURL) AbortCopyFromURL(ctx context.Context, copyID string, ac LeaseAccessConditions) (*BlobAbortCopyFromURLResponse, error) {
 	return b.blobClient.AbortCopyFromURL(ctx, copyID, nil, ac.pointers(), nil)
-}
-
-// SetImmutabilityPolicy sets a temporary immutability policy with an expiration date. The expiration date must be in the future.
-// While the immutability policy is active, the blob can be read but not modified or deleted.
-// For more information, see https://docs.microsoft.com/en-us/azure/storage/blobs/immutable-time-based-retention-policy-overview (Feature overview)
-// and https://docs.microsoft.com/en-us/rest/api/storageservices/set-blob-immutability-policy (REST API reference)
-// A container with object-level immutability enabled is required.
-func (b BlobURL) SetImmutabilityPolicy(ctx context.Context, expiry time.Time, mode BlobImmutabilityPolicyModeType, ifUnmodifiedSince *time.Time) (*BlobSetImmutabilityPolicyResponse, error) {
-	return b.blobClient.SetImmutabilityPolicy(ctx, nil, nil, ifUnmodifiedSince, &expiry, mode)
-}
-
-// DeleteImmutabilityPolicy deletes a temporary immutability policy with an expiration date.
-// While the immutability policy is active, the blob can be read but not modified or deleted.
-// For more information, see https://docs.microsoft.com/en-us/azure/storage/blobs/immutable-time-based-retention-policy-overview (Feature overview)
-// and https://docs.microsoft.com/en-us/rest/api/storageservices/delete-blob-immutability-policy (REST API reference)
-// A container with object-level immutability enabled is required.
-func (b BlobURL) DeleteImmutabilityPolicy(ctx context.Context) (*BlobDeleteImmutabilityPolicyResponse, error) {
-	return b.blobClient.DeleteImmutabilityPolicy(ctx, nil, nil)
-}
-
-// SetLegalHold enables a temporary immutability policy that can be applied for general data protection purposes.
-// It stores the current blob version in a WORM (Write-Once Read-Many) state. While in effect, the blob can be read but not modified or deleted.
-// For more information, see https://docs.microsoft.com/en-us/azure/storage/blobs/immutable-legal-hold-overview (Feature overview)
-// and https://docs.microsoft.com/en-us/rest/api/storageservices/set-blob-legal-hold (REST API reference)
-// A container with object-level immutability enabled is required.
-func (b BlobURL) SetLegalHold(ctx context.Context, legalHold bool) (*BlobSetLegalHoldResponse, error) {
-	return b.blobClient.SetLegalHold(ctx, legalHold, nil, nil)
 }

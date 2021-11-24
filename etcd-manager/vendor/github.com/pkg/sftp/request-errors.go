@@ -37,18 +37,18 @@ func (e fxerr) Error() string {
 	case ErrSSHFxEOF:
 		return "EOF"
 	case ErrSSHFxNoSuchFile:
-		return "no such file"
+		return "No Such File"
 	case ErrSSHFxPermissionDenied:
-		return "permission denied"
+		return "Permission Denied"
 	case ErrSSHFxBadMessage:
-		return "bad message"
+		return "Bad Message"
 	case ErrSSHFxNoConnection:
-		return "no connection"
+		return "No Connection"
 	case ErrSSHFxConnectionLost:
-		return "connection lost"
+		return "Connection Lost"
 	case ErrSSHFxOpUnsupported:
-		return "operation unsupported"
+		return "Operation Unsupported"
 	default:
-		return "failure"
+		return "Failure"
 	}
 }

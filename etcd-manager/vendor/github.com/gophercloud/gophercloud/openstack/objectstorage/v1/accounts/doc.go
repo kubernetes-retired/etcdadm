@@ -24,5 +24,6 @@ Example to Update an Account
 
 	updateResult, err := accounts.Update(objectStorageClient, updateOpts).Extract()
 	fmt.Printf("%+v\n", updateResult)
+
 */
 package accounts

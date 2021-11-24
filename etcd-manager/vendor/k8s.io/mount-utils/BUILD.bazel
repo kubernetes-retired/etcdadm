@@ -26,7 +26,6 @@ go_library(
             "//vendor/k8s.io/utils/io",
         ],
         "@io_bazel_rules_go//go/platform:android": [
-            "//vendor/github.com/moby/sys/mountinfo",
             "//vendor/k8s.io/utils/io",
         ],
         "@io_bazel_rules_go//go/platform:darwin": [
@@ -48,7 +47,6 @@ go_library(
             "//vendor/k8s.io/utils/io",
         ],
         "@io_bazel_rules_go//go/platform:linux": [
-            "//vendor/github.com/moby/sys/mountinfo",
             "//vendor/k8s.io/utils/io",
         ],
         "@io_bazel_rules_go//go/platform:netbsd": [

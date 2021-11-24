@@ -17,10 +17,9 @@ limitations under the License.
 package vfs
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -51,12 +50,12 @@ func (c *azureClient) newContainerURL(containerName string) (*azblob.ContainerUR
 	return &cURL, nil
 }
 
-func newAzureClient(ctx context.Context) (*azureClient, error) {
+func newAzureClient() (*azureClient, error) {
 	accountName := os.Getenv("AZURE_STORAGE_ACCOUNT")
 	if accountName == "" {
 		return nil, fmt.Errorf("AZURE_STORAGE_ACCOUNT must be set")
 	}
-	credential, err := newAzureCredential(ctx, accountName)
+	credential, err := newAzureCredential(accountName)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +72,7 @@ func newAzureClient(ctx context.Context) (*azureClient, error) {
 //
 // Please note that Instance Metadata Service is available only within a VM
 // running in Azure (and when necessary role is attached to the VM).
-func newAzureCredential(ctx context.Context, accountName string) (azblob.Credential, error) {
+func newAzureCredential(accountName string) (azblob.Credential, error) {
 	accountKey := os.Getenv("AZURE_STORAGE_KEY")
 	if accountKey != "" {
 		klog.V(2).Infof("Creating a shared key credential")
@@ -81,7 +80,7 @@ func newAzureCredential(ctx context.Context, accountName string) (azblob.Credent
 	}
 
 	klog.V(2).Infof("Creating a token credential from Instance Metadata Service.")
-	token, err := getAccessTokenFromInstanceMetadataService(ctx)
+	token, err := getAccessTokenFromInstanceMetadataService()
 	if err != nil {
 		return nil, err
 	}
@@ -89,9 +88,9 @@ func newAzureCredential(ctx context.Context, accountName string) (azblob.Credent
 }
 
 // getAccessTokenFromInstanceMetadataService obtains the access token from Instance Metadata Service.
-func getAccessTokenFromInstanceMetadataService(ctx context.Context) (string, error) {
+func getAccessTokenFromInstanceMetadataService() (string, error) {
 	client := &http.Client{}
-	req, err := http.NewRequestWithContext(ctx, "GET", "http://169.254.169.254/metadata/identity/oauth2/token", nil)
+	req, err := http.NewRequest("GET", "http://169.254.169.254/metadata/identity/oauth2/token", nil)
 	if err != nil {
 		return "", fmt.Errorf("error creating a new request: %s", err)
 	}
@@ -108,7 +107,7 @@ func getAccessTokenFromInstanceMetadataService(ctx context.Context) (string, err
 	}
 
 	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", fmt.Errorf("error reading a response from the metadata server: %s", err)
 	}

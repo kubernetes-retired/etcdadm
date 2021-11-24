@@ -40,13 +40,14 @@ const opAbortMultipartUpload = "AbortMultipartUpload"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the AbortMultipartUploadRequest method.
-//	req, resp := client.AbortMultipartUploadRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the AbortMultipartUploadRequest method.
+//    req, resp := client.AbortMultipartUploadRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/AbortMultipartUpload
 func (c *S3) AbortMultipartUploadRequest(input *AbortMultipartUploadInput) (req *request.Request, output *AbortMultipartUploadOutput) {
@@ -83,15 +84,15 @@ func (c *S3) AbortMultipartUploadRequest(input *AbortMultipartUploadInput) (req 
 //
 // The following operations are related to AbortMultipartUpload:
 //
-//   - CreateMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateMultipartUpload.html)
+//    * CreateMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateMultipartUpload.html)
 //
-//   - UploadPart (https://docs.aws.amazon.com/AmazonS3/latest/API/API_UploadPart.html)
+//    * UploadPart (https://docs.aws.amazon.com/AmazonS3/latest/API/API_UploadPart.html)
 //
-//   - CompleteMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CompleteMultipartUpload.html)
+//    * CompleteMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CompleteMultipartUpload.html)
 //
-//   - ListParts (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListParts.html)
+//    * ListParts (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListParts.html)
 //
-//   - ListMultipartUploads (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListMultipartUploads.html)
+//    * ListMultipartUploads (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListMultipartUploads.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -101,8 +102,8 @@ func (c *S3) AbortMultipartUploadRequest(input *AbortMultipartUploadInput) (req 
 // API operation AbortMultipartUpload for usage and error information.
 //
 // Returned Error Codes:
-//   - ErrCodeNoSuchUpload "NoSuchUpload"
-//     The specified multipart upload does not exist.
+//   * ErrCodeNoSuchUpload "NoSuchUpload"
+//   The specified multipart upload does not exist.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/AbortMultipartUpload
 func (c *S3) AbortMultipartUpload(input *AbortMultipartUploadInput) (*AbortMultipartUploadOutput, error) {
@@ -142,13 +143,14 @@ const opCompleteMultipartUpload = "CompleteMultipartUpload"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the CompleteMultipartUploadRequest method.
-//	req, resp := client.CompleteMultipartUploadRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the CompleteMultipartUploadRequest method.
+//    req, resp := client.CompleteMultipartUploadRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/CompleteMultipartUpload
 func (c *S3) CompleteMultipartUploadRequest(input *CompleteMultipartUploadInput) (req *request.Request, output *CompleteMultipartUploadOutput) {
@@ -206,33 +208,33 @@ func (c *S3) CompleteMultipartUploadRequest(input *CompleteMultipartUploadInput)
 //
 // CompleteMultipartUpload has the following special errors:
 //
-//   - Error code: EntityTooSmall Description: Your proposed upload is smaller
-//     than the minimum allowed object size. Each part must be at least 5 MB
-//     in size, except the last part. 400 Bad Request
+//    * Error code: EntityTooSmall Description: Your proposed upload is smaller
+//    than the minimum allowed object size. Each part must be at least 5 MB
+//    in size, except the last part. 400 Bad Request
 //
-//   - Error code: InvalidPart Description: One or more of the specified parts
-//     could not be found. The part might not have been uploaded, or the specified
-//     entity tag might not have matched the part's entity tag. 400 Bad Request
+//    * Error code: InvalidPart Description: One or more of the specified parts
+//    could not be found. The part might not have been uploaded, or the specified
+//    entity tag might not have matched the part's entity tag. 400 Bad Request
 //
-//   - Error code: InvalidPartOrder Description: The list of parts was not
-//     in ascending order. The parts list must be specified in order by part
-//     number. 400 Bad Request
+//    * Error code: InvalidPartOrder Description: The list of parts was not
+//    in ascending order. The parts list must be specified in order by part
+//    number. 400 Bad Request
 //
-//   - Error code: NoSuchUpload Description: The specified multipart upload
-//     does not exist. The upload ID might be invalid, or the multipart upload
-//     might have been aborted or completed. 404 Not Found
+//    * Error code: NoSuchUpload Description: The specified multipart upload
+//    does not exist. The upload ID might be invalid, or the multipart upload
+//    might have been aborted or completed. 404 Not Found
 //
 // The following operations are related to CompleteMultipartUpload:
 //
-//   - CreateMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateMultipartUpload.html)
+//    * CreateMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateMultipartUpload.html)
 //
-//   - UploadPart (https://docs.aws.amazon.com/AmazonS3/latest/API/API_UploadPart.html)
+//    * UploadPart (https://docs.aws.amazon.com/AmazonS3/latest/API/API_UploadPart.html)
 //
-//   - AbortMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_AbortMultipartUpload.html)
+//    * AbortMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_AbortMultipartUpload.html)
 //
-//   - ListParts (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListParts.html)
+//    * ListParts (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListParts.html)
 //
-//   - ListMultipartUploads (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListMultipartUploads.html)
+//    * ListMultipartUploads (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListMultipartUploads.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -278,13 +280,14 @@ const opCopyObject = "CopyObject"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the CopyObjectRequest method.
-//	req, resp := client.CopyObjectRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the CopyObjectRequest method.
+//    req, resp := client.CopyObjectRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/CopyObject
 func (c *S3) CopyObjectRequest(input *CopyObjectInput) (req *request.Request, output *CopyObjectOutput) {
@@ -310,8 +313,8 @@ func (c *S3) CopyObjectRequest(input *CopyObjectInput) (req *request.Request, ou
 // You can store individual objects of up to 5 TB in Amazon S3. You create a
 // copy of your object up to 5 GB in size in a single atomic action using this
 // API. However, to copy an object greater than 5 GB, you must use the multipart
-// upload Upload Part - Copy (UploadPartCopy) API. For more information, see
-// Copy Object Using the REST Multipart Upload API (https://docs.aws.amazon.com/AmazonS3/latest/dev/CopyingObjctsUsingRESTMPUapi.html).
+// upload Upload Part - Copy API. For more information, see Copy Object Using
+// the REST Multipart Upload API (https://docs.aws.amazon.com/AmazonS3/latest/dev/CopyingObjctsUsingRESTMPUapi.html).
 //
 // All copy requests must be authenticated. Additionally, you must have read
 // access to the source object and write access to the destination bucket. For
@@ -343,7 +346,7 @@ func (c *S3) CopyObjectRequest(input *CopyObjectInput) (req *request.Request, ou
 // get a 400 Bad Request error. For more information, see Transfer Acceleration
 // (https://docs.aws.amazon.com/AmazonS3/latest/dev/transfer-acceleration.html).
 //
-// # Metadata
+// Metadata
 //
 // When copying an object, you can preserve all metadata (default) or specify
 // new metadata. However, the ACL is not preserved and is set to private for
@@ -360,40 +363,40 @@ func (c *S3) CopyObjectRequest(input *CopyObjectInput) (req *request.Request, ou
 // in the Amazon S3 User Guide. For a complete list of Amazon S3-specific condition
 // keys, see Actions, Resources, and Condition Keys for Amazon S3 (https://docs.aws.amazon.com/AmazonS3/latest/dev/list_amazons3.html).
 //
-// x-amz-copy-source-if Headers
+//  x-amz-copy-source-if Headers
 //
 // To only copy an object under certain conditions, such as whether the Etag
 // matches or whether the object was modified before or after a specified date,
 // use the following request parameters:
 //
-//   - x-amz-copy-source-if-match
+//    * x-amz-copy-source-if-match
 //
-//   - x-amz-copy-source-if-none-match
+//    * x-amz-copy-source-if-none-match
 //
-//   - x-amz-copy-source-if-unmodified-since
+//    * x-amz-copy-source-if-unmodified-since
 //
-//   - x-amz-copy-source-if-modified-since
+//    * x-amz-copy-source-if-modified-since
 //
 // If both the x-amz-copy-source-if-match and x-amz-copy-source-if-unmodified-since
 // headers are present in the request and evaluate as follows, Amazon S3 returns
 // 200 OK and copies the data:
 //
-//   - x-amz-copy-source-if-match condition evaluates to true
+//    * x-amz-copy-source-if-match condition evaluates to true
 //
-//   - x-amz-copy-source-if-unmodified-since condition evaluates to false
+//    * x-amz-copy-source-if-unmodified-since condition evaluates to false
 //
 // If both the x-amz-copy-source-if-none-match and x-amz-copy-source-if-modified-since
 // headers are present in the request and evaluate as follows, Amazon S3 returns
 // the 412 Precondition Failed response code:
 //
-//   - x-amz-copy-source-if-none-match condition evaluates to false
+//    * x-amz-copy-source-if-none-match condition evaluates to false
 //
-//   - x-amz-copy-source-if-modified-since condition evaluates to true
+//    * x-amz-copy-source-if-modified-since condition evaluates to true
 //
 // All headers with the x-amz- prefix, including x-amz-copy-source, must be
 // signed.
 //
-// # Server-side encryption
+// Server-side encryption
 //
 // When you perform a CopyObject operation, you can optionally use the appropriate
 // encryption-related headers to encrypt the object using server-side encryption
@@ -407,7 +410,7 @@ func (c *S3) CopyObjectRequest(input *CopyObjectInput) (req *request.Request, ou
 // object. For more information, see Amazon S3 Bucket Keys (https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-key.html)
 // in the Amazon S3 User Guide.
 //
-// # Access Control List (ACL)-Specific Request Headers
+// Access Control List (ACL)-Specific Request Headers
 //
 // When copying an object, you can optionally use headers to grant ACL-based
 // permissions. By default, all objects are private. Only the owner has full
@@ -432,21 +435,14 @@ func (c *S3) CopyObjectRequest(input *CopyObjectInput) (req *request.Request, ou
 // all objects written to the bucket by any account will be owned by the bucket
 // owner.
 //
-// # Checksums
-//
-// When copying an object, if it has a checksum, that checksum will be copied
-// to the new object by default. When you copy the object over, you may optionally
-// specify a different checksum algorithm to use with the x-amz-checksum-algorithm
-// header.
-//
-// # Storage Class Options
+// Storage Class Options
 //
 // You can use the CopyObject action to change the storage class of an object
 // that is already stored in Amazon S3 using the StorageClass parameter. For
 // more information, see Storage Classes (https://docs.aws.amazon.com/AmazonS3/latest/dev/storage-class-intro.html)
 // in the Amazon S3 User Guide.
 //
-// # Versioning
+// Versioning
 //
 // By default, x-amz-copy-source identifies the current version of an object
 // to copy. If the current version is a delete marker, Amazon S3 behaves as
@@ -467,9 +463,9 @@ func (c *S3) CopyObjectRequest(input *CopyObjectInput) (req *request.Request, ou
 //
 // The following operations are related to CopyObject:
 //
-//   - PutObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html)
+//    * PutObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html)
 //
-//   - GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
+//    * GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
 //
 // For more information, see Copying Objects (https://docs.aws.amazon.com/AmazonS3/latest/dev/CopyingObjectsExamples.html).
 //
@@ -481,9 +477,9 @@ func (c *S3) CopyObjectRequest(input *CopyObjectInput) (req *request.Request, ou
 // API operation CopyObject for usage and error information.
 //
 // Returned Error Codes:
-//   - ErrCodeObjectNotInActiveTierError "ObjectNotInActiveTierError"
-//     The source object of the COPY action is not in the active tier and is only
-//     stored in Amazon S3 Glacier.
+//   * ErrCodeObjectNotInActiveTierError "ObjectNotInActiveTierError"
+//   The source object of the COPY action is not in the active tier and is only
+//   stored in Amazon S3 Glacier.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/CopyObject
 func (c *S3) CopyObject(input *CopyObjectInput) (*CopyObjectOutput, error) {
@@ -523,13 +519,14 @@ const opCreateBucket = "CreateBucket"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the CreateBucketRequest method.
-//	req, resp := client.CreateBucketRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the CreateBucketRequest method.
+//    req, resp := client.CreateBucketRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/CreateBucket
 func (c *S3) CreateBucketRequest(input *CreateBucketInput) (req *request.Request, output *CreateBucketOutput) {
@@ -582,68 +579,69 @@ func (c *S3) CreateBucketRequest(input *CreateBucketInput) (req *request.Request
 // the bucket ACL to specify the accounts or groups that should be granted specific
 // permissions on the bucket.
 //
-// If your CreateBucket request sets bucket owner enforced for S3 Object Ownership
-// and specifies a bucket ACL that provides access to an external Amazon Web
-// Services account, your request fails with a 400 error and returns the InvalidBucketAclWithObjectOwnership
-// error code. For more information, see Controlling object ownership (https://docs.aws.amazon.com/AmazonS3/latest/userguide/about-object-ownership.html)
+// If your CreateBucket request includes the BucketOwnerEnforced value for the
+// x-amz-object-ownership header, your request can either not specify an ACL
+// or specify bucket owner full control ACLs, such as the bucket-owner-full-control
+// canned ACL or an equivalent ACL expressed in the XML format. For more information,
+// see Controlling object ownership (https://docs.aws.amazon.com/AmazonS3/latest/userguide/about-object-ownership.html)
 // in the Amazon S3 User Guide.
 //
 // There are two ways to grant the appropriate permissions using the request
 // headers.
 //
-//   - Specify a canned ACL using the x-amz-acl request header. Amazon S3 supports
-//     a set of predefined ACLs, known as canned ACLs. Each canned ACL has a
-//     predefined set of grantees and permissions. For more information, see
-//     Canned ACL (https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#CannedACL).
+//    * Specify a canned ACL using the x-amz-acl request header. Amazon S3 supports
+//    a set of predefined ACLs, known as canned ACLs. Each canned ACL has a
+//    predefined set of grantees and permissions. For more information, see
+//    Canned ACL (https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#CannedACL).
 //
-//   - Specify access permissions explicitly using the x-amz-grant-read, x-amz-grant-write,
-//     x-amz-grant-read-acp, x-amz-grant-write-acp, and x-amz-grant-full-control
-//     headers. These headers map to the set of permissions Amazon S3 supports
-//     in an ACL. For more information, see Access control list (ACL) overview
-//     (https://docs.aws.amazon.com/AmazonS3/latest/userguide/acl-overview.html).
-//     You specify each grantee as a type=value pair, where the type is one of
-//     the following: id – if the value specified is the canonical user ID
-//     of an Amazon Web Services account uri – if you are granting permissions
-//     to a predefined group emailAddress – if the value specified is the email
-//     address of an Amazon Web Services account Using email addresses to specify
-//     a grantee is only supported in the following Amazon Web Services Regions:
-//     US East (N. Virginia) US West (N. California) US West (Oregon) Asia Pacific
-//     (Singapore) Asia Pacific (Sydney) Asia Pacific (Tokyo) Europe (Ireland)
-//     South America (São Paulo) For a list of all the Amazon S3 supported Regions
-//     and endpoints, see Regions and Endpoints (https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region)
-//     in the Amazon Web Services General Reference. For example, the following
-//     x-amz-grant-read header grants the Amazon Web Services accounts identified
-//     by account IDs permissions to read object data and its metadata: x-amz-grant-read:
-//     id="11112222333", id="444455556666"
+//    * Specify access permissions explicitly using the x-amz-grant-read, x-amz-grant-write,
+//    x-amz-grant-read-acp, x-amz-grant-write-acp, and x-amz-grant-full-control
+//    headers. These headers map to the set of permissions Amazon S3 supports
+//    in an ACL. For more information, see Access control list (ACL) overview
+//    (https://docs.aws.amazon.com/AmazonS3/latest/userguide/acl-overview.html).
+//    You specify each grantee as a type=value pair, where the type is one of
+//    the following: id – if the value specified is the canonical user ID
+//    of an Amazon Web Services account uri – if you are granting permissions
+//    to a predefined group emailAddress – if the value specified is the email
+//    address of an Amazon Web Services account Using email addresses to specify
+//    a grantee is only supported in the following Amazon Web Services Regions:
+//    US East (N. Virginia) US West (N. California) US West (Oregon) Asia Pacific
+//    (Singapore) Asia Pacific (Sydney) Asia Pacific (Tokyo) Europe (Ireland)
+//    South America (São Paulo) For a list of all the Amazon S3 supported Regions
+//    and endpoints, see Regions and Endpoints (https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region)
+//    in the Amazon Web Services General Reference. For example, the following
+//    x-amz-grant-read header grants the Amazon Web Services accounts identified
+//    by account IDs permissions to read object data and its metadata: x-amz-grant-read:
+//    id="11112222333", id="444455556666"
 //
 // You can use either a canned ACL or specify access permissions explicitly.
 // You cannot do both.
 //
-// # Permissions
+// Permissions
 //
 // In addition to s3:CreateBucket, the following permissions are required when
 // your CreateBucket includes specific headers:
 //
-//   - ACLs - If your CreateBucket request specifies ACL permissions and the
-//     ACL is public-read, public-read-write, authenticated-read, or if you specify
-//     access permissions explicitly through any other ACL, both s3:CreateBucket
-//     and s3:PutBucketAcl permissions are needed. If the ACL the CreateBucket
-//     request is private or doesn't specify any ACLs, only s3:CreateBucket permission
-//     is needed.
+//    * ACLs - If your CreateBucket request specifies ACL permissions and the
+//    ACL is public-read, public-read-write, authenticated-read, or if you specify
+//    access permissions explicitly through any other ACL, both s3:CreateBucket
+//    and s3:PutBucketAcl permissions are needed. If the ACL the CreateBucket
+//    request is private or doesn't specify any ACLs, only s3:CreateBucket permission
+//    is needed.
 //
-//   - Object Lock - If ObjectLockEnabledForBucket is set to true in your CreateBucket
-//     request, s3:PutBucketObjectLockConfiguration and s3:PutBucketVersioning
-//     permissions are required.
+//    * Object Lock - If ObjectLockEnabledForBucket is set to true in your CreateBucket
+//    request, s3:PutBucketObjectLockConfiguration and s3:PutBucketVersioning
+//    permissions are required.
 //
-//   - S3 Object Ownership - If your CreateBucket request includes the the
-//     x-amz-object-ownership header, s3:PutBucketOwnershipControls permission
-//     is required.
+//    * S3 Object Ownership - If your CreateBucket request includes the the
+//    x-amz-object-ownership header, s3:PutBucketOwnershipControls permission
+//    is required.
 //
 // The following operations are related to CreateBucket:
 //
-//   - PutObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html)
+//    * PutObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html)
 //
-//   - DeleteBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucket.html)
+//    * DeleteBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucket.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -653,17 +651,16 @@ func (c *S3) CreateBucketRequest(input *CreateBucketInput) (req *request.Request
 // API operation CreateBucket for usage and error information.
 //
 // Returned Error Codes:
+//   * ErrCodeBucketAlreadyExists "BucketAlreadyExists"
+//   The requested bucket name is not available. The bucket namespace is shared
+//   by all users of the system. Select a different name and try again.
 //
-//   - ErrCodeBucketAlreadyExists "BucketAlreadyExists"
-//     The requested bucket name is not available. The bucket namespace is shared
-//     by all users of the system. Select a different name and try again.
-//
-//   - ErrCodeBucketAlreadyOwnedByYou "BucketAlreadyOwnedByYou"
-//     The bucket you tried to create already exists, and you own it. Amazon S3
-//     returns this error in all Amazon Web Services Regions except in the North
-//     Virginia Region. For legacy compatibility, if you re-create an existing bucket
-//     that you already own in the North Virginia Region, Amazon S3 returns 200
-//     OK and resets the bucket access control lists (ACLs).
+//   * ErrCodeBucketAlreadyOwnedByYou "BucketAlreadyOwnedByYou"
+//   The bucket you tried to create already exists, and you own it. Amazon S3
+//   returns this error in all Amazon Web Services Regions except in the North
+//   Virginia Region. For legacy compatibility, if you re-create an existing bucket
+//   that you already own in the North Virginia Region, Amazon S3 returns 200
+//   OK and resets the bucket access control lists (ACLs).
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/CreateBucket
 func (c *S3) CreateBucket(input *CreateBucketInput) (*CreateBucketOutput, error) {
@@ -703,13 +700,14 @@ const opCreateMultipartUpload = "CreateMultipartUpload"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the CreateMultipartUploadRequest method.
-//	req, resp := client.CreateMultipartUploadRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the CreateMultipartUploadRequest method.
+//    req, resp := client.CreateMultipartUploadRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/CreateMultipartUpload
 func (c *S3) CreateMultipartUploadRequest(input *CreateMultipartUploadInput) (req *request.Request, output *CreateMultipartUploadOutput) {
@@ -789,24 +787,24 @@ func (c *S3) CreateMultipartUploadRequest(input *CreateMultipartUploadInput) (re
 //
 // For more information, see Protecting Data Using Server-Side Encryption (https://docs.aws.amazon.com/AmazonS3/latest/dev/serv-side-encryption.html).
 //
-// # Access Permissions
+// Access Permissions
 //
 // When copying an object, you can optionally specify the accounts or groups
 // that should be granted specific permissions on the new object. There are
 // two ways to grant the permissions using the request headers:
 //
-//   - Specify a canned ACL with the x-amz-acl request header. For more information,
-//     see Canned ACL (https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#CannedACL).
+//    * Specify a canned ACL with the x-amz-acl request header. For more information,
+//    see Canned ACL (https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#CannedACL).
 //
-//   - Specify access permissions explicitly with the x-amz-grant-read, x-amz-grant-read-acp,
-//     x-amz-grant-write-acp, and x-amz-grant-full-control headers. These parameters
-//     map to the set of permissions that Amazon S3 supports in an ACL. For more
-//     information, see Access Control List (ACL) Overview (https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html).
+//    * Specify access permissions explicitly with the x-amz-grant-read, x-amz-grant-read-acp,
+//    x-amz-grant-write-acp, and x-amz-grant-full-control headers. These parameters
+//    map to the set of permissions that Amazon S3 supports in an ACL. For more
+//    information, see Access Control List (ACL) Overview (https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html).
 //
 // You can use either a canned ACL or specify access permissions explicitly.
 // You cannot do both.
 //
-// # Server-Side- Encryption-Specific Request Headers
+// Server-Side- Encryption-Specific Request Headers
 //
 // You can optionally tell Amazon S3 to encrypt data at rest using server-side
 // encryption. Server-side encryption is for data encryption at rest. Amazon
@@ -815,27 +813,27 @@ func (c *S3) CreateMultipartUploadRequest(input *CreateMultipartUploadInput) (re
 // use Amazon Web Services managed encryption keys or provide your own encryption
 // key.
 //
-//   - Use encryption keys managed by Amazon S3 or customer managed key stored
-//     in Amazon Web Services Key Management Service (Amazon Web Services KMS)
-//     – If you want Amazon Web Services to manage the keys used to encrypt
-//     data, specify the following headers in the request. x-amz-server-side-encryption
-//     x-amz-server-side-encryption-aws-kms-key-id x-amz-server-side-encryption-context
-//     If you specify x-amz-server-side-encryption:aws:kms, but don't provide
-//     x-amz-server-side-encryption-aws-kms-key-id, Amazon S3 uses the Amazon
-//     Web Services managed key in Amazon Web Services KMS to protect the data.
-//     All GET and PUT requests for an object protected by Amazon Web Services
-//     KMS fail if you don't make them with SSL or by using SigV4. For more information
-//     about server-side encryption with KMS key (SSE-KMS), see Protecting Data
-//     Using Server-Side Encryption with KMS keys (https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingKMSEncryption.html).
+//    * Use encryption keys managed by Amazon S3 or customer managed key stored
+//    in Amazon Web Services Key Management Service (Amazon Web Services KMS)
+//    – If you want Amazon Web Services to manage the keys used to encrypt
+//    data, specify the following headers in the request. x-amz-server-side-encryption
+//    x-amz-server-side-encryption-aws-kms-key-id x-amz-server-side-encryption-context
+//    If you specify x-amz-server-side-encryption:aws:kms, but don't provide
+//    x-amz-server-side-encryption-aws-kms-key-id, Amazon S3 uses the Amazon
+//    Web Services managed key in Amazon Web Services KMS to protect the data.
+//    All GET and PUT requests for an object protected by Amazon Web Services
+//    KMS fail if you don't make them with SSL or by using SigV4. For more information
+//    about server-side encryption with KMS key (SSE-KMS), see Protecting Data
+//    Using Server-Side Encryption with KMS keys (https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingKMSEncryption.html).
 //
-//   - Use customer-provided encryption keys – If you want to manage your
-//     own encryption keys, provide all the following headers in the request.
-//     x-amz-server-side-encryption-customer-algorithm x-amz-server-side-encryption-customer-key
-//     x-amz-server-side-encryption-customer-key-MD5 For more information about
-//     server-side encryption with KMS keys (SSE-KMS), see Protecting Data Using
-//     Server-Side Encryption with KMS keys (https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingKMSEncryption.html).
+//    * Use customer-provided encryption keys – If you want to manage your
+//    own encryption keys, provide all the following headers in the request.
+//    x-amz-server-side-encryption-customer-algorithm x-amz-server-side-encryption-customer-key
+//    x-amz-server-side-encryption-customer-key-MD5 For more information about
+//    server-side encryption with KMS keys (SSE-KMS), see Protecting Data Using
+//    Server-Side Encryption with KMS keys (https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingKMSEncryption.html).
 //
-// # Access-Control-List (ACL)-Specific Request Headers
+// Access-Control-List (ACL)-Specific Request Headers
 //
 // You also can use the following access control–related headers with this
 // operation. By default, all objects are private. Only the owner has full access
@@ -846,44 +844,44 @@ func (c *S3) CreateMultipartUploadRequest(input *CreateMultipartUploadInput) (re
 // With this operation, you can grant access permissions using one of the following
 // two methods:
 //
-//   - Specify a canned ACL (x-amz-acl) — Amazon S3 supports a set of predefined
-//     ACLs, known as canned ACLs. Each canned ACL has a predefined set of grantees
-//     and permissions. For more information, see Canned ACL (https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#CannedACL).
+//    * Specify a canned ACL (x-amz-acl) — Amazon S3 supports a set of predefined
+//    ACLs, known as canned ACLs. Each canned ACL has a predefined set of grantees
+//    and permissions. For more information, see Canned ACL (https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#CannedACL).
 //
-//   - Specify access permissions explicitly — To explicitly grant access
-//     permissions to specific Amazon Web Services accounts or groups, use the
-//     following headers. Each header maps to specific permissions that Amazon
-//     S3 supports in an ACL. For more information, see Access Control List (ACL)
-//     Overview (https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html).
-//     In the header, you specify a list of grantees who get the specific permission.
-//     To grant permissions explicitly, use: x-amz-grant-read x-amz-grant-write
-//     x-amz-grant-read-acp x-amz-grant-write-acp x-amz-grant-full-control You
-//     specify each grantee as a type=value pair, where the type is one of the
-//     following: id – if the value specified is the canonical user ID of an
-//     Amazon Web Services account uri – if you are granting permissions to
-//     a predefined group emailAddress – if the value specified is the email
-//     address of an Amazon Web Services account Using email addresses to specify
-//     a grantee is only supported in the following Amazon Web Services Regions:
-//     US East (N. Virginia) US West (N. California) US West (Oregon) Asia Pacific
-//     (Singapore) Asia Pacific (Sydney) Asia Pacific (Tokyo) Europe (Ireland)
-//     South America (São Paulo) For a list of all the Amazon S3 supported Regions
-//     and endpoints, see Regions and Endpoints (https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region)
-//     in the Amazon Web Services General Reference. For example, the following
-//     x-amz-grant-read header grants the Amazon Web Services accounts identified
-//     by account IDs permissions to read object data and its metadata: x-amz-grant-read:
-//     id="11112222333", id="444455556666"
+//    * Specify access permissions explicitly — To explicitly grant access
+//    permissions to specific Amazon Web Services accounts or groups, use the
+//    following headers. Each header maps to specific permissions that Amazon
+//    S3 supports in an ACL. For more information, see Access Control List (ACL)
+//    Overview (https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html).
+//    In the header, you specify a list of grantees who get the specific permission.
+//    To grant permissions explicitly, use: x-amz-grant-read x-amz-grant-write
+//    x-amz-grant-read-acp x-amz-grant-write-acp x-amz-grant-full-control You
+//    specify each grantee as a type=value pair, where the type is one of the
+//    following: id – if the value specified is the canonical user ID of an
+//    Amazon Web Services account uri – if you are granting permissions to
+//    a predefined group emailAddress – if the value specified is the email
+//    address of an Amazon Web Services account Using email addresses to specify
+//    a grantee is only supported in the following Amazon Web Services Regions:
+//    US East (N. Virginia) US West (N. California) US West (Oregon) Asia Pacific
+//    (Singapore) Asia Pacific (Sydney) Asia Pacific (Tokyo) Europe (Ireland)
+//    South America (São Paulo) For a list of all the Amazon S3 supported Regions
+//    and endpoints, see Regions and Endpoints (https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region)
+//    in the Amazon Web Services General Reference. For example, the following
+//    x-amz-grant-read header grants the Amazon Web Services accounts identified
+//    by account IDs permissions to read object data and its metadata: x-amz-grant-read:
+//    id="11112222333", id="444455556666"
 //
 // The following operations are related to CreateMultipartUpload:
 //
-//   - UploadPart (https://docs.aws.amazon.com/AmazonS3/latest/API/API_UploadPart.html)
+//    * UploadPart (https://docs.aws.amazon.com/AmazonS3/latest/API/API_UploadPart.html)
 //
-//   - CompleteMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CompleteMultipartUpload.html)
+//    * CompleteMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CompleteMultipartUpload.html)
 //
-//   - AbortMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_AbortMultipartUpload.html)
+//    * AbortMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_AbortMultipartUpload.html)
 //
-//   - ListParts (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListParts.html)
+//    * ListParts (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListParts.html)
 //
-//   - ListMultipartUploads (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListMultipartUploads.html)
+//    * ListMultipartUploads (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListMultipartUploads.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -929,13 +927,14 @@ const opDeleteBucket = "DeleteBucket"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the DeleteBucketRequest method.
-//	req, resp := client.DeleteBucketRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the DeleteBucketRequest method.
+//    req, resp := client.DeleteBucketRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucket
 func (c *S3) DeleteBucketRequest(input *DeleteBucketInput) (req *request.Request, output *DeleteBucketOutput) {
@@ -962,9 +961,9 @@ func (c *S3) DeleteBucketRequest(input *DeleteBucketInput) (req *request.Request
 //
 // Related Resources
 //
-//   - CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
+//    * CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
 //
-//   - DeleteObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html)
+//    * DeleteObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1010,13 +1009,14 @@ const opDeleteBucketAnalyticsConfiguration = "DeleteBucketAnalyticsConfiguration
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the DeleteBucketAnalyticsConfigurationRequest method.
-//	req, resp := client.DeleteBucketAnalyticsConfigurationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the DeleteBucketAnalyticsConfigurationRequest method.
+//    req, resp := client.DeleteBucketAnalyticsConfigurationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketAnalyticsConfiguration
 func (c *S3) DeleteBucketAnalyticsConfigurationRequest(input *DeleteBucketAnalyticsConfigurationInput) (req *request.Request, output *DeleteBucketAnalyticsConfigurationOutput) {
@@ -1052,11 +1052,11 @@ func (c *S3) DeleteBucketAnalyticsConfigurationRequest(input *DeleteBucketAnalyt
 //
 // The following operations are related to DeleteBucketAnalyticsConfiguration:
 //
-//   - GetBucketAnalyticsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketAnalyticsConfiguration.html)
+//    * GetBucketAnalyticsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketAnalyticsConfiguration.html)
 //
-//   - ListBucketAnalyticsConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketAnalyticsConfigurations.html)
+//    * ListBucketAnalyticsConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketAnalyticsConfigurations.html)
 //
-//   - PutBucketAnalyticsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketAnalyticsConfiguration.html)
+//    * PutBucketAnalyticsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketAnalyticsConfiguration.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1102,13 +1102,14 @@ const opDeleteBucketCors = "DeleteBucketCors"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the DeleteBucketCorsRequest method.
-//	req, resp := client.DeleteBucketCorsRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the DeleteBucketCorsRequest method.
+//    req, resp := client.DeleteBucketCorsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketCors
 func (c *S3) DeleteBucketCorsRequest(input *DeleteBucketCorsInput) (req *request.Request, output *DeleteBucketCorsOutput) {
@@ -1141,9 +1142,9 @@ func (c *S3) DeleteBucketCorsRequest(input *DeleteBucketCorsInput) (req *request
 //
 // Related Resources:
 //
-//   - PutBucketCors (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketCors.html)
+//    * PutBucketCors (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketCors.html)
 //
-//   - RESTOPTIONSobject (https://docs.aws.amazon.com/AmazonS3/latest/API/RESTOPTIONSobject.html)
+//    * RESTOPTIONSobject (https://docs.aws.amazon.com/AmazonS3/latest/API/RESTOPTIONSobject.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1189,13 +1190,14 @@ const opDeleteBucketEncryption = "DeleteBucketEncryption"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the DeleteBucketEncryptionRequest method.
-//	req, resp := client.DeleteBucketEncryptionRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the DeleteBucketEncryptionRequest method.
+//    req, resp := client.DeleteBucketEncryptionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketEncryption
 func (c *S3) DeleteBucketEncryptionRequest(input *DeleteBucketEncryptionInput) (req *request.Request, output *DeleteBucketEncryptionOutput) {
@@ -1231,9 +1233,9 @@ func (c *S3) DeleteBucketEncryptionRequest(input *DeleteBucketEncryptionInput) (
 //
 // Related Resources
 //
-//   - PutBucketEncryption (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketEncryption.html)
+//    * PutBucketEncryption (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketEncryption.html)
 //
-//   - GetBucketEncryption (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketEncryption.html)
+//    * GetBucketEncryption (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketEncryption.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1279,13 +1281,14 @@ const opDeleteBucketIntelligentTieringConfiguration = "DeleteBucketIntelligentTi
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the DeleteBucketIntelligentTieringConfigurationRequest method.
-//	req, resp := client.DeleteBucketIntelligentTieringConfigurationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the DeleteBucketIntelligentTieringConfigurationRequest method.
+//    req, resp := client.DeleteBucketIntelligentTieringConfigurationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketIntelligentTieringConfiguration
 func (c *S3) DeleteBucketIntelligentTieringConfigurationRequest(input *DeleteBucketIntelligentTieringConfigurationInput) (req *request.Request, output *DeleteBucketIntelligentTieringConfigurationOutput) {
@@ -1328,11 +1331,11 @@ func (c *S3) DeleteBucketIntelligentTieringConfigurationRequest(input *DeleteBuc
 //
 // Operations related to DeleteBucketIntelligentTieringConfiguration include:
 //
-//   - GetBucketIntelligentTieringConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketIntelligentTieringConfiguration.html)
+//    * GetBucketIntelligentTieringConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketIntelligentTieringConfiguration.html)
 //
-//   - PutBucketIntelligentTieringConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketIntelligentTieringConfiguration.html)
+//    * PutBucketIntelligentTieringConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketIntelligentTieringConfiguration.html)
 //
-//   - ListBucketIntelligentTieringConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketIntelligentTieringConfigurations.html)
+//    * ListBucketIntelligentTieringConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketIntelligentTieringConfigurations.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1378,13 +1381,14 @@ const opDeleteBucketInventoryConfiguration = "DeleteBucketInventoryConfiguration
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the DeleteBucketInventoryConfigurationRequest method.
-//	req, resp := client.DeleteBucketInventoryConfigurationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the DeleteBucketInventoryConfigurationRequest method.
+//    req, resp := client.DeleteBucketInventoryConfigurationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketInventoryConfiguration
 func (c *S3) DeleteBucketInventoryConfigurationRequest(input *DeleteBucketInventoryConfigurationInput) (req *request.Request, output *DeleteBucketInventoryConfigurationOutput) {
@@ -1420,11 +1424,11 @@ func (c *S3) DeleteBucketInventoryConfigurationRequest(input *DeleteBucketInvent
 //
 // Operations related to DeleteBucketInventoryConfiguration include:
 //
-//   - GetBucketInventoryConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketInventoryConfiguration.html)
+//    * GetBucketInventoryConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketInventoryConfiguration.html)
 //
-//   - PutBucketInventoryConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketInventoryConfiguration.html)
+//    * PutBucketInventoryConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketInventoryConfiguration.html)
 //
-//   - ListBucketInventoryConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketInventoryConfigurations.html)
+//    * ListBucketInventoryConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketInventoryConfigurations.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1470,13 +1474,14 @@ const opDeleteBucketLifecycle = "DeleteBucketLifecycle"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the DeleteBucketLifecycleRequest method.
-//	req, resp := client.DeleteBucketLifecycleRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the DeleteBucketLifecycleRequest method.
+//    req, resp := client.DeleteBucketLifecycleRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketLifecycle
 func (c *S3) DeleteBucketLifecycleRequest(input *DeleteBucketLifecycleInput) (req *request.Request, output *DeleteBucketLifecycleOutput) {
@@ -1516,9 +1521,9 @@ func (c *S3) DeleteBucketLifecycleRequest(input *DeleteBucketLifecycleInput) (re
 //
 // Related actions include:
 //
-//   - PutBucketLifecycleConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketLifecycleConfiguration.html)
+//    * PutBucketLifecycleConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketLifecycleConfiguration.html)
 //
-//   - GetBucketLifecycleConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLifecycleConfiguration.html)
+//    * GetBucketLifecycleConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLifecycleConfiguration.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1564,13 +1569,14 @@ const opDeleteBucketMetricsConfiguration = "DeleteBucketMetricsConfiguration"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the DeleteBucketMetricsConfigurationRequest method.
-//	req, resp := client.DeleteBucketMetricsConfigurationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the DeleteBucketMetricsConfigurationRequest method.
+//    req, resp := client.DeleteBucketMetricsConfigurationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketMetricsConfiguration
 func (c *S3) DeleteBucketMetricsConfigurationRequest(input *DeleteBucketMetricsConfigurationInput) (req *request.Request, output *DeleteBucketMetricsConfigurationOutput) {
@@ -1607,13 +1613,13 @@ func (c *S3) DeleteBucketMetricsConfigurationRequest(input *DeleteBucketMetricsC
 //
 // The following operations are related to DeleteBucketMetricsConfiguration:
 //
-//   - GetBucketMetricsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketMetricsConfiguration.html)
+//    * GetBucketMetricsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketMetricsConfiguration.html)
 //
-//   - PutBucketMetricsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketMetricsConfiguration.html)
+//    * PutBucketMetricsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketMetricsConfiguration.html)
 //
-//   - ListBucketMetricsConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketMetricsConfigurations.html)
+//    * ListBucketMetricsConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketMetricsConfigurations.html)
 //
-//   - Monitoring Metrics with Amazon CloudWatch (https://docs.aws.amazon.com/AmazonS3/latest/dev/cloudwatch-monitoring.html)
+//    * Monitoring Metrics with Amazon CloudWatch (https://docs.aws.amazon.com/AmazonS3/latest/dev/cloudwatch-monitoring.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1659,13 +1665,14 @@ const opDeleteBucketOwnershipControls = "DeleteBucketOwnershipControls"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the DeleteBucketOwnershipControlsRequest method.
-//	req, resp := client.DeleteBucketOwnershipControlsRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the DeleteBucketOwnershipControlsRequest method.
+//    req, resp := client.DeleteBucketOwnershipControlsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketOwnershipControls
 func (c *S3) DeleteBucketOwnershipControlsRequest(input *DeleteBucketOwnershipControlsInput) (req *request.Request, output *DeleteBucketOwnershipControlsOutput) {
@@ -1696,9 +1703,9 @@ func (c *S3) DeleteBucketOwnershipControlsRequest(input *DeleteBucketOwnershipCo
 //
 // The following operations are related to DeleteBucketOwnershipControls:
 //
-//   - GetBucketOwnershipControls
+//    * GetBucketOwnershipControls
 //
-//   - PutBucketOwnershipControls
+//    * PutBucketOwnershipControls
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1744,13 +1751,14 @@ const opDeleteBucketPolicy = "DeleteBucketPolicy"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the DeleteBucketPolicyRequest method.
-//	req, resp := client.DeleteBucketPolicyRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the DeleteBucketPolicyRequest method.
+//    req, resp := client.DeleteBucketPolicyRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketPolicy
 func (c *S3) DeleteBucketPolicyRequest(input *DeleteBucketPolicyInput) (req *request.Request, output *DeleteBucketPolicyOutput) {
@@ -1792,9 +1800,9 @@ func (c *S3) DeleteBucketPolicyRequest(input *DeleteBucketPolicyInput) (req *req
 //
 // The following operations are related to DeleteBucketPolicy
 //
-//   - CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
+//    * CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
 //
-//   - DeleteObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html)
+//    * DeleteObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1840,13 +1848,14 @@ const opDeleteBucketReplication = "DeleteBucketReplication"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the DeleteBucketReplicationRequest method.
-//	req, resp := client.DeleteBucketReplicationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the DeleteBucketReplicationRequest method.
+//    req, resp := client.DeleteBucketReplicationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketReplication
 func (c *S3) DeleteBucketReplicationRequest(input *DeleteBucketReplicationInput) (req *request.Request, output *DeleteBucketReplicationOutput) {
@@ -1884,9 +1893,9 @@ func (c *S3) DeleteBucketReplicationRequest(input *DeleteBucketReplicationInput)
 //
 // The following operations are related to DeleteBucketReplication:
 //
-//   - PutBucketReplication (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketReplication.html)
+//    * PutBucketReplication (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketReplication.html)
 //
-//   - GetBucketReplication (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketReplication.html)
+//    * GetBucketReplication (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketReplication.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1932,13 +1941,14 @@ const opDeleteBucketTagging = "DeleteBucketTagging"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the DeleteBucketTaggingRequest method.
-//	req, resp := client.DeleteBucketTaggingRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the DeleteBucketTaggingRequest method.
+//    req, resp := client.DeleteBucketTaggingRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketTagging
 func (c *S3) DeleteBucketTaggingRequest(input *DeleteBucketTaggingInput) (req *request.Request, output *DeleteBucketTaggingOutput) {
@@ -1968,9 +1978,9 @@ func (c *S3) DeleteBucketTaggingRequest(input *DeleteBucketTaggingInput) (req *r
 //
 // The following operations are related to DeleteBucketTagging:
 //
-//   - GetBucketTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketTagging.html)
+//    * GetBucketTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketTagging.html)
 //
-//   - PutBucketTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketTagging.html)
+//    * PutBucketTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketTagging.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2016,13 +2026,14 @@ const opDeleteBucketWebsite = "DeleteBucketWebsite"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the DeleteBucketWebsiteRequest method.
-//	req, resp := client.DeleteBucketWebsiteRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the DeleteBucketWebsiteRequest method.
+//    req, resp := client.DeleteBucketWebsiteRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketWebsite
 func (c *S3) DeleteBucketWebsiteRequest(input *DeleteBucketWebsiteInput) (req *request.Request, output *DeleteBucketWebsiteOutput) {
@@ -2061,9 +2072,9 @@ func (c *S3) DeleteBucketWebsiteRequest(input *DeleteBucketWebsiteInput) (req *r
 //
 // The following operations are related to DeleteBucketWebsite:
 //
-//   - GetBucketWebsite (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketWebsite.html)
+//    * GetBucketWebsite (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketWebsite.html)
 //
-//   - PutBucketWebsite (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketWebsite.html)
+//    * PutBucketWebsite (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketWebsite.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2109,13 +2120,14 @@ const opDeleteObject = "DeleteObject"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the DeleteObjectRequest method.
-//	req, resp := client.DeleteObjectRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the DeleteObjectRequest method.
+//    req, resp := client.DeleteObjectRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteObject
 func (c *S3) DeleteObjectRequest(input *DeleteObjectInput) (req *request.Request, output *DeleteObjectOutput) {
@@ -2163,7 +2175,7 @@ func (c *S3) DeleteObjectRequest(input *DeleteObjectInput) (req *request.Request
 //
 // The following action is related to DeleteObject:
 //
-//   - PutObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html)
+//    * PutObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2209,13 +2221,14 @@ const opDeleteObjectTagging = "DeleteObjectTagging"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the DeleteObjectTaggingRequest method.
-//	req, resp := client.DeleteObjectTaggingRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the DeleteObjectTaggingRequest method.
+//    req, resp := client.DeleteObjectTaggingRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteObjectTagging
 func (c *S3) DeleteObjectTaggingRequest(input *DeleteObjectTaggingInput) (req *request.Request, output *DeleteObjectTaggingOutput) {
@@ -2248,9 +2261,9 @@ func (c *S3) DeleteObjectTaggingRequest(input *DeleteObjectTaggingInput) (req *r
 //
 // The following operations are related to DeleteBucketMetricsConfiguration:
 //
-//   - PutObjectTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObjectTagging.html)
+//    * PutObjectTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObjectTagging.html)
 //
-//   - GetObjectTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectTagging.html)
+//    * GetObjectTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectTagging.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2296,13 +2309,14 @@ const opDeleteObjects = "DeleteObjects"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the DeleteObjectsRequest method.
-//	req, resp := client.DeleteObjectsRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the DeleteObjectsRequest method.
+//    req, resp := client.DeleteObjectsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteObjects
 func (c *S3) DeleteObjectsRequest(input *DeleteObjectsInput) (req *request.Request, output *DeleteObjectsOutput) {
@@ -2360,15 +2374,15 @@ func (c *S3) DeleteObjectsRequest(input *DeleteObjectsInput) (req *request.Reque
 //
 // The following operations are related to DeleteObjects:
 //
-//   - CreateMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateMultipartUpload.html)
+//    * CreateMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateMultipartUpload.html)
 //
-//   - UploadPart (https://docs.aws.amazon.com/AmazonS3/latest/API/API_UploadPart.html)
+//    * UploadPart (https://docs.aws.amazon.com/AmazonS3/latest/API/API_UploadPart.html)
 //
-//   - CompleteMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CompleteMultipartUpload.html)
+//    * CompleteMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CompleteMultipartUpload.html)
 //
-//   - ListParts (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListParts.html)
+//    * ListParts (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListParts.html)
 //
-//   - AbortMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_AbortMultipartUpload.html)
+//    * AbortMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_AbortMultipartUpload.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2414,13 +2428,14 @@ const opDeletePublicAccessBlock = "DeletePublicAccessBlock"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the DeletePublicAccessBlockRequest method.
-//	req, resp := client.DeletePublicAccessBlockRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the DeletePublicAccessBlockRequest method.
+//    req, resp := client.DeletePublicAccessBlockRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeletePublicAccessBlock
 func (c *S3) DeletePublicAccessBlockRequest(input *DeletePublicAccessBlockInput) (req *request.Request, output *DeletePublicAccessBlockOutput) {
@@ -2450,13 +2465,13 @@ func (c *S3) DeletePublicAccessBlockRequest(input *DeletePublicAccessBlockInput)
 //
 // The following operations are related to DeletePublicAccessBlock:
 //
-//   - Using Amazon S3 Block Public Access (https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html)
+//    * Using Amazon S3 Block Public Access (https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html)
 //
-//   - GetPublicAccessBlock (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetPublicAccessBlock.html)
+//    * GetPublicAccessBlock (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetPublicAccessBlock.html)
 //
-//   - PutPublicAccessBlock (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutPublicAccessBlock.html)
+//    * PutPublicAccessBlock (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutPublicAccessBlock.html)
 //
-//   - GetBucketPolicyStatus (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketPolicyStatus.html)
+//    * GetBucketPolicyStatus (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketPolicyStatus.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2502,13 +2517,14 @@ const opGetBucketAccelerateConfiguration = "GetBucketAccelerateConfiguration"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketAccelerateConfigurationRequest method.
-//	req, resp := client.GetBucketAccelerateConfigurationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketAccelerateConfigurationRequest method.
+//    req, resp := client.GetBucketAccelerateConfigurationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketAccelerateConfiguration
 func (c *S3) GetBucketAccelerateConfigurationRequest(input *GetBucketAccelerateConfigurationInput) (req *request.Request, output *GetBucketAccelerateConfigurationOutput) {
@@ -2555,7 +2571,7 @@ func (c *S3) GetBucketAccelerateConfigurationRequest(input *GetBucketAccelerateC
 //
 // Related Resources
 //
-//   - PutBucketAccelerateConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketAccelerateConfiguration.html)
+//    * PutBucketAccelerateConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketAccelerateConfiguration.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2601,13 +2617,14 @@ const opGetBucketAcl = "GetBucketAcl"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketAclRequest method.
-//	req, resp := client.GetBucketAclRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketAclRequest method.
+//    req, resp := client.GetBucketAclRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketAcl
 func (c *S3) GetBucketAclRequest(input *GetBucketAclInput) (req *request.Request, output *GetBucketAclOutput) {
@@ -2642,7 +2659,7 @@ func (c *S3) GetBucketAclRequest(input *GetBucketAclInput) (req *request.Request
 //
 // Related Resources
 //
-//   - ListObjects (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjects.html)
+//    * ListObjects (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjects.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2688,13 +2705,14 @@ const opGetBucketAnalyticsConfiguration = "GetBucketAnalyticsConfiguration"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketAnalyticsConfigurationRequest method.
-//	req, resp := client.GetBucketAnalyticsConfigurationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketAnalyticsConfigurationRequest method.
+//    req, resp := client.GetBucketAnalyticsConfigurationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketAnalyticsConfiguration
 func (c *S3) GetBucketAnalyticsConfigurationRequest(input *GetBucketAnalyticsConfigurationInput) (req *request.Request, output *GetBucketAnalyticsConfigurationOutput) {
@@ -2731,11 +2749,11 @@ func (c *S3) GetBucketAnalyticsConfigurationRequest(input *GetBucketAnalyticsCon
 //
 // Related Resources
 //
-//   - DeleteBucketAnalyticsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketAnalyticsConfiguration.html)
+//    * DeleteBucketAnalyticsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketAnalyticsConfiguration.html)
 //
-//   - ListBucketAnalyticsConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketAnalyticsConfigurations.html)
+//    * ListBucketAnalyticsConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketAnalyticsConfigurations.html)
 //
-//   - PutBucketAnalyticsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketAnalyticsConfiguration.html)
+//    * PutBucketAnalyticsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketAnalyticsConfiguration.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2781,13 +2799,14 @@ const opGetBucketCors = "GetBucketCors"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketCorsRequest method.
-//	req, resp := client.GetBucketCorsRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketCorsRequest method.
+//    req, resp := client.GetBucketCorsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketCors
 func (c *S3) GetBucketCorsRequest(input *GetBucketCorsInput) (req *request.Request, output *GetBucketCorsOutput) {
@@ -2808,21 +2827,20 @@ func (c *S3) GetBucketCorsRequest(input *GetBucketCorsInput) (req *request.Reque
 
 // GetBucketCors API operation for Amazon Simple Storage Service.
 //
-// Returns the Cross-Origin Resource Sharing (CORS) configuration information
-// set for the bucket.
+// Returns the cors configuration information set for the bucket.
 //
 // To use this operation, you must have permission to perform the s3:GetBucketCORS
 // action. By default, the bucket owner has this permission and can grant it
 // to others.
 //
-// For more information about CORS, see Enabling Cross-Origin Resource Sharing
+// For more information about cors, see Enabling Cross-Origin Resource Sharing
 // (https://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html).
 //
 // The following operations are related to GetBucketCors:
 //
-//   - PutBucketCors (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketCors.html)
+//    * PutBucketCors (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketCors.html)
 //
-//   - DeleteBucketCors (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketCors.html)
+//    * DeleteBucketCors (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketCors.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2868,13 +2886,14 @@ const opGetBucketEncryption = "GetBucketEncryption"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketEncryptionRequest method.
-//	req, resp := client.GetBucketEncryptionRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketEncryptionRequest method.
+//    req, resp := client.GetBucketEncryptionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketEncryption
 func (c *S3) GetBucketEncryptionRequest(input *GetBucketEncryptionInput) (req *request.Request, output *GetBucketEncryptionOutput) {
@@ -2910,9 +2929,9 @@ func (c *S3) GetBucketEncryptionRequest(input *GetBucketEncryptionInput) (req *r
 //
 // The following operations are related to GetBucketEncryption:
 //
-//   - PutBucketEncryption (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketEncryption.html)
+//    * PutBucketEncryption (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketEncryption.html)
 //
-//   - DeleteBucketEncryption (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketEncryption.html)
+//    * DeleteBucketEncryption (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketEncryption.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2958,13 +2977,14 @@ const opGetBucketIntelligentTieringConfiguration = "GetBucketIntelligentTieringC
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketIntelligentTieringConfigurationRequest method.
-//	req, resp := client.GetBucketIntelligentTieringConfigurationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketIntelligentTieringConfigurationRequest method.
+//    req, resp := client.GetBucketIntelligentTieringConfigurationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketIntelligentTieringConfiguration
 func (c *S3) GetBucketIntelligentTieringConfigurationRequest(input *GetBucketIntelligentTieringConfigurationInput) (req *request.Request, output *GetBucketIntelligentTieringConfigurationOutput) {
@@ -3006,11 +3026,11 @@ func (c *S3) GetBucketIntelligentTieringConfigurationRequest(input *GetBucketInt
 //
 // Operations related to GetBucketIntelligentTieringConfiguration include:
 //
-//   - DeleteBucketIntelligentTieringConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketIntelligentTieringConfiguration.html)
+//    * DeleteBucketIntelligentTieringConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketIntelligentTieringConfiguration.html)
 //
-//   - PutBucketIntelligentTieringConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketIntelligentTieringConfiguration.html)
+//    * PutBucketIntelligentTieringConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketIntelligentTieringConfiguration.html)
 //
-//   - ListBucketIntelligentTieringConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketIntelligentTieringConfigurations.html)
+//    * ListBucketIntelligentTieringConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketIntelligentTieringConfigurations.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3056,13 +3076,14 @@ const opGetBucketInventoryConfiguration = "GetBucketInventoryConfiguration"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketInventoryConfigurationRequest method.
-//	req, resp := client.GetBucketInventoryConfigurationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketInventoryConfigurationRequest method.
+//    req, resp := client.GetBucketInventoryConfigurationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketInventoryConfiguration
 func (c *S3) GetBucketInventoryConfigurationRequest(input *GetBucketInventoryConfigurationInput) (req *request.Request, output *GetBucketInventoryConfigurationOutput) {
@@ -3097,11 +3118,11 @@ func (c *S3) GetBucketInventoryConfigurationRequest(input *GetBucketInventoryCon
 //
 // The following operations are related to GetBucketInventoryConfiguration:
 //
-//   - DeleteBucketInventoryConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketInventoryConfiguration.html)
+//    * DeleteBucketInventoryConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketInventoryConfiguration.html)
 //
-//   - ListBucketInventoryConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketInventoryConfigurations.html)
+//    * ListBucketInventoryConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketInventoryConfigurations.html)
 //
-//   - PutBucketInventoryConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketInventoryConfiguration.html)
+//    * PutBucketInventoryConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketInventoryConfiguration.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3147,13 +3168,14 @@ const opGetBucketLifecycle = "GetBucketLifecycle"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketLifecycleRequest method.
-//	req, resp := client.GetBucketLifecycleRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketLifecycleRequest method.
+//    req, resp := client.GetBucketLifecycleRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketLifecycle
 //
@@ -3179,6 +3201,7 @@ func (c *S3) GetBucketLifecycleRequest(input *GetBucketLifecycleInput) (req *req
 
 // GetBucketLifecycle API operation for Amazon Simple Storage Service.
 //
+//
 // For an updated version of this API, see GetBucketLifecycleConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLifecycleConfiguration.html).
 // If you configured a bucket lifecycle using the filter element, you should
 // see the updated version of this topic. This topic is provided for backward
@@ -3195,17 +3218,17 @@ func (c *S3) GetBucketLifecycleRequest(input *GetBucketLifecycleInput) (req *req
 //
 // GetBucketLifecycle has the following special error:
 //
-//   - Error code: NoSuchLifecycleConfiguration Description: The lifecycle
-//     configuration does not exist. HTTP Status Code: 404 Not Found SOAP Fault
-//     Code Prefix: Client
+//    * Error code: NoSuchLifecycleConfiguration Description: The lifecycle
+//    configuration does not exist. HTTP Status Code: 404 Not Found SOAP Fault
+//    Code Prefix: Client
 //
 // The following operations are related to GetBucketLifecycle:
 //
-//   - GetBucketLifecycleConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLifecycleConfiguration.html)
+//    * GetBucketLifecycleConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLifecycleConfiguration.html)
 //
-//   - PutBucketLifecycle (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketLifecycle.html)
+//    * PutBucketLifecycle (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketLifecycle.html)
 //
-//   - DeleteBucketLifecycle (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketLifecycle.html)
+//    * DeleteBucketLifecycle (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketLifecycle.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3255,13 +3278,14 @@ const opGetBucketLifecycleConfiguration = "GetBucketLifecycleConfiguration"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketLifecycleConfigurationRequest method.
-//	req, resp := client.GetBucketLifecycleConfigurationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketLifecycleConfigurationRequest method.
+//    req, resp := client.GetBucketLifecycleConfigurationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketLifecycleConfiguration
 func (c *S3) GetBucketLifecycleConfigurationRequest(input *GetBucketLifecycleConfigurationInput) (req *request.Request, output *GetBucketLifecycleConfigurationOutput) {
@@ -3282,6 +3306,7 @@ func (c *S3) GetBucketLifecycleConfigurationRequest(input *GetBucketLifecycleCon
 
 // GetBucketLifecycleConfiguration API operation for Amazon Simple Storage Service.
 //
+//
 // Bucket lifecycle configuration now supports specifying a lifecycle rule using
 // an object key name prefix, one or more object tags, or a combination of both.
 // Accordingly, this section describes the latest API. The response describes
@@ -3301,17 +3326,17 @@ func (c *S3) GetBucketLifecycleConfigurationRequest(input *GetBucketLifecycleCon
 //
 // GetBucketLifecycleConfiguration has the following special error:
 //
-//   - Error code: NoSuchLifecycleConfiguration Description: The lifecycle
-//     configuration does not exist. HTTP Status Code: 404 Not Found SOAP Fault
-//     Code Prefix: Client
+//    * Error code: NoSuchLifecycleConfiguration Description: The lifecycle
+//    configuration does not exist. HTTP Status Code: 404 Not Found SOAP Fault
+//    Code Prefix: Client
 //
 // The following operations are related to GetBucketLifecycleConfiguration:
 //
-//   - GetBucketLifecycle (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLifecycle.html)
+//    * GetBucketLifecycle (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLifecycle.html)
 //
-//   - PutBucketLifecycle (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketLifecycle.html)
+//    * PutBucketLifecycle (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketLifecycle.html)
 //
-//   - DeleteBucketLifecycle (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketLifecycle.html)
+//    * DeleteBucketLifecycle (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketLifecycle.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3357,13 +3382,14 @@ const opGetBucketLocation = "GetBucketLocation"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketLocationRequest method.
-//	req, resp := client.GetBucketLocationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketLocationRequest method.
+//    req, resp := client.GetBucketLocationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketLocation
 func (c *S3) GetBucketLocationRequest(input *GetBucketLocationInput) (req *request.Request, output *GetBucketLocationOutput) {
@@ -3395,9 +3421,9 @@ func (c *S3) GetBucketLocationRequest(input *GetBucketLocationInput) (req *reque
 //
 // The following operations are related to GetBucketLocation:
 //
-//   - GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
+//    * GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
 //
-//   - CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
+//    * CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3443,13 +3469,14 @@ const opGetBucketLogging = "GetBucketLogging"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketLoggingRequest method.
-//	req, resp := client.GetBucketLoggingRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketLoggingRequest method.
+//    req, resp := client.GetBucketLoggingRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketLogging
 func (c *S3) GetBucketLoggingRequest(input *GetBucketLoggingInput) (req *request.Request, output *GetBucketLoggingOutput) {
@@ -3475,9 +3502,9 @@ func (c *S3) GetBucketLoggingRequest(input *GetBucketLoggingInput) (req *request
 //
 // The following operations are related to GetBucketLogging:
 //
-//   - CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
+//    * CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
 //
-//   - PutBucketLogging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketLogging.html)
+//    * PutBucketLogging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketLogging.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3523,13 +3550,14 @@ const opGetBucketMetricsConfiguration = "GetBucketMetricsConfiguration"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketMetricsConfigurationRequest method.
-//	req, resp := client.GetBucketMetricsConfigurationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketMetricsConfigurationRequest method.
+//    req, resp := client.GetBucketMetricsConfigurationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketMetricsConfiguration
 func (c *S3) GetBucketMetricsConfigurationRequest(input *GetBucketMetricsConfigurationInput) (req *request.Request, output *GetBucketMetricsConfigurationOutput) {
@@ -3564,13 +3592,13 @@ func (c *S3) GetBucketMetricsConfigurationRequest(input *GetBucketMetricsConfigu
 //
 // The following operations are related to GetBucketMetricsConfiguration:
 //
-//   - PutBucketMetricsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketMetricsConfiguration.html)
+//    * PutBucketMetricsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketMetricsConfiguration.html)
 //
-//   - DeleteBucketMetricsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketMetricsConfiguration.html)
+//    * DeleteBucketMetricsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketMetricsConfiguration.html)
 //
-//   - ListBucketMetricsConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketMetricsConfigurations.html)
+//    * ListBucketMetricsConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketMetricsConfigurations.html)
 //
-//   - Monitoring Metrics with Amazon CloudWatch (https://docs.aws.amazon.com/AmazonS3/latest/dev/cloudwatch-monitoring.html)
+//    * Monitoring Metrics with Amazon CloudWatch (https://docs.aws.amazon.com/AmazonS3/latest/dev/cloudwatch-monitoring.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3616,13 +3644,14 @@ const opGetBucketNotification = "GetBucketNotification"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketNotificationRequest method.
-//	req, resp := client.GetBucketNotificationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketNotificationRequest method.
+//    req, resp := client.GetBucketNotificationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketNotification
 //
@@ -3698,13 +3727,14 @@ const opGetBucketNotificationConfiguration = "GetBucketNotificationConfiguration
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketNotificationConfigurationRequest method.
-//	req, resp := client.GetBucketNotificationConfigurationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketNotificationConfigurationRequest method.
+//    req, resp := client.GetBucketNotificationConfigurationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketNotificationConfiguration
 func (c *S3) GetBucketNotificationConfigurationRequest(input *GetBucketNotificationConfigurationRequest) (req *request.Request, output *NotificationConfiguration) {
@@ -3741,7 +3771,7 @@ func (c *S3) GetBucketNotificationConfigurationRequest(input *GetBucketNotificat
 //
 // The following action is related to GetBucketNotification:
 //
-//   - PutBucketNotification (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketNotification.html)
+//    * PutBucketNotification (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketNotification.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3787,13 +3817,14 @@ const opGetBucketOwnershipControls = "GetBucketOwnershipControls"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketOwnershipControlsRequest method.
-//	req, resp := client.GetBucketOwnershipControlsRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketOwnershipControlsRequest method.
+//    req, resp := client.GetBucketOwnershipControlsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketOwnershipControls
 func (c *S3) GetBucketOwnershipControlsRequest(input *GetBucketOwnershipControlsInput) (req *request.Request, output *GetBucketOwnershipControlsOutput) {
@@ -3823,9 +3854,9 @@ func (c *S3) GetBucketOwnershipControlsRequest(input *GetBucketOwnershipControls
 //
 // The following operations are related to GetBucketOwnershipControls:
 //
-//   - PutBucketOwnershipControls
+//    * PutBucketOwnershipControls
 //
-//   - DeleteBucketOwnershipControls
+//    * DeleteBucketOwnershipControls
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3871,13 +3902,14 @@ const opGetBucketPolicy = "GetBucketPolicy"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketPolicyRequest method.
-//	req, resp := client.GetBucketPolicyRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketPolicyRequest method.
+//    req, resp := client.GetBucketPolicyRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketPolicy
 func (c *S3) GetBucketPolicyRequest(input *GetBucketPolicyInput) (req *request.Request, output *GetBucketPolicyOutput) {
@@ -3917,7 +3949,7 @@ func (c *S3) GetBucketPolicyRequest(input *GetBucketPolicyInput) (req *request.R
 //
 // The following action is related to GetBucketPolicy:
 //
-//   - GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
+//    * GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3963,13 +3995,14 @@ const opGetBucketPolicyStatus = "GetBucketPolicyStatus"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketPolicyStatusRequest method.
-//	req, resp := client.GetBucketPolicyStatusRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketPolicyStatusRequest method.
+//    req, resp := client.GetBucketPolicyStatusRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketPolicyStatus
 func (c *S3) GetBucketPolicyStatusRequest(input *GetBucketPolicyStatusInput) (req *request.Request, output *GetBucketPolicyStatusOutput) {
@@ -4000,13 +4033,13 @@ func (c *S3) GetBucketPolicyStatusRequest(input *GetBucketPolicyStatusInput) (re
 //
 // The following operations are related to GetBucketPolicyStatus:
 //
-//   - Using Amazon S3 Block Public Access (https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html)
+//    * Using Amazon S3 Block Public Access (https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html)
 //
-//   - GetPublicAccessBlock (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetPublicAccessBlock.html)
+//    * GetPublicAccessBlock (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetPublicAccessBlock.html)
 //
-//   - PutPublicAccessBlock (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutPublicAccessBlock.html)
+//    * PutPublicAccessBlock (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutPublicAccessBlock.html)
 //
-//   - DeletePublicAccessBlock (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeletePublicAccessBlock.html)
+//    * DeletePublicAccessBlock (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeletePublicAccessBlock.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -4052,13 +4085,14 @@ const opGetBucketReplication = "GetBucketReplication"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketReplicationRequest method.
-//	req, resp := client.GetBucketReplicationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketReplicationRequest method.
+//    req, resp := client.GetBucketReplicationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketReplication
 func (c *S3) GetBucketReplicationRequest(input *GetBucketReplicationInput) (req *request.Request, output *GetBucketReplicationOutput) {
@@ -4101,9 +4135,9 @@ func (c *S3) GetBucketReplicationRequest(input *GetBucketReplicationInput) (req 
 //
 // The following operations are related to GetBucketReplication:
 //
-//   - PutBucketReplication (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketReplication.html)
+//    * PutBucketReplication (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketReplication.html)
 //
-//   - DeleteBucketReplication (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketReplication.html)
+//    * DeleteBucketReplication (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketReplication.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -4149,13 +4183,14 @@ const opGetBucketRequestPayment = "GetBucketRequestPayment"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketRequestPaymentRequest method.
-//	req, resp := client.GetBucketRequestPaymentRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketRequestPaymentRequest method.
+//    req, resp := client.GetBucketRequestPaymentRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketRequestPayment
 func (c *S3) GetBucketRequestPaymentRequest(input *GetBucketRequestPaymentInput) (req *request.Request, output *GetBucketRequestPaymentOutput) {
@@ -4182,7 +4217,7 @@ func (c *S3) GetBucketRequestPaymentRequest(input *GetBucketRequestPaymentInput)
 //
 // The following operations are related to GetBucketRequestPayment:
 //
-//   - ListObjects (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjects.html)
+//    * ListObjects (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjects.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -4228,13 +4263,14 @@ const opGetBucketTagging = "GetBucketTagging"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketTaggingRequest method.
-//	req, resp := client.GetBucketTaggingRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketTaggingRequest method.
+//    req, resp := client.GetBucketTaggingRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketTagging
 func (c *S3) GetBucketTaggingRequest(input *GetBucketTaggingInput) (req *request.Request, output *GetBucketTaggingOutput) {
@@ -4263,14 +4299,14 @@ func (c *S3) GetBucketTaggingRequest(input *GetBucketTaggingInput) (req *request
 //
 // GetBucketTagging has the following special error:
 //
-//   - Error code: NoSuchTagSet Description: There is no tag set associated
-//     with the bucket.
+//    * Error code: NoSuchTagSetError Description: There is no tag set associated
+//    with the bucket.
 //
 // The following operations are related to GetBucketTagging:
 //
-//   - PutBucketTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketTagging.html)
+//    * PutBucketTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketTagging.html)
 //
-//   - DeleteBucketTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketTagging.html)
+//    * DeleteBucketTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketTagging.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -4316,13 +4352,14 @@ const opGetBucketVersioning = "GetBucketVersioning"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketVersioningRequest method.
-//	req, resp := client.GetBucketVersioningRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketVersioningRequest method.
+//    req, resp := client.GetBucketVersioningRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketVersioning
 func (c *S3) GetBucketVersioningRequest(input *GetBucketVersioningInput) (req *request.Request, output *GetBucketVersioningOutput) {
@@ -4353,11 +4390,11 @@ func (c *S3) GetBucketVersioningRequest(input *GetBucketVersioningInput) (req *r
 //
 // The following operations are related to GetBucketVersioning:
 //
-//   - GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
+//    * GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
 //
-//   - PutObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html)
+//    * PutObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html)
 //
-//   - DeleteObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html)
+//    * DeleteObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -4403,13 +4440,14 @@ const opGetBucketWebsite = "GetBucketWebsite"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetBucketWebsiteRequest method.
-//	req, resp := client.GetBucketWebsiteRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetBucketWebsiteRequest method.
+//    req, resp := client.GetBucketWebsiteRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketWebsite
 func (c *S3) GetBucketWebsiteRequest(input *GetBucketWebsiteInput) (req *request.Request, output *GetBucketWebsiteOutput) {
@@ -4442,9 +4480,9 @@ func (c *S3) GetBucketWebsiteRequest(input *GetBucketWebsiteInput) (req *request
 //
 // The following operations are related to DeleteBucketWebsite:
 //
-//   - DeleteBucketWebsite (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketWebsite.html)
+//    * DeleteBucketWebsite (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketWebsite.html)
 //
-//   - PutBucketWebsite (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketWebsite.html)
+//    * PutBucketWebsite (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketWebsite.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -4490,13 +4528,14 @@ const opGetObject = "GetObject"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetObjectRequest method.
-//	req, resp := client.GetObjectRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetObjectRequest method.
+//    req, resp := client.GetObjectRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetObject
 func (c *S3) GetObjectRequest(input *GetObjectInput) (req *request.Request, output *GetObjectOutput) {
@@ -4535,6 +4574,8 @@ func (c *S3) GetObjectRequest(input *GetObjectInput) (req *request.Request, outp
 // more information about request types, see HTTP Host Header Bucket Specification
 // (https://docs.aws.amazon.com/AmazonS3/latest/dev/VirtualHosting.html#VirtualHostingSpecifyBucket).
 //
+// To distribute large files to many people, you can save bandwidth costs by
+// using BitTorrent. For more information, see Amazon S3 Torrent (https://docs.aws.amazon.com/AmazonS3/latest/dev/S3Torrent.html).
 // For more information about returning the ACL of an object, see GetObjectAcl
 // (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectAcl.html).
 //
@@ -4555,11 +4596,11 @@ func (c *S3) GetObjectRequest(input *GetObjectInput) (req *request.Request, outp
 // encryption keys (SSE-C) when you store the object in Amazon S3, then when
 // you GET the object, you must use the following headers:
 //
-//   - x-amz-server-side-encryption-customer-algorithm
+//    * x-amz-server-side-encryption-customer-algorithm
 //
-//   - x-amz-server-side-encryption-customer-key
+//    * x-amz-server-side-encryption-customer-key
 //
-//   - x-amz-server-side-encryption-customer-key-MD5
+//    * x-amz-server-side-encryption-customer-key-MD5
 //
 // For more information about SSE-C, see Server-Side Encryption (Using Customer-Provided
 // Encryption Keys) (https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html).
@@ -4569,35 +4610,35 @@ func (c *S3) GetObjectRequest(input *GetObjectInput) (req *request.Request, outp
 // of tags associated with the object. You can use GetObjectTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectTagging.html)
 // to retrieve the tag set associated with an object.
 //
-// # Permissions
+// Permissions
 //
 // You need the relevant read object (or version) permission for this operation.
 // For more information, see Specifying Permissions in a Policy (https://docs.aws.amazon.com/AmazonS3/latest/dev/using-with-s3-actions.html).
 // If the object you request does not exist, the error Amazon S3 returns depends
 // on whether you also have the s3:ListBucket permission.
 //
-//   - If you have the s3:ListBucket permission on the bucket, Amazon S3 will
-//     return an HTTP status code 404 ("no such key") error.
+//    * If you have the s3:ListBucket permission on the bucket, Amazon S3 will
+//    return an HTTP status code 404 ("no such key") error.
 //
-//   - If you don’t have the s3:ListBucket permission, Amazon S3 will return
-//     an HTTP status code 403 ("access denied") error.
+//    * If you don’t have the s3:ListBucket permission, Amazon S3 will return
+//    an HTTP status code 403 ("access denied") error.
 //
-// # Versioning
+// Versioning
 //
 // By default, the GET action returns the current version of an object. To return
 // a different version, use the versionId subresource.
 //
-//   - If you supply a versionId, you need the s3:GetObjectVersion permission
-//     to access a specific version of an object. If you request a specific version,
-//     you do not need to have the s3:GetObject permission.
+//    * If you supply a versionId, you need the s3:GetObjectVersion permission
+//    to access a specific version of an object. If you request a specific version,
+//    you do not need to have the s3:GetObject permission.
 //
-//   - If the current version of the object is a delete marker, Amazon S3 behaves
-//     as if the object was deleted and includes x-amz-delete-marker: true in
-//     the response.
+//    * If the current version of the object is a delete marker, Amazon S3 behaves
+//    as if the object was deleted and includes x-amz-delete-marker: true in
+//    the response.
 //
 // For more information about versioning, see PutBucketVersioning (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketVersioning.html).
 //
-// # Overriding Response Header Values
+// Overriding Response Header Values
 //
 // There are times when you want to override certain response header values
 // in a GET response. For example, you might override the Content-Disposition
@@ -4616,19 +4657,19 @@ func (c *S3) GetObjectRequest(input *GetObjectInput) (req *request.Request, outp
 // URL, when using these parameters. They cannot be used with an unsigned (anonymous)
 // request.
 //
-//   - response-content-type
+//    * response-content-type
 //
-//   - response-content-language
+//    * response-content-language
 //
-//   - response-expires
+//    * response-expires
 //
-//   - response-cache-control
+//    * response-cache-control
 //
-//   - response-content-disposition
+//    * response-content-disposition
 //
-//   - response-content-encoding
+//    * response-content-encoding
 //
-// # Additional Considerations about Request Headers
+// Additional Considerations about Request Headers
 //
 // If both of the If-Match and If-Unmodified-Since headers are present in the
 // request as follows: If-Match condition evaluates to true, and; If-Unmodified-Since
@@ -4642,9 +4683,9 @@ func (c *S3) GetObjectRequest(input *GetObjectInput) (req *request.Request, outp
 //
 // The following operations are related to GetObject:
 //
-//   - ListBuckets (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBuckets.html)
+//    * ListBuckets (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBuckets.html)
 //
-//   - GetObjectAcl (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectAcl.html)
+//    * GetObjectAcl (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectAcl.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -4654,12 +4695,11 @@ func (c *S3) GetObjectRequest(input *GetObjectInput) (req *request.Request, outp
 // API operation GetObject for usage and error information.
 //
 // Returned Error Codes:
+//   * ErrCodeNoSuchKey "NoSuchKey"
+//   The specified key does not exist.
 //
-//   - ErrCodeNoSuchKey "NoSuchKey"
-//     The specified key does not exist.
-//
-//   - ErrCodeInvalidObjectState "InvalidObjectState"
-//     Object is archived and inaccessible until restored.
+//   * ErrCodeInvalidObjectState "InvalidObjectState"
+//   Object is archived and inaccessible until restored.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetObject
 func (c *S3) GetObject(input *GetObjectInput) (*GetObjectOutput, error) {
@@ -4699,13 +4739,14 @@ const opGetObjectAcl = "GetObjectAcl"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetObjectAclRequest method.
-//	req, resp := client.GetObjectAclRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetObjectAclRequest method.
+//    req, resp := client.GetObjectAclRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetObjectAcl
 func (c *S3) GetObjectAclRequest(input *GetObjectAclInput) (req *request.Request, output *GetObjectAclOutput) {
@@ -4727,14 +4768,11 @@ func (c *S3) GetObjectAclRequest(input *GetObjectAclInput) (req *request.Request
 // GetObjectAcl API operation for Amazon Simple Storage Service.
 //
 // Returns the access control list (ACL) of an object. To use this operation,
-// you must have s3:GetObjectAcl permissions or READ_ACP access to the object.
-// For more information, see Mapping of ACL permissions and access policy permissions
-// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/acl-overview.html#acl-access-policy-permission-mapping)
-// in the Amazon S3 User Guide
+// you must have READ_ACP access to the object.
 //
 // This action is not supported by Amazon S3 on Outposts.
 //
-// # Versioning
+// Versioning
 //
 // By default, GET returns ACL information about the current version of an object.
 // To return ACL information about a different version, use the versionId subresource.
@@ -4747,13 +4785,11 @@ func (c *S3) GetObjectAclRequest(input *GetObjectAclInput) (req *request.Request
 //
 // The following operations are related to GetObjectAcl:
 //
-//   - GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
+//    * GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
 //
-//   - GetObjectAttributes (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectAttributes.html)
+//    * DeleteObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html)
 //
-//   - DeleteObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html)
-//
-//   - PutObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html)
+//    * PutObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -4763,8 +4799,8 @@ func (c *S3) GetObjectAclRequest(input *GetObjectAclInput) (req *request.Request
 // API operation GetObjectAcl for usage and error information.
 //
 // Returned Error Codes:
-//   - ErrCodeNoSuchKey "NoSuchKey"
-//     The specified key does not exist.
+//   * ErrCodeNoSuchKey "NoSuchKey"
+//   The specified key does not exist.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetObjectAcl
 func (c *S3) GetObjectAcl(input *GetObjectAclInput) (*GetObjectAclOutput, error) {
@@ -4788,165 +4824,6 @@ func (c *S3) GetObjectAclWithContext(ctx aws.Context, input *GetObjectAclInput, 
 	return out, req.Send()
 }
 
-const opGetObjectAttributes = "GetObjectAttributes"
-
-// GetObjectAttributesRequest generates a "aws/request.Request" representing the
-// client's request for the GetObjectAttributes operation. The "output" return
-// value will be populated with the request's response once the request completes
-// successfully.
-//
-// Use "Send" method on the returned Request to send the API call to the service.
-// the "output" return value is not valid until after Send returns without error.
-//
-// See GetObjectAttributes for more information on using the GetObjectAttributes
-// API call, and error handling.
-//
-// This method is useful when you want to inject custom logic or configuration
-// into the SDK's request lifecycle. Such as custom headers, or retry logic.
-//
-//	// Example sending a request using the GetObjectAttributesRequest method.
-//	req, resp := client.GetObjectAttributesRequest(params)
-//
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
-//
-// See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetObjectAttributes
-func (c *S3) GetObjectAttributesRequest(input *GetObjectAttributesInput) (req *request.Request, output *GetObjectAttributesOutput) {
-	op := &request.Operation{
-		Name:       opGetObjectAttributes,
-		HTTPMethod: "GET",
-		HTTPPath:   "/{Bucket}/{Key+}?attributes",
-	}
-
-	if input == nil {
-		input = &GetObjectAttributesInput{}
-	}
-
-	output = &GetObjectAttributesOutput{}
-	req = c.newRequest(op, input, output)
-	return
-}
-
-// GetObjectAttributes API operation for Amazon Simple Storage Service.
-//
-// Retrieves all the metadata from an object without returning the object itself.
-// This action is useful if you're interested only in an object's metadata.
-// To use GetObjectAttributes, you must have READ access to the object.
-//
-// GetObjectAttributes combines the functionality of GetObjectAcl, GetObjectLegalHold,
-// GetObjectLockConfiguration, GetObjectRetention, GetObjectTagging, HeadObject,
-// and ListParts. All of the data returned with each of those individual calls
-// can be returned with a single call to GetObjectAttributes.
-//
-// If you encrypt an object by using server-side encryption with customer-provided
-// encryption keys (SSE-C) when you store the object in Amazon S3, then when
-// you retrieve the metadata from the object, you must use the following headers:
-//
-//   - x-amz-server-side-encryption-customer-algorithm
-//
-//   - x-amz-server-side-encryption-customer-key
-//
-//   - x-amz-server-side-encryption-customer-key-MD5
-//
-// For more information about SSE-C, see Server-Side Encryption (Using Customer-Provided
-// Encryption Keys) (https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html)
-// in the Amazon S3 User Guide.
-//
-//   - Encryption request headers, such as x-amz-server-side-encryption, should
-//     not be sent for GET requests if your object uses server-side encryption
-//     with Amazon Web Services KMS keys stored in Amazon Web Services Key Management
-//     Service (SSE-KMS) or server-side encryption with Amazon S3 managed encryption
-//     keys (SSE-S3). If your object does use these types of keys, you'll get
-//     an HTTP 400 Bad Request error.
-//
-//   - The last modified property in this case is the creation date of the
-//     object.
-//
-// Consider the following when using request headers:
-//
-//   - If both of the If-Match and If-Unmodified-Since headers are present
-//     in the request as follows, then Amazon S3 returns the HTTP status code
-//     200 OK and the data requested: If-Match condition evaluates to true. If-Unmodified-Since
-//     condition evaluates to false.
-//
-//   - If both of the If-None-Match and If-Modified-Since headers are present
-//     in the request as follows, then Amazon S3 returns the HTTP status code
-//     304 Not Modified: If-None-Match condition evaluates to false. If-Modified-Since
-//     condition evaluates to true.
-//
-// For more information about conditional requests, see RFC 7232 (https://tools.ietf.org/html/rfc7232).
-//
-// # Permissions
-//
-// The permissions that you need to use this operation depend on whether the
-// bucket is versioned. If the bucket is versioned, you need both the s3:GetObjectVersion
-// and s3:GetObjectVersionAttributes permissions for this operation. If the
-// bucket is not versioned, you need the s3:GetObject and s3:GetObjectAttributes
-// permissions. For more information, see Specifying Permissions in a Policy
-// (https://docs.aws.amazon.com/AmazonS3/latest/dev/using-with-s3-actions.html)
-// in the Amazon S3 User Guide. If the object that you request does not exist,
-// the error Amazon S3 returns depends on whether you also have the s3:ListBucket
-// permission.
-//
-//   - If you have the s3:ListBucket permission on the bucket, Amazon S3 returns
-//     an HTTP status code 404 Not Found ("no such key") error.
-//
-//   - If you don't have the s3:ListBucket permission, Amazon S3 returns an
-//     HTTP status code 403 Forbidden ("access denied") error.
-//
-// The following actions are related to GetObjectAttributes:
-//
-//   - GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
-//
-//   - GetObjectAcl (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectAcl.html)
-//
-//   - GetObjectLegalHold (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectLegalHold.html)
-//
-//   - GetObjectLockConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectLockConfiguration.html)
-//
-//   - GetObjectRetention (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectRetention.html)
-//
-//   - GetObjectTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectTagging.html)
-//
-//   - HeadObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_HeadObject.html)
-//
-//   - ListParts (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListParts.html)
-//
-// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
-// with awserr.Error's Code and Message methods to get detailed information about
-// the error.
-//
-// See the AWS API reference guide for Amazon Simple Storage Service's
-// API operation GetObjectAttributes for usage and error information.
-//
-// Returned Error Codes:
-//   - ErrCodeNoSuchKey "NoSuchKey"
-//     The specified key does not exist.
-//
-// See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetObjectAttributes
-func (c *S3) GetObjectAttributes(input *GetObjectAttributesInput) (*GetObjectAttributesOutput, error) {
-	req, out := c.GetObjectAttributesRequest(input)
-	return out, req.Send()
-}
-
-// GetObjectAttributesWithContext is the same as GetObjectAttributes with the addition of
-// the ability to pass a context and additional request options.
-//
-// See GetObjectAttributes for details on how to use this API operation.
-//
-// The context must be non-nil and will be used for request cancellation. If
-// the context is nil a panic will occur. In the future the SDK may create
-// sub-contexts for http.Requests. See https://golang.org/pkg/context/
-// for more information on using Contexts.
-func (c *S3) GetObjectAttributesWithContext(ctx aws.Context, input *GetObjectAttributesInput, opts ...request.Option) (*GetObjectAttributesOutput, error) {
-	req, out := c.GetObjectAttributesRequest(input)
-	req.SetContext(ctx)
-	req.ApplyOptions(opts...)
-	return out, req.Send()
-}
-
 const opGetObjectLegalHold = "GetObjectLegalHold"
 
 // GetObjectLegalHoldRequest generates a "aws/request.Request" representing the
@@ -4963,13 +4840,14 @@ const opGetObjectLegalHold = "GetObjectLegalHold"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetObjectLegalHoldRequest method.
-//	req, resp := client.GetObjectLegalHoldRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetObjectLegalHoldRequest method.
+//    req, resp := client.GetObjectLegalHoldRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetObjectLegalHold
 func (c *S3) GetObjectLegalHoldRequest(input *GetObjectLegalHoldInput) (req *request.Request, output *GetObjectLegalHoldOutput) {
@@ -4990,14 +4868,10 @@ func (c *S3) GetObjectLegalHoldRequest(input *GetObjectLegalHoldInput) (req *req
 
 // GetObjectLegalHold API operation for Amazon Simple Storage Service.
 //
-// Gets an object's current legal hold status. For more information, see Locking
+// Gets an object's current Legal Hold status. For more information, see Locking
 // Objects (https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock.html).
 //
 // This action is not supported by Amazon S3 on Outposts.
-//
-// The following action is related to GetObjectLegalHold:
-//
-//   - GetObjectAttributes (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectAttributes.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5043,13 +4917,14 @@ const opGetObjectLockConfiguration = "GetObjectLockConfiguration"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetObjectLockConfigurationRequest method.
-//	req, resp := client.GetObjectLockConfigurationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetObjectLockConfigurationRequest method.
+//    req, resp := client.GetObjectLockConfigurationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetObjectLockConfiguration
 func (c *S3) GetObjectLockConfigurationRequest(input *GetObjectLockConfigurationInput) (req *request.Request, output *GetObjectLockConfigurationOutput) {
@@ -5074,10 +4949,6 @@ func (c *S3) GetObjectLockConfigurationRequest(input *GetObjectLockConfiguration
 // Object Lock configuration will be applied by default to every new object
 // placed in the specified bucket. For more information, see Locking Objects
 // (https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock.html).
-//
-// The following action is related to GetObjectLockConfiguration:
-//
-//   - GetObjectAttributes (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectAttributes.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5123,13 +4994,14 @@ const opGetObjectRetention = "GetObjectRetention"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetObjectRetentionRequest method.
-//	req, resp := client.GetObjectRetentionRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetObjectRetentionRequest method.
+//    req, resp := client.GetObjectRetentionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetObjectRetention
 func (c *S3) GetObjectRetentionRequest(input *GetObjectRetentionInput) (req *request.Request, output *GetObjectRetentionOutput) {
@@ -5154,10 +5026,6 @@ func (c *S3) GetObjectRetentionRequest(input *GetObjectRetentionInput) (req *req
 // Objects (https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock.html).
 //
 // This action is not supported by Amazon S3 on Outposts.
-//
-// The following action is related to GetObjectRetention:
-//
-//   - GetObjectAttributes (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectAttributes.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5203,13 +5071,14 @@ const opGetObjectTagging = "GetObjectTagging"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetObjectTaggingRequest method.
-//	req, resp := client.GetObjectTaggingRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetObjectTaggingRequest method.
+//    req, resp := client.GetObjectTaggingRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetObjectTagging
 func (c *S3) GetObjectTaggingRequest(input *GetObjectTaggingInput) (req *request.Request, output *GetObjectTaggingOutput) {
@@ -5246,13 +5115,11 @@ func (c *S3) GetObjectTaggingRequest(input *GetObjectTaggingInput) (req *request
 // For information about the Amazon S3 object tagging feature, see Object Tagging
 // (https://docs.aws.amazon.com/AmazonS3/latest/dev/object-tagging.html).
 //
-// The following actions are related to GetObjectTagging:
+// The following action is related to GetObjectTagging:
 //
-//   - DeleteObjectTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObjectTagging.html)
+//    * PutObjectTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObjectTagging.html)
 //
-//   - GetObjectAttributes (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectAttributes.html)
-//
-//   - PutObjectTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObjectTagging.html)
+//    * DeleteObjectTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObjectTagging.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5298,13 +5165,14 @@ const opGetObjectTorrent = "GetObjectTorrent"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetObjectTorrentRequest method.
-//	req, resp := client.GetObjectTorrentRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetObjectTorrentRequest method.
+//    req, resp := client.GetObjectTorrentRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetObjectTorrent
 func (c *S3) GetObjectTorrentRequest(input *GetObjectTorrentInput) (req *request.Request, output *GetObjectTorrentOutput) {
@@ -5339,7 +5207,7 @@ func (c *S3) GetObjectTorrentRequest(input *GetObjectTorrentInput) (req *request
 //
 // The following action is related to GetObjectTorrent:
 //
-//   - GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
+//    * GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5385,13 +5253,14 @@ const opGetPublicAccessBlock = "GetPublicAccessBlock"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the GetPublicAccessBlockRequest method.
-//	req, resp := client.GetPublicAccessBlockRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the GetPublicAccessBlockRequest method.
+//    req, resp := client.GetPublicAccessBlockRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetPublicAccessBlock
 func (c *S3) GetPublicAccessBlockRequest(input *GetPublicAccessBlockInput) (req *request.Request, output *GetPublicAccessBlockOutput) {
@@ -5429,13 +5298,13 @@ func (c *S3) GetPublicAccessBlockRequest(input *GetPublicAccessBlockInput) (req 
 //
 // The following operations are related to GetPublicAccessBlock:
 //
-//   - Using Amazon S3 Block Public Access (https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html)
+//    * Using Amazon S3 Block Public Access (https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html)
 //
-//   - PutPublicAccessBlock (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutPublicAccessBlock.html)
+//    * PutPublicAccessBlock (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutPublicAccessBlock.html)
 //
-//   - GetPublicAccessBlock (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetPublicAccessBlock.html)
+//    * GetPublicAccessBlock (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetPublicAccessBlock.html)
 //
-//   - DeletePublicAccessBlock (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeletePublicAccessBlock.html)
+//    * DeletePublicAccessBlock (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeletePublicAccessBlock.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5481,13 +5350,14 @@ const opHeadBucket = "HeadBucket"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the HeadBucketRequest method.
-//	req, resp := client.HeadBucketRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the HeadBucketRequest method.
+//    req, resp := client.HeadBucketRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/HeadBucket
 func (c *S3) HeadBucketRequest(input *HeadBucketInput) (req *request.Request, output *HeadBucketOutput) {
@@ -5539,8 +5409,8 @@ func (c *S3) HeadBucketRequest(input *HeadBucketInput) (req *request.Request, ou
 // API operation HeadBucket for usage and error information.
 //
 // Returned Error Codes:
-//   - ErrCodeNoSuchBucket "NoSuchBucket"
-//     The specified bucket does not exist.
+//   * ErrCodeNoSuchBucket "NoSuchBucket"
+//   The specified bucket does not exist.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/HeadBucket
 func (c *S3) HeadBucket(input *HeadBucketInput) (*HeadBucketOutput, error) {
@@ -5580,13 +5450,14 @@ const opHeadObject = "HeadObject"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the HeadObjectRequest method.
-//	req, resp := client.HeadObjectRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the HeadObjectRequest method.
+//    req, resp := client.HeadObjectRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/HeadObject
 func (c *S3) HeadObjectRequest(input *HeadObjectInput) (req *request.Request, output *HeadObjectOutput) {
@@ -5621,59 +5492,57 @@ func (c *S3) HeadObjectRequest(input *HeadObjectInput) (req *request.Request, ou
 // encryption keys (SSE-C) when you store the object in Amazon S3, then when
 // you retrieve the metadata from the object, you must use the following headers:
 //
-//   - x-amz-server-side-encryption-customer-algorithm
+//    * x-amz-server-side-encryption-customer-algorithm
 //
-//   - x-amz-server-side-encryption-customer-key
+//    * x-amz-server-side-encryption-customer-key
 //
-//   - x-amz-server-side-encryption-customer-key-MD5
+//    * x-amz-server-side-encryption-customer-key-MD5
 //
 // For more information about SSE-C, see Server-Side Encryption (Using Customer-Provided
 // Encryption Keys) (https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html).
 //
-//   - Encryption request headers, like x-amz-server-side-encryption, should
-//     not be sent for GET requests if your object uses server-side encryption
-//     with KMS keys (SSE-KMS) or server-side encryption with Amazon S3–managed
-//     encryption keys (SSE-S3). If your object does use these types of keys,
-//     you’ll get an HTTP 400 BadRequest error.
+//    * Encryption request headers, like x-amz-server-side-encryption, should
+//    not be sent for GET requests if your object uses server-side encryption
+//    with KMS keys (SSE-KMS) or server-side encryption with Amazon S3–managed
+//    encryption keys (SSE-S3). If your object does use these types of keys,
+//    you’ll get an HTTP 400 BadRequest error.
 //
-//   - The last modified property in this case is the creation date of the
-//     object.
+//    * The last modified property in this case is the creation date of the
+//    object.
 //
 // Request headers are limited to 8 KB in size. For more information, see Common
 // Request Headers (https://docs.aws.amazon.com/AmazonS3/latest/API/RESTCommonRequestHeaders.html).
 //
 // Consider the following when using request headers:
 //
-//   - Consideration 1 – If both of the If-Match and If-Unmodified-Since
-//     headers are present in the request as follows: If-Match condition evaluates
-//     to true, and; If-Unmodified-Since condition evaluates to false; Then Amazon
-//     S3 returns 200 OK and the data requested.
+//    * Consideration 1 – If both of the If-Match and If-Unmodified-Since
+//    headers are present in the request as follows: If-Match condition evaluates
+//    to true, and; If-Unmodified-Since condition evaluates to false; Then Amazon
+//    S3 returns 200 OK and the data requested.
 //
-//   - Consideration 2 – If both of the If-None-Match and If-Modified-Since
-//     headers are present in the request as follows: If-None-Match condition
-//     evaluates to false, and; If-Modified-Since condition evaluates to true;
-//     Then Amazon S3 returns the 304 Not Modified response code.
+//    * Consideration 2 – If both of the If-None-Match and If-Modified-Since
+//    headers are present in the request as follows: If-None-Match condition
+//    evaluates to false, and; If-Modified-Since condition evaluates to true;
+//    Then Amazon S3 returns the 304 Not Modified response code.
 //
 // For more information about conditional requests, see RFC 7232 (https://tools.ietf.org/html/rfc7232).
 //
-// # Permissions
+// Permissions
 //
 // You need the relevant read object (or version) permission for this operation.
 // For more information, see Specifying Permissions in a Policy (https://docs.aws.amazon.com/AmazonS3/latest/dev/using-with-s3-actions.html).
 // If the object you request does not exist, the error Amazon S3 returns depends
 // on whether you also have the s3:ListBucket permission.
 //
-//   - If you have the s3:ListBucket permission on the bucket, Amazon S3 returns
-//     an HTTP status code 404 ("no such key") error.
+//    * If you have the s3:ListBucket permission on the bucket, Amazon S3 returns
+//    an HTTP status code 404 ("no such key") error.
 //
-//   - If you don’t have the s3:ListBucket permission, Amazon S3 returns
-//     an HTTP status code 403 ("access denied") error.
+//    * If you don’t have the s3:ListBucket permission, Amazon S3 returns
+//    an HTTP status code 403 ("access denied") error.
 //
-// The following actions are related to HeadObject:
+// The following action is related to HeadObject:
 //
-//   - GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
-//
-//   - GetObjectAttributes (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectAttributes.html)
+//    * GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
 //
 // See http://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html#RESTErrorResponses
 // for more information on returned errors.
@@ -5722,13 +5591,14 @@ const opListBucketAnalyticsConfigurations = "ListBucketAnalyticsConfigurations"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the ListBucketAnalyticsConfigurationsRequest method.
-//	req, resp := client.ListBucketAnalyticsConfigurationsRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the ListBucketAnalyticsConfigurationsRequest method.
+//    req, resp := client.ListBucketAnalyticsConfigurationsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListBucketAnalyticsConfigurations
 func (c *S3) ListBucketAnalyticsConfigurationsRequest(input *ListBucketAnalyticsConfigurationsInput) (req *request.Request, output *ListBucketAnalyticsConfigurationsOutput) {
@@ -5771,11 +5641,11 @@ func (c *S3) ListBucketAnalyticsConfigurationsRequest(input *ListBucketAnalytics
 //
 // The following operations are related to ListBucketAnalyticsConfigurations:
 //
-//   - GetBucketAnalyticsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketAnalyticsConfiguration.html)
+//    * GetBucketAnalyticsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketAnalyticsConfiguration.html)
 //
-//   - DeleteBucketAnalyticsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketAnalyticsConfiguration.html)
+//    * DeleteBucketAnalyticsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketAnalyticsConfiguration.html)
 //
-//   - PutBucketAnalyticsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketAnalyticsConfiguration.html)
+//    * PutBucketAnalyticsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketAnalyticsConfiguration.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5821,13 +5691,14 @@ const opListBucketIntelligentTieringConfigurations = "ListBucketIntelligentTieri
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the ListBucketIntelligentTieringConfigurationsRequest method.
-//	req, resp := client.ListBucketIntelligentTieringConfigurationsRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the ListBucketIntelligentTieringConfigurationsRequest method.
+//    req, resp := client.ListBucketIntelligentTieringConfigurationsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListBucketIntelligentTieringConfigurations
 func (c *S3) ListBucketIntelligentTieringConfigurationsRequest(input *ListBucketIntelligentTieringConfigurationsInput) (req *request.Request, output *ListBucketIntelligentTieringConfigurationsOutput) {
@@ -5869,11 +5740,11 @@ func (c *S3) ListBucketIntelligentTieringConfigurationsRequest(input *ListBucket
 //
 // Operations related to ListBucketIntelligentTieringConfigurations include:
 //
-//   - DeleteBucketIntelligentTieringConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketIntelligentTieringConfiguration.html)
+//    * DeleteBucketIntelligentTieringConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketIntelligentTieringConfiguration.html)
 //
-//   - PutBucketIntelligentTieringConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketIntelligentTieringConfiguration.html)
+//    * PutBucketIntelligentTieringConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketIntelligentTieringConfiguration.html)
 //
-//   - GetBucketIntelligentTieringConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketIntelligentTieringConfiguration.html)
+//    * GetBucketIntelligentTieringConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketIntelligentTieringConfiguration.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5919,13 +5790,14 @@ const opListBucketInventoryConfigurations = "ListBucketInventoryConfigurations"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the ListBucketInventoryConfigurationsRequest method.
-//	req, resp := client.ListBucketInventoryConfigurationsRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the ListBucketInventoryConfigurationsRequest method.
+//    req, resp := client.ListBucketInventoryConfigurationsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListBucketInventoryConfigurations
 func (c *S3) ListBucketInventoryConfigurationsRequest(input *ListBucketInventoryConfigurationsInput) (req *request.Request, output *ListBucketInventoryConfigurationsOutput) {
@@ -5968,11 +5840,11 @@ func (c *S3) ListBucketInventoryConfigurationsRequest(input *ListBucketInventory
 //
 // The following operations are related to ListBucketInventoryConfigurations:
 //
-//   - GetBucketInventoryConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketInventoryConfiguration.html)
+//    * GetBucketInventoryConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketInventoryConfiguration.html)
 //
-//   - DeleteBucketInventoryConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketInventoryConfiguration.html)
+//    * DeleteBucketInventoryConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketInventoryConfiguration.html)
 //
-//   - PutBucketInventoryConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketInventoryConfiguration.html)
+//    * PutBucketInventoryConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketInventoryConfiguration.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -6018,13 +5890,14 @@ const opListBucketMetricsConfigurations = "ListBucketMetricsConfigurations"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the ListBucketMetricsConfigurationsRequest method.
-//	req, resp := client.ListBucketMetricsConfigurationsRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the ListBucketMetricsConfigurationsRequest method.
+//    req, resp := client.ListBucketMetricsConfigurationsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListBucketMetricsConfigurations
 func (c *S3) ListBucketMetricsConfigurationsRequest(input *ListBucketMetricsConfigurationsInput) (req *request.Request, output *ListBucketMetricsConfigurationsOutput) {
@@ -6068,11 +5941,11 @@ func (c *S3) ListBucketMetricsConfigurationsRequest(input *ListBucketMetricsConf
 //
 // The following operations are related to ListBucketMetricsConfigurations:
 //
-//   - PutBucketMetricsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketMetricsConfiguration.html)
+//    * PutBucketMetricsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketMetricsConfiguration.html)
 //
-//   - GetBucketMetricsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketMetricsConfiguration.html)
+//    * GetBucketMetricsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketMetricsConfiguration.html)
 //
-//   - DeleteBucketMetricsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketMetricsConfiguration.html)
+//    * DeleteBucketMetricsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketMetricsConfiguration.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -6118,13 +5991,14 @@ const opListBuckets = "ListBuckets"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the ListBucketsRequest method.
-//	req, resp := client.ListBucketsRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the ListBucketsRequest method.
+//    req, resp := client.ListBucketsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListBuckets
 func (c *S3) ListBucketsRequest(input *ListBucketsInput) (req *request.Request, output *ListBucketsOutput) {
@@ -6146,7 +6020,6 @@ func (c *S3) ListBucketsRequest(input *ListBucketsInput) (req *request.Request, 
 // ListBuckets API operation for Amazon Simple Storage Service.
 //
 // Returns a list of all buckets owned by the authenticated sender of the request.
-// To use this operation, you must have the s3:ListAllMyBuckets permission.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -6192,13 +6065,14 @@ const opListMultipartUploads = "ListMultipartUploads"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the ListMultipartUploadsRequest method.
-//	req, resp := client.ListMultipartUploadsRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the ListMultipartUploadsRequest method.
+//    req, resp := client.ListMultipartUploadsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListMultipartUploads
 func (c *S3) ListMultipartUploadsRequest(input *ListMultipartUploadsInput) (req *request.Request, output *ListMultipartUploadsOutput) {
@@ -6250,15 +6124,15 @@ func (c *S3) ListMultipartUploadsRequest(input *ListMultipartUploadsInput) (req 
 //
 // The following operations are related to ListMultipartUploads:
 //
-//   - CreateMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateMultipartUpload.html)
+//    * CreateMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateMultipartUpload.html)
 //
-//   - UploadPart (https://docs.aws.amazon.com/AmazonS3/latest/API/API_UploadPart.html)
+//    * UploadPart (https://docs.aws.amazon.com/AmazonS3/latest/API/API_UploadPart.html)
 //
-//   - CompleteMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CompleteMultipartUpload.html)
+//    * CompleteMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CompleteMultipartUpload.html)
 //
-//   - ListParts (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListParts.html)
+//    * ListParts (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListParts.html)
 //
-//   - AbortMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_AbortMultipartUpload.html)
+//    * AbortMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_AbortMultipartUpload.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -6296,14 +6170,15 @@ func (c *S3) ListMultipartUploadsWithContext(ctx aws.Context, input *ListMultipa
 //
 // Note: This operation can generate multiple requests to a service.
 //
-//	// Example iterating over at most 3 pages of a ListMultipartUploads operation.
-//	pageNum := 0
-//	err := client.ListMultipartUploadsPages(params,
-//	    func(page *s3.ListMultipartUploadsOutput, lastPage bool) bool {
-//	        pageNum++
-//	        fmt.Println(page)
-//	        return pageNum <= 3
-//	    })
+//    // Example iterating over at most 3 pages of a ListMultipartUploads operation.
+//    pageNum := 0
+//    err := client.ListMultipartUploadsPages(params,
+//        func(page *s3.ListMultipartUploadsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *S3) ListMultipartUploadsPages(input *ListMultipartUploadsInput, fn func(*ListMultipartUploadsOutput, bool) bool) error {
 	return c.ListMultipartUploadsPagesWithContext(aws.BackgroundContext(), input, fn)
 }
@@ -6355,13 +6230,14 @@ const opListObjectVersions = "ListObjectVersions"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the ListObjectVersionsRequest method.
-//	req, resp := client.ListObjectVersionsRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the ListObjectVersionsRequest method.
+//    req, resp := client.ListObjectVersionsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListObjectVersions
 func (c *S3) ListObjectVersionsRequest(input *ListObjectVersionsInput) (req *request.Request, output *ListObjectVersionsOutput) {
@@ -6404,13 +6280,13 @@ func (c *S3) ListObjectVersionsRequest(input *ListObjectVersionsInput) (req *req
 //
 // The following operations are related to ListObjectVersions:
 //
-//   - ListObjectsV2 (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjectsV2.html)
+//    * ListObjectsV2 (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjectsV2.html)
 //
-//   - GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
+//    * GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
 //
-//   - PutObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html)
+//    * PutObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html)
 //
-//   - DeleteObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html)
+//    * DeleteObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -6448,14 +6324,15 @@ func (c *S3) ListObjectVersionsWithContext(ctx aws.Context, input *ListObjectVer
 //
 // Note: This operation can generate multiple requests to a service.
 //
-//	// Example iterating over at most 3 pages of a ListObjectVersions operation.
-//	pageNum := 0
-//	err := client.ListObjectVersionsPages(params,
-//	    func(page *s3.ListObjectVersionsOutput, lastPage bool) bool {
-//	        pageNum++
-//	        fmt.Println(page)
-//	        return pageNum <= 3
-//	    })
+//    // Example iterating over at most 3 pages of a ListObjectVersions operation.
+//    pageNum := 0
+//    err := client.ListObjectVersionsPages(params,
+//        func(page *s3.ListObjectVersionsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *S3) ListObjectVersionsPages(input *ListObjectVersionsInput, fn func(*ListObjectVersionsOutput, bool) bool) error {
 	return c.ListObjectVersionsPagesWithContext(aws.BackgroundContext(), input, fn)
 }
@@ -6507,13 +6384,14 @@ const opListObjects = "ListObjects"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the ListObjectsRequest method.
-//	req, resp := client.ListObjectsRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the ListObjectsRequest method.
+//    req, resp := client.ListObjectsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListObjects
 func (c *S3) ListObjectsRequest(input *ListObjectsInput) (req *request.Request, output *ListObjectsOutput) {
@@ -6553,15 +6431,15 @@ func (c *S3) ListObjectsRequest(input *ListObjectsInput) (req *request.Request, 
 //
 // The following operations are related to ListObjects:
 //
-//   - ListObjectsV2 (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjectsV2.html)
+//    * ListObjectsV2 (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjectsV2.html)
 //
-//   - GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
+//    * GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
 //
-//   - PutObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html)
+//    * PutObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html)
 //
-//   - CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
+//    * CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
 //
-//   - ListBuckets (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBuckets.html)
+//    * ListBuckets (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBuckets.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -6571,8 +6449,8 @@ func (c *S3) ListObjectsRequest(input *ListObjectsInput) (req *request.Request, 
 // API operation ListObjects for usage and error information.
 //
 // Returned Error Codes:
-//   - ErrCodeNoSuchBucket "NoSuchBucket"
-//     The specified bucket does not exist.
+//   * ErrCodeNoSuchBucket "NoSuchBucket"
+//   The specified bucket does not exist.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListObjects
 func (c *S3) ListObjects(input *ListObjectsInput) (*ListObjectsOutput, error) {
@@ -6604,14 +6482,15 @@ func (c *S3) ListObjectsWithContext(ctx aws.Context, input *ListObjectsInput, op
 //
 // Note: This operation can generate multiple requests to a service.
 //
-//	// Example iterating over at most 3 pages of a ListObjects operation.
-//	pageNum := 0
-//	err := client.ListObjectsPages(params,
-//	    func(page *s3.ListObjectsOutput, lastPage bool) bool {
-//	        pageNum++
-//	        fmt.Println(page)
-//	        return pageNum <= 3
-//	    })
+//    // Example iterating over at most 3 pages of a ListObjects operation.
+//    pageNum := 0
+//    err := client.ListObjectsPages(params,
+//        func(page *s3.ListObjectsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *S3) ListObjectsPages(input *ListObjectsInput, fn func(*ListObjectsOutput, bool) bool) error {
 	return c.ListObjectsPagesWithContext(aws.BackgroundContext(), input, fn)
 }
@@ -6663,13 +6542,14 @@ const opListObjectsV2 = "ListObjectsV2"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the ListObjectsV2Request method.
-//	req, resp := client.ListObjectsV2Request(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the ListObjectsV2Request method.
+//    req, resp := client.ListObjectsV2Request(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListObjectsV2
 func (c *S3) ListObjectsV2Request(input *ListObjectsV2Input) (req *request.Request, output *ListObjectsV2Output) {
@@ -6722,11 +6602,11 @@ func (c *S3) ListObjectsV2Request(input *ListObjectsV2Input) (req *request.Reque
 //
 // The following operations are related to ListObjectsV2:
 //
-//   - GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
+//    * GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
 //
-//   - PutObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html)
+//    * PutObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html)
 //
-//   - CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
+//    * CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -6736,8 +6616,8 @@ func (c *S3) ListObjectsV2Request(input *ListObjectsV2Input) (req *request.Reque
 // API operation ListObjectsV2 for usage and error information.
 //
 // Returned Error Codes:
-//   - ErrCodeNoSuchBucket "NoSuchBucket"
-//     The specified bucket does not exist.
+//   * ErrCodeNoSuchBucket "NoSuchBucket"
+//   The specified bucket does not exist.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListObjectsV2
 func (c *S3) ListObjectsV2(input *ListObjectsV2Input) (*ListObjectsV2Output, error) {
@@ -6769,14 +6649,15 @@ func (c *S3) ListObjectsV2WithContext(ctx aws.Context, input *ListObjectsV2Input
 //
 // Note: This operation can generate multiple requests to a service.
 //
-//	// Example iterating over at most 3 pages of a ListObjectsV2 operation.
-//	pageNum := 0
-//	err := client.ListObjectsV2Pages(params,
-//	    func(page *s3.ListObjectsV2Output, lastPage bool) bool {
-//	        pageNum++
-//	        fmt.Println(page)
-//	        return pageNum <= 3
-//	    })
+//    // Example iterating over at most 3 pages of a ListObjectsV2 operation.
+//    pageNum := 0
+//    err := client.ListObjectsV2Pages(params,
+//        func(page *s3.ListObjectsV2Output, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *S3) ListObjectsV2Pages(input *ListObjectsV2Input, fn func(*ListObjectsV2Output, bool) bool) error {
 	return c.ListObjectsV2PagesWithContext(aws.BackgroundContext(), input, fn)
 }
@@ -6828,13 +6709,14 @@ const opListParts = "ListParts"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the ListPartsRequest method.
-//	req, resp := client.ListPartsRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the ListPartsRequest method.
+//    req, resp := client.ListPartsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListParts
 func (c *S3) ListPartsRequest(input *ListPartsInput) (req *request.Request, output *ListPartsOutput) {
@@ -6872,9 +6754,6 @@ func (c *S3) ListPartsRequest(input *ListPartsInput) (req *request.Request, outp
 // requests you can include the part-number-marker query string parameter and
 // set its value to the NextPartNumberMarker field value from the previous response.
 //
-// If the upload was created using a checksum algorithm, you will need to have
-// permission to the kms:Decrypt action for the request to succeed.
-//
 // For more information on multipart uploads, see Uploading Objects Using Multipart
 // Upload (https://docs.aws.amazon.com/AmazonS3/latest/dev/uploadobjusingmpu.html).
 //
@@ -6883,17 +6762,15 @@ func (c *S3) ListPartsRequest(input *ListPartsInput) (req *request.Request, outp
 //
 // The following operations are related to ListParts:
 //
-//   - CreateMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateMultipartUpload.html)
+//    * CreateMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateMultipartUpload.html)
 //
-//   - UploadPart (https://docs.aws.amazon.com/AmazonS3/latest/API/API_UploadPart.html)
+//    * UploadPart (https://docs.aws.amazon.com/AmazonS3/latest/API/API_UploadPart.html)
 //
-//   - CompleteMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CompleteMultipartUpload.html)
+//    * CompleteMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CompleteMultipartUpload.html)
 //
-//   - AbortMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_AbortMultipartUpload.html)
+//    * AbortMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_AbortMultipartUpload.html)
 //
-//   - GetObjectAttributes (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectAttributes.html)
-//
-//   - ListMultipartUploads (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListMultipartUploads.html)
+//    * ListMultipartUploads (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListMultipartUploads.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -6931,14 +6808,15 @@ func (c *S3) ListPartsWithContext(ctx aws.Context, input *ListPartsInput, opts .
 //
 // Note: This operation can generate multiple requests to a service.
 //
-//	// Example iterating over at most 3 pages of a ListParts operation.
-//	pageNum := 0
-//	err := client.ListPartsPages(params,
-//	    func(page *s3.ListPartsOutput, lastPage bool) bool {
-//	        pageNum++
-//	        fmt.Println(page)
-//	        return pageNum <= 3
-//	    })
+//    // Example iterating over at most 3 pages of a ListParts operation.
+//    pageNum := 0
+//    err := client.ListPartsPages(params,
+//        func(page *s3.ListPartsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *S3) ListPartsPages(input *ListPartsInput, fn func(*ListPartsOutput, bool) bool) error {
 	return c.ListPartsPagesWithContext(aws.BackgroundContext(), input, fn)
 }
@@ -6990,13 +6868,14 @@ const opPutBucketAccelerateConfiguration = "PutBucketAccelerateConfiguration"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutBucketAccelerateConfigurationRequest method.
-//	req, resp := client.PutBucketAccelerateConfigurationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutBucketAccelerateConfigurationRequest method.
+//    req, resp := client.PutBucketAccelerateConfigurationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketAccelerateConfiguration
 func (c *S3) PutBucketAccelerateConfigurationRequest(input *PutBucketAccelerateConfigurationInput) (req *request.Request, output *PutBucketAccelerateConfigurationOutput) {
@@ -7031,9 +6910,9 @@ func (c *S3) PutBucketAccelerateConfigurationRequest(input *PutBucketAccelerateC
 // The Transfer Acceleration state of a bucket can be set to one of the following
 // two values:
 //
-//   - Enabled – Enables accelerated data transfers to the bucket.
+//    * Enabled – Enables accelerated data transfers to the bucket.
 //
-//   - Suspended – Disables accelerated data transfers to the bucket.
+//    * Suspended – Disables accelerated data transfers to the bucket.
 //
 // The GetBucketAccelerateConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketAccelerateConfiguration.html)
 // action returns the transfer acceleration state of a bucket.
@@ -7050,9 +6929,9 @@ func (c *S3) PutBucketAccelerateConfigurationRequest(input *PutBucketAccelerateC
 //
 // The following operations are related to PutBucketAccelerateConfiguration:
 //
-//   - GetBucketAccelerateConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketAccelerateConfiguration.html)
+//    * GetBucketAccelerateConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketAccelerateConfiguration.html)
 //
-//   - CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
+//    * CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -7098,13 +6977,14 @@ const opPutBucketAcl = "PutBucketAcl"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutBucketAclRequest method.
-//	req, resp := client.PutBucketAclRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutBucketAclRequest method.
+//    req, resp := client.PutBucketAclRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketAcl
 func (c *S3) PutBucketAclRequest(input *PutBucketAclInput) (req *request.Request, output *PutBucketAclOutput) {
@@ -7136,9 +7016,9 @@ func (c *S3) PutBucketAclRequest(input *PutBucketAclInput) (req *request.Request
 //
 // You can use one of the following two ways to set a bucket's permissions:
 //
-//   - Specify the ACL in the request body
+//    * Specify the ACL in the request body
 //
-//   - Specify permissions using request headers
+//    * Specify permissions using request headers
 //
 // You cannot specify access permission using both the body and the request
 // headers.
@@ -7156,75 +7036,75 @@ func (c *S3) PutBucketAclRequest(input *PutBucketAclInput) (req *request.Request
 // object ownership (https://docs.aws.amazon.com/AmazonS3/latest/userguide/about-object-ownership.html)
 // in the Amazon S3 User Guide.
 //
-// # Access Permissions
+// Access Permissions
 //
 // You can set access permissions using one of the following methods:
 //
-//   - Specify a canned ACL with the x-amz-acl request header. Amazon S3 supports
-//     a set of predefined ACLs, known as canned ACLs. Each canned ACL has a
-//     predefined set of grantees and permissions. Specify the canned ACL name
-//     as the value of x-amz-acl. If you use this header, you cannot use other
-//     access control-specific headers in your request. For more information,
-//     see Canned ACL (https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#CannedACL).
+//    * Specify a canned ACL with the x-amz-acl request header. Amazon S3 supports
+//    a set of predefined ACLs, known as canned ACLs. Each canned ACL has a
+//    predefined set of grantees and permissions. Specify the canned ACL name
+//    as the value of x-amz-acl. If you use this header, you cannot use other
+//    access control-specific headers in your request. For more information,
+//    see Canned ACL (https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#CannedACL).
 //
-//   - Specify access permissions explicitly with the x-amz-grant-read, x-amz-grant-read-acp,
-//     x-amz-grant-write-acp, and x-amz-grant-full-control headers. When using
-//     these headers, you specify explicit access permissions and grantees (Amazon
-//     Web Services accounts or Amazon S3 groups) who will receive the permission.
-//     If you use these ACL-specific headers, you cannot use the x-amz-acl header
-//     to set a canned ACL. These parameters map to the set of permissions that
-//     Amazon S3 supports in an ACL. For more information, see Access Control
-//     List (ACL) Overview (https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html).
-//     You specify each grantee as a type=value pair, where the type is one of
-//     the following: id – if the value specified is the canonical user ID
-//     of an Amazon Web Services account uri – if you are granting permissions
-//     to a predefined group emailAddress – if the value specified is the email
-//     address of an Amazon Web Services account Using email addresses to specify
-//     a grantee is only supported in the following Amazon Web Services Regions:
-//     US East (N. Virginia) US West (N. California) US West (Oregon) Asia Pacific
-//     (Singapore) Asia Pacific (Sydney) Asia Pacific (Tokyo) Europe (Ireland)
-//     South America (São Paulo) For a list of all the Amazon S3 supported Regions
-//     and endpoints, see Regions and Endpoints (https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region)
-//     in the Amazon Web Services General Reference. For example, the following
-//     x-amz-grant-write header grants create, overwrite, and delete objects
-//     permission to LogDelivery group predefined by Amazon S3 and two Amazon
-//     Web Services accounts identified by their email addresses. x-amz-grant-write:
-//     uri="http://acs.amazonaws.com/groups/s3/LogDelivery", id="111122223333",
-//     id="555566667777"
+//    * Specify access permissions explicitly with the x-amz-grant-read, x-amz-grant-read-acp,
+//    x-amz-grant-write-acp, and x-amz-grant-full-control headers. When using
+//    these headers, you specify explicit access permissions and grantees (Amazon
+//    Web Services accounts or Amazon S3 groups) who will receive the permission.
+//    If you use these ACL-specific headers, you cannot use the x-amz-acl header
+//    to set a canned ACL. These parameters map to the set of permissions that
+//    Amazon S3 supports in an ACL. For more information, see Access Control
+//    List (ACL) Overview (https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html).
+//    You specify each grantee as a type=value pair, where the type is one of
+//    the following: id – if the value specified is the canonical user ID
+//    of an Amazon Web Services account uri – if you are granting permissions
+//    to a predefined group emailAddress – if the value specified is the email
+//    address of an Amazon Web Services account Using email addresses to specify
+//    a grantee is only supported in the following Amazon Web Services Regions:
+//    US East (N. Virginia) US West (N. California) US West (Oregon) Asia Pacific
+//    (Singapore) Asia Pacific (Sydney) Asia Pacific (Tokyo) Europe (Ireland)
+//    South America (São Paulo) For a list of all the Amazon S3 supported Regions
+//    and endpoints, see Regions and Endpoints (https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region)
+//    in the Amazon Web Services General Reference. For example, the following
+//    x-amz-grant-write header grants create, overwrite, and delete objects
+//    permission to LogDelivery group predefined by Amazon S3 and two Amazon
+//    Web Services accounts identified by their email addresses. x-amz-grant-write:
+//    uri="http://acs.amazonaws.com/groups/s3/LogDelivery", id="111122223333",
+//    id="555566667777"
 //
 // You can use either a canned ACL or specify access permissions explicitly.
 // You cannot do both.
 //
-// # Grantee Values
+// Grantee Values
 //
 // You can specify the person (grantee) to whom you're assigning access rights
 // (using request elements) in the following ways:
 //
-//   - By the person's ID: <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-//     xsi:type="CanonicalUser"><ID><>ID<></ID><DisplayName><>GranteesEmail<></DisplayName>
-//     </Grantee> DisplayName is optional and ignored in the request
+//    * By the person's ID: <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+//    xsi:type="CanonicalUser"><ID><>ID<></ID><DisplayName><>GranteesEmail<></DisplayName>
+//    </Grantee> DisplayName is optional and ignored in the request
 //
-//   - By URI: <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-//     xsi:type="Group"><URI><>http://acs.amazonaws.com/groups/global/AuthenticatedUsers<></URI></Grantee>
+//    * By URI: <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+//    xsi:type="Group"><URI><>http://acs.amazonaws.com/groups/global/AuthenticatedUsers<></URI></Grantee>
 //
-//   - By Email address: <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-//     xsi:type="AmazonCustomerByEmail"><EmailAddress><>Grantees@email.com<></EmailAddress>lt;/Grantee>
-//     The grantee is resolved to the CanonicalUser and, in a response to a GET
-//     Object acl request, appears as the CanonicalUser. Using email addresses
-//     to specify a grantee is only supported in the following Amazon Web Services
-//     Regions: US East (N. Virginia) US West (N. California) US West (Oregon)
-//     Asia Pacific (Singapore) Asia Pacific (Sydney) Asia Pacific (Tokyo) Europe
-//     (Ireland) South America (São Paulo) For a list of all the Amazon S3 supported
-//     Regions and endpoints, see Regions and Endpoints (https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region)
-//     in the Amazon Web Services General Reference.
+//    * By Email address: <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+//    xsi:type="AmazonCustomerByEmail"><EmailAddress><>Grantees@email.com<></EmailAddress>lt;/Grantee>
+//    The grantee is resolved to the CanonicalUser and, in a response to a GET
+//    Object acl request, appears as the CanonicalUser. Using email addresses
+//    to specify a grantee is only supported in the following Amazon Web Services
+//    Regions: US East (N. Virginia) US West (N. California) US West (Oregon)
+//    Asia Pacific (Singapore) Asia Pacific (Sydney) Asia Pacific (Tokyo) Europe
+//    (Ireland) South America (São Paulo) For a list of all the Amazon S3 supported
+//    Regions and endpoints, see Regions and Endpoints (https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region)
+//    in the Amazon Web Services General Reference.
 //
 // Related Resources
 //
-//   - CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
+//    * CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
 //
-//   - DeleteBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucket.html)
+//    * DeleteBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucket.html)
 //
-//   - GetObjectAcl (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectAcl.html)
+//    * GetObjectAcl (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectAcl.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -7270,13 +7150,14 @@ const opPutBucketAnalyticsConfiguration = "PutBucketAnalyticsConfiguration"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutBucketAnalyticsConfigurationRequest method.
-//	req, resp := client.PutBucketAnalyticsConfigurationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutBucketAnalyticsConfigurationRequest method.
+//    req, resp := client.PutBucketAnalyticsConfigurationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketAnalyticsConfiguration
 func (c *S3) PutBucketAnalyticsConfigurationRequest(input *PutBucketAnalyticsConfigurationInput) (req *request.Request, output *PutBucketAnalyticsConfigurationOutput) {
@@ -7325,24 +7206,24 @@ func (c *S3) PutBucketAnalyticsConfigurationRequest(input *PutBucketAnalyticsCon
 //
 // Special Errors
 //
-//   - HTTP Error: HTTP 400 Bad Request Code: InvalidArgument Cause: Invalid
-//     argument.
+//    * HTTP Error: HTTP 400 Bad Request Code: InvalidArgument Cause: Invalid
+//    argument.
 //
-//   - HTTP Error: HTTP 400 Bad Request Code: TooManyConfigurations Cause:
-//     You are attempting to create a new configuration but have already reached
-//     the 1,000-configuration limit.
+//    * HTTP Error: HTTP 400 Bad Request Code: TooManyConfigurations Cause:
+//    You are attempting to create a new configuration but have already reached
+//    the 1,000-configuration limit.
 //
-//   - HTTP Error: HTTP 403 Forbidden Code: AccessDenied Cause: You are not
-//     the owner of the specified bucket, or you do not have the s3:PutAnalyticsConfiguration
-//     bucket permission to set the configuration on the bucket.
+//    * HTTP Error: HTTP 403 Forbidden Code: AccessDenied Cause: You are not
+//    the owner of the specified bucket, or you do not have the s3:PutAnalyticsConfiguration
+//    bucket permission to set the configuration on the bucket.
 //
 // Related Resources
 //
-//   - GetBucketAnalyticsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketAnalyticsConfiguration.html)
+//    * GetBucketAnalyticsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketAnalyticsConfiguration.html)
 //
-//   - DeleteBucketAnalyticsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketAnalyticsConfiguration.html)
+//    * DeleteBucketAnalyticsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketAnalyticsConfiguration.html)
 //
-//   - ListBucketAnalyticsConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketAnalyticsConfigurations.html)
+//    * ListBucketAnalyticsConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketAnalyticsConfigurations.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -7388,13 +7269,14 @@ const opPutBucketCors = "PutBucketCors"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutBucketCorsRequest method.
-//	req, resp := client.PutBucketCorsRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutBucketCorsRequest method.
+//    req, resp := client.PutBucketCorsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketCors
 func (c *S3) PutBucketCorsRequest(input *PutBucketCorsInput) (req *request.Request, output *PutBucketCorsOutput) {
@@ -7443,14 +7325,14 @@ func (c *S3) PutBucketCorsRequest(input *PutBucketCorsInput) (req *request.Reque
 // a cross-origin request. For a rule to match, the following conditions must
 // be met:
 //
-//   - The request's Origin header must match AllowedOrigin elements.
+//    * The request's Origin header must match AllowedOrigin elements.
 //
-//   - The request method (for example, GET, PUT, HEAD, and so on) or the Access-Control-Request-Method
-//     header in case of a pre-flight OPTIONS request must be one of the AllowedMethod
-//     elements.
+//    * The request method (for example, GET, PUT, HEAD, and so on) or the Access-Control-Request-Method
+//    header in case of a pre-flight OPTIONS request must be one of the AllowedMethod
+//    elements.
 //
-//   - Every header specified in the Access-Control-Request-Headers request
-//     header of a pre-flight request must match an AllowedHeader element.
+//    * Every header specified in the Access-Control-Request-Headers request
+//    header of a pre-flight request must match an AllowedHeader element.
 //
 // For more information about CORS, go to Enabling Cross-Origin Resource Sharing
 // (https://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html) in the Amazon
@@ -7458,11 +7340,11 @@ func (c *S3) PutBucketCorsRequest(input *PutBucketCorsInput) (req *request.Reque
 //
 // Related Resources
 //
-//   - GetBucketCors (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketCors.html)
+//    * GetBucketCors (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketCors.html)
 //
-//   - DeleteBucketCors (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketCors.html)
+//    * DeleteBucketCors (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketCors.html)
 //
-//   - RESTOPTIONSobject (https://docs.aws.amazon.com/AmazonS3/latest/API/RESTOPTIONSobject.html)
+//    * RESTOPTIONSobject (https://docs.aws.amazon.com/AmazonS3/latest/API/RESTOPTIONSobject.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -7508,13 +7390,14 @@ const opPutBucketEncryption = "PutBucketEncryption"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutBucketEncryptionRequest method.
-//	req, resp := client.PutBucketEncryptionRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutBucketEncryptionRequest method.
+//    req, resp := client.PutBucketEncryptionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketEncryption
 func (c *S3) PutBucketEncryptionRequest(input *PutBucketEncryptionInput) (req *request.Request, output *PutBucketEncryptionOutput) {
@@ -7546,10 +7429,8 @@ func (c *S3) PutBucketEncryptionRequest(input *PutBucketEncryptionInput) (req *r
 // Default encryption for a bucket can use server-side encryption with Amazon
 // S3-managed keys (SSE-S3) or customer managed keys (SSE-KMS). If you specify
 // default encryption using SSE-KMS, you can also configure Amazon S3 Bucket
-// Key. When the default encryption is SSE-KMS, if you upload an object to the
-// bucket and do not specify the KMS key to use for encryption, Amazon S3 uses
-// the default Amazon Web Services managed KMS key for your account. For information
-// about default encryption, see Amazon S3 default bucket encryption (https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html)
+// Key. For information about default encryption, see Amazon S3 default bucket
+// encryption (https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html)
 // in the Amazon S3 User Guide. For more information about S3 Bucket Keys, see
 // Amazon S3 Bucket Keys (https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-key.html)
 // in the Amazon S3 User Guide.
@@ -7566,9 +7447,9 @@ func (c *S3) PutBucketEncryptionRequest(input *PutBucketEncryptionInput) (req *r
 //
 // Related Resources
 //
-//   - GetBucketEncryption (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketEncryption.html)
+//    * GetBucketEncryption (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketEncryption.html)
 //
-//   - DeleteBucketEncryption (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketEncryption.html)
+//    * DeleteBucketEncryption (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketEncryption.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -7614,13 +7495,14 @@ const opPutBucketIntelligentTieringConfiguration = "PutBucketIntelligentTieringC
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutBucketIntelligentTieringConfigurationRequest method.
-//	req, resp := client.PutBucketIntelligentTieringConfigurationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutBucketIntelligentTieringConfigurationRequest method.
+//    req, resp := client.PutBucketIntelligentTieringConfigurationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketIntelligentTieringConfiguration
 func (c *S3) PutBucketIntelligentTieringConfigurationRequest(input *PutBucketIntelligentTieringConfigurationInput) (req *request.Request, output *PutBucketIntelligentTieringConfigurationOutput) {
@@ -7664,11 +7546,11 @@ func (c *S3) PutBucketIntelligentTieringConfigurationRequest(input *PutBucketInt
 //
 // Operations related to PutBucketIntelligentTieringConfiguration include:
 //
-//   - DeleteBucketIntelligentTieringConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketIntelligentTieringConfiguration.html)
+//    * DeleteBucketIntelligentTieringConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketIntelligentTieringConfiguration.html)
 //
-//   - GetBucketIntelligentTieringConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketIntelligentTieringConfiguration.html)
+//    * GetBucketIntelligentTieringConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketIntelligentTieringConfiguration.html)
 //
-//   - ListBucketIntelligentTieringConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketIntelligentTieringConfigurations.html)
+//    * ListBucketIntelligentTieringConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketIntelligentTieringConfigurations.html)
 //
 // You only need S3 Intelligent-Tiering enabled on a bucket if you want to automatically
 // move objects stored in the S3 Intelligent-Tiering storage class to the Archive
@@ -7676,15 +7558,15 @@ func (c *S3) PutBucketIntelligentTieringConfigurationRequest(input *PutBucketInt
 //
 // Special Errors
 //
-//   - HTTP 400 Bad Request Error Code: InvalidArgument Cause: Invalid Argument
+//    * HTTP 400 Bad Request Error Code: InvalidArgument Cause: Invalid Argument
 //
-//   - HTTP 400 Bad Request Error Code: TooManyConfigurations Cause: You are
-//     attempting to create a new configuration but have already reached the
-//     1,000-configuration limit.
+//    * HTTP 400 Bad Request Error Code: TooManyConfigurations Cause: You are
+//    attempting to create a new configuration but have already reached the
+//    1,000-configuration limit.
 //
-//   - HTTP 403 Forbidden Error Code: AccessDenied Cause: You are not the owner
-//     of the specified bucket, or you do not have the s3:PutIntelligentTieringConfiguration
-//     bucket permission to set the configuration on the bucket.
+//    * HTTP 403 Forbidden Error Code: AccessDenied Cause: You are not the owner
+//    of the specified bucket, or you do not have the s3:PutIntelligentTieringConfiguration
+//    bucket permission to set the configuration on the bucket.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -7730,13 +7612,14 @@ const opPutBucketInventoryConfiguration = "PutBucketInventoryConfiguration"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutBucketInventoryConfigurationRequest method.
-//	req, resp := client.PutBucketInventoryConfigurationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutBucketInventoryConfigurationRequest method.
+//    req, resp := client.PutBucketInventoryConfigurationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketInventoryConfiguration
 func (c *S3) PutBucketInventoryConfigurationRequest(input *PutBucketInventoryConfigurationInput) (req *request.Request, output *PutBucketInventoryConfigurationOutput) {
@@ -7789,23 +7672,23 @@ func (c *S3) PutBucketInventoryConfigurationRequest(input *PutBucketInventoryCon
 //
 // Special Errors
 //
-//   - HTTP 400 Bad Request Error Code: InvalidArgument Cause: Invalid Argument
+//    * HTTP 400 Bad Request Error Code: InvalidArgument Cause: Invalid Argument
 //
-//   - HTTP 400 Bad Request Error Code: TooManyConfigurations Cause: You are
-//     attempting to create a new configuration but have already reached the
-//     1,000-configuration limit.
+//    * HTTP 400 Bad Request Error Code: TooManyConfigurations Cause: You are
+//    attempting to create a new configuration but have already reached the
+//    1,000-configuration limit.
 //
-//   - HTTP 403 Forbidden Error Code: AccessDenied Cause: You are not the owner
-//     of the specified bucket, or you do not have the s3:PutInventoryConfiguration
-//     bucket permission to set the configuration on the bucket.
+//    * HTTP 403 Forbidden Error Code: AccessDenied Cause: You are not the owner
+//    of the specified bucket, or you do not have the s3:PutInventoryConfiguration
+//    bucket permission to set the configuration on the bucket.
 //
 // Related Resources
 //
-//   - GetBucketInventoryConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketInventoryConfiguration.html)
+//    * GetBucketInventoryConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketInventoryConfiguration.html)
 //
-//   - DeleteBucketInventoryConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketInventoryConfiguration.html)
+//    * DeleteBucketInventoryConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketInventoryConfiguration.html)
 //
-//   - ListBucketInventoryConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketInventoryConfigurations.html)
+//    * ListBucketInventoryConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketInventoryConfigurations.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -7851,13 +7734,14 @@ const opPutBucketLifecycle = "PutBucketLifecycle"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutBucketLifecycleRequest method.
-//	req, resp := client.PutBucketLifecycleRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutBucketLifecycleRequest method.
+//    req, resp := client.PutBucketLifecycleRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketLifecycle
 //
@@ -7888,6 +7772,7 @@ func (c *S3) PutBucketLifecycleRequest(input *PutBucketLifecycleInput) (req *req
 
 // PutBucketLifecycle API operation for Amazon Simple Storage Service.
 //
+//
 // For an updated version of this API, see PutBucketLifecycleConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketLifecycleConfiguration.html).
 // This version has been deprecated. Existing lifecycle configurations will
 // work. For new lifecycle configurations, use the updated API.
@@ -7909,11 +7794,11 @@ func (c *S3) PutBucketLifecycleRequest(input *PutBucketLifecycleInput) (req *req
 // or deleting objects from your bucket, you must deny them permissions for
 // the following actions:
 //
-//   - s3:DeleteObject
+//    * s3:DeleteObject
 //
-//   - s3:DeleteObjectVersion
+//    * s3:DeleteObjectVersion
 //
-//   - s3:PutLifecycleConfiguration
+//    * s3:PutLifecycleConfiguration
 //
 // For more information about permissions, see Managing Access Permissions to
 // your Amazon S3 Resources (https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-access-control.html)
@@ -7924,18 +7809,18 @@ func (c *S3) PutBucketLifecycleRequest(input *PutBucketLifecycleInput) (req *req
 //
 // Related Resources
 //
-//   - GetBucketLifecycle (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLifecycle.html)(Deprecated)
+//    * GetBucketLifecycle (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLifecycle.html)(Deprecated)
 //
-//   - GetBucketLifecycleConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLifecycleConfiguration.html)
+//    * GetBucketLifecycleConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLifecycleConfiguration.html)
 //
-//   - RestoreObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_RestoreObject.html)
+//    * RestoreObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_RestoreObject.html)
 //
-//   - By default, a resource owner—in this case, a bucket owner, which is
-//     the Amazon Web Services account that created the bucket—can perform
-//     any of the operations. A resource owner can also grant others permission
-//     to perform the operation. For more information, see the following topics
-//     in the Amazon S3 User Guide: Specifying Permissions in a Policy (https://docs.aws.amazon.com/AmazonS3/latest/dev/using-with-s3-actions.html)
-//     Managing Access Permissions to your Amazon S3 Resources (https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-access-control.html)
+//    * By default, a resource owner—in this case, a bucket owner, which is
+//    the Amazon Web Services account that created the bucket—can perform
+//    any of the operations. A resource owner can also grant others permission
+//    to perform the operation. For more information, see the following topics
+//    in the Amazon S3 User Guide: Specifying Permissions in a Policy (https://docs.aws.amazon.com/AmazonS3/latest/dev/using-with-s3-actions.html)
+//    Managing Access Permissions to your Amazon S3 Resources (https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-access-control.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -7985,13 +7870,14 @@ const opPutBucketLifecycleConfiguration = "PutBucketLifecycleConfiguration"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutBucketLifecycleConfigurationRequest method.
-//	req, resp := client.PutBucketLifecycleConfigurationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutBucketLifecycleConfigurationRequest method.
+//    req, resp := client.PutBucketLifecycleConfigurationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketLifecycleConfiguration
 func (c *S3) PutBucketLifecycleConfigurationRequest(input *PutBucketLifecycleConfigurationInput) (req *request.Request, output *PutBucketLifecycleConfigurationOutput) {
@@ -8018,10 +7904,8 @@ func (c *S3) PutBucketLifecycleConfigurationRequest(input *PutBucketLifecycleCon
 // PutBucketLifecycleConfiguration API operation for Amazon Simple Storage Service.
 //
 // Creates a new lifecycle configuration for the bucket or replaces an existing
-// lifecycle configuration. Keep in mind that this will overwrite an existing
-// lifecycle configuration, so if you want to retain any configuration details,
-// they must be included in the new lifecycle configuration. For information
-// about lifecycle configuration, see Managing your storage lifecycle (https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html).
+// lifecycle configuration. For information about lifecycle configuration, see
+// Managing your storage lifecycle (https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html).
 //
 // Bucket lifecycle configuration now supports specifying a lifecycle rule using
 // an object key name prefix, one or more object tags, or a combination of both.
@@ -8030,30 +7914,29 @@ func (c *S3) PutBucketLifecycleConfigurationRequest(input *PutBucketLifecycleCon
 // is supported for backward compatibility. For the related API description,
 // see PutBucketLifecycle (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketLifecycle.html).
 //
-// # Rules
+// Rules
 //
 // You specify the lifecycle configuration in your request body. The lifecycle
-// configuration is specified as XML consisting of one or more rules. An Amazon
-// S3 Lifecycle configuration can have up to 1,000 rules. This limit is not
-// adjustable. Each rule consists of the following:
+// configuration is specified as XML consisting of one or more rules. Each rule
+// consists of the following:
 //
-//   - Filter identifying a subset of objects to which the rule applies. The
-//     filter can be based on a key name prefix, object tags, or a combination
-//     of both.
+//    * Filter identifying a subset of objects to which the rule applies. The
+//    filter can be based on a key name prefix, object tags, or a combination
+//    of both.
 //
-//   - Status whether the rule is in effect.
+//    * Status whether the rule is in effect.
 //
-//   - One or more lifecycle transition and expiration actions that you want
-//     Amazon S3 to perform on the objects identified by the filter. If the state
-//     of your bucket is versioning-enabled or versioning-suspended, you can
-//     have many versions of the same object (one current version and zero or
-//     more noncurrent versions). Amazon S3 provides predefined actions that
-//     you can specify for current and noncurrent object versions.
+//    * One or more lifecycle transition and expiration actions that you want
+//    Amazon S3 to perform on the objects identified by the filter. If the state
+//    of your bucket is versioning-enabled or versioning-suspended, you can
+//    have many versions of the same object (one current version and zero or
+//    more noncurrent versions). Amazon S3 provides predefined actions that
+//    you can specify for current and noncurrent object versions.
 //
 // For more information, see Object Lifecycle Management (https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lifecycle-mgmt.html)
 // and Lifecycle Configuration Elements (https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html).
 //
-// # Permissions
+// Permissions
 //
 // By default, all Amazon S3 resources are private, including buckets, objects,
 // and related subresources (for example, lifecycle configuration and website
@@ -8067,22 +7950,22 @@ func (c *S3) PutBucketLifecycleConfigurationRequest(input *PutBucketLifecycleCon
 // deleting objects from your bucket, you must deny them permissions for the
 // following actions:
 //
-//   - s3:DeleteObject
+//    * s3:DeleteObject
 //
-//   - s3:DeleteObjectVersion
+//    * s3:DeleteObjectVersion
 //
-//   - s3:PutLifecycleConfiguration
+//    * s3:PutLifecycleConfiguration
 //
 // For more information about permissions, see Managing Access Permissions to
 // Your Amazon S3 Resources (https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-access-control.html).
 //
 // The following are related to PutBucketLifecycleConfiguration:
 //
-//   - Examples of Lifecycle Configuration (https://docs.aws.amazon.com/AmazonS3/latest/dev/lifecycle-configuration-examples.html)
+//    * Examples of Lifecycle Configuration (https://docs.aws.amazon.com/AmazonS3/latest/dev/lifecycle-configuration-examples.html)
 //
-//   - GetBucketLifecycleConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLifecycleConfiguration.html)
+//    * GetBucketLifecycleConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLifecycleConfiguration.html)
 //
-//   - DeleteBucketLifecycle (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketLifecycle.html)
+//    * DeleteBucketLifecycle (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketLifecycle.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -8128,13 +8011,14 @@ const opPutBucketLogging = "PutBucketLogging"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutBucketLoggingRequest method.
-//	req, resp := client.PutBucketLoggingRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutBucketLoggingRequest method.
+//    req, resp := client.PutBucketLoggingRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketLogging
 func (c *S3) PutBucketLoggingRequest(input *PutBucketLoggingInput) (req *request.Request, output *PutBucketLoggingOutput) {
@@ -8175,22 +8059,22 @@ func (c *S3) PutBucketLoggingRequest(input *PutBucketLoggingInput) (req *request
 // information, see Permissions for server access log delivery (https://docs.aws.amazon.com/AmazonS3/latest/userguide/enable-server-access-logging.html#grant-log-delivery-permissions-general)
 // in the Amazon S3 User Guide.
 //
-// # Grantee Values
+// Grantee Values
 //
 // You can specify the person (grantee) to whom you're assigning access rights
 // (using request elements) in the following ways:
 //
-//   - By the person's ID: <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-//     xsi:type="CanonicalUser"><ID><>ID<></ID><DisplayName><>GranteesEmail<></DisplayName>
-//     </Grantee> DisplayName is optional and ignored in the request.
+//    * By the person's ID: <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+//    xsi:type="CanonicalUser"><ID><>ID<></ID><DisplayName><>GranteesEmail<></DisplayName>
+//    </Grantee> DisplayName is optional and ignored in the request.
 //
-//   - By Email address: <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-//     xsi:type="AmazonCustomerByEmail"><EmailAddress><>Grantees@email.com<></EmailAddress></Grantee>
-//     The grantee is resolved to the CanonicalUser and, in a response to a GET
-//     Object acl request, appears as the CanonicalUser.
+//    * By Email address: <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+//    xsi:type="AmazonCustomerByEmail"><EmailAddress><>Grantees@email.com<></EmailAddress></Grantee>
+//    The grantee is resolved to the CanonicalUser and, in a response to a GET
+//    Object acl request, appears as the CanonicalUser.
 //
-//   - By URI: <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-//     xsi:type="Group"><URI><>http://acs.amazonaws.com/groups/global/AuthenticatedUsers<></URI></Grantee>
+//    * By URI: <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+//    xsi:type="Group"><URI><>http://acs.amazonaws.com/groups/global/AuthenticatedUsers<></URI></Grantee>
 //
 // To enable logging, you use LoggingEnabled and its children request elements.
 // To disable logging, you use an empty BucketLoggingStatus request element:
@@ -8207,13 +8091,13 @@ func (c *S3) PutBucketLoggingRequest(input *PutBucketLoggingInput) (req *request
 //
 // The following operations are related to PutBucketLogging:
 //
-//   - PutObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html)
+//    * PutObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html)
 //
-//   - DeleteBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucket.html)
+//    * DeleteBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucket.html)
 //
-//   - CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
+//    * CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
 //
-//   - GetBucketLogging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLogging.html)
+//    * GetBucketLogging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLogging.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -8259,13 +8143,14 @@ const opPutBucketMetricsConfiguration = "PutBucketMetricsConfiguration"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutBucketMetricsConfigurationRequest method.
-//	req, resp := client.PutBucketMetricsConfigurationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutBucketMetricsConfigurationRequest method.
+//    req, resp := client.PutBucketMetricsConfigurationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketMetricsConfiguration
 func (c *S3) PutBucketMetricsConfigurationRequest(input *PutBucketMetricsConfigurationInput) (req *request.Request, output *PutBucketMetricsConfigurationOutput) {
@@ -8304,17 +8189,17 @@ func (c *S3) PutBucketMetricsConfigurationRequest(input *PutBucketMetricsConfigu
 //
 // The following operations are related to PutBucketMetricsConfiguration:
 //
-//   - DeleteBucketMetricsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketMetricsConfiguration.html)
+//    * DeleteBucketMetricsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketMetricsConfiguration.html)
 //
-//   - GetBucketMetricsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketMetricsConfiguration.html)
+//    * GetBucketMetricsConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketMetricsConfiguration.html)
 //
-//   - ListBucketMetricsConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketMetricsConfigurations.html)
+//    * ListBucketMetricsConfigurations (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListBucketMetricsConfigurations.html)
 //
 // GetBucketLifecycle has the following special error:
 //
-//   - Error code: TooManyConfigurations Description: You are attempting to
-//     create a new configuration but have already reached the 1,000-configuration
-//     limit. HTTP Status Code: HTTP 400 Bad Request
+//    * Error code: TooManyConfigurations Description: You are attempting to
+//    create a new configuration but have already reached the 1,000-configuration
+//    limit. HTTP Status Code: HTTP 400 Bad Request
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -8360,13 +8245,14 @@ const opPutBucketNotification = "PutBucketNotification"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutBucketNotificationRequest method.
-//	req, resp := client.PutBucketNotificationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutBucketNotificationRequest method.
+//    req, resp := client.PutBucketNotificationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketNotification
 //
@@ -8448,13 +8334,14 @@ const opPutBucketNotificationConfiguration = "PutBucketNotificationConfiguration
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutBucketNotificationConfigurationRequest method.
-//	req, resp := client.PutBucketNotificationConfigurationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutBucketNotificationConfigurationRequest method.
+//    req, resp := client.PutBucketNotificationConfigurationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketNotificationConfiguration
 func (c *S3) PutBucketNotificationConfigurationRequest(input *PutBucketNotificationConfigurationInput) (req *request.Request, output *PutBucketNotificationConfigurationOutput) {
@@ -8505,10 +8392,6 @@ func (c *S3) PutBucketNotificationConfigurationRequest(input *PutBucketNotificat
 // You can disable notifications by adding the empty NotificationConfiguration
 // element.
 //
-// For more information about the number of event notification configurations
-// that you can create per bucket, see Amazon S3 service quotas (https://docs.aws.amazon.com/general/latest/gr/s3.html#limits_s3)
-// in Amazon Web Services General Reference.
-//
 // By default, only the bucket owner can configure notifications on a bucket.
 // However, bucket owners can use a bucket policy to grant permission to other
 // users to set this configuration with s3:PutBucketNotification permission.
@@ -8519,7 +8402,7 @@ func (c *S3) PutBucketNotificationConfigurationRequest(input *PutBucketNotificat
 // messages to your SNS topic. If the message fails, the entire PUT action will
 // fail, and Amazon S3 will not add the configuration to your bucket.
 //
-// # Responses
+// Responses
 //
 // If the configuration in the request body includes only one TopicConfiguration
 // specifying only the s3:ReducedRedundancyLostObject event type, the response
@@ -8528,7 +8411,7 @@ func (c *S3) PutBucketNotificationConfigurationRequest(input *PutBucketNotificat
 //
 // The following action is related to PutBucketNotificationConfiguration:
 //
-//   - GetBucketNotificationConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketNotificationConfiguration.html)
+//    * GetBucketNotificationConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketNotificationConfiguration.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -8574,13 +8457,14 @@ const opPutBucketOwnershipControls = "PutBucketOwnershipControls"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutBucketOwnershipControlsRequest method.
-//	req, resp := client.PutBucketOwnershipControlsRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutBucketOwnershipControlsRequest method.
+//    req, resp := client.PutBucketOwnershipControlsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketOwnershipControls
 func (c *S3) PutBucketOwnershipControlsRequest(input *PutBucketOwnershipControlsInput) (req *request.Request, output *PutBucketOwnershipControlsOutput) {
@@ -8616,9 +8500,9 @@ func (c *S3) PutBucketOwnershipControlsRequest(input *PutBucketOwnershipControls
 //
 // The following operations are related to PutBucketOwnershipControls:
 //
-//   - GetBucketOwnershipControls
+//    * GetBucketOwnershipControls
 //
-//   - DeleteBucketOwnershipControls
+//    * DeleteBucketOwnershipControls
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -8664,13 +8548,14 @@ const opPutBucketPolicy = "PutBucketPolicy"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutBucketPolicyRequest method.
-//	req, resp := client.PutBucketPolicyRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutBucketPolicyRequest method.
+//    req, resp := client.PutBucketPolicyRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketPolicy
 func (c *S3) PutBucketPolicyRequest(input *PutBucketPolicyInput) (req *request.Request, output *PutBucketPolicyOutput) {
@@ -8715,9 +8600,9 @@ func (c *S3) PutBucketPolicyRequest(input *PutBucketPolicyInput) (req *request.R
 //
 // The following operations are related to PutBucketPolicy:
 //
-//   - CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
+//    * CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
 //
-//   - DeleteBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucket.html)
+//    * DeleteBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucket.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -8763,13 +8648,14 @@ const opPutBucketReplication = "PutBucketReplication"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutBucketReplicationRequest method.
-//	req, resp := client.PutBucketReplicationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutBucketReplicationRequest method.
+//    req, resp := client.PutBucketReplicationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketReplication
 func (c *S3) PutBucketReplicationRequest(input *PutBucketReplicationInput) (req *request.Request, output *PutBucketReplicationOutput) {
@@ -8822,7 +8708,7 @@ func (c *S3) PutBucketReplicationRequest(input *PutBucketReplicationInput) (req 
 // For information about enabling versioning on a bucket, see Using Versioning
 // (https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html).
 //
-// # Handling Replication of Encrypted Objects
+// Handling Replication of Encrypted Objects
 //
 // By default, Amazon S3 doesn't replicate objects that are stored at rest using
 // server-side encryption with KMS keys. To replicate Amazon Web Services KMS-encrypted
@@ -8834,7 +8720,7 @@ func (c *S3) PutBucketReplicationRequest(input *PutBucketReplicationInput) (req 
 // For information on PutBucketReplication errors, see List of replication-related
 // error codes (https://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html#ReplicationErrorCodeList)
 //
-// # Permissions
+// Permissions
 //
 // To create a PutBucketReplication request, you must have s3:PutReplicationConfiguration
 // permissions for the bucket.
@@ -8851,9 +8737,9 @@ func (c *S3) PutBucketReplicationRequest(input *PutBucketReplicationInput) (req 
 //
 // The following operations are related to PutBucketReplication:
 //
-//   - GetBucketReplication (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketReplication.html)
+//    * GetBucketReplication (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketReplication.html)
 //
-//   - DeleteBucketReplication (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketReplication.html)
+//    * DeleteBucketReplication (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketReplication.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -8899,13 +8785,14 @@ const opPutBucketRequestPayment = "PutBucketRequestPayment"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutBucketRequestPaymentRequest method.
-//	req, resp := client.PutBucketRequestPaymentRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutBucketRequestPaymentRequest method.
+//    req, resp := client.PutBucketRequestPaymentRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketRequestPayment
 func (c *S3) PutBucketRequestPaymentRequest(input *PutBucketRequestPaymentInput) (req *request.Request, output *PutBucketRequestPaymentOutput) {
@@ -8939,9 +8826,9 @@ func (c *S3) PutBucketRequestPaymentRequest(input *PutBucketRequestPaymentInput)
 //
 // The following operations are related to PutBucketRequestPayment:
 //
-//   - CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
+//    * CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
 //
-//   - GetBucketRequestPayment (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketRequestPayment.html)
+//    * GetBucketRequestPayment (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketRequestPayment.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -8987,13 +8874,14 @@ const opPutBucketTagging = "PutBucketTagging"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutBucketTaggingRequest method.
-//	req, resp := client.PutBucketTaggingRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutBucketTaggingRequest method.
+//    req, resp := client.PutBucketTaggingRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketTagging
 func (c *S3) PutBucketTaggingRequest(input *PutBucketTaggingInput) (req *request.Request, output *PutBucketTaggingOutput) {
@@ -9043,26 +8931,26 @@ func (c *S3) PutBucketTaggingRequest(input *PutBucketTaggingInput) (req *request
 //
 // PutBucketTagging has the following special errors:
 //
-//   - Error code: InvalidTagError Description: The tag provided was not a
-//     valid tag. This error can occur if the tag did not pass input validation.
-//     For information about tag restrictions, see User-Defined Tag Restrictions
-//     (https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/allocation-tag-restrictions.html)
-//     and Amazon Web Services-Generated Cost Allocation Tag Restrictions (https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/aws-tag-restrictions.html).
+//    * Error code: InvalidTagError Description: The tag provided was not a
+//    valid tag. This error can occur if the tag did not pass input validation.
+//    For information about tag restrictions, see User-Defined Tag Restrictions
+//    (https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/allocation-tag-restrictions.html)
+//    and Amazon Web Services-Generated Cost Allocation Tag Restrictions (https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/aws-tag-restrictions.html).
 //
-//   - Error code: MalformedXMLError Description: The XML provided does not
-//     match the schema.
+//    * Error code: MalformedXMLError Description: The XML provided does not
+//    match the schema.
 //
-//   - Error code: OperationAbortedError Description: A conflicting conditional
-//     action is currently in progress against this resource. Please try again.
+//    * Error code: OperationAbortedError Description: A conflicting conditional
+//    action is currently in progress against this resource. Please try again.
 //
-//   - Error code: InternalError Description: The service was unable to apply
-//     the provided tag to the bucket.
+//    * Error code: InternalError Description: The service was unable to apply
+//    the provided tag to the bucket.
 //
 // The following operations are related to PutBucketTagging:
 //
-//   - GetBucketTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketTagging.html)
+//    * GetBucketTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketTagging.html)
 //
-//   - DeleteBucketTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketTagging.html)
+//    * DeleteBucketTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketTagging.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -9108,13 +8996,14 @@ const opPutBucketVersioning = "PutBucketVersioning"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutBucketVersioningRequest method.
-//	req, resp := client.PutBucketVersioningRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutBucketVersioningRequest method.
+//    req, resp := client.PutBucketVersioningRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketVersioning
 func (c *S3) PutBucketVersioningRequest(input *PutBucketVersioningInput) (req *request.Request, output *PutBucketVersioningOutput) {
@@ -9140,7 +9029,8 @@ func (c *S3) PutBucketVersioningRequest(input *PutBucketVersioningInput) (req *r
 
 // PutBucketVersioning API operation for Amazon Simple Storage Service.
 //
-// Sets the versioning state of an existing bucket.
+// Sets the versioning state of an existing bucket. To set the versioning state,
+// you must be the bucket owner.
 //
 // You can set the versioning state with one of the following values:
 //
@@ -9154,10 +9044,10 @@ func (c *S3) PutBucketVersioningRequest(input *PutBucketVersioningInput) (req *r
 // state; a GetBucketVersioning (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketVersioning.html)
 // request does not return a versioning state value.
 //
-// In order to enable MFA Delete, you must be the bucket owner. If you are the
-// bucket owner and want to enable MFA Delete in the bucket versioning configuration,
-// you must include the x-amz-mfa request header and the Status and the MfaDelete
-// request elements in a request to set the versioning state of the bucket.
+// If the bucket owner enables MFA Delete in the bucket versioning configuration,
+// the bucket owner must include the x-amz-mfa request header and the Status
+// and the MfaDelete request elements in a request to set the versioning state
+// of the bucket.
 //
 // If you have an object expiration lifecycle policy in your non-versioned bucket
 // and you want to maintain the same permanent delete behavior when you enable
@@ -9169,11 +9059,11 @@ func (c *S3) PutBucketVersioningRequest(input *PutBucketVersioningInput) (req *r
 //
 // Related Resources
 //
-//   - CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
+//    * CreateBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
 //
-//   - DeleteBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucket.html)
+//    * DeleteBucket (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucket.html)
 //
-//   - GetBucketVersioning (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketVersioning.html)
+//    * GetBucketVersioning (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketVersioning.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -9219,13 +9109,14 @@ const opPutBucketWebsite = "PutBucketWebsite"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutBucketWebsiteRequest method.
-//	req, resp := client.PutBucketWebsiteRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutBucketWebsiteRequest method.
+//    req, resp := client.PutBucketWebsiteRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketWebsite
 func (c *S3) PutBucketWebsiteRequest(input *PutBucketWebsiteInput) (req *request.Request, output *PutBucketWebsiteOutput) {
@@ -9267,13 +9158,13 @@ func (c *S3) PutBucketWebsiteRequest(input *PutBucketWebsiteInput) (req *request
 // are sent to another website, you don't need to provide index document name
 // for the bucket.
 //
-//   - WebsiteConfiguration
+//    * WebsiteConfiguration
 //
-//   - RedirectAllRequestsTo
+//    * RedirectAllRequestsTo
 //
-//   - HostName
+//    * HostName
 //
-//   - Protocol
+//    * Protocol
 //
 // If you want granular control over redirects, you can use the following elements
 // to add routing rules that describe conditions for redirecting requests and
@@ -9281,37 +9172,37 @@ func (c *S3) PutBucketWebsiteRequest(input *PutBucketWebsiteInput) (req *request
 // must provide an index document for the bucket, because some requests might
 // not be redirected.
 //
-//   - WebsiteConfiguration
+//    * WebsiteConfiguration
 //
-//   - IndexDocument
+//    * IndexDocument
 //
-//   - Suffix
+//    * Suffix
 //
-//   - ErrorDocument
+//    * ErrorDocument
 //
-//   - Key
+//    * Key
 //
-//   - RoutingRules
+//    * RoutingRules
 //
-//   - RoutingRule
+//    * RoutingRule
 //
-//   - Condition
+//    * Condition
 //
-//   - HttpErrorCodeReturnedEquals
+//    * HttpErrorCodeReturnedEquals
 //
-//   - KeyPrefixEquals
+//    * KeyPrefixEquals
 //
-//   - Redirect
+//    * Redirect
 //
-//   - Protocol
+//    * Protocol
 //
-//   - HostName
+//    * HostName
 //
-//   - ReplaceKeyPrefixWith
+//    * ReplaceKeyPrefixWith
 //
-//   - ReplaceKeyWith
+//    * ReplaceKeyWith
 //
-//   - HttpRedirectCode
+//    * HttpRedirectCode
 //
 // Amazon S3 has a limitation of 50 routing rules per website configuration.
 // If you require more than 50 routing rules, you can use object redirect. For
@@ -9362,13 +9253,14 @@ const opPutObject = "PutObject"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutObjectRequest method.
-//	req, resp := client.PutObjectRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutObjectRequest method.
+//    req, resp := client.PutObjectRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutObject
 func (c *S3) PutObjectRequest(input *PutObjectInput) (req *request.Request, output *PutObjectOutput) {
@@ -9406,19 +9298,19 @@ func (c *S3) PutObjectRequest(input *PutObjectInput) (req *request.Request, outp
 // you can calculate the MD5 while putting an object to Amazon S3 and compare
 // the returned ETag to the calculated MD5 value.
 //
-//   - To successfully complete the PutObject request, you must have the s3:PutObject
-//     in your IAM permissions.
+//    * To successfully complete the PutObject request, you must have the s3:PutObject
+//    in your IAM permissions.
 //
-//   - To successfully change the objects acl of your PutObject request, you
-//     must have the s3:PutObjectAcl in your IAM permissions.
+//    * To successfully change the objects acl of your PutObject request, you
+//    must have the s3:PutObjectAcl in your IAM permissions.
 //
-//   - The Content-MD5 header is required for any request to upload an object
-//     with a retention period configured using Amazon S3 Object Lock. For more
-//     information about Amazon S3 Object Lock, see Amazon S3 Object Lock Overview
-//     (https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock-overview.html)
-//     in the Amazon S3 User Guide.
+//    * The Content-MD5 header is required for any request to upload an object
+//    with a retention period configured using Amazon S3 Object Lock. For more
+//    information about Amazon S3 Object Lock, see Amazon S3 Object Lock Overview
+//    (https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock-overview.html)
+//    in the Amazon S3 User Guide.
 //
-// # Server-side Encryption
+// Server-side Encryption
 //
 // You can optionally request server-side encryption. With server-side encryption,
 // Amazon S3 encrypts your data as it writes it to disks in its data centers
@@ -9432,7 +9324,7 @@ func (c *S3) PutObjectRequest(input *PutObjectInput) (req *request.Request, outp
 // more information, see Amazon S3 Bucket Keys (https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-key.html)
 // in the Amazon S3 User Guide.
 //
-// # Access Control List (ACL)-Specific Request Headers
+// Access Control List (ACL)-Specific Request Headers
 //
 // You can use headers to grant ACL- based permissions. By default, all objects
 // are private. Only the owner has full access control. When adding a new object,
@@ -9459,7 +9351,7 @@ func (c *S3) PutObjectRequest(input *PutObjectInput) (req *request.Request, outp
 // all objects written to the bucket by any account will be owned by the bucket
 // owner.
 //
-// # Storage Class Options
+// Storage Class Options
 //
 // By default, Amazon S3 uses the STANDARD Storage Class to store newly created
 // objects. The STANDARD storage class provides high durability and high availability.
@@ -9468,7 +9360,7 @@ func (c *S3) PutObjectRequest(input *PutObjectInput) (req *request.Request, outp
 // see Storage Classes (https://docs.aws.amazon.com/AmazonS3/latest/dev/storage-class-intro.html)
 // in the Amazon S3 User Guide.
 //
-// # Versioning
+// Versioning
 //
 // If you enable versioning for a bucket, Amazon S3 automatically generates
 // a unique version ID for the object being stored. Amazon S3 returns this ID
@@ -9483,9 +9375,9 @@ func (c *S3) PutObjectRequest(input *PutObjectInput) (req *request.Request, outp
 //
 // Related Resources
 //
-//   - CopyObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CopyObject.html)
+//    * CopyObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CopyObject.html)
 //
-//   - DeleteObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html)
+//    * DeleteObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -9531,13 +9423,14 @@ const opPutObjectAcl = "PutObjectAcl"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutObjectAclRequest method.
-//	req, resp := client.PutObjectAclRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutObjectAclRequest method.
+//    req, resp := client.PutObjectAclRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutObjectAcl
 func (c *S3) PutObjectAclRequest(input *PutObjectAclInput) (req *request.Request, output *PutObjectAclOutput) {
@@ -9585,67 +9478,67 @@ func (c *S3) PutObjectAclRequest(input *PutObjectAclInput) (req *request.Request
 // object ownership (https://docs.aws.amazon.com/AmazonS3/latest/userguide/about-object-ownership.html)
 // in the Amazon S3 User Guide.
 //
-// # Access Permissions
+// Access Permissions
 //
 // You can set access permissions using one of the following methods:
 //
-//   - Specify a canned ACL with the x-amz-acl request header. Amazon S3 supports
-//     a set of predefined ACLs, known as canned ACLs. Each canned ACL has a
-//     predefined set of grantees and permissions. Specify the canned ACL name
-//     as the value of x-amz-acl. If you use this header, you cannot use other
-//     access control-specific headers in your request. For more information,
-//     see Canned ACL (https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#CannedACL).
+//    * Specify a canned ACL with the x-amz-acl request header. Amazon S3 supports
+//    a set of predefined ACLs, known as canned ACLs. Each canned ACL has a
+//    predefined set of grantees and permissions. Specify the canned ACL name
+//    as the value of x-amz-acl. If you use this header, you cannot use other
+//    access control-specific headers in your request. For more information,
+//    see Canned ACL (https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#CannedACL).
 //
-//   - Specify access permissions explicitly with the x-amz-grant-read, x-amz-grant-read-acp,
-//     x-amz-grant-write-acp, and x-amz-grant-full-control headers. When using
-//     these headers, you specify explicit access permissions and grantees (Amazon
-//     Web Services accounts or Amazon S3 groups) who will receive the permission.
-//     If you use these ACL-specific headers, you cannot use x-amz-acl header
-//     to set a canned ACL. These parameters map to the set of permissions that
-//     Amazon S3 supports in an ACL. For more information, see Access Control
-//     List (ACL) Overview (https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html).
-//     You specify each grantee as a type=value pair, where the type is one of
-//     the following: id – if the value specified is the canonical user ID
-//     of an Amazon Web Services account uri – if you are granting permissions
-//     to a predefined group emailAddress – if the value specified is the email
-//     address of an Amazon Web Services account Using email addresses to specify
-//     a grantee is only supported in the following Amazon Web Services Regions:
-//     US East (N. Virginia) US West (N. California) US West (Oregon) Asia Pacific
-//     (Singapore) Asia Pacific (Sydney) Asia Pacific (Tokyo) Europe (Ireland)
-//     South America (São Paulo) For a list of all the Amazon S3 supported Regions
-//     and endpoints, see Regions and Endpoints (https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region)
-//     in the Amazon Web Services General Reference. For example, the following
-//     x-amz-grant-read header grants list objects permission to the two Amazon
-//     Web Services accounts identified by their email addresses. x-amz-grant-read:
-//     emailAddress="xyz@amazon.com", emailAddress="abc@amazon.com"
+//    * Specify access permissions explicitly with the x-amz-grant-read, x-amz-grant-read-acp,
+//    x-amz-grant-write-acp, and x-amz-grant-full-control headers. When using
+//    these headers, you specify explicit access permissions and grantees (Amazon
+//    Web Services accounts or Amazon S3 groups) who will receive the permission.
+//    If you use these ACL-specific headers, you cannot use x-amz-acl header
+//    to set a canned ACL. These parameters map to the set of permissions that
+//    Amazon S3 supports in an ACL. For more information, see Access Control
+//    List (ACL) Overview (https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html).
+//    You specify each grantee as a type=value pair, where the type is one of
+//    the following: id – if the value specified is the canonical user ID
+//    of an Amazon Web Services account uri – if you are granting permissions
+//    to a predefined group emailAddress – if the value specified is the email
+//    address of an Amazon Web Services account Using email addresses to specify
+//    a grantee is only supported in the following Amazon Web Services Regions:
+//    US East (N. Virginia) US West (N. California) US West (Oregon) Asia Pacific
+//    (Singapore) Asia Pacific (Sydney) Asia Pacific (Tokyo) Europe (Ireland)
+//    South America (São Paulo) For a list of all the Amazon S3 supported Regions
+//    and endpoints, see Regions and Endpoints (https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region)
+//    in the Amazon Web Services General Reference. For example, the following
+//    x-amz-grant-read header grants list objects permission to the two Amazon
+//    Web Services accounts identified by their email addresses. x-amz-grant-read:
+//    emailAddress="xyz@amazon.com", emailAddress="abc@amazon.com"
 //
 // You can use either a canned ACL or specify access permissions explicitly.
 // You cannot do both.
 //
-// # Grantee Values
+// Grantee Values
 //
 // You can specify the person (grantee) to whom you're assigning access rights
 // (using request elements) in the following ways:
 //
-//   - By the person's ID: <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-//     xsi:type="CanonicalUser"><ID><>ID<></ID><DisplayName><>GranteesEmail<></DisplayName>
-//     </Grantee> DisplayName is optional and ignored in the request.
+//    * By the person's ID: <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+//    xsi:type="CanonicalUser"><ID><>ID<></ID><DisplayName><>GranteesEmail<></DisplayName>
+//    </Grantee> DisplayName is optional and ignored in the request.
 //
-//   - By URI: <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-//     xsi:type="Group"><URI><>http://acs.amazonaws.com/groups/global/AuthenticatedUsers<></URI></Grantee>
+//    * By URI: <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+//    xsi:type="Group"><URI><>http://acs.amazonaws.com/groups/global/AuthenticatedUsers<></URI></Grantee>
 //
-//   - By Email address: <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-//     xsi:type="AmazonCustomerByEmail"><EmailAddress><>Grantees@email.com<></EmailAddress>lt;/Grantee>
-//     The grantee is resolved to the CanonicalUser and, in a response to a GET
-//     Object acl request, appears as the CanonicalUser. Using email addresses
-//     to specify a grantee is only supported in the following Amazon Web Services
-//     Regions: US East (N. Virginia) US West (N. California) US West (Oregon)
-//     Asia Pacific (Singapore) Asia Pacific (Sydney) Asia Pacific (Tokyo) Europe
-//     (Ireland) South America (São Paulo) For a list of all the Amazon S3 supported
-//     Regions and endpoints, see Regions and Endpoints (https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region)
-//     in the Amazon Web Services General Reference.
+//    * By Email address: <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+//    xsi:type="AmazonCustomerByEmail"><EmailAddress><>Grantees@email.com<></EmailAddress>lt;/Grantee>
+//    The grantee is resolved to the CanonicalUser and, in a response to a GET
+//    Object acl request, appears as the CanonicalUser. Using email addresses
+//    to specify a grantee is only supported in the following Amazon Web Services
+//    Regions: US East (N. Virginia) US West (N. California) US West (Oregon)
+//    Asia Pacific (Singapore) Asia Pacific (Sydney) Asia Pacific (Tokyo) Europe
+//    (Ireland) South America (São Paulo) For a list of all the Amazon S3 supported
+//    Regions and endpoints, see Regions and Endpoints (https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region)
+//    in the Amazon Web Services General Reference.
 //
-// # Versioning
+// Versioning
 //
 // The ACL of an object is set at the object version level. By default, PUT
 // sets the ACL of the current version of an object. To set the ACL of a different
@@ -9653,9 +9546,9 @@ func (c *S3) PutObjectAclRequest(input *PutObjectAclInput) (req *request.Request
 //
 // Related Resources
 //
-//   - CopyObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CopyObject.html)
+//    * CopyObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CopyObject.html)
 //
-//   - GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
+//    * GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -9665,8 +9558,8 @@ func (c *S3) PutObjectAclRequest(input *PutObjectAclInput) (req *request.Request
 // API operation PutObjectAcl for usage and error information.
 //
 // Returned Error Codes:
-//   - ErrCodeNoSuchKey "NoSuchKey"
-//     The specified key does not exist.
+//   * ErrCodeNoSuchKey "NoSuchKey"
+//   The specified key does not exist.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutObjectAcl
 func (c *S3) PutObjectAcl(input *PutObjectAclInput) (*PutObjectAclOutput, error) {
@@ -9706,13 +9599,14 @@ const opPutObjectLegalHold = "PutObjectLegalHold"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutObjectLegalHoldRequest method.
-//	req, resp := client.PutObjectLegalHoldRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutObjectLegalHoldRequest method.
+//    req, resp := client.PutObjectLegalHoldRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutObjectLegalHold
 func (c *S3) PutObjectLegalHoldRequest(input *PutObjectLegalHoldInput) (req *request.Request, output *PutObjectLegalHoldOutput) {
@@ -9737,7 +9631,7 @@ func (c *S3) PutObjectLegalHoldRequest(input *PutObjectLegalHoldInput) (req *req
 
 // PutObjectLegalHold API operation for Amazon Simple Storage Service.
 //
-// Applies a legal hold configuration to the specified object. For more information,
+// Applies a Legal Hold configuration to the specified object. For more information,
 // see Locking Objects (https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock.html).
 //
 // This action is not supported by Amazon S3 on Outposts.
@@ -9786,13 +9680,14 @@ const opPutObjectLockConfiguration = "PutObjectLockConfiguration"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutObjectLockConfigurationRequest method.
-//	req, resp := client.PutObjectLockConfigurationRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutObjectLockConfigurationRequest method.
+//    req, resp := client.PutObjectLockConfigurationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutObjectLockConfiguration
 func (c *S3) PutObjectLockConfigurationRequest(input *PutObjectLockConfigurationInput) (req *request.Request, output *PutObjectLockConfigurationOutput) {
@@ -9822,13 +9717,13 @@ func (c *S3) PutObjectLockConfigurationRequest(input *PutObjectLockConfiguration
 // object placed in the specified bucket. For more information, see Locking
 // Objects (https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock.html).
 //
-//   - The DefaultRetention settings require both a mode and a period.
+//    * The DefaultRetention settings require both a mode and a period.
 //
-//   - The DefaultRetention period can be either Days or Years but you must
-//     select one. You cannot specify Days and Years at the same time.
+//    * The DefaultRetention period can be either Days or Years but you must
+//    select one. You cannot specify Days and Years at the same time.
 //
-//   - You can only enable Object Lock for new buckets. If you want to turn
-//     on Object Lock for an existing bucket, contact Amazon Web Services Support.
+//    * You can only enable Object Lock for new buckets. If you want to turn
+//    on Object Lock for an existing bucket, contact Amazon Web Services Support.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -9874,13 +9769,14 @@ const opPutObjectRetention = "PutObjectRetention"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutObjectRetentionRequest method.
-//	req, resp := client.PutObjectRetentionRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutObjectRetentionRequest method.
+//    req, resp := client.PutObjectRetentionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutObjectRetention
 func (c *S3) PutObjectRetentionRequest(input *PutObjectRetentionInput) (req *request.Request, output *PutObjectRetentionOutput) {
@@ -9912,6 +9808,12 @@ func (c *S3) PutObjectRetentionRequest(input *PutObjectRetentionInput) (req *req
 // Retention configuration requires the s3:BypassGovernanceRetention permission.
 //
 // This action is not supported by Amazon S3 on Outposts.
+//
+// Permissions
+//
+// When the Object Lock retention mode is set to compliance, you need s3:PutObjectRetention
+// and s3:BypassGovernanceRetention permissions. For other requests to PutObjectRetention,
+// only s3:PutObjectRetention permissions are required.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -9957,13 +9859,14 @@ const opPutObjectTagging = "PutObjectTagging"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutObjectTaggingRequest method.
-//	req, resp := client.PutObjectTaggingRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutObjectTaggingRequest method.
+//    req, resp := client.PutObjectTaggingRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutObjectTagging
 func (c *S3) PutObjectTaggingRequest(input *PutObjectTaggingInput) (req *request.Request, output *PutObjectTaggingOutput) {
@@ -10011,23 +9914,23 @@ func (c *S3) PutObjectTaggingRequest(input *PutObjectTaggingInput) (req *request
 //
 // Special Errors
 //
-//   - Code: InvalidTagError Cause: The tag provided was not a valid tag. This
-//     error can occur if the tag did not pass input validation. For more information,
-//     see Object Tagging (https://docs.aws.amazon.com/AmazonS3/latest/dev/object-tagging.html).
+//    * Code: InvalidTagError Cause: The tag provided was not a valid tag. This
+//    error can occur if the tag did not pass input validation. For more information,
+//    see Object Tagging (https://docs.aws.amazon.com/AmazonS3/latest/dev/object-tagging.html).
 //
-//   - Code: MalformedXMLError Cause: The XML provided does not match the schema.
+//    * Code: MalformedXMLError Cause: The XML provided does not match the schema.
 //
-//   - Code: OperationAbortedError Cause: A conflicting conditional action
-//     is currently in progress against this resource. Please try again.
+//    * Code: OperationAbortedError Cause: A conflicting conditional action
+//    is currently in progress against this resource. Please try again.
 //
-//   - Code: InternalError Cause: The service was unable to apply the provided
-//     tag to the object.
+//    * Code: InternalError Cause: The service was unable to apply the provided
+//    tag to the object.
 //
 // Related Resources
 //
-//   - GetObjectTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectTagging.html)
+//    * GetObjectTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObjectTagging.html)
 //
-//   - DeleteObjectTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObjectTagging.html)
+//    * DeleteObjectTagging (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObjectTagging.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -10073,13 +9976,14 @@ const opPutPublicAccessBlock = "PutPublicAccessBlock"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the PutPublicAccessBlockRequest method.
-//	req, resp := client.PutPublicAccessBlockRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the PutPublicAccessBlockRequest method.
+//    req, resp := client.PutPublicAccessBlockRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutPublicAccessBlock
 func (c *S3) PutPublicAccessBlockRequest(input *PutPublicAccessBlockInput) (req *request.Request, output *PutPublicAccessBlockOutput) {
@@ -10122,13 +10026,13 @@ func (c *S3) PutPublicAccessBlockRequest(input *PutPublicAccessBlockInput) (req 
 //
 // Related Resources
 //
-//   - GetPublicAccessBlock (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetPublicAccessBlock.html)
+//    * GetPublicAccessBlock (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetPublicAccessBlock.html)
 //
-//   - DeletePublicAccessBlock (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeletePublicAccessBlock.html)
+//    * DeletePublicAccessBlock (https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeletePublicAccessBlock.html)
 //
-//   - GetBucketPolicyStatus (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketPolicyStatus.html)
+//    * GetBucketPolicyStatus (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketPolicyStatus.html)
 //
-//   - Using Amazon S3 Block Public Access (https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html)
+//    * Using Amazon S3 Block Public Access (https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -10174,13 +10078,14 @@ const opRestoreObject = "RestoreObject"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the RestoreObjectRequest method.
-//	req, resp := client.RestoreObjectRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the RestoreObjectRequest method.
+//    req, resp := client.RestoreObjectRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/RestoreObject
 func (c *S3) RestoreObjectRequest(input *RestoreObjectInput) (req *request.Request, output *RestoreObjectOutput) {
@@ -10201,15 +10106,15 @@ func (c *S3) RestoreObjectRequest(input *RestoreObjectInput) (req *request.Reque
 
 // RestoreObject API operation for Amazon Simple Storage Service.
 //
-// # Restores an archived copy of an object back into Amazon S3
+// Restores an archived copy of an object back into Amazon S3
 //
 // This action is not supported by Amazon S3 on Outposts.
 //
 // This action performs the following types of requests:
 //
-//   - select - Perform a select query on an archived object
+//    * select - Perform a select query on an archived object
 //
-//   - restore an archive - Restore an archived object
+//    * restore an archive - Restore an archived object
 //
 // To use this operation, you must have permissions to perform the s3:RestoreObject
 // action. The bucket owner has this permission by default and can grant this
@@ -10218,7 +10123,7 @@ func (c *S3) RestoreObjectRequest(input *RestoreObjectInput) (req *request.Reque
 // and Managing Access Permissions to Your Amazon S3 Resources (https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-access-control.html)
 // in the Amazon S3 User Guide.
 //
-// # Querying Archives with Select Requests
+// Querying Archives with Select Requests
 //
 // You use a select type of request to perform SQL queries on archived objects.
 // The archived objects that are being queried by the select request must be
@@ -10230,31 +10135,31 @@ func (c *S3) RestoreObjectRequest(input *RestoreObjectInput) (req *request.Reque
 //
 // When making a select request, do the following:
 //
-//   - Define an output location for the select query's output. This must be
-//     an Amazon S3 bucket in the same Amazon Web Services Region as the bucket
-//     that contains the archive object that is being queried. The Amazon Web
-//     Services account that initiates the job must have permissions to write
-//     to the S3 bucket. You can specify the storage class and encryption for
-//     the output objects stored in the bucket. For more information about output,
-//     see Querying Archived Objects (https://docs.aws.amazon.com/AmazonS3/latest/dev/querying-glacier-archives.html)
-//     in the Amazon S3 User Guide. For more information about the S3 structure
-//     in the request body, see the following: PutObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html)
-//     Managing Access with ACLs (https://docs.aws.amazon.com/AmazonS3/latest/dev/S3_ACLs_UsingACLs.html)
-//     in the Amazon S3 User Guide Protecting Data Using Server-Side Encryption
-//     (https://docs.aws.amazon.com/AmazonS3/latest/dev/serv-side-encryption.html)
-//     in the Amazon S3 User Guide
+//    * Define an output location for the select query's output. This must be
+//    an Amazon S3 bucket in the same Amazon Web Services Region as the bucket
+//    that contains the archive object that is being queried. The Amazon Web
+//    Services account that initiates the job must have permissions to write
+//    to the S3 bucket. You can specify the storage class and encryption for
+//    the output objects stored in the bucket. For more information about output,
+//    see Querying Archived Objects (https://docs.aws.amazon.com/AmazonS3/latest/dev/querying-glacier-archives.html)
+//    in the Amazon S3 User Guide. For more information about the S3 structure
+//    in the request body, see the following: PutObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html)
+//    Managing Access with ACLs (https://docs.aws.amazon.com/AmazonS3/latest/dev/S3_ACLs_UsingACLs.html)
+//    in the Amazon S3 User Guide Protecting Data Using Server-Side Encryption
+//    (https://docs.aws.amazon.com/AmazonS3/latest/dev/serv-side-encryption.html)
+//    in the Amazon S3 User Guide
 //
-//   - Define the SQL expression for the SELECT type of restoration for your
-//     query in the request body's SelectParameters structure. You can use expressions
-//     like the following examples. The following expression returns all records
-//     from the specified object. SELECT * FROM Object Assuming that you are
-//     not using any headers for data stored in the object, you can specify columns
-//     with positional headers. SELECT s._1, s._2 FROM Object s WHERE s._3 >
-//     100 If you have headers and you set the fileHeaderInfo in the CSV structure
-//     in the request body to USE, you can specify headers in the query. (If
-//     you set the fileHeaderInfo field to IGNORE, the first row is skipped for
-//     the query.) You cannot mix ordinal positions with header column names.
-//     SELECT s.Id, s.FirstName, s.SSN FROM S3Object s
+//    * Define the SQL expression for the SELECT type of restoration for your
+//    query in the request body's SelectParameters structure. You can use expressions
+//    like the following examples. The following expression returns all records
+//    from the specified object. SELECT * FROM Object Assuming that you are
+//    not using any headers for data stored in the object, you can specify columns
+//    with positional headers. SELECT s._1, s._2 FROM Object s WHERE s._3 >
+//    100 If you have headers and you set the fileHeaderInfo in the CSV structure
+//    in the request body to USE, you can specify headers in the query. (If
+//    you set the fileHeaderInfo field to IGNORE, the first row is skipped for
+//    the query.) You cannot mix ordinal positions with header column names.
+//    SELECT s.Id, s.FirstName, s.SSN FROM S3Object s
 //
 // For more information about using SQL with S3 Glacier Select restore, see
 // SQL Reference for Amazon S3 Select and S3 Glacier Select (https://docs.aws.amazon.com/AmazonS3/latest/dev/s3-glacier-select-sql-reference.html)
@@ -10262,26 +10167,26 @@ func (c *S3) RestoreObjectRequest(input *RestoreObjectInput) (req *request.Reque
 //
 // When making a select request, you can also do the following:
 //
-//   - To expedite your queries, specify the Expedited tier. For more information
-//     about tiers, see "Restoring Archives," later in this topic.
+//    * To expedite your queries, specify the Expedited tier. For more information
+//    about tiers, see "Restoring Archives," later in this topic.
 //
-//   - Specify details about the data serialization format of both the input
-//     object that is being queried and the serialization of the CSV-encoded
-//     query results.
+//    * Specify details about the data serialization format of both the input
+//    object that is being queried and the serialization of the CSV-encoded
+//    query results.
 //
 // The following are additional important facts about the select feature:
 //
-//   - The output results are new Amazon S3 objects. Unlike archive retrievals,
-//     they are stored until explicitly deleted-manually or through a lifecycle
-//     policy.
+//    * The output results are new Amazon S3 objects. Unlike archive retrievals,
+//    they are stored until explicitly deleted-manually or through a lifecycle
+//    policy.
 //
-//   - You can issue more than one select request on the same Amazon S3 object.
-//     Amazon S3 doesn't deduplicate requests, so avoid issuing duplicate requests.
+//    * You can issue more than one select request on the same Amazon S3 object.
+//    Amazon S3 doesn't deduplicate requests, so avoid issuing duplicate requests.
 //
-//   - Amazon S3 accepts a select request even if the object has already been
-//     restored. A select request doesn’t return error response 409.
+//    * Amazon S3 accepts a select request even if the object has already been
+//    restored. A select request doesn’t return error response 409.
 //
-// # Restoring objects
+// Restoring objects
 //
 // Objects that you archive to the S3 Glacier or S3 Glacier Deep Archive storage
 // class, and S3 Intelligent-Tiering Archive or S3 Intelligent-Tiering Deep
@@ -10300,32 +10205,32 @@ func (c *S3) RestoreObjectRequest(input *RestoreObjectInput) (req *request.Reque
 // one of the following data access tier options in the Tier element of the
 // request body:
 //
-//   - Expedited - Expedited retrievals allow you to quickly access your data
-//     stored in the S3 Glacier storage class or S3 Intelligent-Tiering Archive
-//     tier when occasional urgent requests for a subset of archives are required.
-//     For all but the largest archived objects (250 MB+), data accessed using
-//     Expedited retrievals is typically made available within 1–5 minutes.
-//     Provisioned capacity ensures that retrieval capacity for Expedited retrievals
-//     is available when you need it. Expedited retrievals and provisioned capacity
-//     are not available for objects stored in the S3 Glacier Deep Archive storage
-//     class or S3 Intelligent-Tiering Deep Archive tier.
+//    * Expedited - Expedited retrievals allow you to quickly access your data
+//    stored in the S3 Glacier storage class or S3 Intelligent-Tiering Archive
+//    tier when occasional urgent requests for a subset of archives are required.
+//    For all but the largest archived objects (250 MB+), data accessed using
+//    Expedited retrievals is typically made available within 1–5 minutes.
+//    Provisioned capacity ensures that retrieval capacity for Expedited retrievals
+//    is available when you need it. Expedited retrievals and provisioned capacity
+//    are not available for objects stored in the S3 Glacier Deep Archive storage
+//    class or S3 Intelligent-Tiering Deep Archive tier.
 //
-//   - Standard - Standard retrievals allow you to access any of your archived
-//     objects within several hours. This is the default option for retrieval
-//     requests that do not specify the retrieval option. Standard retrievals
-//     typically finish within 3–5 hours for objects stored in the S3 Glacier
-//     storage class or S3 Intelligent-Tiering Archive tier. They typically finish
-//     within 12 hours for objects stored in the S3 Glacier Deep Archive storage
-//     class or S3 Intelligent-Tiering Deep Archive tier. Standard retrievals
-//     are free for objects stored in S3 Intelligent-Tiering.
+//    * Standard - Standard retrievals allow you to access any of your archived
+//    objects within several hours. This is the default option for retrieval
+//    requests that do not specify the retrieval option. Standard retrievals
+//    typically finish within 3–5 hours for objects stored in the S3 Glacier
+//    storage class or S3 Intelligent-Tiering Archive tier. They typically finish
+//    within 12 hours for objects stored in the S3 Glacier Deep Archive storage
+//    class or S3 Intelligent-Tiering Deep Archive tier. Standard retrievals
+//    are free for objects stored in S3 Intelligent-Tiering.
 //
-//   - Bulk - Bulk retrievals are the lowest-cost retrieval option in S3 Glacier,
-//     enabling you to retrieve large amounts, even petabytes, of data inexpensively.
-//     Bulk retrievals typically finish within 5–12 hours for objects stored
-//     in the S3 Glacier storage class or S3 Intelligent-Tiering Archive tier.
-//     They typically finish within 48 hours for objects stored in the S3 Glacier
-//     Deep Archive storage class or S3 Intelligent-Tiering Deep Archive tier.
-//     Bulk retrievals are free for objects stored in S3 Intelligent-Tiering.
+//    * Bulk - Bulk retrievals are the lowest-cost retrieval option in S3 Glacier,
+//    enabling you to retrieve large amounts, even petabytes, of data inexpensively.
+//    Bulk retrievals typically finish within 5–12 hours for objects stored
+//    in the S3 Glacier storage class or S3 Intelligent-Tiering Archive tier.
+//    They typically finish within 48 hours for objects stored in the S3 Glacier
+//    Deep Archive storage class or S3 Intelligent-Tiering Deep Archive tier.
+//    Bulk retrievals are free for objects stored in S3 Intelligent-Tiering.
 //
 // For more information about archive retrieval options and provisioned capacity
 // for Expedited data access, see Restoring Archived Objects (https://docs.aws.amazon.com/AmazonS3/latest/dev/restoring-objects.html)
@@ -10358,36 +10263,36 @@ func (c *S3) RestoreObjectRequest(input *RestoreObjectInput) (req *request.Reque
 // and Object Lifecycle Management (https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lifecycle-mgmt.html)
 // in Amazon S3 User Guide.
 //
-// # Responses
+// Responses
 //
 // A successful action returns either the 200 OK or 202 Accepted status code.
 //
-//   - If the object is not previously restored, then Amazon S3 returns 202
-//     Accepted in the response.
+//    * If the object is not previously restored, then Amazon S3 returns 202
+//    Accepted in the response.
 //
-//   - If the object is previously restored, Amazon S3 returns 200 OK in the
-//     response.
+//    * If the object is previously restored, Amazon S3 returns 200 OK in the
+//    response.
 //
 // Special Errors
 //
-//   - Code: RestoreAlreadyInProgress Cause: Object restore is already in progress.
-//     (This error does not apply to SELECT type requests.) HTTP Status Code:
-//     409 Conflict SOAP Fault Code Prefix: Client
+//    * Code: RestoreAlreadyInProgress Cause: Object restore is already in progress.
+//    (This error does not apply to SELECT type requests.) HTTP Status Code:
+//    409 Conflict SOAP Fault Code Prefix: Client
 //
-//   - Code: GlacierExpeditedRetrievalNotAvailable Cause: expedited retrievals
-//     are currently not available. Try again later. (Returned if there is insufficient
-//     capacity to process the Expedited request. This error applies only to
-//     Expedited retrievals and not to S3 Standard or Bulk retrievals.) HTTP
-//     Status Code: 503 SOAP Fault Code Prefix: N/A
+//    * Code: GlacierExpeditedRetrievalNotAvailable Cause: expedited retrievals
+//    are currently not available. Try again later. (Returned if there is insufficient
+//    capacity to process the Expedited request. This error applies only to
+//    Expedited retrievals and not to S3 Standard or Bulk retrievals.) HTTP
+//    Status Code: 503 SOAP Fault Code Prefix: N/A
 //
 // Related Resources
 //
-//   - PutBucketLifecycleConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketLifecycleConfiguration.html)
+//    * PutBucketLifecycleConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketLifecycleConfiguration.html)
 //
-//   - GetBucketNotificationConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketNotificationConfiguration.html)
+//    * GetBucketNotificationConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketNotificationConfiguration.html)
 //
-//   - SQL Reference for Amazon S3 Select and S3 Glacier Select (https://docs.aws.amazon.com/AmazonS3/latest/dev/s3-glacier-select-sql-reference.html)
-//     in the Amazon S3 User Guide
+//    * SQL Reference for Amazon S3 Select and S3 Glacier Select (https://docs.aws.amazon.com/AmazonS3/latest/dev/s3-glacier-select-sql-reference.html)
+//    in the Amazon S3 User Guide
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -10397,8 +10302,8 @@ func (c *S3) RestoreObjectRequest(input *RestoreObjectInput) (req *request.Reque
 // API operation RestoreObject for usage and error information.
 //
 // Returned Error Codes:
-//   - ErrCodeObjectAlreadyInActiveTierError "ObjectAlreadyInActiveTierError"
-//     This action is not allowed against this storage tier.
+//   * ErrCodeObjectAlreadyInActiveTierError "ObjectAlreadyInActiveTierError"
+//   This action is not allowed against this storage tier.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/RestoreObject
 func (c *S3) RestoreObject(input *RestoreObjectInput) (*RestoreObjectOutput, error) {
@@ -10438,13 +10343,14 @@ const opSelectObjectContent = "SelectObjectContent"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the SelectObjectContentRequest method.
-//	req, resp := client.SelectObjectContentRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the SelectObjectContentRequest method.
+//    req, resp := client.SelectObjectContentRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/SelectObjectContent
 func (c *S3) SelectObjectContentRequest(input *SelectObjectContentInput) (req *request.Request, output *SelectObjectContentOutput) {
@@ -10486,82 +10392,81 @@ func (c *S3) SelectObjectContentRequest(input *SelectObjectContentInput) (req *r
 //
 // For more information about Amazon S3 Select, see Selecting Content from Objects
 // (https://docs.aws.amazon.com/AmazonS3/latest/dev/selecting-content-from-objects.html)
-// and SELECT Command (https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-glacier-select-sql-reference-select.html)
 // in the Amazon S3 User Guide.
 //
 // For more information about using SQL with Amazon S3 Select, see SQL Reference
 // for Amazon S3 Select and S3 Glacier Select (https://docs.aws.amazon.com/AmazonS3/latest/dev/s3-glacier-select-sql-reference.html)
 // in the Amazon S3 User Guide.
 //
-// # Permissions
+// Permissions
 //
 // You must have s3:GetObject permission for this operation. Amazon S3 Select
 // does not support anonymous access. For more information about permissions,
 // see Specifying Permissions in a Policy (https://docs.aws.amazon.com/AmazonS3/latest/dev/using-with-s3-actions.html)
 // in the Amazon S3 User Guide.
 //
-// # Object Data Formats
+// Object Data Formats
 //
 // You can use Amazon S3 Select to query objects that have the following format
 // properties:
 //
-//   - CSV, JSON, and Parquet - Objects must be in CSV, JSON, or Parquet format.
+//    * CSV, JSON, and Parquet - Objects must be in CSV, JSON, or Parquet format.
 //
-//   - UTF-8 - UTF-8 is the only encoding type Amazon S3 Select supports.
+//    * UTF-8 - UTF-8 is the only encoding type Amazon S3 Select supports.
 //
-//   - GZIP or BZIP2 - CSV and JSON files can be compressed using GZIP or BZIP2.
-//     GZIP and BZIP2 are the only compression formats that Amazon S3 Select
-//     supports for CSV and JSON files. Amazon S3 Select supports columnar compression
-//     for Parquet using GZIP or Snappy. Amazon S3 Select does not support whole-object
-//     compression for Parquet objects.
+//    * GZIP or BZIP2 - CSV and JSON files can be compressed using GZIP or BZIP2.
+//    GZIP and BZIP2 are the only compression formats that Amazon S3 Select
+//    supports for CSV and JSON files. Amazon S3 Select supports columnar compression
+//    for Parquet using GZIP or Snappy. Amazon S3 Select does not support whole-object
+//    compression for Parquet objects.
 //
-//   - Server-side encryption - Amazon S3 Select supports querying objects
-//     that are protected with server-side encryption. For objects that are encrypted
-//     with customer-provided encryption keys (SSE-C), you must use HTTPS, and
-//     you must use the headers that are documented in the GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html).
-//     For more information about SSE-C, see Server-Side Encryption (Using Customer-Provided
-//     Encryption Keys) (https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html)
-//     in the Amazon S3 User Guide. For objects that are encrypted with Amazon
-//     S3 managed encryption keys (SSE-S3) and Amazon Web Services KMS keys (SSE-KMS),
-//     server-side encryption is handled transparently, so you don't need to
-//     specify anything. For more information about server-side encryption, including
-//     SSE-S3 and SSE-KMS, see Protecting Data Using Server-Side Encryption (https://docs.aws.amazon.com/AmazonS3/latest/dev/serv-side-encryption.html)
-//     in the Amazon S3 User Guide.
+//    * Server-side encryption - Amazon S3 Select supports querying objects
+//    that are protected with server-side encryption. For objects that are encrypted
+//    with customer-provided encryption keys (SSE-C), you must use HTTPS, and
+//    you must use the headers that are documented in the GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html).
+//    For more information about SSE-C, see Server-Side Encryption (Using Customer-Provided
+//    Encryption Keys) (https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html)
+//    in the Amazon S3 User Guide. For objects that are encrypted with Amazon
+//    S3 managed encryption keys (SSE-S3) and Amazon Web Services KMS keys (SSE-KMS),
+//    server-side encryption is handled transparently, so you don't need to
+//    specify anything. For more information about server-side encryption, including
+//    SSE-S3 and SSE-KMS, see Protecting Data Using Server-Side Encryption (https://docs.aws.amazon.com/AmazonS3/latest/dev/serv-side-encryption.html)
+//    in the Amazon S3 User Guide.
 //
-// # Working with the Response Body
+// Working with the Response Body
 //
 // Given the response size is unknown, Amazon S3 Select streams the response
 // as a series of messages and includes a Transfer-Encoding header with chunked
 // as its value in the response. For more information, see Appendix: SelectObjectContent
 // Response (https://docs.aws.amazon.com/AmazonS3/latest/API/RESTSelectObjectAppendix.html).
 //
-// # GetObject Support
+// GetObject Support
 //
 // The SelectObjectContent action does not support the following GetObject functionality.
 // For more information, see GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html).
 //
-//   - Range: Although you can specify a scan range for an Amazon S3 Select
-//     request (see SelectObjectContentRequest - ScanRange (https://docs.aws.amazon.com/AmazonS3/latest/API/API_SelectObjectContent.html#AmazonS3-SelectObjectContent-request-ScanRange)
-//     in the request parameters), you cannot specify the range of bytes of an
-//     object to return.
+//    * Range: Although you can specify a scan range for an Amazon S3 Select
+//    request (see SelectObjectContentRequest - ScanRange (https://docs.aws.amazon.com/AmazonS3/latest/API/API_SelectObjectContent.html#AmazonS3-SelectObjectContent-request-ScanRange)
+//    in the request parameters), you cannot specify the range of bytes of an
+//    object to return.
 //
-//   - GLACIER, DEEP_ARCHIVE and REDUCED_REDUNDANCY storage classes: You cannot
-//     specify the GLACIER, DEEP_ARCHIVE, or REDUCED_REDUNDANCY storage classes.
-//     For more information, about storage classes see Storage Classes (https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#storage-class-intro)
-//     in the Amazon S3 User Guide.
+//    * GLACIER, DEEP_ARCHIVE and REDUCED_REDUNDANCY storage classes: You cannot
+//    specify the GLACIER, DEEP_ARCHIVE, or REDUCED_REDUNDANCY storage classes.
+//    For more information, about storage classes see Storage Classes (https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#storage-class-intro)
+//    in the Amazon S3 User Guide.
 //
-// # Special Errors
+// Special Errors
 //
 // For a list of special errors for this operation, see List of SELECT Object
 // Content Error Codes (https://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html#SelectObjectContentErrorCodeList)
 //
 // Related Resources
 //
-//   - GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
+//    * GetObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html)
 //
-//   - GetBucketLifecycleConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLifecycleConfiguration.html)
+//    * GetBucketLifecycleConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLifecycleConfiguration.html)
 //
-//   - PutBucketLifecycleConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketLifecycleConfiguration.html)
+//    * PutBucketLifecycleConfiguration (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketLifecycleConfiguration.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -10630,10 +10535,10 @@ type SelectObjectContentEventStream struct {
 // (e.g. http.Response.Body), that will be closed when the stream Close method
 // is called.
 //
-//	es := NewSelectObjectContentEventStream(func(o *SelectObjectContentEventStream){
-//	    es.Reader = myMockStreamReader
-//	    es.StreamCloser = myMockStreamCloser
-//	})
+//   es := NewSelectObjectContentEventStream(func(o *SelectObjectContentEventStream{
+//       es.Reader = myMockStreamReader
+//       es.StreamCloser = myMockStreamCloser
+//   })
 func NewSelectObjectContentEventStream(opts ...func(*SelectObjectContentEventStream)) *SelectObjectContentEventStream {
 	es := &SelectObjectContentEventStream{
 		done: make(chan struct{}),
@@ -10686,12 +10591,12 @@ func (es *SelectObjectContentEventStream) waitStreamPartClose() {
 //
 // These events are:
 //
-//   - ContinuationEvent
-//   - EndEvent
-//   - ProgressEvent
-//   - RecordsEvent
-//   - StatsEvent
-//   - SelectObjectContentEventStreamUnknownEvent
+//     * ContinuationEvent
+//     * EndEvent
+//     * ProgressEvent
+//     * RecordsEvent
+//     * StatsEvent
+//     * SelectObjectContentEventStreamUnknownEvent
 func (es *SelectObjectContentEventStream) Events() <-chan SelectObjectContentEventStreamEvent {
 	return es.Reader.Events()
 }
@@ -10727,6 +10632,7 @@ func (es *SelectObjectContentEventStream) runOutputStream(r *request.Request) {
 //
 // You can use the closing of the Reader's Events channel to terminate your
 // application's read from the API's stream.
+//
 func (es *SelectObjectContentEventStream) Close() (err error) {
 	es.closeOnce.Do(es.safeClose)
 	return es.Err()
@@ -10774,13 +10680,14 @@ const opUploadPart = "UploadPart"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the UploadPartRequest method.
-//	req, resp := client.UploadPartRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the UploadPartRequest method.
+//    req, resp := client.UploadPartRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/UploadPart
 func (c *S3) UploadPartRequest(input *UploadPartInput) (req *request.Request, output *UploadPartOutput) {
@@ -10817,11 +10724,9 @@ func (c *S3) UploadPartRequest(input *UploadPartInput) (req *request.Request, ou
 // Part numbers can be any number from 1 to 10,000, inclusive. A part number
 // uniquely identifies a part and also defines its position within the object
 // being created. If you upload a new part using the same part number that was
-// used with a previous part, the previously uploaded part is overwritten.
-//
-// For information about maximum and minimum part sizes and other multipart
-// upload specifications, see Multipart upload limits (https://docs.aws.amazon.com/AmazonS3/latest/userguide/qfacts.html)
-// in the Amazon S3 User Guide.
+// used with a previous part, the previously uploaded part is overwritten. Each
+// part must be at least 5 MB in size, except the last part. There is no size
+// limit on the last part of your multipart upload.
 //
 // To ensure that data is not corrupted when traversing the network, specify
 // the Content-MD5 header in the upload part request. Amazon S3 checks the part
@@ -10867,30 +10772,30 @@ func (c *S3) UploadPartRequest(input *UploadPartInput) (req *request.Request, ou
 // key in your initiate multipart upload request, you must provide identical
 // encryption information in each part upload using the following headers.
 //
-//   - x-amz-server-side-encryption-customer-algorithm
+//    * x-amz-server-side-encryption-customer-algorithm
 //
-//   - x-amz-server-side-encryption-customer-key
+//    * x-amz-server-side-encryption-customer-key
 //
-//   - x-amz-server-side-encryption-customer-key-MD5
+//    * x-amz-server-side-encryption-customer-key-MD5
 //
 // Special Errors
 //
-//   - Code: NoSuchUpload Cause: The specified multipart upload does not exist.
-//     The upload ID might be invalid, or the multipart upload might have been
-//     aborted or completed. HTTP Status Code: 404 Not Found SOAP Fault Code
-//     Prefix: Client
+//    * Code: NoSuchUpload Cause: The specified multipart upload does not exist.
+//    The upload ID might be invalid, or the multipart upload might have been
+//    aborted or completed. HTTP Status Code: 404 Not Found SOAP Fault Code
+//    Prefix: Client
 //
 // Related Resources
 //
-//   - CreateMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateMultipartUpload.html)
+//    * CreateMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateMultipartUpload.html)
 //
-//   - CompleteMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CompleteMultipartUpload.html)
+//    * CompleteMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CompleteMultipartUpload.html)
 //
-//   - AbortMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_AbortMultipartUpload.html)
+//    * AbortMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_AbortMultipartUpload.html)
 //
-//   - ListParts (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListParts.html)
+//    * ListParts (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListParts.html)
 //
-//   - ListMultipartUploads (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListMultipartUploads.html)
+//    * ListMultipartUploads (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListMultipartUploads.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -10936,13 +10841,14 @@ const opUploadPartCopy = "UploadPartCopy"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the UploadPartCopyRequest method.
-//	req, resp := client.UploadPartCopyRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the UploadPartCopyRequest method.
+//    req, resp := client.UploadPartCopyRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/UploadPartCopy
 func (c *S3) UploadPartCopyRequest(input *UploadPartCopyInput) (req *request.Request, output *UploadPartCopyOutput) {
@@ -10968,8 +10874,8 @@ func (c *S3) UploadPartCopyRequest(input *UploadPartCopyInput) (req *request.Req
 // your request and a byte range by adding the request header x-amz-copy-source-range
 // in your request.
 //
-// For information about maximum and minimum part sizes and other multipart
-// upload specifications, see Multipart upload limits (https://docs.aws.amazon.com/AmazonS3/latest/userguide/qfacts.html)
+// The minimum allowable part size for a multipart upload is 5 MB. For more
+// information about multipart upload limits, go to Quick Facts (https://docs.aws.amazon.com/AmazonS3/latest/dev/qfacts.html)
 // in the Amazon S3 User Guide.
 //
 // Instead of using an existing object as part data, you might use the UploadPart
@@ -10982,39 +10888,39 @@ func (c *S3) UploadPartCopyRequest(input *UploadPartCopyInput) (req *request.Req
 //
 // For more information about using the UploadPartCopy operation, see the following:
 //
-//   - For conceptual information about multipart uploads, see Uploading Objects
-//     Using Multipart Upload (https://docs.aws.amazon.com/AmazonS3/latest/dev/uploadobjusingmpu.html)
-//     in the Amazon S3 User Guide.
+//    * For conceptual information about multipart uploads, see Uploading Objects
+//    Using Multipart Upload (https://docs.aws.amazon.com/AmazonS3/latest/dev/uploadobjusingmpu.html)
+//    in the Amazon S3 User Guide.
 //
-//   - For information about permissions required to use the multipart upload
-//     API, see Multipart Upload and Permissions (https://docs.aws.amazon.com/AmazonS3/latest/dev/mpuAndPermissions.html)
-//     in the Amazon S3 User Guide.
+//    * For information about permissions required to use the multipart upload
+//    API, see Multipart Upload and Permissions (https://docs.aws.amazon.com/AmazonS3/latest/dev/mpuAndPermissions.html)
+//    in the Amazon S3 User Guide.
 //
-//   - For information about copying objects using a single atomic action vs.
-//     a multipart upload, see Operations on Objects (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectOperations.html)
-//     in the Amazon S3 User Guide.
+//    * For information about copying objects using a single atomic action vs.
+//    the multipart upload, see Operations on Objects (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectOperations.html)
+//    in the Amazon S3 User Guide.
 //
-//   - For information about using server-side encryption with customer-provided
-//     encryption keys with the UploadPartCopy operation, see CopyObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CopyObject.html)
-//     and UploadPart (https://docs.aws.amazon.com/AmazonS3/latest/API/API_UploadPart.html).
+//    * For information about using server-side encryption with customer-provided
+//    encryption keys with the UploadPartCopy operation, see CopyObject (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CopyObject.html)
+//    and UploadPart (https://docs.aws.amazon.com/AmazonS3/latest/API/API_UploadPart.html).
 //
 // Note the following additional considerations about the request headers x-amz-copy-source-if-match,
 // x-amz-copy-source-if-none-match, x-amz-copy-source-if-unmodified-since, and
 // x-amz-copy-source-if-modified-since:
 //
-//   - Consideration 1 - If both of the x-amz-copy-source-if-match and x-amz-copy-source-if-unmodified-since
-//     headers are present in the request as follows: x-amz-copy-source-if-match
-//     condition evaluates to true, and; x-amz-copy-source-if-unmodified-since
-//     condition evaluates to false; Amazon S3 returns 200 OK and copies the
-//     data.
+//    * Consideration 1 - If both of the x-amz-copy-source-if-match and x-amz-copy-source-if-unmodified-since
+//    headers are present in the request as follows: x-amz-copy-source-if-match
+//    condition evaluates to true, and; x-amz-copy-source-if-unmodified-since
+//    condition evaluates to false; Amazon S3 returns 200 OK and copies the
+//    data.
 //
-//   - Consideration 2 - If both of the x-amz-copy-source-if-none-match and
-//     x-amz-copy-source-if-modified-since headers are present in the request
-//     as follows: x-amz-copy-source-if-none-match condition evaluates to false,
-//     and; x-amz-copy-source-if-modified-since condition evaluates to true;
-//     Amazon S3 returns 412 Precondition Failed response code.
+//    * Consideration 2 - If both of the x-amz-copy-source-if-none-match and
+//    x-amz-copy-source-if-modified-since headers are present in the request
+//    as follows: x-amz-copy-source-if-none-match condition evaluates to false,
+//    and; x-amz-copy-source-if-modified-since condition evaluates to true;
+//    Amazon S3 returns 412 Precondition Failed response code.
 //
-// # Versioning
+// Versioning
 //
 // If your bucket has versioning enabled, you could have multiple versions of
 // the same object. By default, x-amz-copy-source identifies the current version
@@ -11032,26 +10938,26 @@ func (c *S3) UploadPartCopyRequest(input *UploadPartCopyInput) (req *request.Req
 //
 // Special Errors
 //
-//   - Code: NoSuchUpload Cause: The specified multipart upload does not exist.
-//     The upload ID might be invalid, or the multipart upload might have been
-//     aborted or completed. HTTP Status Code: 404 Not Found
+//    * Code: NoSuchUpload Cause: The specified multipart upload does not exist.
+//    The upload ID might be invalid, or the multipart upload might have been
+//    aborted or completed. HTTP Status Code: 404 Not Found
 //
-//   - Code: InvalidRequest Cause: The specified copy source is not supported
-//     as a byte-range copy source. HTTP Status Code: 400 Bad Request
+//    * Code: InvalidRequest Cause: The specified copy source is not supported
+//    as a byte-range copy source. HTTP Status Code: 400 Bad Request
 //
 // Related Resources
 //
-//   - CreateMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateMultipartUpload.html)
+//    * CreateMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateMultipartUpload.html)
 //
-//   - UploadPart (https://docs.aws.amazon.com/AmazonS3/latest/API/API_UploadPart.html)
+//    * UploadPart (https://docs.aws.amazon.com/AmazonS3/latest/API/API_UploadPart.html)
 //
-//   - CompleteMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CompleteMultipartUpload.html)
+//    * CompleteMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_CompleteMultipartUpload.html)
 //
-//   - AbortMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_AbortMultipartUpload.html)
+//    * AbortMultipartUpload (https://docs.aws.amazon.com/AmazonS3/latest/API/API_AbortMultipartUpload.html)
 //
-//   - ListParts (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListParts.html)
+//    * ListParts (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListParts.html)
 //
-//   - ListMultipartUploads (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListMultipartUploads.html)
+//    * ListMultipartUploads (https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListMultipartUploads.html)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -11097,13 +11003,14 @@ const opWriteGetObjectResponse = "WriteGetObjectResponse"
 // This method is useful when you want to inject custom logic or configuration
 // into the SDK's request lifecycle. Such as custom headers, or retry logic.
 //
-//	// Example sending a request using the WriteGetObjectResponseRequest method.
-//	req, resp := client.WriteGetObjectResponseRequest(params)
 //
-//	err := req.Send()
-//	if err == nil { // resp is now filled
-//	    fmt.Println(resp)
-//	}
+//    // Example sending a request using the WriteGetObjectResponseRequest method.
+//    req, resp := client.WriteGetObjectResponseRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/WriteGetObjectResponse
 func (c *S3) WriteGetObjectResponseRequest(input *WriteGetObjectResponseInput) (req *request.Request, output *WriteGetObjectResponseOutput) {
@@ -11254,17 +11161,17 @@ type AbortMultipartUploadInput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// Key of the object for which the multipart upload was initiated.
@@ -11274,8 +11181,8 @@ type AbortMultipartUploadInput struct {
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 
@@ -12439,85 +12346,6 @@ func (s *CSVOutput) SetRecordDelimiter(v string) *CSVOutput {
 	return s
 }
 
-// Contains all the possible checksum or digest values for an object.
-type Checksum struct {
-	_ struct{} `type:"structure"`
-
-	// The base64-encoded, 32-bit CRC32 checksum of the object. This will only be
-	// present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32 *string `type:"string"`
-
-	// The base64-encoded, 32-bit CRC32C checksum of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32C *string `type:"string"`
-
-	// The base64-encoded, 160-bit SHA-1 digest of the object. This will only be
-	// present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA1 *string `type:"string"`
-
-	// The base64-encoded, 256-bit SHA-256 digest of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA256 *string `type:"string"`
-}
-
-// String returns the string representation.
-//
-// API parameter values that are decorated as "sensitive" in the API will not
-// be included in the string output. The member name will be present, but the
-// value will be replaced with "sensitive".
-func (s Checksum) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation.
-//
-// API parameter values that are decorated as "sensitive" in the API will not
-// be included in the string output. The member name will be present, but the
-// value will be replaced with "sensitive".
-func (s Checksum) GoString() string {
-	return s.String()
-}
-
-// SetChecksumCRC32 sets the ChecksumCRC32 field's value.
-func (s *Checksum) SetChecksumCRC32(v string) *Checksum {
-	s.ChecksumCRC32 = &v
-	return s
-}
-
-// SetChecksumCRC32C sets the ChecksumCRC32C field's value.
-func (s *Checksum) SetChecksumCRC32C(v string) *Checksum {
-	s.ChecksumCRC32C = &v
-	return s
-}
-
-// SetChecksumSHA1 sets the ChecksumSHA1 field's value.
-func (s *Checksum) SetChecksumSHA1(v string) *Checksum {
-	s.ChecksumSHA1 = &v
-	return s
-}
-
-// SetChecksumSHA256 sets the ChecksumSHA256 field's value.
-func (s *Checksum) SetChecksumSHA256(v string) *Checksum {
-	s.ChecksumSHA256 = &v
-	return s
-}
-
 // Container for specifying the Lambda notification configuration.
 type CloudFunctionConfiguration struct {
 	_ struct{} `type:"structure"`
@@ -12532,7 +12360,7 @@ type CloudFunctionConfiguration struct {
 	Event *string `deprecated:"true" type:"string" enum:"Event"`
 
 	// Bucket events for which to send notifications.
-	Events []*string `locationName:"Event" type:"list" flattened:"true" enum:"Event"`
+	Events []*string `locationName:"Event" type:"list" flattened:"true"`
 
 	// An optional unique identifier for configurations in a notification configuration.
 	// If you don't provide one, Amazon S3 will assign an ID.
@@ -12641,45 +12469,17 @@ type CompleteMultipartUploadInput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// This header can be used as a data integrity check to verify that the data
-	// received is the same data that was originally sent. This header specifies
-	// the base64-encoded, 32-bit CRC32 checksum of the object. For more information,
-	// see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32 *string `location:"header" locationName:"x-amz-checksum-crc32" type:"string"`
-
-	// This header can be used as a data integrity check to verify that the data
-	// received is the same data that was originally sent. This header specifies
-	// the base64-encoded, 32-bit CRC32C checksum of the object. For more information,
-	// see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32C *string `location:"header" locationName:"x-amz-checksum-crc32c" type:"string"`
-
-	// This header can be used as a data integrity check to verify that the data
-	// received is the same data that was originally sent. This header specifies
-	// the base64-encoded, 160-bit SHA-1 digest of the object. For more information,
-	// see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA1 *string `location:"header" locationName:"x-amz-checksum-sha1" type:"string"`
-
-	// This header can be used as a data integrity check to verify that the data
-	// received is the same data that was originally sent. This header specifies
-	// the base64-encoded, 256-bit SHA-256 digest of the object. For more information,
-	// see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA256 *string `location:"header" locationName:"x-amz-checksum-sha256" type:"string"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// Object key for which the multipart upload was initiated.
@@ -12692,32 +12492,10 @@ type CompleteMultipartUploadInput struct {
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
-
-	// The server-side encryption (SSE) algorithm used to encrypt the object. This
-	// parameter is needed only when the object was created using a checksum algorithm.
-	// For more information, see Protecting data using SSE-C keys (https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html)
-	// in the Amazon S3 User Guide.
-	SSECustomerAlgorithm *string `location:"header" locationName:"x-amz-server-side-encryption-customer-algorithm" type:"string"`
-
-	// The server-side encryption (SSE) customer managed key. This parameter is
-	// needed only when the object was created using a checksum algorithm. For more
-	// information, see Protecting data using SSE-C keys (https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html)
-	// in the Amazon S3 User Guide.
-	//
-	// SSECustomerKey is a sensitive parameter and its value will be
-	// replaced with "sensitive" in string returned by CompleteMultipartUploadInput's
-	// String and GoString methods.
-	SSECustomerKey *string `marshal-as:"blob" location:"header" locationName:"x-amz-server-side-encryption-customer-key" type:"string" sensitive:"true"`
-
-	// The MD5 server-side encryption (SSE) customer managed key. This parameter
-	// is needed only when the object was created using a checksum algorithm. For
-	// more information, see Protecting data using SSE-C keys (https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html)
-	// in the Amazon S3 User Guide.
-	SSECustomerKeyMD5 *string `location:"header" locationName:"x-amz-server-side-encryption-customer-key-MD5" type:"string"`
 
 	// ID for the initiated multipart upload.
 	//
@@ -12781,30 +12559,6 @@ func (s *CompleteMultipartUploadInput) getBucket() (v string) {
 	return *s.Bucket
 }
 
-// SetChecksumCRC32 sets the ChecksumCRC32 field's value.
-func (s *CompleteMultipartUploadInput) SetChecksumCRC32(v string) *CompleteMultipartUploadInput {
-	s.ChecksumCRC32 = &v
-	return s
-}
-
-// SetChecksumCRC32C sets the ChecksumCRC32C field's value.
-func (s *CompleteMultipartUploadInput) SetChecksumCRC32C(v string) *CompleteMultipartUploadInput {
-	s.ChecksumCRC32C = &v
-	return s
-}
-
-// SetChecksumSHA1 sets the ChecksumSHA1 field's value.
-func (s *CompleteMultipartUploadInput) SetChecksumSHA1(v string) *CompleteMultipartUploadInput {
-	s.ChecksumSHA1 = &v
-	return s
-}
-
-// SetChecksumSHA256 sets the ChecksumSHA256 field's value.
-func (s *CompleteMultipartUploadInput) SetChecksumSHA256(v string) *CompleteMultipartUploadInput {
-	s.ChecksumSHA256 = &v
-	return s
-}
-
 // SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
 func (s *CompleteMultipartUploadInput) SetExpectedBucketOwner(v string) *CompleteMultipartUploadInput {
 	s.ExpectedBucketOwner = &v
@@ -12826,31 +12580,6 @@ func (s *CompleteMultipartUploadInput) SetMultipartUpload(v *CompletedMultipartU
 // SetRequestPayer sets the RequestPayer field's value.
 func (s *CompleteMultipartUploadInput) SetRequestPayer(v string) *CompleteMultipartUploadInput {
 	s.RequestPayer = &v
-	return s
-}
-
-// SetSSECustomerAlgorithm sets the SSECustomerAlgorithm field's value.
-func (s *CompleteMultipartUploadInput) SetSSECustomerAlgorithm(v string) *CompleteMultipartUploadInput {
-	s.SSECustomerAlgorithm = &v
-	return s
-}
-
-// SetSSECustomerKey sets the SSECustomerKey field's value.
-func (s *CompleteMultipartUploadInput) SetSSECustomerKey(v string) *CompleteMultipartUploadInput {
-	s.SSECustomerKey = &v
-	return s
-}
-
-func (s *CompleteMultipartUploadInput) getSSECustomerKey() (v string) {
-	if s.SSECustomerKey == nil {
-		return v
-	}
-	return *s.SSECustomerKey
-}
-
-// SetSSECustomerKeyMD5 sets the SSECustomerKeyMD5 field's value.
-func (s *CompleteMultipartUploadInput) SetSSECustomerKeyMD5(v string) *CompleteMultipartUploadInput {
-	s.SSECustomerKeyMD5 = &v
 	return s
 }
 
@@ -12903,9 +12632,9 @@ type CompleteMultipartUploadOutput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	Bucket *string `type:"string"`
 
@@ -12913,50 +12642,16 @@ type CompleteMultipartUploadOutput struct {
 	// encryption with Amazon Web Services KMS (SSE-KMS).
 	BucketKeyEnabled *bool `location:"header" locationName:"x-amz-server-side-encryption-bucket-key-enabled" type:"boolean"`
 
-	// The base64-encoded, 32-bit CRC32 checksum of the object. This will only be
-	// present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32 *string `type:"string"`
-
-	// The base64-encoded, 32-bit CRC32C checksum of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32C *string `type:"string"`
-
-	// The base64-encoded, 160-bit SHA-1 digest of the object. This will only be
-	// present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA1 *string `type:"string"`
-
-	// The base64-encoded, 256-bit SHA-256 digest of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA256 *string `type:"string"`
-
 	// Entity tag that identifies the newly created object's data. Objects with
 	// different object data will have different entity tags. The entity tag is
 	// an opaque string. The entity tag may or may not be an MD5 digest of the object
 	// data. If the entity tag is not an MD5 digest of the object data, it will
 	// contain one or more nonhexadecimal characters and/or will consist of less
-	// than 32 or more than 32 hexadecimal digits. For more information about how
-	// the entity tag is calculated, see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
+	// than 32 or more than 32 hexadecimal digits.
 	ETag *string `type:"string"`
 
 	// If the object expiration is configured, this will contain the expiration
-	// date (expiry-date) and rule ID (rule-id). The value of rule-id is URL-encoded.
+	// date (expiry-date) and rule ID (rule-id). The value of rule-id is URL encoded.
 	Expiration *string `location:"header" locationName:"x-amz-expiration" type:"string"`
 
 	// The object key of the newly created object.
@@ -13023,30 +12718,6 @@ func (s *CompleteMultipartUploadOutput) getBucket() (v string) {
 // SetBucketKeyEnabled sets the BucketKeyEnabled field's value.
 func (s *CompleteMultipartUploadOutput) SetBucketKeyEnabled(v bool) *CompleteMultipartUploadOutput {
 	s.BucketKeyEnabled = &v
-	return s
-}
-
-// SetChecksumCRC32 sets the ChecksumCRC32 field's value.
-func (s *CompleteMultipartUploadOutput) SetChecksumCRC32(v string) *CompleteMultipartUploadOutput {
-	s.ChecksumCRC32 = &v
-	return s
-}
-
-// SetChecksumCRC32C sets the ChecksumCRC32C field's value.
-func (s *CompleteMultipartUploadOutput) SetChecksumCRC32C(v string) *CompleteMultipartUploadOutput {
-	s.ChecksumCRC32C = &v
-	return s
-}
-
-// SetChecksumSHA1 sets the ChecksumSHA1 field's value.
-func (s *CompleteMultipartUploadOutput) SetChecksumSHA1(v string) *CompleteMultipartUploadOutput {
-	s.ChecksumSHA1 = &v
-	return s
-}
-
-// SetChecksumSHA256 sets the ChecksumSHA256 field's value.
-func (s *CompleteMultipartUploadOutput) SetChecksumSHA256(v string) *CompleteMultipartUploadOutput {
-	s.ChecksumSHA256 = &v
 	return s
 }
 
@@ -13137,38 +12808,6 @@ func (s *CompletedMultipartUpload) SetParts(v []*CompletedPart) *CompletedMultip
 type CompletedPart struct {
 	_ struct{} `type:"structure"`
 
-	// The base64-encoded, 32-bit CRC32 checksum of the object. This will only be
-	// present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32 *string `type:"string"`
-
-	// The base64-encoded, 32-bit CRC32C checksum of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32C *string `type:"string"`
-
-	// The base64-encoded, 160-bit SHA-1 digest of the object. This will only be
-	// present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA1 *string `type:"string"`
-
-	// The base64-encoded, 256-bit SHA-256 digest of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA256 *string `type:"string"`
-
 	// Entity tag returned when the part was uploaded.
 	ETag *string `type:"string"`
 
@@ -13193,30 +12832,6 @@ func (s CompletedPart) String() string {
 // value will be replaced with "sensitive".
 func (s CompletedPart) GoString() string {
 	return s.String()
-}
-
-// SetChecksumCRC32 sets the ChecksumCRC32 field's value.
-func (s *CompletedPart) SetChecksumCRC32(v string) *CompletedPart {
-	s.ChecksumCRC32 = &v
-	return s
-}
-
-// SetChecksumCRC32C sets the ChecksumCRC32C field's value.
-func (s *CompletedPart) SetChecksumCRC32C(v string) *CompletedPart {
-	s.ChecksumCRC32C = &v
-	return s
-}
-
-// SetChecksumSHA1 sets the ChecksumSHA1 field's value.
-func (s *CompletedPart) SetChecksumSHA1(v string) *CompletedPart {
-	s.ChecksumSHA1 = &v
-	return s
-}
-
-// SetChecksumSHA256 sets the ChecksumSHA256 field's value.
-func (s *CompletedPart) SetChecksumSHA256(v string) *CompletedPart {
-	s.ChecksumSHA256 = &v
-	return s
 }
 
 // SetETag sets the ETag field's value.
@@ -13350,9 +12965,9 @@ type CopyObjectInput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Bucket is a required field
@@ -13369,11 +12984,6 @@ type CopyObjectInput struct {
 
 	// Specifies caching behavior along the request/reply chain.
 	CacheControl *string `location:"header" locationName:"Cache-Control" type:"string"`
-
-	// Indicates the algorithm you want Amazon S3 to use to create the checksum
-	// for the object. For more information, see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
 
 	// Specifies presentational information for the object.
 	ContentDisposition *string `location:"header" locationName:"Content-Disposition" type:"string"`
@@ -13397,7 +13007,7 @@ type CopyObjectInput struct {
 	//    the source bucket and the key of the source object, separated by a slash
 	//    (/). For example, to copy the object reports/january.pdf from the bucket
 	//    awsexamplebucket, use awsexamplebucket/reports/january.pdf. The value
-	//    must be URL-encoded.
+	//    must be URL encoded.
 	//
 	//    * For objects accessed through access points, specify the Amazon Resource
 	//    Name (ARN) of the object as accessed through the access point, in the
@@ -13413,7 +13023,7 @@ type CopyObjectInput struct {
 	//    For example, to copy the object reports/january.pdf through outpost my-outpost
 	//    owned by account 123456789012 in Region us-west-2, use the URL encoding
 	//    of arn:aws:s3-outposts:us-west-2:123456789012:outpost/my-outpost/object/reports/january.pdf.
-	//    The value must be URL-encoded.
+	//    The value must be URL encoded.
 	//
 	// To copy a specific version of an object, append ?versionId=<version-id> to
 	// the value (for example, awsexamplebucket/reports/january.pdf?versionId=QUpfdndhfd8438MNFDN93jdnJFkdmqnh893).
@@ -13455,13 +13065,13 @@ type CopyObjectInput struct {
 	CopySourceSSECustomerKeyMD5 *string `location:"header" locationName:"x-amz-copy-source-server-side-encryption-customer-key-MD5" type:"string"`
 
 	// The account ID of the expected destination bucket owner. If the destination
-	// bucket is owned by a different account, the request fails with the HTTP status
-	// code 403 Forbidden (access denied).
+	// bucket is owned by a different account, the request will fail with an HTTP
+	// 403 (Access Denied) error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The account ID of the expected source bucket owner. If the source bucket
-	// is owned by a different account, the request fails with the HTTP status code
-	// 403 Forbidden (access denied).
+	// is owned by a different account, the request will fail with an HTTP 403 (Access
+	// Denied) error.
 	ExpectedSourceBucketOwner *string `location:"header" locationName:"x-amz-source-expected-bucket-owner" type:"string"`
 
 	// The date and time at which the object is no longer cacheable.
@@ -13499,7 +13109,7 @@ type CopyObjectInput struct {
 	// with metadata provided in the request.
 	MetadataDirective *string `location:"header" locationName:"x-amz-metadata-directive" type:"string" enum:"MetadataDirective"`
 
-	// Specifies whether you want to apply a legal hold to the copied object.
+	// Specifies whether you want to apply a Legal Hold to the copied object.
 	ObjectLockLegalHoldStatus *string `location:"header" locationName:"x-amz-object-lock-legal-hold" type:"string" enum:"ObjectLockLegalHoldStatus"`
 
 	// The Object Lock mode that you want to apply to the copied object.
@@ -13510,8 +13120,8 @@ type CopyObjectInput struct {
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 
@@ -13655,12 +13265,6 @@ func (s *CopyObjectInput) SetBucketKeyEnabled(v bool) *CopyObjectInput {
 // SetCacheControl sets the CacheControl field's value.
 func (s *CopyObjectInput) SetCacheControl(v string) *CopyObjectInput {
 	s.CacheControl = &v
-	return s
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *CopyObjectInput) SetChecksumAlgorithm(v string) *CopyObjectInput {
-	s.ChecksumAlgorithm = &v
 	return s
 }
 
@@ -14065,38 +13669,6 @@ func (s *CopyObjectOutput) SetVersionId(v string) *CopyObjectOutput {
 type CopyObjectResult struct {
 	_ struct{} `type:"structure"`
 
-	// The base64-encoded, 32-bit CRC32 checksum of the object. This will only be
-	// present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32 *string `type:"string"`
-
-	// The base64-encoded, 32-bit CRC32C checksum of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32C *string `type:"string"`
-
-	// The base64-encoded, 160-bit SHA-1 digest of the object. This will only be
-	// present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA1 *string `type:"string"`
-
-	// The base64-encoded, 256-bit SHA-256 digest of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA256 *string `type:"string"`
-
 	// Returns the ETag of the new object. The ETag reflects only changes to the
 	// contents of an object, not its metadata.
 	ETag *string `type:"string"`
@@ -14123,30 +13695,6 @@ func (s CopyObjectResult) GoString() string {
 	return s.String()
 }
 
-// SetChecksumCRC32 sets the ChecksumCRC32 field's value.
-func (s *CopyObjectResult) SetChecksumCRC32(v string) *CopyObjectResult {
-	s.ChecksumCRC32 = &v
-	return s
-}
-
-// SetChecksumCRC32C sets the ChecksumCRC32C field's value.
-func (s *CopyObjectResult) SetChecksumCRC32C(v string) *CopyObjectResult {
-	s.ChecksumCRC32C = &v
-	return s
-}
-
-// SetChecksumSHA1 sets the ChecksumSHA1 field's value.
-func (s *CopyObjectResult) SetChecksumSHA1(v string) *CopyObjectResult {
-	s.ChecksumSHA1 = &v
-	return s
-}
-
-// SetChecksumSHA256 sets the ChecksumSHA256 field's value.
-func (s *CopyObjectResult) SetChecksumSHA256(v string) *CopyObjectResult {
-	s.ChecksumSHA256 = &v
-	return s
-}
-
 // SetETag sets the ETag field's value.
 func (s *CopyObjectResult) SetETag(v string) *CopyObjectResult {
 	s.ETag = &v
@@ -14162,38 +13710,6 @@ func (s *CopyObjectResult) SetLastModified(v time.Time) *CopyObjectResult {
 // Container for all response elements.
 type CopyPartResult struct {
 	_ struct{} `type:"structure"`
-
-	// The base64-encoded, 32-bit CRC32 checksum of the object. This will only be
-	// present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32 *string `type:"string"`
-
-	// The base64-encoded, 32-bit CRC32C checksum of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32C *string `type:"string"`
-
-	// The base64-encoded, 160-bit SHA-1 digest of the object. This will only be
-	// present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA1 *string `type:"string"`
-
-	// The base64-encoded, 256-bit SHA-256 digest of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA256 *string `type:"string"`
 
 	// Entity tag of the object.
 	ETag *string `type:"string"`
@@ -14218,30 +13734,6 @@ func (s CopyPartResult) String() string {
 // value will be replaced with "sensitive".
 func (s CopyPartResult) GoString() string {
 	return s.String()
-}
-
-// SetChecksumCRC32 sets the ChecksumCRC32 field's value.
-func (s *CopyPartResult) SetChecksumCRC32(v string) *CopyPartResult {
-	s.ChecksumCRC32 = &v
-	return s
-}
-
-// SetChecksumCRC32C sets the ChecksumCRC32C field's value.
-func (s *CopyPartResult) SetChecksumCRC32C(v string) *CopyPartResult {
-	s.ChecksumCRC32C = &v
-	return s
-}
-
-// SetChecksumSHA1 sets the ChecksumSHA1 field's value.
-func (s *CopyPartResult) SetChecksumSHA1(v string) *CopyPartResult {
-	s.ChecksumSHA1 = &v
-	return s
-}
-
-// SetChecksumSHA256 sets the ChecksumSHA256 field's value.
-func (s *CopyPartResult) SetChecksumSHA256(v string) *CopyPartResult {
-	s.ChecksumSHA256 = &v
-	return s
 }
 
 // SetETag sets the ETag field's value.
@@ -14446,7 +13938,9 @@ func (s *CreateBucketInput) SetObjectOwnership(v string) *CreateBucketInput {
 type CreateBucketOutput struct {
 	_ struct{} `type:"structure"`
 
-	// A forward slash followed by the name of the bucket.
+	// Specifies the Region where the bucket will be created. If you are creating
+	// a bucket on the US East (N. Virginia) Region (us-east-1), you do not need
+	// to specify the location.
 	Location *string `location:"header" locationName:"Location" type:"string"`
 }
 
@@ -14494,9 +13988,9 @@ type CreateMultipartUploadInput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Bucket is a required field
@@ -14514,11 +14008,6 @@ type CreateMultipartUploadInput struct {
 	// Specifies caching behavior along the request/reply chain.
 	CacheControl *string `location:"header" locationName:"Cache-Control" type:"string"`
 
-	// Indicates the algorithm you want Amazon S3 to use to create the checksum
-	// for the object. For more information, see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// Specifies presentational information for the object.
 	ContentDisposition *string `location:"header" locationName:"Content-Disposition" type:"string"`
 
@@ -14534,8 +14023,8 @@ type CreateMultipartUploadInput struct {
 	ContentType *string `location:"header" locationName:"Content-Type" type:"string"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The date and time at which the object is no longer cacheable.
@@ -14569,7 +14058,7 @@ type CreateMultipartUploadInput struct {
 	// A map of metadata to store with the object in S3.
 	Metadata map[string]*string `location:"headers" locationName:"x-amz-meta-" type:"map"`
 
-	// Specifies whether you want to apply a legal hold to the uploaded object.
+	// Specifies whether you want to apply a Legal Hold to the uploaded object.
 	ObjectLockLegalHoldStatus *string `location:"header" locationName:"x-amz-object-lock-legal-hold" type:"string" enum:"ObjectLockLegalHoldStatus"`
 
 	// Specifies the Object Lock mode that you want to apply to the uploaded object.
@@ -14580,8 +14069,8 @@ type CreateMultipartUploadInput struct {
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 
@@ -14716,12 +14205,6 @@ func (s *CreateMultipartUploadInput) SetBucketKeyEnabled(v bool) *CreateMultipar
 // SetCacheControl sets the CacheControl field's value.
 func (s *CreateMultipartUploadInput) SetCacheControl(v string) *CreateMultipartUploadInput {
 	s.CacheControl = &v
-	return s
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *CreateMultipartUploadInput) SetChecksumAlgorithm(v string) *CreateMultipartUploadInput {
-	s.ChecksumAlgorithm = &v
 	return s
 }
 
@@ -14941,18 +14424,15 @@ type CreateMultipartUploadOutput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	Bucket *string `locationName:"Bucket" type:"string"`
 
 	// Indicates whether the multipart upload uses an S3 Bucket Key for server-side
 	// encryption with Amazon Web Services KMS (SSE-KMS).
 	BucketKeyEnabled *bool `location:"header" locationName:"x-amz-server-side-encryption-bucket-key-enabled" type:"boolean"`
-
-	// The algorithm that was used to create a checksum of the object.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
 
 	// Object key for which the multipart upload was initiated.
 	Key *string `min:"1" type:"string"`
@@ -15046,12 +14526,6 @@ func (s *CreateMultipartUploadOutput) SetBucketKeyEnabled(v bool) *CreateMultipa
 	return s
 }
 
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *CreateMultipartUploadOutput) SetChecksumAlgorithm(v string) *CreateMultipartUploadOutput {
-	s.ChecksumAlgorithm = &v
-	return s
-}
-
 // SetKey sets the Key field's value.
 func (s *CreateMultipartUploadOutput) SetKey(v string) *CreateMultipartUploadOutput {
 	s.Key = &v
@@ -15103,10 +14577,10 @@ func (s *CreateMultipartUploadOutput) SetUploadId(v string) *CreateMultipartUplo
 // The container element for specifying the default Object Lock retention settings
 // for new objects placed in the specified bucket.
 //
-//   - The DefaultRetention settings require both a mode and a period.
+//    * The DefaultRetention settings require both a mode and a period.
 //
-//   - The DefaultRetention period can be either Days or Years but you must
-//     select one. You cannot specify Days and Years at the same time.
+//    * The DefaultRetention period can be either Days or Years but you must
+//    select one. You cannot specify Days and Years at the same time.
 type DefaultRetention struct {
 	_ struct{} `type:"structure"`
 
@@ -15235,8 +14709,8 @@ type DeleteBucketAnalyticsConfigurationInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The ID that identifies the analytics configuration.
@@ -15365,8 +14839,8 @@ type DeleteBucketCorsInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -15482,8 +14956,8 @@ type DeleteBucketEncryptionInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -15598,8 +15072,8 @@ type DeleteBucketInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -15812,8 +15286,8 @@ type DeleteBucketInventoryConfigurationInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The ID used to identify the inventory configuration.
@@ -15942,8 +15416,8 @@ type DeleteBucketLifecycleInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -16058,8 +15532,8 @@ type DeleteBucketMetricsConfigurationInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The ID used to identify the metrics configuration.
@@ -16210,8 +15684,8 @@ type DeleteBucketOwnershipControlsInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -16326,8 +15800,8 @@ type DeleteBucketPolicyInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -16442,8 +15916,8 @@ type DeleteBucketReplicationInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -16558,8 +16032,8 @@ type DeleteBucketTaggingInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -16674,8 +16148,8 @@ type DeleteBucketWebsiteInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -16911,22 +16385,22 @@ type DeleteObjectInput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// Indicates whether S3 Object Lock should bypass Governance-mode restrictions
-	// to process this operation. To use this header, you must have the s3:BypassGovernanceRetention
+	// to process this operation. To use this header, you must have the s3:PutBucketPublicAccessBlock
 	// permission.
 	BypassGovernanceRetention *bool `location:"header" locationName:"x-amz-bypass-governance-retention" type:"boolean"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// Key name of the object to delete.
@@ -16942,8 +16416,8 @@ type DeleteObjectInput struct {
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 
@@ -17134,17 +16608,17 @@ type DeleteObjectTaggingInput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The key that identifies the object in the bucket from which to remove all
@@ -17301,42 +16775,18 @@ type DeleteObjectsInput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// Specifies whether you want to delete this object even if it has a Governance-type
-	// Object Lock in place. To use this header, you must have the s3:BypassGovernanceRetention
+	// Object Lock in place. To use this header, you must have the s3:PutBucketPublicAccessBlock
 	// permission.
 	BypassGovernanceRetention *bool `location:"header" locationName:"x-amz-bypass-governance-retention" type:"boolean"`
-
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// This checksum algorithm must be the same for all parts and it match the checksum
-	// value supplied in the CreateMultipartUpload request.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	//
-	// The SDK will automatically compute the Content-MD5 checksum for this operation.
-	// The AWS SDK for Go v2 allows you to configure alternative checksum algorithm
-	// to be used.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
 
 	// Container for the request.
 	//
@@ -17344,8 +16794,8 @@ type DeleteObjectsInput struct {
 	Delete *Delete `locationName:"Delete" type:"structure" required:"true" xmlURI:"http://s3.amazonaws.com/doc/2006-03-01/"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The concatenation of the authentication device's serial number, a space,
@@ -17356,8 +16806,8 @@ type DeleteObjectsInput struct {
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 }
@@ -17420,12 +16870,6 @@ func (s *DeleteObjectsInput) getBucket() (v string) {
 // SetBypassGovernanceRetention sets the BypassGovernanceRetention field's value.
 func (s *DeleteObjectsInput) SetBypassGovernanceRetention(v bool) *DeleteObjectsInput {
 	s.BypassGovernanceRetention = &v
-	return s
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *DeleteObjectsInput) SetChecksumAlgorithm(v string) *DeleteObjectsInput {
-	s.ChecksumAlgorithm = &v
 	return s
 }
 
@@ -17541,8 +16985,8 @@ type DeletePublicAccessBlockInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -18606,8 +18050,8 @@ type GetBucketAccelerateConfigurationInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -18731,8 +18175,8 @@ type GetBucketAclInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -18865,8 +18309,8 @@ type GetBucketAnalyticsConfigurationInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The ID that identifies the analytics configuration.
@@ -19004,8 +18448,8 @@ type GetBucketCorsInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -19131,8 +18575,8 @@ type GetBucketEncryptionInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -19385,8 +18829,8 @@ type GetBucketInventoryConfigurationInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The ID used to identify the inventory configuration.
@@ -19524,8 +18968,8 @@ type GetBucketLifecycleConfigurationInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -19649,8 +19093,8 @@ type GetBucketLifecycleInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -19774,8 +19218,8 @@ type GetBucketLocationInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -19901,8 +19345,8 @@ type GetBucketLoggingInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -20029,8 +19473,8 @@ type GetBucketMetricsConfigurationInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The ID used to identify the metrics configuration.
@@ -20168,8 +19612,8 @@ type GetBucketNotificationConfigurationRequest struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -20262,8 +19706,8 @@ type GetBucketOwnershipControlsInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -20388,8 +19832,8 @@ type GetBucketPolicyInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -20513,8 +19957,8 @@ type GetBucketPolicyStatusInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -20638,8 +20082,8 @@ type GetBucketReplicationInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -20764,8 +20208,8 @@ type GetBucketRequestPaymentInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -20889,8 +20333,8 @@ type GetBucketTaggingInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -21016,8 +20460,8 @@ type GetBucketVersioningInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -21152,8 +20596,8 @@ type GetBucketWebsiteInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -21312,8 +20756,8 @@ type GetObjectAclInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The key of the object for which to get the ACL information.
@@ -21323,8 +20767,8 @@ type GetObjectAclInput struct {
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 
@@ -21486,423 +20930,6 @@ func (s *GetObjectAclOutput) SetRequestCharged(v string) *GetObjectAclOutput {
 	return s
 }
 
-type GetObjectAttributesInput struct {
-	_ struct{} `locationName:"GetObjectAttributesRequest" type:"structure"`
-
-	// The name of the bucket that contains the object.
-	//
-	// When using this action with an access point, you must direct requests to
-	// the access point hostname. The access point hostname takes the form AccessPointName-AccountId.s3-accesspoint.Region.amazonaws.com.
-	// When using this action with an access point through the Amazon Web Services
-	// SDKs, you provide the access point ARN in place of the bucket name. For more
-	// information about access point ARNs, see Using access points (https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-access-points.html)
-	// in the Amazon S3 User Guide.
-	//
-	// When using this action with Amazon S3 on Outposts, you must direct requests
-	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
-	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
-	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
-	// in the Amazon S3 User Guide.
-	//
-	// Bucket is a required field
-	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
-
-	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
-	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
-
-	// The object key.
-	//
-	// Key is a required field
-	Key *string `location:"uri" locationName:"Key" min:"1" type:"string" required:"true"`
-
-	// Sets the maximum number of parts to return.
-	MaxParts *int64 `location:"header" locationName:"x-amz-max-parts" type:"integer"`
-
-	// An XML header that specifies the fields at the root level that you want returned
-	// in the response. Fields that you do not specify are not returned.
-	//
-	// ObjectAttributes is a required field
-	ObjectAttributes []*string `location:"header" locationName:"x-amz-object-attributes" type:"list" required:"true" enum:"ObjectAttributes"`
-
-	// Specifies the part after which listing should begin. Only parts with higher
-	// part numbers will be listed.
-	PartNumberMarker *int64 `location:"header" locationName:"x-amz-part-number-marker" type:"integer"`
-
-	// Confirms that the requester knows that they will be charged for the request.
-	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
-	// in the Amazon S3 User Guide.
-	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
-
-	// Specifies the algorithm to use when encrypting the object (for example, AES256).
-	SSECustomerAlgorithm *string `location:"header" locationName:"x-amz-server-side-encryption-customer-algorithm" type:"string"`
-
-	// Specifies the customer-provided encryption key for Amazon S3 to use in encrypting
-	// data. This value is used to store the object and then it is discarded; Amazon
-	// S3 does not store the encryption key. The key must be appropriate for use
-	// with the algorithm specified in the x-amz-server-side-encryption-customer-algorithm
-	// header.
-	//
-	// SSECustomerKey is a sensitive parameter and its value will be
-	// replaced with "sensitive" in string returned by GetObjectAttributesInput's
-	// String and GoString methods.
-	SSECustomerKey *string `marshal-as:"blob" location:"header" locationName:"x-amz-server-side-encryption-customer-key" type:"string" sensitive:"true"`
-
-	// Specifies the 128-bit MD5 digest of the encryption key according to RFC 1321.
-	// Amazon S3 uses this header for a message integrity check to ensure that the
-	// encryption key was transmitted without error.
-	SSECustomerKeyMD5 *string `location:"header" locationName:"x-amz-server-side-encryption-customer-key-MD5" type:"string"`
-
-	// The version ID used to reference a specific version of the object.
-	VersionId *string `location:"querystring" locationName:"versionId" type:"string"`
-}
-
-// String returns the string representation.
-//
-// API parameter values that are decorated as "sensitive" in the API will not
-// be included in the string output. The member name will be present, but the
-// value will be replaced with "sensitive".
-func (s GetObjectAttributesInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation.
-//
-// API parameter values that are decorated as "sensitive" in the API will not
-// be included in the string output. The member name will be present, but the
-// value will be replaced with "sensitive".
-func (s GetObjectAttributesInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *GetObjectAttributesInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "GetObjectAttributesInput"}
-	if s.Bucket == nil {
-		invalidParams.Add(request.NewErrParamRequired("Bucket"))
-	}
-	if s.Bucket != nil && len(*s.Bucket) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Bucket", 1))
-	}
-	if s.Key == nil {
-		invalidParams.Add(request.NewErrParamRequired("Key"))
-	}
-	if s.Key != nil && len(*s.Key) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Key", 1))
-	}
-	if s.ObjectAttributes == nil {
-		invalidParams.Add(request.NewErrParamRequired("ObjectAttributes"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// SetBucket sets the Bucket field's value.
-func (s *GetObjectAttributesInput) SetBucket(v string) *GetObjectAttributesInput {
-	s.Bucket = &v
-	return s
-}
-
-func (s *GetObjectAttributesInput) getBucket() (v string) {
-	if s.Bucket == nil {
-		return v
-	}
-	return *s.Bucket
-}
-
-// SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
-func (s *GetObjectAttributesInput) SetExpectedBucketOwner(v string) *GetObjectAttributesInput {
-	s.ExpectedBucketOwner = &v
-	return s
-}
-
-// SetKey sets the Key field's value.
-func (s *GetObjectAttributesInput) SetKey(v string) *GetObjectAttributesInput {
-	s.Key = &v
-	return s
-}
-
-// SetMaxParts sets the MaxParts field's value.
-func (s *GetObjectAttributesInput) SetMaxParts(v int64) *GetObjectAttributesInput {
-	s.MaxParts = &v
-	return s
-}
-
-// SetObjectAttributes sets the ObjectAttributes field's value.
-func (s *GetObjectAttributesInput) SetObjectAttributes(v []*string) *GetObjectAttributesInput {
-	s.ObjectAttributes = v
-	return s
-}
-
-// SetPartNumberMarker sets the PartNumberMarker field's value.
-func (s *GetObjectAttributesInput) SetPartNumberMarker(v int64) *GetObjectAttributesInput {
-	s.PartNumberMarker = &v
-	return s
-}
-
-// SetRequestPayer sets the RequestPayer field's value.
-func (s *GetObjectAttributesInput) SetRequestPayer(v string) *GetObjectAttributesInput {
-	s.RequestPayer = &v
-	return s
-}
-
-// SetSSECustomerAlgorithm sets the SSECustomerAlgorithm field's value.
-func (s *GetObjectAttributesInput) SetSSECustomerAlgorithm(v string) *GetObjectAttributesInput {
-	s.SSECustomerAlgorithm = &v
-	return s
-}
-
-// SetSSECustomerKey sets the SSECustomerKey field's value.
-func (s *GetObjectAttributesInput) SetSSECustomerKey(v string) *GetObjectAttributesInput {
-	s.SSECustomerKey = &v
-	return s
-}
-
-func (s *GetObjectAttributesInput) getSSECustomerKey() (v string) {
-	if s.SSECustomerKey == nil {
-		return v
-	}
-	return *s.SSECustomerKey
-}
-
-// SetSSECustomerKeyMD5 sets the SSECustomerKeyMD5 field's value.
-func (s *GetObjectAttributesInput) SetSSECustomerKeyMD5(v string) *GetObjectAttributesInput {
-	s.SSECustomerKeyMD5 = &v
-	return s
-}
-
-// SetVersionId sets the VersionId field's value.
-func (s *GetObjectAttributesInput) SetVersionId(v string) *GetObjectAttributesInput {
-	s.VersionId = &v
-	return s
-}
-
-func (s *GetObjectAttributesInput) getEndpointARN() (arn.Resource, error) {
-	if s.Bucket == nil {
-		return nil, fmt.Errorf("member Bucket is nil")
-	}
-	return parseEndpointARN(*s.Bucket)
-}
-
-func (s *GetObjectAttributesInput) hasEndpointARN() bool {
-	if s.Bucket == nil {
-		return false
-	}
-	return arn.IsARN(*s.Bucket)
-}
-
-// updateArnableField updates the value of the input field that
-// takes an ARN as an input. This method is useful to backfill
-// the parsed resource name from ARN into the input member.
-// It returns a pointer to a modified copy of input and an error.
-// Note that original input is not modified.
-func (s GetObjectAttributesInput) updateArnableField(v string) (interface{}, error) {
-	if s.Bucket == nil {
-		return nil, fmt.Errorf("member Bucket is nil")
-	}
-	s.Bucket = aws.String(v)
-	return &s, nil
-}
-
-type GetObjectAttributesOutput struct {
-	_ struct{} `type:"structure"`
-
-	// The checksum or digest of the object.
-	Checksum *Checksum `type:"structure"`
-
-	// Specifies whether the object retrieved was (true) or was not (false) a delete
-	// marker. If false, this response header does not appear in the response.
-	DeleteMarker *bool `location:"header" locationName:"x-amz-delete-marker" type:"boolean"`
-
-	// An ETag is an opaque identifier assigned by a web server to a specific version
-	// of a resource found at a URL.
-	ETag *string `type:"string"`
-
-	// The creation date of the object.
-	LastModified *time.Time `location:"header" locationName:"Last-Modified" type:"timestamp"`
-
-	// A collection of parts associated with a multipart upload.
-	ObjectParts *GetObjectAttributesParts `type:"structure"`
-
-	// The size of the object in bytes.
-	ObjectSize *int64 `type:"long"`
-
-	// If present, indicates that the requester was successfully charged for the
-	// request.
-	RequestCharged *string `location:"header" locationName:"x-amz-request-charged" type:"string" enum:"RequestCharged"`
-
-	// Provides the storage class information of the object. Amazon S3 returns this
-	// header for all objects except for S3 Standard storage class objects.
-	//
-	// For more information, see Storage Classes (https://docs.aws.amazon.com/AmazonS3/latest/dev/storage-class-intro.html).
-	StorageClass *string `type:"string" enum:"StorageClass"`
-
-	// The version ID of the object.
-	VersionId *string `location:"header" locationName:"x-amz-version-id" type:"string"`
-}
-
-// String returns the string representation.
-//
-// API parameter values that are decorated as "sensitive" in the API will not
-// be included in the string output. The member name will be present, but the
-// value will be replaced with "sensitive".
-func (s GetObjectAttributesOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation.
-//
-// API parameter values that are decorated as "sensitive" in the API will not
-// be included in the string output. The member name will be present, but the
-// value will be replaced with "sensitive".
-func (s GetObjectAttributesOutput) GoString() string {
-	return s.String()
-}
-
-// SetChecksum sets the Checksum field's value.
-func (s *GetObjectAttributesOutput) SetChecksum(v *Checksum) *GetObjectAttributesOutput {
-	s.Checksum = v
-	return s
-}
-
-// SetDeleteMarker sets the DeleteMarker field's value.
-func (s *GetObjectAttributesOutput) SetDeleteMarker(v bool) *GetObjectAttributesOutput {
-	s.DeleteMarker = &v
-	return s
-}
-
-// SetETag sets the ETag field's value.
-func (s *GetObjectAttributesOutput) SetETag(v string) *GetObjectAttributesOutput {
-	s.ETag = &v
-	return s
-}
-
-// SetLastModified sets the LastModified field's value.
-func (s *GetObjectAttributesOutput) SetLastModified(v time.Time) *GetObjectAttributesOutput {
-	s.LastModified = &v
-	return s
-}
-
-// SetObjectParts sets the ObjectParts field's value.
-func (s *GetObjectAttributesOutput) SetObjectParts(v *GetObjectAttributesParts) *GetObjectAttributesOutput {
-	s.ObjectParts = v
-	return s
-}
-
-// SetObjectSize sets the ObjectSize field's value.
-func (s *GetObjectAttributesOutput) SetObjectSize(v int64) *GetObjectAttributesOutput {
-	s.ObjectSize = &v
-	return s
-}
-
-// SetRequestCharged sets the RequestCharged field's value.
-func (s *GetObjectAttributesOutput) SetRequestCharged(v string) *GetObjectAttributesOutput {
-	s.RequestCharged = &v
-	return s
-}
-
-// SetStorageClass sets the StorageClass field's value.
-func (s *GetObjectAttributesOutput) SetStorageClass(v string) *GetObjectAttributesOutput {
-	s.StorageClass = &v
-	return s
-}
-
-// SetVersionId sets the VersionId field's value.
-func (s *GetObjectAttributesOutput) SetVersionId(v string) *GetObjectAttributesOutput {
-	s.VersionId = &v
-	return s
-}
-
-// A collection of parts associated with a multipart upload.
-type GetObjectAttributesParts struct {
-	_ struct{} `type:"structure"`
-
-	// Indicates whether the returned list of parts is truncated. A value of true
-	// indicates that the list was truncated. A list can be truncated if the number
-	// of parts exceeds the limit returned in the MaxParts element.
-	IsTruncated *bool `type:"boolean"`
-
-	// The maximum number of parts allowed in the response.
-	MaxParts *int64 `type:"integer"`
-
-	// When a list is truncated, this element specifies the last part in the list,
-	// as well as the value to use for the PartNumberMarker request parameter in
-	// a subsequent request.
-	NextPartNumberMarker *int64 `type:"integer"`
-
-	// The marker for the current part.
-	PartNumberMarker *int64 `type:"integer"`
-
-	// A container for elements related to a particular part. A response can contain
-	// zero or more Parts elements.
-	Parts []*ObjectPart `locationName:"Part" type:"list" flattened:"true"`
-
-	// The total number of parts.
-	TotalPartsCount *int64 `locationName:"PartsCount" type:"integer"`
-}
-
-// String returns the string representation.
-//
-// API parameter values that are decorated as "sensitive" in the API will not
-// be included in the string output. The member name will be present, but the
-// value will be replaced with "sensitive".
-func (s GetObjectAttributesParts) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation.
-//
-// API parameter values that are decorated as "sensitive" in the API will not
-// be included in the string output. The member name will be present, but the
-// value will be replaced with "sensitive".
-func (s GetObjectAttributesParts) GoString() string {
-	return s.String()
-}
-
-// SetIsTruncated sets the IsTruncated field's value.
-func (s *GetObjectAttributesParts) SetIsTruncated(v bool) *GetObjectAttributesParts {
-	s.IsTruncated = &v
-	return s
-}
-
-// SetMaxParts sets the MaxParts field's value.
-func (s *GetObjectAttributesParts) SetMaxParts(v int64) *GetObjectAttributesParts {
-	s.MaxParts = &v
-	return s
-}
-
-// SetNextPartNumberMarker sets the NextPartNumberMarker field's value.
-func (s *GetObjectAttributesParts) SetNextPartNumberMarker(v int64) *GetObjectAttributesParts {
-	s.NextPartNumberMarker = &v
-	return s
-}
-
-// SetPartNumberMarker sets the PartNumberMarker field's value.
-func (s *GetObjectAttributesParts) SetPartNumberMarker(v int64) *GetObjectAttributesParts {
-	s.PartNumberMarker = &v
-	return s
-}
-
-// SetParts sets the Parts field's value.
-func (s *GetObjectAttributesParts) SetParts(v []*ObjectPart) *GetObjectAttributesParts {
-	s.Parts = v
-	return s
-}
-
-// SetTotalPartsCount sets the TotalPartsCount field's value.
-func (s *GetObjectAttributesParts) SetTotalPartsCount(v int64) *GetObjectAttributesParts {
-	s.TotalPartsCount = &v
-	return s
-}
-
 type GetObjectInput struct {
 	_ struct{} `locationName:"GetObjectRequest" type:"structure"`
 
@@ -21920,39 +20947,33 @@ type GetObjectInput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// To retrieve the checksum, this mode must be enabled.
-	//
-	// The AWS SDK for Go v1 does not support automatic response payload checksum
-	// validation. This feature is available in the AWS SDK for Go v2.
-	ChecksumMode *string `location:"header" locationName:"x-amz-checksum-mode" type:"string" enum:"ChecksumMode"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
-	// Return the object only if its entity tag (ETag) is the same as the one specified;
-	// otherwise, return a 412 (precondition failed) error.
+	// Return the object only if its entity tag (ETag) is the same as the one specified,
+	// otherwise return a 412 (precondition failed).
 	IfMatch *string `location:"header" locationName:"If-Match" type:"string"`
 
-	// Return the object only if it has been modified since the specified time;
-	// otherwise, return a 304 (not modified) error.
+	// Return the object only if it has been modified since the specified time,
+	// otherwise return a 304 (not modified).
 	IfModifiedSince *time.Time `location:"header" locationName:"If-Modified-Since" type:"timestamp"`
 
 	// Return the object only if its entity tag (ETag) is different from the one
-	// specified; otherwise, return a 304 (not modified) error.
+	// specified, otherwise return a 304 (not modified).
 	IfNoneMatch *string `location:"header" locationName:"If-None-Match" type:"string"`
 
-	// Return the object only if it has not been modified since the specified time;
-	// otherwise, return a 412 (precondition failed) error.
+	// Return the object only if it has not been modified since the specified time,
+	// otherwise return a 412 (precondition failed).
 	IfUnmodifiedSince *time.Time `location:"header" locationName:"If-Unmodified-Since" type:"timestamp"`
 
 	// Key of the object to get.
@@ -21974,8 +20995,8 @@ type GetObjectInput struct {
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 
@@ -22072,12 +21093,6 @@ func (s *GetObjectInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumMode sets the ChecksumMode field's value.
-func (s *GetObjectInput) SetChecksumMode(v string) *GetObjectInput {
-	s.ChecksumMode = &v
-	return s
 }
 
 // SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
@@ -22231,7 +21246,7 @@ func (s GetObjectInput) updateArnableField(v string) (interface{}, error) {
 type GetObjectLegalHoldInput struct {
 	_ struct{} `locationName:"GetObjectLegalHoldRequest" type:"structure"`
 
-	// The bucket name containing the object whose legal hold status you want to
+	// The bucket name containing the object whose Legal Hold status you want to
 	// retrieve.
 	//
 	// When using this action with an access point, you must direct requests to
@@ -22245,23 +21260,23 @@ type GetObjectLegalHoldInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
-	// The key name for the object whose legal hold status you want to retrieve.
+	// The key name for the object whose Legal Hold status you want to retrieve.
 	//
 	// Key is a required field
 	Key *string `location:"uri" locationName:"Key" min:"1" type:"string" required:"true"`
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 
-	// The version ID of the object whose legal hold status you want to retrieve.
+	// The version ID of the object whose Legal Hold status you want to retrieve.
 	VersionId *string `location:"querystring" locationName:"versionId" type:"string"`
 }
 
@@ -22372,7 +21387,7 @@ func (s GetObjectLegalHoldInput) updateArnableField(v string) (interface{}, erro
 type GetObjectLegalHoldOutput struct {
 	_ struct{} `type:"structure" payload:"LegalHold"`
 
-	// The current legal hold status for the specified object.
+	// The current Legal Hold status for the specified object.
 	LegalHold *ObjectLockLegalHold `type:"structure"`
 }
 
@@ -22416,8 +21431,8 @@ type GetObjectLockConfigurationInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -22548,38 +21563,6 @@ type GetObjectOutput struct {
 	// Specifies caching behavior along the request/reply chain.
 	CacheControl *string `location:"header" locationName:"Cache-Control" type:"string"`
 
-	// The base64-encoded, 32-bit CRC32 checksum of the object. This will only be
-	// present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32 *string `location:"header" locationName:"x-amz-checksum-crc32" type:"string"`
-
-	// The base64-encoded, 32-bit CRC32C checksum of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32C *string `location:"header" locationName:"x-amz-checksum-crc32c" type:"string"`
-
-	// The base64-encoded, 160-bit SHA-1 digest of the object. This will only be
-	// present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA1 *string `location:"header" locationName:"x-amz-checksum-sha1" type:"string"`
-
-	// The base64-encoded, 256-bit SHA-256 digest of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA256 *string `location:"header" locationName:"x-amz-checksum-sha256" type:"string"`
-
 	// Specifies presentational information for the object.
 	ContentDisposition *string `location:"header" locationName:"Content-Disposition" type:"string"`
 
@@ -22604,13 +21587,14 @@ type GetObjectOutput struct {
 	// Marker. If false, this response header does not appear in the response.
 	DeleteMarker *bool `location:"header" locationName:"x-amz-delete-marker" type:"boolean"`
 
-	// An entity tag (ETag) is an opaque identifier assigned by a web server to
-	// a specific version of a resource found at a URL.
+	// An ETag is an opaque identifier assigned by a web server to a specific version
+	// of a resource found at a URL.
 	ETag *string `location:"header" locationName:"ETag" type:"string"`
 
 	// If the object expiration is configured (see PUT Bucket lifecycle), the response
 	// includes this header. It includes the expiry-date and rule-id key-value pairs
-	// providing object expiration information. The value of the rule-id is URL-encoded.
+	// providing object expiration information. The value of the rule-id is URL
+	// encoded.
 	Expiration *string `location:"header" locationName:"x-amz-expiration" type:"string"`
 
 	// The date and time at which the object is no longer cacheable.
@@ -22642,8 +21626,7 @@ type GetObjectOutput struct {
 	// The date and time when this object's Object Lock will expire.
 	ObjectLockRetainUntilDate *time.Time `location:"header" locationName:"x-amz-object-lock-retain-until-date" type:"timestamp" timestampFormat:"iso8601"`
 
-	// The count of parts this object has. This value is only returned if you specify
-	// partNumber in your request and the object was uploaded as a multipart upload.
+	// The count of parts this object has.
 	PartsCount *int64 `location:"header" locationName:"x-amz-mp-parts-count" type:"integer"`
 
 	// Amazon S3 can return this if your request involves a bucket that is either
@@ -22736,30 +21719,6 @@ func (s *GetObjectOutput) SetBucketKeyEnabled(v bool) *GetObjectOutput {
 // SetCacheControl sets the CacheControl field's value.
 func (s *GetObjectOutput) SetCacheControl(v string) *GetObjectOutput {
 	s.CacheControl = &v
-	return s
-}
-
-// SetChecksumCRC32 sets the ChecksumCRC32 field's value.
-func (s *GetObjectOutput) SetChecksumCRC32(v string) *GetObjectOutput {
-	s.ChecksumCRC32 = &v
-	return s
-}
-
-// SetChecksumCRC32C sets the ChecksumCRC32C field's value.
-func (s *GetObjectOutput) SetChecksumCRC32C(v string) *GetObjectOutput {
-	s.ChecksumCRC32C = &v
-	return s
-}
-
-// SetChecksumSHA1 sets the ChecksumSHA1 field's value.
-func (s *GetObjectOutput) SetChecksumSHA1(v string) *GetObjectOutput {
-	s.ChecksumSHA1 = &v
-	return s
-}
-
-// SetChecksumSHA256 sets the ChecksumSHA256 field's value.
-func (s *GetObjectOutput) SetChecksumSHA256(v string) *GetObjectOutput {
-	s.ChecksumSHA256 = &v
 	return s
 }
 
@@ -22948,8 +21907,8 @@ type GetObjectRetentionInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The key name for the object whose retention settings you want to retrieve.
@@ -22959,8 +21918,8 @@ type GetObjectRetentionInput struct {
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 
@@ -23118,17 +22077,17 @@ type GetObjectTaggingInput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// Object key for which to get the tagging information.
@@ -23138,8 +22097,8 @@ type GetObjectTaggingInput struct {
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 
@@ -23303,8 +22262,8 @@ type GetObjectTorrentInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The object key for which to get the information.
@@ -23314,8 +22273,8 @@ type GetObjectTorrentInput struct {
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 }
@@ -23469,8 +22428,8 @@ type GetPublicAccessBlockInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -23810,17 +22769,17 @@ type HeadBucketInput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -23941,40 +22900,33 @@ type HeadObjectInput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// To retrieve the checksum, this parameter must be enabled.
-	//
-	// In addition, if you enable ChecksumMode and the object is encrypted with
-	// Amazon Web Services Key Management Service (Amazon Web Services KMS), you
-	// must have permission to use the kms:Decrypt action for the request to succeed.
-	ChecksumMode *string `location:"header" locationName:"x-amz-checksum-mode" type:"string" enum:"ChecksumMode"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
-	// Return the object only if its entity tag (ETag) is the same as the one specified;
-	// otherwise, return a 412 (precondition failed) error.
+	// Return the object only if its entity tag (ETag) is the same as the one specified,
+	// otherwise return a 412 (precondition failed).
 	IfMatch *string `location:"header" locationName:"If-Match" type:"string"`
 
-	// Return the object only if it has been modified since the specified time;
-	// otherwise, return a 304 (not modified) error.
+	// Return the object only if it has been modified since the specified time,
+	// otherwise return a 304 (not modified).
 	IfModifiedSince *time.Time `location:"header" locationName:"If-Modified-Since" type:"timestamp"`
 
 	// Return the object only if its entity tag (ETag) is different from the one
-	// specified; otherwise, return a 304 (not modified) error.
+	// specified, otherwise return a 304 (not modified).
 	IfNoneMatch *string `location:"header" locationName:"If-None-Match" type:"string"`
 
-	// Return the object only if it has not been modified since the specified time;
-	// otherwise, return a 412 (precondition failed) error.
+	// Return the object only if it has not been modified since the specified time,
+	// otherwise return a 412 (precondition failed).
 	IfUnmodifiedSince *time.Time `location:"header" locationName:"If-Unmodified-Since" type:"timestamp"`
 
 	// The object key.
@@ -23988,14 +22940,17 @@ type HeadObjectInput struct {
 	// object.
 	PartNumber *int64 `location:"querystring" locationName:"partNumber" type:"integer"`
 
-	// Because HeadObject returns only the metadata for an object, this parameter
-	// has no effect.
+	// Downloads the specified range bytes of an object. For more information about
+	// the HTTP Range header, see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.35
+	// (http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.35).
+	//
+	// Amazon S3 doesn't support retrieving multiple ranges of data per GET request.
 	Range *string `location:"header" locationName:"Range" type:"string"`
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 
@@ -24074,12 +23029,6 @@ func (s *HeadObjectInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumMode sets the ChecksumMode field's value.
-func (s *HeadObjectInput) SetChecksumMode(v string) *HeadObjectInput {
-	s.ChecksumMode = &v
-	return s
 }
 
 // SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
@@ -24210,38 +23159,6 @@ type HeadObjectOutput struct {
 	// Specifies caching behavior along the request/reply chain.
 	CacheControl *string `location:"header" locationName:"Cache-Control" type:"string"`
 
-	// The base64-encoded, 32-bit CRC32 checksum of the object. This will only be
-	// present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32 *string `location:"header" locationName:"x-amz-checksum-crc32" type:"string"`
-
-	// The base64-encoded, 32-bit CRC32C checksum of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32C *string `location:"header" locationName:"x-amz-checksum-crc32c" type:"string"`
-
-	// The base64-encoded, 160-bit SHA-1 digest of the object. This will only be
-	// present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA1 *string `location:"header" locationName:"x-amz-checksum-sha1" type:"string"`
-
-	// The base64-encoded, 256-bit SHA-256 digest of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA256 *string `location:"header" locationName:"x-amz-checksum-sha256" type:"string"`
-
 	// Specifies presentational information for the object.
 	ContentDisposition *string `location:"header" locationName:"Content-Disposition" type:"string"`
 
@@ -24263,13 +23180,14 @@ type HeadObjectOutput struct {
 	// Marker. If false, this response header does not appear in the response.
 	DeleteMarker *bool `location:"header" locationName:"x-amz-delete-marker" type:"boolean"`
 
-	// An entity tag (ETag) is an opaque identifier assigned by a web server to
-	// a specific version of a resource found at a URL.
+	// An ETag is an opaque identifier assigned by a web server to a specific version
+	// of a resource found at a URL.
 	ETag *string `location:"header" locationName:"ETag" type:"string"`
 
 	// If the object expiration is configured (see PUT Bucket lifecycle), the response
 	// includes this header. It includes the expiry-date and rule-id key-value pairs
-	// providing object expiration information. The value of the rule-id is URL-encoded.
+	// providing object expiration information. The value of the rule-id is URL
+	// encoded.
 	Expiration *string `location:"header" locationName:"x-amz-expiration" type:"string"`
 
 	// The date and time at which the object is no longer cacheable.
@@ -24307,8 +23225,7 @@ type HeadObjectOutput struct {
 	// is only returned if the requester has the s3:GetObjectRetention permission.
 	ObjectLockRetainUntilDate *time.Time `location:"header" locationName:"x-amz-object-lock-retain-until-date" type:"timestamp" timestampFormat:"iso8601"`
 
-	// The count of parts this object has. This value is only returned if you specify
-	// partNumber in your request and the object was uploaded as a multipart upload.
+	// The count of parts this object has.
 	PartsCount *int64 `location:"header" locationName:"x-amz-mp-parts-count" type:"integer"`
 
 	// Amazon S3 can return this header if your request involves a bucket that is
@@ -24320,7 +23237,7 @@ type HeadObjectOutput struct {
 	// these buckets, Amazon S3 will return the x-amz-replication-status header
 	// in the response as follows:
 	//
-	//    * If requesting an object from the source bucket, Amazon S3 will return
+	//    * If requesting an object from the source bucket — Amazon S3 will return
 	//    the x-amz-replication-status header if the object in your request is eligible
 	//    for replication. For example, suppose that in your replication configuration,
 	//    you specify object prefix TaxDocs requesting Amazon S3 to replicate objects
@@ -24330,12 +23247,12 @@ type HeadObjectOutput struct {
 	//    header with value PENDING, COMPLETED or FAILED indicating object replication
 	//    status.
 	//
-	//    * If requesting an object from a destination bucket, Amazon S3 will return
-	//    the x-amz-replication-status header with value REPLICA if the object in
-	//    your request is a replica that Amazon S3 created and there is no replica
+	//    * If requesting an object from a destination bucket — Amazon S3 will
+	//    return the x-amz-replication-status header with value REPLICA if the object
+	//    in your request is a replica that Amazon S3 created and there is no replica
 	//    modification replication in progress.
 	//
-	//    * When replicating objects to multiple destination buckets, the x-amz-replication-status
+	//    * When replicating objects to multiple destination buckets the x-amz-replication-status
 	//    header acts differently. The header of the source object will only return
 	//    a value of COMPLETED when replication is successful to all destinations.
 	//    The header will remain at value PENDING until replication has completed
@@ -24445,30 +23362,6 @@ func (s *HeadObjectOutput) SetBucketKeyEnabled(v bool) *HeadObjectOutput {
 // SetCacheControl sets the CacheControl field's value.
 func (s *HeadObjectOutput) SetCacheControl(v string) *HeadObjectOutput {
 	s.CacheControl = &v
-	return s
-}
-
-// SetChecksumCRC32 sets the ChecksumCRC32 field's value.
-func (s *HeadObjectOutput) SetChecksumCRC32(v string) *HeadObjectOutput {
-	s.ChecksumCRC32 = &v
-	return s
-}
-
-// SetChecksumCRC32C sets the ChecksumCRC32C field's value.
-func (s *HeadObjectOutput) SetChecksumCRC32C(v string) *HeadObjectOutput {
-	s.ChecksumCRC32C = &v
-	return s
-}
-
-// SetChecksumSHA1 sets the ChecksumSHA1 field's value.
-func (s *HeadObjectOutput) SetChecksumSHA1(v string) *HeadObjectOutput {
-	s.ChecksumSHA1 = &v
-	return s
-}
-
-// SetChecksumSHA256 sets the ChecksumSHA256 field's value.
-func (s *HeadObjectOutput) SetChecksumSHA256(v string) *HeadObjectOutput {
-	s.ChecksumSHA256 = &v
 	return s
 }
 
@@ -25066,7 +23959,7 @@ type InventoryConfiguration struct {
 	IsEnabled *bool `type:"boolean" required:"true"`
 
 	// Contains the optional fields that are included in the inventory results.
-	OptionalFields []*string `locationNameList:"Field" type:"list" enum:"InventoryOptionalField"`
+	OptionalFields []*string `locationNameList:"Field" type:"list"`
 
 	// Specifies the schedule for generating inventory results.
 	//
@@ -25593,7 +24486,7 @@ type LambdaFunctionConfiguration struct {
 	// in the Amazon S3 User Guide.
 	//
 	// Events is a required field
-	Events []*string `locationName:"Event" type:"list" flattened:"true" required:"true" enum:"Event"`
+	Events []*string `locationName:"Event" type:"list" flattened:"true" required:"true"`
 
 	// Specifies object key name filtering rules. For information about key name
 	// filtering, see Configuring Event Notifications (https://docs.aws.amazon.com/AmazonS3/latest/dev/NotificationHowTo.html)
@@ -25798,7 +24691,7 @@ type LifecycleRule struct {
 
 	// The Filter is used to identify objects that a Lifecycle Rule applies to.
 	// A Filter must have exactly one of Prefix, Tag, or And specified. Filter is
-	// required if the LifecycleRule does not contain a Prefix element.
+	// required if the LifecycleRule does not containt a Prefix element.
 	Filter *LifecycleRuleFilter `type:"structure"`
 
 	// Unique identifier for the rule. The value cannot be longer than 255 characters.
@@ -26118,8 +25011,8 @@ type ListBucketAnalyticsConfigurationsInput struct {
 	ContinuationToken *string `location:"querystring" locationName:"continuation-token" type:"string"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -26444,8 +25337,8 @@ type ListBucketInventoryConfigurationsInput struct {
 	ContinuationToken *string `location:"querystring" locationName:"continuation-token" type:"string"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -26613,8 +25506,8 @@ type ListBucketMetricsConfigurationsInput struct {
 	ContinuationToken *string `location:"querystring" locationName:"continuation-token" type:"string"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -26793,7 +25686,7 @@ func (s ListBucketsInput) GoString() string {
 type ListBucketsOutput struct {
 	_ struct{} `type:"structure"`
 
-	// The list of buckets owned by the requester.
+	// The list of buckets owned by the requestor.
 	Buckets []*Bucket `locationNameList:"Bucket" type:"list"`
 
 	// The owner of the buckets listed.
@@ -26845,9 +25738,9 @@ type ListMultipartUploadsInput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Bucket is a required field
@@ -26872,8 +25765,8 @@ type ListMultipartUploadsInput struct {
 	EncodingType *string `location:"querystring" locationName:"encoding-type" type:"string" enum:"EncodingType"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// Together with upload-id-marker, this parameter specifies the multipart upload
@@ -27201,8 +26094,8 @@ type ListObjectVersionsInput struct {
 	EncodingType *string `location:"querystring" locationName:"encoding-type" type:"string" enum:"EncodingType"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// Specifies the key to start with when listing objects in a bucket.
@@ -27518,9 +26411,9 @@ type ListObjectsInput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Bucket is a required field
@@ -27538,8 +26431,8 @@ type ListObjectsInput struct {
 	EncodingType *string `location:"querystring" locationName:"encoding-type" type:"string" enum:"EncodingType"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// Marker is where you want Amazon S3 to start listing from. Amazon S3 starts
@@ -27829,9 +26722,9 @@ type ListObjectsV2Input struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Bucket is a required field
@@ -27849,8 +26742,8 @@ type ListObjectsV2Input struct {
 	EncodingType *string `location:"querystring" locationName:"encoding-type" type:"string" enum:"EncodingType"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The owner field is not present in listV2 by default, if you want to return
@@ -28073,9 +26966,9 @@ type ListObjectsV2Output struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	Name *string `type:"string"`
 
@@ -28197,17 +27090,17 @@ type ListPartsInput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// Object key for which the multipart upload was initiated.
@@ -28224,32 +27117,10 @@ type ListPartsInput struct {
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
-
-	// The server-side encryption (SSE) algorithm used to encrypt the object. This
-	// parameter is needed only when the object was created using a checksum algorithm.
-	// For more information, see Protecting data using SSE-C keys (https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html)
-	// in the Amazon S3 User Guide.
-	SSECustomerAlgorithm *string `location:"header" locationName:"x-amz-server-side-encryption-customer-algorithm" type:"string"`
-
-	// The server-side encryption (SSE) customer managed key. This parameter is
-	// needed only when the object was created using a checksum algorithm. For more
-	// information, see Protecting data using SSE-C keys (https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html)
-	// in the Amazon S3 User Guide.
-	//
-	// SSECustomerKey is a sensitive parameter and its value will be
-	// replaced with "sensitive" in string returned by ListPartsInput's
-	// String and GoString methods.
-	SSECustomerKey *string `marshal-as:"blob" location:"header" locationName:"x-amz-server-side-encryption-customer-key" type:"string" sensitive:"true"`
-
-	// The MD5 server-side encryption (SSE) customer managed key. This parameter
-	// is needed only when the object was created using a checksum algorithm. For
-	// more information, see Protecting data using SSE-C keys (https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html)
-	// in the Amazon S3 User Guide.
-	SSECustomerKeyMD5 *string `location:"header" locationName:"x-amz-server-side-encryption-customer-key-MD5" type:"string"`
 
 	// Upload ID identifying the multipart upload whose parts are being listed.
 	//
@@ -28343,31 +27214,6 @@ func (s *ListPartsInput) SetRequestPayer(v string) *ListPartsInput {
 	return s
 }
 
-// SetSSECustomerAlgorithm sets the SSECustomerAlgorithm field's value.
-func (s *ListPartsInput) SetSSECustomerAlgorithm(v string) *ListPartsInput {
-	s.SSECustomerAlgorithm = &v
-	return s
-}
-
-// SetSSECustomerKey sets the SSECustomerKey field's value.
-func (s *ListPartsInput) SetSSECustomerKey(v string) *ListPartsInput {
-	s.SSECustomerKey = &v
-	return s
-}
-
-func (s *ListPartsInput) getSSECustomerKey() (v string) {
-	if s.SSECustomerKey == nil {
-		return v
-	}
-	return *s.SSECustomerKey
-}
-
-// SetSSECustomerKeyMD5 sets the SSECustomerKeyMD5 field's value.
-func (s *ListPartsInput) SetSSECustomerKeyMD5(v string) *ListPartsInput {
-	s.SSECustomerKeyMD5 = &v
-	return s
-}
-
 // SetUploadId sets the UploadId field's value.
 func (s *ListPartsInput) SetUploadId(v string) *ListPartsInput {
 	s.UploadId = &v
@@ -28423,9 +27269,6 @@ type ListPartsOutput struct {
 	// The name of the bucket to which the multipart upload was initiated. Does
 	// not return the access point ARN or access point alias if used.
 	Bucket *string `type:"string"`
-
-	// The algorithm that was used to create a checksum of the object.
-	ChecksumAlgorithm *string `type:"string" enum:"ChecksumAlgorithm"`
 
 	// Container element that identifies who initiated the multipart upload. If
 	// the initiator is an Amazon Web Services account, this element provides the
@@ -28516,12 +27359,6 @@ func (s *ListPartsOutput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *ListPartsOutput) SetChecksumAlgorithm(v string) *ListPartsOutput {
-	s.ChecksumAlgorithm = &v
-	return s
 }
 
 // SetInitiator sets the Initiator field's value.
@@ -29148,9 +27985,6 @@ func (s *MetricsFilter) SetTag(v *Tag) *MetricsFilter {
 type MultipartUpload struct {
 	_ struct{} `type:"structure"`
 
-	// The algorithm that was used to create a checksum of the object.
-	ChecksumAlgorithm *string `type:"string" enum:"ChecksumAlgorithm"`
-
 	// Date and time at which the multipart upload was initiated.
 	Initiated *time.Time `type:"timestamp"`
 
@@ -29186,12 +28020,6 @@ func (s MultipartUpload) String() string {
 // value will be replaced with "sensitive".
 func (s MultipartUpload) GoString() string {
 	return s.String()
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *MultipartUpload) SetChecksumAlgorithm(v string) *MultipartUpload {
-	s.ChecksumAlgorithm = &v
-	return s
 }
 
 // SetInitiated sets the Initiated field's value.
@@ -29246,9 +28074,9 @@ type NoncurrentVersionExpiration struct {
 	NewerNoncurrentVersions *int64 `type:"integer"`
 
 	// Specifies the number of days an object is noncurrent before Amazon S3 can
-	// perform the associated action. The value must be a non-zero positive integer.
-	// For information about the noncurrent days calculations, see How Amazon S3
-	// Calculates When an Object Became Noncurrent (https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html#non-current-days-calculations)
+	// perform the associated action. For information about the noncurrent days
+	// calculations, see How Amazon S3 Calculates When an Object Became Noncurrent
+	// (https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html#non-current-days-calculations)
 	// in the Amazon S3 User Guide.
 	NoncurrentDays *int64 `type:"integer"`
 }
@@ -29541,9 +28369,6 @@ func (s *NotificationConfigurationFilter) SetKey(v *KeyFilter) *NotificationConf
 type Object struct {
 	_ struct{} `type:"structure"`
 
-	// The algorithm that was used to create a checksum of the object.
-	ChecksumAlgorithm []*string `type:"list" flattened:"true" enum:"ChecksumAlgorithm"`
-
 	// The entity tag is a hash of the object. The ETag reflects changes only to
 	// the contents of an object, not its metadata. The ETag may or may not be an
 	// MD5 digest of the object data. Whether or not it is depends on how the object
@@ -29561,9 +28386,7 @@ type Object struct {
 	//
 	//    * If an object is created by either the Multipart Upload or Part Copy
 	//    operation, the ETag is not an MD5 digest, regardless of the method of
-	//    encryption. If an object is larger than 16 MB, the Amazon Web Services
-	//    Management Console will upload or copy that object as a Multipart Upload,
-	//    and therefore the ETag will not be an MD5 digest.
+	//    encryption.
 	ETag *string `type:"string"`
 
 	// The name that you assign to an object. You use the object key to retrieve
@@ -29599,12 +28422,6 @@ func (s Object) String() string {
 // value will be replaced with "sensitive".
 func (s Object) GoString() string {
 	return s.String()
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *Object) SetChecksumAlgorithm(v []*string) *Object {
-	s.ChecksumAlgorithm = v
-	return s
 }
 
 // SetETag sets the ETag field's value.
@@ -29751,11 +28568,11 @@ func (s *ObjectLockConfiguration) SetRule(v *ObjectLockRule) *ObjectLockConfigur
 	return s
 }
 
-// A legal hold configuration for an object.
+// A Legal Hold configuration for an object.
 type ObjectLockLegalHold struct {
 	_ struct{} `type:"structure"`
 
-	// Indicates whether the specified object has a legal hold in place.
+	// Indicates whether the specified object has a Legal Hold in place.
 	Status *string `type:"string" enum:"ObjectLockLegalHoldStatus"`
 }
 
@@ -29859,109 +28676,9 @@ func (s *ObjectLockRule) SetDefaultRetention(v *DefaultRetention) *ObjectLockRul
 	return s
 }
 
-// A container for elements related to an individual part.
-type ObjectPart struct {
-	_ struct{} `type:"structure"`
-
-	// This header can be used as a data integrity check to verify that the data
-	// received is the same data that was originally sent. This header specifies
-	// the base64-encoded, 32-bit CRC32 checksum of the object. For more information,
-	// see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32 *string `type:"string"`
-
-	// The base64-encoded, 32-bit CRC32C checksum of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32C *string `type:"string"`
-
-	// The base64-encoded, 160-bit SHA-1 digest of the object. This will only be
-	// present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA1 *string `type:"string"`
-
-	// The base64-encoded, 256-bit SHA-256 digest of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA256 *string `type:"string"`
-
-	// The part number identifying the part. This value is a positive integer between
-	// 1 and 10,000.
-	PartNumber *int64 `type:"integer"`
-
-	// The size of the uploaded part in bytes.
-	Size *int64 `type:"integer"`
-}
-
-// String returns the string representation.
-//
-// API parameter values that are decorated as "sensitive" in the API will not
-// be included in the string output. The member name will be present, but the
-// value will be replaced with "sensitive".
-func (s ObjectPart) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation.
-//
-// API parameter values that are decorated as "sensitive" in the API will not
-// be included in the string output. The member name will be present, but the
-// value will be replaced with "sensitive".
-func (s ObjectPart) GoString() string {
-	return s.String()
-}
-
-// SetChecksumCRC32 sets the ChecksumCRC32 field's value.
-func (s *ObjectPart) SetChecksumCRC32(v string) *ObjectPart {
-	s.ChecksumCRC32 = &v
-	return s
-}
-
-// SetChecksumCRC32C sets the ChecksumCRC32C field's value.
-func (s *ObjectPart) SetChecksumCRC32C(v string) *ObjectPart {
-	s.ChecksumCRC32C = &v
-	return s
-}
-
-// SetChecksumSHA1 sets the ChecksumSHA1 field's value.
-func (s *ObjectPart) SetChecksumSHA1(v string) *ObjectPart {
-	s.ChecksumSHA1 = &v
-	return s
-}
-
-// SetChecksumSHA256 sets the ChecksumSHA256 field's value.
-func (s *ObjectPart) SetChecksumSHA256(v string) *ObjectPart {
-	s.ChecksumSHA256 = &v
-	return s
-}
-
-// SetPartNumber sets the PartNumber field's value.
-func (s *ObjectPart) SetPartNumber(v int64) *ObjectPart {
-	s.PartNumber = &v
-	return s
-}
-
-// SetSize sets the Size field's value.
-func (s *ObjectPart) SetSize(v int64) *ObjectPart {
-	s.Size = &v
-	return s
-}
-
 // The version of an object.
 type ObjectVersion struct {
 	_ struct{} `type:"structure"`
-
-	// The algorithm that was used to create a checksum of the object.
-	ChecksumAlgorithm []*string `type:"list" flattened:"true" enum:"ChecksumAlgorithm"`
 
 	// The entity tag is an MD5 hash of that version of the object.
 	ETag *string `type:"string"`
@@ -30005,12 +28722,6 @@ func (s ObjectVersion) String() string {
 // value will be replaced with "sensitive".
 func (s ObjectVersion) GoString() string {
 	return s.String()
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *ObjectVersion) SetChecksumAlgorithm(v []*string) *ObjectVersion {
-	s.ChecksumAlgorithm = v
-	return s
 }
 
 // SetETag sets the ETag field's value.
@@ -30334,36 +29045,6 @@ func (s ParquetInput) GoString() string {
 type Part struct {
 	_ struct{} `type:"structure"`
 
-	// This header can be used as a data integrity check to verify that the data
-	// received is the same data that was originally sent. This header specifies
-	// the base64-encoded, 32-bit CRC32 checksum of the object. For more information,
-	// see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32 *string `type:"string"`
-
-	// The base64-encoded, 32-bit CRC32C checksum of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32C *string `type:"string"`
-
-	// The base64-encoded, 160-bit SHA-1 digest of the object. This will only be
-	// present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA1 *string `type:"string"`
-
-	// This header can be used as a data integrity check to verify that the data
-	// received is the same data that was originally sent. This header specifies
-	// the base64-encoded, 256-bit SHA-256 digest of the object. For more information,
-	// see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA256 *string `type:"string"`
-
 	// Entity tag returned when the part was uploaded.
 	ETag *string `type:"string"`
 
@@ -30394,30 +29075,6 @@ func (s Part) String() string {
 // value will be replaced with "sensitive".
 func (s Part) GoString() string {
 	return s.String()
-}
-
-// SetChecksumCRC32 sets the ChecksumCRC32 field's value.
-func (s *Part) SetChecksumCRC32(v string) *Part {
-	s.ChecksumCRC32 = &v
-	return s
-}
-
-// SetChecksumCRC32C sets the ChecksumCRC32C field's value.
-func (s *Part) SetChecksumCRC32C(v string) *Part {
-	s.ChecksumCRC32C = &v
-	return s
-}
-
-// SetChecksumSHA1 sets the ChecksumSHA1 field's value.
-func (s *Part) SetChecksumSHA1(v string) *Part {
-	s.ChecksumSHA1 = &v
-	return s
-}
-
-// SetChecksumSHA256 sets the ChecksumSHA256 field's value.
-func (s *Part) SetChecksumSHA256(v string) *Part {
-	s.ChecksumSHA256 = &v
-	return s
 }
 
 // SetETag sets the ETag field's value.
@@ -30600,7 +29257,7 @@ type PublicAccessBlockConfiguration struct {
 	// for this bucket and objects in this bucket. Setting this element to TRUE
 	// causes the following behavior:
 	//
-	//    * PUT Bucket ACL and PUT Object ACL calls fail if the specified ACL is
+	//    * PUT Bucket acl and PUT Object acl calls fail if the specified ACL is
 	//    public.
 	//
 	//    * PUT Object calls fail if the request includes a public ACL.
@@ -30691,26 +29348,9 @@ type PutBucketAccelerateConfigurationInput struct {
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -30768,12 +29408,6 @@ func (s *PutBucketAccelerateConfigurationInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutBucketAccelerateConfigurationInput) SetChecksumAlgorithm(v string) *PutBucketAccelerateConfigurationInput {
-	s.ChecksumAlgorithm = &v
-	return s
 }
 
 // SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
@@ -30845,30 +29479,9 @@ type PutBucketAclInput struct {
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	//
-	// The SDK will automatically compute the Content-MD5 checksum for this operation.
-	// The AWS SDK for Go v2 allows you to configure alternative checksum algorithm
-	// to be used.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// Allows grantee the read, write, read ACP, and write ACP permissions on the
@@ -30953,12 +29566,6 @@ func (s *PutBucketAclInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutBucketAclInput) SetChecksumAlgorithm(v string) *PutBucketAclInput {
-	s.ChecksumAlgorithm = &v
-	return s
 }
 
 // SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
@@ -31060,8 +29667,8 @@ type PutBucketAnalyticsConfigurationInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The ID that identifies the analytics configuration.
@@ -31211,30 +29818,9 @@ type PutBucketCorsInput struct {
 	// CORSConfiguration is a required field
 	CORSConfiguration *CORSConfiguration `locationName:"CORSConfiguration" type:"structure" required:"true" xmlURI:"http://s3.amazonaws.com/doc/2006-03-01/"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	//
-	// The SDK will automatically compute the Content-MD5 checksum for this operation.
-	// The AWS SDK for Go v2 allows you to configure alternative checksum algorithm
-	// to be used.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -31296,12 +29882,6 @@ func (s *PutBucketCorsInput) getBucket() (v string) {
 // SetCORSConfiguration sets the CORSConfiguration field's value.
 func (s *PutBucketCorsInput) SetCORSConfiguration(v *CORSConfiguration) *PutBucketCorsInput {
 	s.CORSConfiguration = v
-	return s
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutBucketCorsInput) SetChecksumAlgorithm(v string) *PutBucketCorsInput {
-	s.ChecksumAlgorithm = &v
 	return s
 }
 
@@ -31372,30 +29952,9 @@ type PutBucketEncryptionInput struct {
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	//
-	// The SDK will automatically compute the Content-MD5 checksum for this operation.
-	// The AWS SDK for Go v2 allows you to configure alternative checksum algorithm
-	// to be used.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// Specifies the default server-side-encryption configuration.
@@ -31457,12 +30016,6 @@ func (s *PutBucketEncryptionInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutBucketEncryptionInput) SetChecksumAlgorithm(v string) *PutBucketEncryptionInput {
-	s.ChecksumAlgorithm = &v
-	return s
 }
 
 // SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
@@ -31674,8 +30227,8 @@ type PutBucketInventoryConfigurationInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The ID used to identify the inventory configuration.
@@ -31822,30 +30375,9 @@ type PutBucketLifecycleConfigurationInput struct {
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	//
-	// The SDK will automatically compute the Content-MD5 checksum for this operation.
-	// The AWS SDK for Go v2 allows you to configure alternative checksum algorithm
-	// to be used.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// Container for lifecycle rules. You can add as many as 1,000 rules.
@@ -31902,12 +30434,6 @@ func (s *PutBucketLifecycleConfigurationInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutBucketLifecycleConfigurationInput) SetChecksumAlgorithm(v string) *PutBucketLifecycleConfigurationInput {
-	s.ChecksumAlgorithm = &v
-	return s
 }
 
 // SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
@@ -31977,30 +30503,9 @@ type PutBucketLifecycleInput struct {
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	//
-	// The SDK will automatically compute the Content-MD5 checksum for this operation.
-	// The AWS SDK for Go v2 allows you to configure alternative checksum algorithm
-	// to be used.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// Container for lifecycle rules. You can add as many as 1000 rules.
@@ -32057,12 +30562,6 @@ func (s *PutBucketLifecycleInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutBucketLifecycleInput) SetChecksumAlgorithm(v string) *PutBucketLifecycleInput {
-	s.ChecksumAlgorithm = &v
-	return s
 }
 
 // SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
@@ -32139,30 +30638,9 @@ type PutBucketLoggingInput struct {
 	// BucketLoggingStatus is a required field
 	BucketLoggingStatus *BucketLoggingStatus `locationName:"BucketLoggingStatus" type:"structure" required:"true" xmlURI:"http://s3.amazonaws.com/doc/2006-03-01/"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	//
-	// The SDK will automatically compute the Content-MD5 checksum for this operation.
-	// The AWS SDK for Go v2 allows you to configure alternative checksum algorithm
-	// to be used.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 }
 
@@ -32224,12 +30702,6 @@ func (s *PutBucketLoggingInput) getBucket() (v string) {
 // SetBucketLoggingStatus sets the BucketLoggingStatus field's value.
 func (s *PutBucketLoggingInput) SetBucketLoggingStatus(v *BucketLoggingStatus) *PutBucketLoggingInput {
 	s.BucketLoggingStatus = v
-	return s
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutBucketLoggingInput) SetChecksumAlgorithm(v string) *PutBucketLoggingInput {
-	s.ChecksumAlgorithm = &v
 	return s
 }
 
@@ -32297,8 +30769,8 @@ type PutBucketMetricsConfigurationInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The ID used to identify the metrics configuration.
@@ -32446,8 +30918,8 @@ type PutBucketNotificationConfigurationInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// A container for specifying the notification configuration of the bucket.
@@ -32591,30 +31063,9 @@ type PutBucketNotificationInput struct {
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	//
-	// The SDK will automatically compute the Content-MD5 checksum for this operation.
-	// The AWS SDK for Go v2 allows you to configure alternative checksum algorithm
-	// to be used.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The container for the configuration.
@@ -32671,12 +31122,6 @@ func (s *PutBucketNotificationInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutBucketNotificationInput) SetChecksumAlgorithm(v string) *PutBucketNotificationInput {
-	s.ChecksumAlgorithm = &v
-	return s
 }
 
 // SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
@@ -32749,8 +31194,8 @@ type PutBucketOwnershipControlsInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The OwnershipControls (BucketOwnerEnforced, BucketOwnerPreferred, or ObjectWriter)
@@ -32884,34 +31329,13 @@ type PutBucketPolicyInput struct {
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	//
-	// The SDK will automatically compute the Content-MD5 checksum for this operation.
-	// The AWS SDK for Go v2 allows you to configure alternative checksum algorithm
-	// to be used.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// Set this parameter to true to confirm that you want to remove your permissions
 	// to change this bucket policy in the future.
 	ConfirmRemoveSelfBucketAccess *bool `location:"header" locationName:"x-amz-confirm-remove-self-bucket-access" type:"boolean"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The bucket policy as a JSON document.
@@ -32968,12 +31392,6 @@ func (s *PutBucketPolicyInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutBucketPolicyInput) SetChecksumAlgorithm(v string) *PutBucketPolicyInput {
-	s.ChecksumAlgorithm = &v
-	return s
 }
 
 // SetConfirmRemoveSelfBucketAccess sets the ConfirmRemoveSelfBucketAccess field's value.
@@ -33051,30 +31469,9 @@ type PutBucketReplicationInput struct {
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	//
-	// The SDK will automatically compute the Content-MD5 checksum for this operation.
-	// The AWS SDK for Go v2 allows you to configure alternative checksum algorithm
-	// to be used.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// A container for replication rules. You can add up to 1,000 rules. The maximum
@@ -33140,12 +31537,6 @@ func (s *PutBucketReplicationInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutBucketReplicationInput) SetChecksumAlgorithm(v string) *PutBucketReplicationInput {
-	s.ChecksumAlgorithm = &v
-	return s
 }
 
 // SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
@@ -33223,30 +31614,9 @@ type PutBucketRequestPaymentInput struct {
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	//
-	// The SDK will automatically compute the Content-MD5 checksum for this operation.
-	// The AWS SDK for Go v2 allows you to configure alternative checksum algorithm
-	// to be used.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// Container for Payer.
@@ -33308,12 +31678,6 @@ func (s *PutBucketRequestPaymentInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutBucketRequestPaymentInput) SetChecksumAlgorithm(v string) *PutBucketRequestPaymentInput {
-	s.ChecksumAlgorithm = &v
-	return s
 }
 
 // SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
@@ -33385,30 +31749,9 @@ type PutBucketTaggingInput struct {
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	//
-	// The SDK will automatically compute the Content-MD5 checksum for this operation.
-	// The AWS SDK for Go v2 allows you to configure alternative checksum algorithm
-	// to be used.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// Container for the TagSet and Tag elements.
@@ -33470,12 +31813,6 @@ func (s *PutBucketTaggingInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutBucketTaggingInput) SetChecksumAlgorithm(v string) *PutBucketTaggingInput {
-	s.ChecksumAlgorithm = &v
-	return s
 }
 
 // SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
@@ -33547,30 +31884,9 @@ type PutBucketVersioningInput struct {
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	//
-	// The SDK will automatically compute the Content-MD5 checksum for this operation.
-	// The AWS SDK for Go v2 allows you to configure alternative checksum algorithm
-	// to be used.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The concatenation of the authentication device's serial number, a space,
@@ -33631,12 +31947,6 @@ func (s *PutBucketVersioningInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutBucketVersioningInput) SetChecksumAlgorithm(v string) *PutBucketVersioningInput {
-	s.ChecksumAlgorithm = &v
-	return s
 }
 
 // SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
@@ -33714,30 +32024,9 @@ type PutBucketWebsiteInput struct {
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	//
-	// The SDK will automatically compute the Content-MD5 checksum for this operation.
-	// The AWS SDK for Go v2 allows you to configure alternative checksum algorithm
-	// to be used.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// Container for the request.
@@ -33799,12 +32088,6 @@ func (s *PutBucketWebsiteInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutBucketWebsiteInput) SetChecksumAlgorithm(v string) *PutBucketWebsiteInput {
-	s.ChecksumAlgorithm = &v
-	return s
 }
 
 // SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
@@ -33891,30 +32174,9 @@ type PutObjectAclInput struct {
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	//
-	// The SDK will automatically compute the Content-MD5 checksum for this operation.
-	// The AWS SDK for Go v2 allows you to configure alternative checksum algorithm
-	// to be used.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// Allows grantee the read, write, read ACP, and write ACP permissions on the
@@ -33956,9 +32218,9 @@ type PutObjectAclInput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Key is a required field
@@ -33966,8 +32228,8 @@ type PutObjectAclInput struct {
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 
@@ -34043,12 +32305,6 @@ func (s *PutObjectAclInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutObjectAclInput) SetChecksumAlgorithm(v string) *PutObjectAclInput {
-	s.ChecksumAlgorithm = &v
-	return s
 }
 
 // SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
@@ -34188,9 +32444,9 @@ type PutObjectInput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Bucket is a required field
@@ -34209,51 +32465,6 @@ type PutObjectInput struct {
 	// more information, see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9
 	// (http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9).
 	CacheControl *string `location:"header" locationName:"Cache-Control" type:"string"`
-
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
-	// This header can be used as a data integrity check to verify that the data
-	// received is the same data that was originally sent. This header specifies
-	// the base64-encoded, 32-bit CRC32 checksum of the object. For more information,
-	// see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32 *string `location:"header" locationName:"x-amz-checksum-crc32" type:"string"`
-
-	// This header can be used as a data integrity check to verify that the data
-	// received is the same data that was originally sent. This header specifies
-	// the base64-encoded, 32-bit CRC32C checksum of the object. For more information,
-	// see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32C *string `location:"header" locationName:"x-amz-checksum-crc32c" type:"string"`
-
-	// This header can be used as a data integrity check to verify that the data
-	// received is the same data that was originally sent. This header specifies
-	// the base64-encoded, 160-bit SHA-1 digest of the object. For more information,
-	// see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA1 *string `location:"header" locationName:"x-amz-checksum-sha1" type:"string"`
-
-	// This header can be used as a data integrity check to verify that the data
-	// received is the same data that was originally sent. This header specifies
-	// the base64-encoded, 256-bit SHA-256 digest of the object. For more information,
-	// see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA256 *string `location:"header" locationName:"x-amz-checksum-sha256" type:"string"`
 
 	// Specifies presentational information for the object. For more information,
 	// see http://www.w3.org/Protocols/rfc2616/rfc2616-sec19.html#sec19.5.1 (http://www.w3.org/Protocols/rfc2616/rfc2616-sec19.html#sec19.5.1).
@@ -34286,8 +32497,8 @@ type PutObjectInput struct {
 	ContentType *string `location:"header" locationName:"Content-Type" type:"string"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The date and time at which the object is no longer cacheable. For more information,
@@ -34335,8 +32546,8 @@ type PutObjectInput struct {
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 
@@ -34494,36 +32705,6 @@ func (s *PutObjectInput) SetBucketKeyEnabled(v bool) *PutObjectInput {
 // SetCacheControl sets the CacheControl field's value.
 func (s *PutObjectInput) SetCacheControl(v string) *PutObjectInput {
 	s.CacheControl = &v
-	return s
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutObjectInput) SetChecksumAlgorithm(v string) *PutObjectInput {
-	s.ChecksumAlgorithm = &v
-	return s
-}
-
-// SetChecksumCRC32 sets the ChecksumCRC32 field's value.
-func (s *PutObjectInput) SetChecksumCRC32(v string) *PutObjectInput {
-	s.ChecksumCRC32 = &v
-	return s
-}
-
-// SetChecksumCRC32C sets the ChecksumCRC32C field's value.
-func (s *PutObjectInput) SetChecksumCRC32C(v string) *PutObjectInput {
-	s.ChecksumCRC32C = &v
-	return s
-}
-
-// SetChecksumSHA1 sets the ChecksumSHA1 field's value.
-func (s *PutObjectInput) SetChecksumSHA1(v string) *PutObjectInput {
-	s.ChecksumSHA1 = &v
-	return s
-}
-
-// SetChecksumSHA256 sets the ChecksumSHA256 field's value.
-func (s *PutObjectInput) SetChecksumSHA256(v string) *PutObjectInput {
-	s.ChecksumSHA256 = &v
 	return s
 }
 
@@ -34726,7 +32907,7 @@ func (s PutObjectInput) updateArnableField(v string) (interface{}, error) {
 type PutObjectLegalHoldInput struct {
 	_ struct{} `locationName:"PutObjectLegalHoldRequest" type:"structure" payload:"LegalHold"`
 
-	// The bucket name containing the object that you want to place a legal hold
+	// The bucket name containing the object that you want to place a Legal Hold
 	// on.
 	//
 	// When using this action with an access point, you must direct requests to
@@ -34739,49 +32920,28 @@ type PutObjectLegalHoldInput struct {
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	//
-	// The SDK will automatically compute the Content-MD5 checksum for this operation.
-	// The AWS SDK for Go v2 allows you to configure alternative checksum algorithm
-	// to be used.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
-	// The key name for the object that you want to place a legal hold on.
+	// The key name for the object that you want to place a Legal Hold on.
 	//
 	// Key is a required field
 	Key *string `location:"uri" locationName:"Key" min:"1" type:"string" required:"true"`
 
-	// Container element for the legal hold configuration you want to apply to the
+	// Container element for the Legal Hold configuration you want to apply to the
 	// specified object.
 	LegalHold *ObjectLockLegalHold `locationName:"LegalHold" type:"structure" xmlURI:"http://s3.amazonaws.com/doc/2006-03-01/"`
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 
-	// The version ID of the object that you want to place a legal hold on.
+	// The version ID of the object that you want to place a Legal Hold on.
 	VersionId *string `location:"querystring" locationName:"versionId" type:"string"`
 }
 
@@ -34836,12 +32996,6 @@ func (s *PutObjectLegalHoldInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutObjectLegalHoldInput) SetChecksumAlgorithm(v string) *PutObjectLegalHoldInput {
-	s.ChecksumAlgorithm = &v
-	return s
 }
 
 // SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
@@ -34941,30 +33095,9 @@ type PutObjectLockConfigurationInput struct {
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	//
-	// The SDK will automatically compute the Content-MD5 checksum for this operation.
-	// The AWS SDK for Go v2 allows you to configure alternative checksum algorithm
-	// to be used.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The Object Lock configuration that you want to apply to the specified bucket.
@@ -34972,8 +33105,8 @@ type PutObjectLockConfigurationInput struct {
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 
@@ -35026,12 +33159,6 @@ func (s *PutObjectLockConfigurationInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutObjectLockConfigurationInput) SetChecksumAlgorithm(v string) *PutObjectLockConfigurationInput {
-	s.ChecksumAlgorithm = &v
-	return s
 }
 
 // SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
@@ -35124,38 +33251,6 @@ type PutObjectOutput struct {
 	// encryption with Amazon Web Services KMS (SSE-KMS).
 	BucketKeyEnabled *bool `location:"header" locationName:"x-amz-server-side-encryption-bucket-key-enabled" type:"boolean"`
 
-	// The base64-encoded, 32-bit CRC32 checksum of the object. This will only be
-	// present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32 *string `location:"header" locationName:"x-amz-checksum-crc32" type:"string"`
-
-	// The base64-encoded, 32-bit CRC32C checksum of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32C *string `location:"header" locationName:"x-amz-checksum-crc32c" type:"string"`
-
-	// The base64-encoded, 160-bit SHA-1 digest of the object. This will only be
-	// present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA1 *string `location:"header" locationName:"x-amz-checksum-sha1" type:"string"`
-
-	// The base64-encoded, 256-bit SHA-256 digest of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA256 *string `location:"header" locationName:"x-amz-checksum-sha256" type:"string"`
-
 	// Entity tag for the uploaded object.
 	ETag *string `location:"header" locationName:"ETag" type:"string"`
 
@@ -35163,7 +33258,7 @@ type PutObjectOutput struct {
 	// (https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutBucketLifecycleConfiguration.html)),
 	// the response includes this header. It includes the expiry-date and rule-id
 	// key-value pairs that provide information about object expiration. The value
-	// of the rule-id is URL-encoded.
+	// of the rule-id is URL encoded.
 	Expiration *string `location:"header" locationName:"x-amz-expiration" type:"string"`
 
 	// If present, indicates that the requester was successfully charged for the
@@ -35230,30 +33325,6 @@ func (s PutObjectOutput) GoString() string {
 // SetBucketKeyEnabled sets the BucketKeyEnabled field's value.
 func (s *PutObjectOutput) SetBucketKeyEnabled(v bool) *PutObjectOutput {
 	s.BucketKeyEnabled = &v
-	return s
-}
-
-// SetChecksumCRC32 sets the ChecksumCRC32 field's value.
-func (s *PutObjectOutput) SetChecksumCRC32(v string) *PutObjectOutput {
-	s.ChecksumCRC32 = &v
-	return s
-}
-
-// SetChecksumCRC32C sets the ChecksumCRC32C field's value.
-func (s *PutObjectOutput) SetChecksumCRC32C(v string) *PutObjectOutput {
-	s.ChecksumCRC32C = &v
-	return s
-}
-
-// SetChecksumSHA1 sets the ChecksumSHA1 field's value.
-func (s *PutObjectOutput) SetChecksumSHA1(v string) *PutObjectOutput {
-	s.ChecksumSHA1 = &v
-	return s
-}
-
-// SetChecksumSHA256 sets the ChecksumSHA256 field's value.
-func (s *PutObjectOutput) SetChecksumSHA256(v string) *PutObjectOutput {
-	s.ChecksumSHA256 = &v
 	return s
 }
 
@@ -35330,30 +33401,9 @@ type PutObjectRetentionInput struct {
 	// Indicates whether this action should bypass Governance-mode restrictions.
 	BypassGovernanceRetention *bool `location:"header" locationName:"x-amz-bypass-governance-retention" type:"boolean"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	//
-	// The SDK will automatically compute the Content-MD5 checksum for this operation.
-	// The AWS SDK for Go v2 allows you to configure alternative checksum algorithm
-	// to be used.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The key name for the object that you want to apply this Object Retention
@@ -35364,8 +33414,8 @@ type PutObjectRetentionInput struct {
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 
@@ -35433,12 +33483,6 @@ func (s *PutObjectRetentionInput) getBucket() (v string) {
 // SetBypassGovernanceRetention sets the BypassGovernanceRetention field's value.
 func (s *PutObjectRetentionInput) SetBypassGovernanceRetention(v bool) *PutObjectRetentionInput {
 	s.BypassGovernanceRetention = &v
-	return s
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutObjectRetentionInput) SetChecksumAlgorithm(v string) *PutObjectRetentionInput {
-	s.ChecksumAlgorithm = &v
 	return s
 }
 
@@ -35546,38 +33590,17 @@ type PutObjectTaggingInput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	//
-	// The SDK will automatically compute the Content-MD5 checksum for this operation.
-	// The AWS SDK for Go v2 allows you to configure alternative checksum algorithm
-	// to be used.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// Name of the object key.
@@ -35587,8 +33610,8 @@ type PutObjectTaggingInput struct {
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 
@@ -35660,12 +33683,6 @@ func (s *PutObjectTaggingInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutObjectTaggingInput) SetChecksumAlgorithm(v string) *PutObjectTaggingInput {
-	s.ChecksumAlgorithm = &v
-	return s
 }
 
 // SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
@@ -35765,30 +33782,9 @@ type PutPublicAccessBlockInput struct {
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	//
-	// The SDK will automatically compute the Content-MD5 checksum for this operation.
-	// The AWS SDK for Go v2 allows you to configure alternative checksum algorithm
-	// to be used.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The PublicAccessBlock configuration that you want to apply to this Amazon
@@ -35849,12 +33845,6 @@ func (s *PutPublicAccessBlockInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *PutPublicAccessBlockInput) SetChecksumAlgorithm(v string) *PutPublicAccessBlockInput {
-	s.ChecksumAlgorithm = &v
-	return s
 }
 
 // SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
@@ -35926,7 +33916,7 @@ type QueueConfiguration struct {
 	// A collection of bucket events for which to send notifications
 	//
 	// Events is a required field
-	Events []*string `locationName:"Event" type:"list" flattened:"true" required:"true" enum:"Event"`
+	Events []*string `locationName:"Event" type:"list" flattened:"true" required:"true"`
 
 	// Specifies object key name filtering rules. For information about key name
 	// filtering, see Configuring Event Notifications (https://docs.aws.amazon.com/AmazonS3/latest/dev/NotificationHowTo.html)
@@ -36015,7 +34005,7 @@ type QueueConfigurationDeprecated struct {
 	Event *string `deprecated:"true" type:"string" enum:"Event"`
 
 	// A collection of bucket events for which to send notifications.
-	Events []*string `locationName:"Event" type:"list" flattened:"true" enum:"Event"`
+	Events []*string `locationName:"Event" type:"list" flattened:"true"`
 
 	// An optional unique identifier for configurations in a notification configuration.
 	// If you don't provide one, Amazon S3 will assign an ID.
@@ -36585,11 +34575,11 @@ func (s *ReplicationRule) SetStatus(v string) *ReplicationRule {
 //
 // For example:
 //
-//   - If you specify both a Prefix and a Tag filter, wrap these filters in
-//     an And tag.
+//    * If you specify both a Prefix and a Tag filter, wrap these filters in
+//    an And tag.
 //
-//   - If you specify a filter based on multiple tags, wrap the Tag elements
-//     in an And tag.
+//    * If you specify a filter based on multiple tags, wrap the Tag elements
+//    in an And tag.
 type ReplicationRuleAndOperator struct {
 	_ struct{} `type:"structure"`
 
@@ -36932,34 +34922,17 @@ type RestoreObjectInput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// Object key for which the action was initiated.
@@ -36969,8 +34942,8 @@ type RestoreObjectInput struct {
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 
@@ -37037,12 +35010,6 @@ func (s *RestoreObjectInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *RestoreObjectInput) SetChecksumAlgorithm(v string) *RestoreObjectInput {
-	s.ChecksumAlgorithm = &v
-	return s
 }
 
 // SetExpectedBucketOwner sets the ExpectedBucketOwner field's value.
@@ -37557,7 +35524,7 @@ type ScanRange struct {
 
 	// Specifies the start of the byte range. This parameter is optional. Valid
 	// values: non-negative integers. The default value is 0. If only start is supplied,
-	// it means scan from that point to the end of the file. For example, <scanrange><start>50</start></scanrange>
+	// it means scan from that point to the end of the file.For example; <scanrange><start>50</start></scanrange>
 	// means scan from byte 50 until the end of the file.
 	Start *int64 `type:"long"`
 }
@@ -37597,11 +35564,11 @@ func (s *ScanRange) SetStart(v int64) *ScanRange {
 //
 // These events are:
 //
-//   - ContinuationEvent
-//   - EndEvent
-//   - ProgressEvent
-//   - RecordsEvent
-//   - StatsEvent
+//     * ContinuationEvent
+//     * EndEvent
+//     * ProgressEvent
+//     * RecordsEvent
+//     * StatsEvent
 type SelectObjectContentEventStreamEvent interface {
 	eventSelectObjectContentEventStream()
 	eventstreamapi.Marshaler
@@ -37615,12 +35582,12 @@ type SelectObjectContentEventStreamEvent interface {
 //
 // These events are:
 //
-//   - ContinuationEvent
-//   - EndEvent
-//   - ProgressEvent
-//   - RecordsEvent
-//   - StatsEvent
-//   - SelectObjectContentEventStreamUnknownEvent
+//     * ContinuationEvent
+//     * EndEvent
+//     * ProgressEvent
+//     * RecordsEvent
+//     * StatsEvent
+//     * SelectObjectContentEventStreamUnknownEvent
 type SelectObjectContentEventStreamReader interface {
 	// Returns a channel of events as they are read from the event stream.
 	Events() <-chan SelectObjectContentEventStreamEvent
@@ -37776,8 +35743,8 @@ type SelectObjectContentInput struct {
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The expression that is used to query the object.
@@ -37808,26 +35775,20 @@ type SelectObjectContentInput struct {
 	// Specifies if periodic request progress information should be enabled.
 	RequestProgress *RequestProgress `type:"structure"`
 
-	// The server-side encryption (SSE) algorithm used to encrypt the object. This
-	// parameter is needed only when the object was created using a checksum algorithm.
-	// For more information, see Protecting data using SSE-C keys (https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html)
-	// in the Amazon S3 User Guide.
+	// The SSE Algorithm used to encrypt the object. For more information, see Server-Side
+	// Encryption (Using Customer-Provided Encryption Keys (https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html).
 	SSECustomerAlgorithm *string `location:"header" locationName:"x-amz-server-side-encryption-customer-algorithm" type:"string"`
 
-	// The server-side encryption (SSE) customer managed key. This parameter is
-	// needed only when the object was created using a checksum algorithm. For more
-	// information, see Protecting data using SSE-C keys (https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html)
-	// in the Amazon S3 User Guide.
+	// The SSE Customer Key. For more information, see Server-Side Encryption (Using
+	// Customer-Provided Encryption Keys (https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html).
 	//
 	// SSECustomerKey is a sensitive parameter and its value will be
 	// replaced with "sensitive" in string returned by SelectObjectContentInput's
 	// String and GoString methods.
 	SSECustomerKey *string `marshal-as:"blob" location:"header" locationName:"x-amz-server-side-encryption-customer-key" type:"string" sensitive:"true"`
 
-	// The MD5 server-side encryption (SSE) customer managed key. This parameter
-	// is needed only when the object was created using a checksum algorithm. For
-	// more information, see Protecting data using SSE-C keys (https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html)
-	// in the Amazon S3 User Guide.
+	// The SSE Customer Key MD5. For more information, see Server-Side Encryption
+	// (Using Customer-Provided Encryption Keys (https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html).
 	SSECustomerKeyMD5 *string `location:"header" locationName:"x-amz-server-side-encryption-customer-key-MD5" type:"string"`
 
 	// Specifies the byte range of the object to get the records from. A record
@@ -38142,12 +36103,8 @@ func (s *SelectParameters) SetOutputSerialization(v *OutputSerialization) *Selec
 
 // Describes the default server-side encryption to apply to new objects in the
 // bucket. If a PUT Object request doesn't specify any server-side encryption,
-// this default encryption will be applied. If you don't specify a customer
-// managed key at configuration, Amazon S3 automatically creates an Amazon Web
-// Services KMS key in your Amazon Web Services account the first time that
-// you add an object encrypted with SSE-KMS to a bucket. By default, Amazon
-// S3 uses this KMS key for SSE-KMS. For more information, see PUT Bucket encryption
-// (https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketPUTencryption.html)
+// this default encryption will be applied. For more information, see PUT Bucket
+// encryption (https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketPUTencryption.html)
 // in the Amazon S3 API Reference.
 type ServerSideEncryptionByDefault struct {
 	_ struct{} `type:"structure"`
@@ -38157,9 +36114,9 @@ type ServerSideEncryptionByDefault struct {
 	// and only if SSEAlgorithm is set to aws:kms.
 	//
 	// You can specify the key ID or the Amazon Resource Name (ARN) of the KMS key.
-	// However, if you are using encryption with cross-account or Amazon Web Services
-	// service operations you must use a fully qualified KMS key ARN. For more information,
-	// see Using encryption for cross-account operations (https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html#bucket-encryption-update-bucket-policy).
+	// However, if you are using encryption with cross-account operations, you must
+	// use a fully qualified KMS key ARN. For more information, see Using encryption
+	// for cross-account operations (https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html#bucket-encryption-update-bucket-policy).
 	//
 	// For example:
 	//
@@ -38963,7 +36920,7 @@ type TopicConfiguration struct {
 	// in the Amazon S3 User Guide.
 	//
 	// Events is a required field
-	Events []*string `locationName:"Event" type:"list" flattened:"true" required:"true" enum:"Event"`
+	Events []*string `locationName:"Event" type:"list" flattened:"true" required:"true"`
 
 	// Specifies object key name filtering rules. For information about key name
 	// filtering, see Configuring Event Notifications (https://docs.aws.amazon.com/AmazonS3/latest/dev/NotificationHowTo.html)
@@ -39053,7 +37010,7 @@ type TopicConfigurationDeprecated struct {
 	Event *string `deprecated:"true" type:"string" enum:"Event"`
 
 	// A collection of events related to objects
-	Events []*string `locationName:"Event" type:"list" flattened:"true" enum:"Event"`
+	Events []*string `locationName:"Event" type:"list" flattened:"true"`
 
 	// An optional unique identifier for configurations in a notification configuration.
 	// If you don't provide one, Amazon S3 will assign an ID.
@@ -39176,9 +37133,9 @@ type UploadPartCopyInput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Bucket is a required field
@@ -39191,7 +37148,7 @@ type UploadPartCopyInput struct {
 	//    * For objects not accessed through an access point, specify the name of
 	//    the source bucket and key of the source object, separated by a slash (/).
 	//    For example, to copy the object reports/january.pdf from the bucket awsexamplebucket,
-	//    use awsexamplebucket/reports/january.pdf. The value must be URL-encoded.
+	//    use awsexamplebucket/reports/january.pdf. The value must be URL encoded.
 	//
 	//    * For objects accessed through access points, specify the Amazon Resource
 	//    Name (ARN) of the object as accessed through the access point, in the
@@ -39207,7 +37164,7 @@ type UploadPartCopyInput struct {
 	//    For example, to copy the object reports/january.pdf through outpost my-outpost
 	//    owned by account 123456789012 in Region us-west-2, use the URL encoding
 	//    of arn:aws:s3-outposts:us-west-2:123456789012:outpost/my-outpost/object/reports/january.pdf.
-	//    The value must be URL-encoded.
+	//    The value must be URL encoded.
 	//
 	// To copy a specific version of an object, append ?versionId=<version-id> to
 	// the value (for example, awsexamplebucket/reports/january.pdf?versionId=QUpfdndhfd8438MNFDN93jdnJFkdmqnh893).
@@ -39256,13 +37213,13 @@ type UploadPartCopyInput struct {
 	CopySourceSSECustomerKeyMD5 *string `location:"header" locationName:"x-amz-copy-source-server-side-encryption-customer-key-MD5" type:"string"`
 
 	// The account ID of the expected destination bucket owner. If the destination
-	// bucket is owned by a different account, the request fails with the HTTP status
-	// code 403 Forbidden (access denied).
+	// bucket is owned by a different account, the request will fail with an HTTP
+	// 403 (Access Denied) error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// The account ID of the expected source bucket owner. If the source bucket
-	// is owned by a different account, the request fails with the HTTP status code
-	// 403 Forbidden (access denied).
+	// is owned by a different account, the request will fail with an HTTP 403 (Access
+	// Denied) error.
 	ExpectedSourceBucketOwner *string `location:"header" locationName:"x-amz-source-expected-bucket-owner" type:"string"`
 
 	// Object key for which the multipart upload was initiated.
@@ -39278,8 +37235,8 @@ type UploadPartCopyInput struct {
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 
@@ -39647,61 +37604,13 @@ type UploadPartInput struct {
 	// When using this action with Amazon S3 on Outposts, you must direct requests
 	// to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form
 	// AccessPointName-AccountId.outpostID.s3-outposts.Region.amazonaws.com. When
-	// using this action with S3 on Outposts through the Amazon Web Services SDKs,
+	// using this action using S3 on Outposts through the Amazon Web Services SDKs,
 	// you provide the Outposts bucket ARN in place of the bucket name. For more
-	// information about S3 on Outposts ARNs, see Using Amazon S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
+	// information about S3 on Outposts ARNs, see Using S3 on Outposts (https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html)
 	// in the Amazon S3 User Guide.
 	//
 	// Bucket is a required field
 	Bucket *string `location:"uri" locationName:"Bucket" type:"string" required:"true"`
-
-	// Indicates the algorithm used to create the checksum for the object when using
-	// the SDK. This header will not provide any additional functionality if not
-	// using the SDK. When sending this header, there must be a corresponding x-amz-checksum
-	// or x-amz-trailer header sent. Otherwise, Amazon S3 fails the request with
-	// the HTTP status code 400 Bad Request. For more information, see Checking
-	// object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// If you provide an individual checksum, Amazon S3 ignores any provided ChecksumAlgorithm
-	// parameter.
-	//
-	// This checksum algorithm must be the same for all parts and it match the checksum
-	// value supplied in the CreateMultipartUpload request.
-	//
-	// The AWS SDK for Go v1 does not support automatic computing request payload
-	// checksum. This feature is available in the AWS SDK for Go v2. If a value
-	// is specified for this parameter, the matching algorithm's checksum member
-	// must be populated with the algorithm's checksum of the request payload.
-	ChecksumAlgorithm *string `location:"header" locationName:"x-amz-sdk-checksum-algorithm" type:"string" enum:"ChecksumAlgorithm"`
-
-	// This header can be used as a data integrity check to verify that the data
-	// received is the same data that was originally sent. This header specifies
-	// the base64-encoded, 32-bit CRC32 checksum of the object. For more information,
-	// see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32 *string `location:"header" locationName:"x-amz-checksum-crc32" type:"string"`
-
-	// This header can be used as a data integrity check to verify that the data
-	// received is the same data that was originally sent. This header specifies
-	// the base64-encoded, 32-bit CRC32C checksum of the object. For more information,
-	// see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32C *string `location:"header" locationName:"x-amz-checksum-crc32c" type:"string"`
-
-	// This header can be used as a data integrity check to verify that the data
-	// received is the same data that was originally sent. This header specifies
-	// the base64-encoded, 160-bit SHA-1 digest of the object. For more information,
-	// see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA1 *string `location:"header" locationName:"x-amz-checksum-sha1" type:"string"`
-
-	// This header can be used as a data integrity check to verify that the data
-	// received is the same data that was originally sent. This header specifies
-	// the base64-encoded, 256-bit SHA-256 digest of the object. For more information,
-	// see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA256 *string `location:"header" locationName:"x-amz-checksum-sha256" type:"string"`
 
 	// Size of the body in bytes. This parameter is useful when the size of the
 	// body cannot be determined automatically.
@@ -39713,8 +37622,8 @@ type UploadPartInput struct {
 	ContentMD5 *string `location:"header" locationName:"Content-MD5" type:"string"`
 
 	// The account ID of the expected bucket owner. If the bucket is owned by a
-	// different account, the request fails with the HTTP status code 403 Forbidden
-	// (access denied).
+	// different account, the request will fail with an HTTP 403 (Access Denied)
+	// error.
 	ExpectedBucketOwner *string `location:"header" locationName:"x-amz-expected-bucket-owner" type:"string"`
 
 	// Object key for which the multipart upload was initiated.
@@ -39730,8 +37639,8 @@ type UploadPartInput struct {
 
 	// Confirms that the requester knows that they will be charged for the request.
 	// Bucket owners need not specify this parameter in their requests. For information
-	// about downloading objects from Requester Pays buckets, see Downloading Objects
-	// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+	// about downloading objects from requester pays buckets, see Downloading Objects
+	// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 	// in the Amazon S3 User Guide.
 	RequestPayer *string `location:"header" locationName:"x-amz-request-payer" type:"string" enum:"RequestPayer"`
 
@@ -39825,36 +37734,6 @@ func (s *UploadPartInput) getBucket() (v string) {
 		return v
 	}
 	return *s.Bucket
-}
-
-// SetChecksumAlgorithm sets the ChecksumAlgorithm field's value.
-func (s *UploadPartInput) SetChecksumAlgorithm(v string) *UploadPartInput {
-	s.ChecksumAlgorithm = &v
-	return s
-}
-
-// SetChecksumCRC32 sets the ChecksumCRC32 field's value.
-func (s *UploadPartInput) SetChecksumCRC32(v string) *UploadPartInput {
-	s.ChecksumCRC32 = &v
-	return s
-}
-
-// SetChecksumCRC32C sets the ChecksumCRC32C field's value.
-func (s *UploadPartInput) SetChecksumCRC32C(v string) *UploadPartInput {
-	s.ChecksumCRC32C = &v
-	return s
-}
-
-// SetChecksumSHA1 sets the ChecksumSHA1 field's value.
-func (s *UploadPartInput) SetChecksumSHA1(v string) *UploadPartInput {
-	s.ChecksumSHA1 = &v
-	return s
-}
-
-// SetChecksumSHA256 sets the ChecksumSHA256 field's value.
-func (s *UploadPartInput) SetChecksumSHA256(v string) *UploadPartInput {
-	s.ChecksumSHA256 = &v
-	return s
 }
 
 // SetContentLength sets the ContentLength field's value.
@@ -39958,38 +37837,6 @@ type UploadPartOutput struct {
 	// encryption with Amazon Web Services KMS (SSE-KMS).
 	BucketKeyEnabled *bool `location:"header" locationName:"x-amz-server-side-encryption-bucket-key-enabled" type:"boolean"`
 
-	// The base64-encoded, 32-bit CRC32 checksum of the object. This will only be
-	// present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32 *string `location:"header" locationName:"x-amz-checksum-crc32" type:"string"`
-
-	// The base64-encoded, 32-bit CRC32C checksum of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumCRC32C *string `location:"header" locationName:"x-amz-checksum-crc32c" type:"string"`
-
-	// The base64-encoded, 160-bit SHA-1 digest of the object. This will only be
-	// present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA1 *string `location:"header" locationName:"x-amz-checksum-sha1" type:"string"`
-
-	// The base64-encoded, 256-bit SHA-256 digest of the object. This will only
-	// be present if it was uploaded with the object. With multipart uploads, this
-	// may not be a checksum value of the object. For more information about how
-	// checksums are calculated with multipart uploads, see Checking object integrity
-	// (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html#large-object-checksums)
-	// in the Amazon S3 User Guide.
-	ChecksumSHA256 *string `location:"header" locationName:"x-amz-checksum-sha256" type:"string"`
-
 	// Entity tag for the uploaded object.
 	ETag *string `location:"header" locationName:"ETag" type:"string"`
 
@@ -40042,30 +37889,6 @@ func (s UploadPartOutput) GoString() string {
 // SetBucketKeyEnabled sets the BucketKeyEnabled field's value.
 func (s *UploadPartOutput) SetBucketKeyEnabled(v bool) *UploadPartOutput {
 	s.BucketKeyEnabled = &v
-	return s
-}
-
-// SetChecksumCRC32 sets the ChecksumCRC32 field's value.
-func (s *UploadPartOutput) SetChecksumCRC32(v string) *UploadPartOutput {
-	s.ChecksumCRC32 = &v
-	return s
-}
-
-// SetChecksumCRC32C sets the ChecksumCRC32C field's value.
-func (s *UploadPartOutput) SetChecksumCRC32C(v string) *UploadPartOutput {
-	s.ChecksumCRC32C = &v
-	return s
-}
-
-// SetChecksumSHA1 sets the ChecksumSHA1 field's value.
-func (s *UploadPartOutput) SetChecksumSHA1(v string) *UploadPartOutput {
-	s.ChecksumSHA1 = &v
-	return s
-}
-
-// SetChecksumSHA256 sets the ChecksumSHA256 field's value.
-func (s *UploadPartOutput) SetChecksumSHA256(v string) *UploadPartOutput {
-	s.ChecksumSHA256 = &v
 	return s
 }
 
@@ -40267,58 +38090,6 @@ type WriteGetObjectResponseInput struct {
 	// Specifies caching behavior along the request/reply chain.
 	CacheControl *string `location:"header" locationName:"x-amz-fwd-header-Cache-Control" type:"string"`
 
-	// This header can be used as a data integrity check to verify that the data
-	// received is the same data that was originally sent. This specifies the base64-encoded,
-	// 32-bit CRC32 checksum of the object returned by the Object Lambda function.
-	// This may not match the checksum for the object stored in Amazon S3. Amazon
-	// S3 will perform validation of the checksum values only when the original
-	// GetObject request required checksum validation. For more information about
-	// checksums, see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// Only one checksum header can be specified at a time. If you supply multiple
-	// checksum headers, this request will fail.
-	ChecksumCRC32 *string `location:"header" locationName:"x-amz-fwd-header-x-amz-checksum-crc32" type:"string"`
-
-	// This header can be used as a data integrity check to verify that the data
-	// received is the same data that was originally sent. This specifies the base64-encoded,
-	// 32-bit CRC32C checksum of the object returned by the Object Lambda function.
-	// This may not match the checksum for the object stored in Amazon S3. Amazon
-	// S3 will perform validation of the checksum values only when the original
-	// GetObject request required checksum validation. For more information about
-	// checksums, see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// Only one checksum header can be specified at a time. If you supply multiple
-	// checksum headers, this request will fail.
-	ChecksumCRC32C *string `location:"header" locationName:"x-amz-fwd-header-x-amz-checksum-crc32c" type:"string"`
-
-	// This header can be used as a data integrity check to verify that the data
-	// received is the same data that was originally sent. This specifies the base64-encoded,
-	// 160-bit SHA-1 digest of the object returned by the Object Lambda function.
-	// This may not match the checksum for the object stored in Amazon S3. Amazon
-	// S3 will perform validation of the checksum values only when the original
-	// GetObject request required checksum validation. For more information about
-	// checksums, see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// Only one checksum header can be specified at a time. If you supply multiple
-	// checksum headers, this request will fail.
-	ChecksumSHA1 *string `location:"header" locationName:"x-amz-fwd-header-x-amz-checksum-sha1" type:"string"`
-
-	// This header can be used as a data integrity check to verify that the data
-	// received is the same data that was originally sent. This specifies the base64-encoded,
-	// 256-bit SHA-256 digest of the object returned by the Object Lambda function.
-	// This may not match the checksum for the object stored in Amazon S3. Amazon
-	// S3 will perform validation of the checksum values only when the original
-	// GetObject request required checksum validation. For more information about
-	// checksums, see Checking object integrity (https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html)
-	// in the Amazon S3 User Guide.
-	//
-	// Only one checksum header can be specified at a time. If you supply multiple
-	// checksum headers, this request will fail.
-	ChecksumSHA256 *string `location:"header" locationName:"x-amz-fwd-header-x-amz-checksum-sha256" type:"string"`
-
 	// Specifies presentational information for the object.
 	ContentDisposition *string `location:"header" locationName:"x-amz-fwd-header-Content-Disposition" type:"string"`
 
@@ -40350,8 +38121,8 @@ type WriteGetObjectResponseInput struct {
 	// A string that uniquely identifies an error condition. Returned in the <Code>
 	// tag of the error XML response for a corresponding GetObject call. Cannot
 	// be used with a successful StatusCode header or when the transformed object
-	// is provided in the body. All error codes from S3 are sentence-cased. The
-	// regular expression (regex) value is "^[A-Z][a-zA-Z]+$".
+	// is provided in the body. All error codes from S3 are sentence-cased. Regex
+	// value is "^[A-Z][a-zA-Z]+$".
 	ErrorCode *string `location:"header" locationName:"x-amz-fwd-error-code" type:"string"`
 
 	// Contains a generic description of the error condition. Returned in the <Message>
@@ -40360,10 +38131,9 @@ type WriteGetObjectResponseInput struct {
 	// is provided in body.
 	ErrorMessage *string `location:"header" locationName:"x-amz-fwd-error-message" type:"string"`
 
-	// If the object expiration is configured (see PUT Bucket lifecycle), the response
-	// includes this header. It includes the expiry-date and rule-id key-value pairs
-	// that provide the object expiration information. The value of the rule-id
-	// is URL-encoded.
+	// If object stored in Amazon S3 expiration is configured (see PUT Bucket lifecycle)
+	// it includes expiry-date and rule-id key-value pairs providing object expiration
+	// information. The value of the rule-id is URL encoded.
 	Expiration *string `location:"header" locationName:"x-amz-fwd-header-x-amz-expiration" type:"string"`
 
 	// The date and time at which the object is no longer cacheable.
@@ -40474,10 +38244,7 @@ type WriteGetObjectResponseInput struct {
 	//    * 503 - Service Unavailable
 	StatusCode *int64 `location:"header" locationName:"x-amz-fwd-status" type:"integer"`
 
-	// Provides storage class information of the object. Amazon S3 returns this
-	// header for all objects except for S3 Standard storage class objects.
-	//
-	// For more information, see Storage Classes (https://docs.aws.amazon.com/AmazonS3/latest/dev/storage-class-intro.html).
+	// The class of storage used to store object in Amazon S3.
 	StorageClass *string `location:"header" locationName:"x-amz-fwd-header-x-amz-storage-class" type:"string" enum:"StorageClass"`
 
 	// The number of tags, if any, on the object.
@@ -40545,30 +38312,6 @@ func (s *WriteGetObjectResponseInput) SetBucketKeyEnabled(v bool) *WriteGetObjec
 // SetCacheControl sets the CacheControl field's value.
 func (s *WriteGetObjectResponseInput) SetCacheControl(v string) *WriteGetObjectResponseInput {
 	s.CacheControl = &v
-	return s
-}
-
-// SetChecksumCRC32 sets the ChecksumCRC32 field's value.
-func (s *WriteGetObjectResponseInput) SetChecksumCRC32(v string) *WriteGetObjectResponseInput {
-	s.ChecksumCRC32 = &v
-	return s
-}
-
-// SetChecksumCRC32C sets the ChecksumCRC32C field's value.
-func (s *WriteGetObjectResponseInput) SetChecksumCRC32C(v string) *WriteGetObjectResponseInput {
-	s.ChecksumCRC32C = &v
-	return s
-}
-
-// SetChecksumSHA1 sets the ChecksumSHA1 field's value.
-func (s *WriteGetObjectResponseInput) SetChecksumSHA1(v string) *WriteGetObjectResponseInput {
-	s.ChecksumSHA1 = &v
-	return s
-}
-
-// SetChecksumSHA256 sets the ChecksumSHA256 field's value.
-func (s *WriteGetObjectResponseInput) SetChecksumSHA256(v string) *WriteGetObjectResponseInput {
-	s.ChecksumSHA256 = &v
 	return s
 }
 
@@ -40885,9 +38628,6 @@ const (
 	// BucketLocationConstraintApSoutheast2 is a BucketLocationConstraint enum value
 	BucketLocationConstraintApSoutheast2 = "ap-southeast-2"
 
-	// BucketLocationConstraintApSoutheast3 is a BucketLocationConstraint enum value
-	BucketLocationConstraintApSoutheast3 = "ap-southeast-3"
-
 	// BucketLocationConstraintCaCentral1 is a BucketLocationConstraint enum value
 	BucketLocationConstraintCaCentral1 = "ca-central-1"
 
@@ -40951,7 +38691,6 @@ func BucketLocationConstraint_Values() []string {
 		BucketLocationConstraintApSouth1,
 		BucketLocationConstraintApSoutheast1,
 		BucketLocationConstraintApSoutheast2,
-		BucketLocationConstraintApSoutheast3,
 		BucketLocationConstraintCaCentral1,
 		BucketLocationConstraintCnNorth1,
 		BucketLocationConstraintCnNorthwest1,
@@ -41005,42 +38744,6 @@ func BucketVersioningStatus_Values() []string {
 	return []string{
 		BucketVersioningStatusEnabled,
 		BucketVersioningStatusSuspended,
-	}
-}
-
-const (
-	// ChecksumAlgorithmCrc32 is a ChecksumAlgorithm enum value
-	ChecksumAlgorithmCrc32 = "CRC32"
-
-	// ChecksumAlgorithmCrc32c is a ChecksumAlgorithm enum value
-	ChecksumAlgorithmCrc32c = "CRC32C"
-
-	// ChecksumAlgorithmSha1 is a ChecksumAlgorithm enum value
-	ChecksumAlgorithmSha1 = "SHA1"
-
-	// ChecksumAlgorithmSha256 is a ChecksumAlgorithm enum value
-	ChecksumAlgorithmSha256 = "SHA256"
-)
-
-// ChecksumAlgorithm_Values returns all elements of the ChecksumAlgorithm enum
-func ChecksumAlgorithm_Values() []string {
-	return []string{
-		ChecksumAlgorithmCrc32,
-		ChecksumAlgorithmCrc32c,
-		ChecksumAlgorithmSha1,
-		ChecksumAlgorithmSha256,
-	}
-}
-
-const (
-	// ChecksumModeEnabled is a ChecksumMode enum value
-	ChecksumModeEnabled = "ENABLED"
-)
-
-// ChecksumMode_Values returns all elements of the ChecksumMode enum
-func ChecksumMode_Values() []string {
-	return []string{
-		ChecksumModeEnabled,
 	}
 }
 
@@ -41415,9 +39118,6 @@ const (
 
 	// InventoryOptionalFieldBucketKeyStatus is a InventoryOptionalField enum value
 	InventoryOptionalFieldBucketKeyStatus = "BucketKeyStatus"
-
-	// InventoryOptionalFieldChecksumAlgorithm is a InventoryOptionalField enum value
-	InventoryOptionalFieldChecksumAlgorithm = "ChecksumAlgorithm"
 )
 
 // InventoryOptionalField_Values returns all elements of the InventoryOptionalField enum
@@ -41435,7 +39135,6 @@ func InventoryOptionalField_Values() []string {
 		InventoryOptionalFieldObjectLockLegalHoldStatus,
 		InventoryOptionalFieldIntelligentTieringAccessTier,
 		InventoryOptionalFieldBucketKeyStatus,
-		InventoryOptionalFieldChecksumAlgorithm,
 	}
 }
 
@@ -41516,34 +39215,6 @@ func MetricsStatus_Values() []string {
 	return []string{
 		MetricsStatusEnabled,
 		MetricsStatusDisabled,
-	}
-}
-
-const (
-	// ObjectAttributesEtag is a ObjectAttributes enum value
-	ObjectAttributesEtag = "ETag"
-
-	// ObjectAttributesChecksum is a ObjectAttributes enum value
-	ObjectAttributesChecksum = "Checksum"
-
-	// ObjectAttributesObjectParts is a ObjectAttributes enum value
-	ObjectAttributesObjectParts = "ObjectParts"
-
-	// ObjectAttributesStorageClass is a ObjectAttributes enum value
-	ObjectAttributesStorageClass = "StorageClass"
-
-	// ObjectAttributesObjectSize is a ObjectAttributes enum value
-	ObjectAttributesObjectSize = "ObjectSize"
-)
-
-// ObjectAttributes_Values returns all elements of the ObjectAttributes enum
-func ObjectAttributes_Values() []string {
-	return []string{
-		ObjectAttributesEtag,
-		ObjectAttributesChecksum,
-		ObjectAttributesObjectParts,
-		ObjectAttributesStorageClass,
-		ObjectAttributesObjectSize,
 	}
 }
 
@@ -41909,8 +39580,8 @@ func RequestCharged_Values() []string {
 
 // Confirms that the requester knows that they will be charged for the request.
 // Bucket owners need not specify this parameter in their requests. For information
-// about downloading objects from Requester Pays buckets, see Downloading Objects
-// in Requester Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
+// about downloading objects from requester pays buckets, see Downloading Objects
+// in Requestor Pays Buckets (https://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html)
 // in the Amazon S3 User Guide.
 const (
 	// RequestPayerRequester is a RequestPayer enum value

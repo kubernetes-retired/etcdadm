@@ -14,7 +14,6 @@ func (p *sshFxpExtendedPacketStatVFS) respond(svr *Server) responsePacket {
 	if err != nil {
 		return statusFromError(p.ID, err)
 	}
-	retPkt.ID = p.ID
 
 	return retPkt
 }

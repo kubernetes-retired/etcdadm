@@ -19,6 +19,7 @@ package vfs
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path"
 	"strings"
@@ -30,17 +31,14 @@ import (
 type MemFSPath struct {
 	context  *MemFSContext
 	location string
-	acl      ACL
 
 	mutex    sync.Mutex
 	contents []byte
 	children map[string]*MemFSPath
 }
 
-var (
-	_ Path          = &MemFSPath{}
-	_ TerraformPath = &MemFSPath{}
-)
+var _ Path = &MemFSPath{}
+var _ TerraformPath = &MemFSPath{}
 
 type MemFSContext struct {
 	clusterReadable bool
@@ -105,12 +103,11 @@ func (p *MemFSPath) Join(relativePath ...string) Path {
 }
 
 func (p *MemFSPath) WriteFile(r io.ReadSeeker, acl ACL) error {
-	data, err := io.ReadAll(r)
+	data, err := ioutil.ReadAll(r)
 	if err != nil {
 		return fmt.Errorf("error reading data: %v", err)
 	}
 	p.contents = data
-	p.acl = acl
 	return nil
 }
 
@@ -195,21 +192,6 @@ func (p *MemFSPath) Location() string {
 	return p.location
 }
 
-func (p *MemFSPath) IsPublic() (bool, error) {
-	if p.acl == nil {
-		return false, nil
-	}
-	s3Acl, ok := p.acl.(*S3Acl)
-	if !ok {
-		return false, fmt.Errorf("expected acl to be S3Acl, was %T", p.acl)
-	}
-	isPublic := false
-	if s3Acl.RequestACL != nil {
-		isPublic = *s3Acl.RequestACL == "public-read"
-	}
-	return isPublic, nil
-}
-
 // Terraform support for integration tests.
 
 func (p *MemFSPath) TerraformProvider() (*TerraformProvider, error) {
@@ -231,12 +213,12 @@ type terraformMemFSFile struct {
 }
 
 func (p *MemFSPath) RenderTerraform(w *terraformWriter.TerraformWriter, name string, data io.Reader, acl ACL) error {
-	bytes, err := io.ReadAll(data)
+	bytes, err := ioutil.ReadAll(data)
 	if err != nil {
 		return fmt.Errorf("reading data: %v", err)
 	}
 
-	content, err := w.AddFileBytes("aws_s3_object", name, "content", bytes, false)
+	content, err := w.AddFileBytes("aws_s3_bucket_object", name, "content", bytes, false)
 	if err != nil {
 		return fmt.Errorf("rendering S3 file: %v", err)
 	}
@@ -258,5 +240,5 @@ func (p *MemFSPath) RenderTerraform(w *terraformWriter.TerraformWriter, name str
 		Acl:      requestAcl,
 		Provider: terraformWriter.LiteralTokens("aws", "files"),
 	}
-	return w.RenderResource("aws_s3_object", name, tf)
+	return w.RenderResource("aws_s3_bucket_object", name, tf)
 }

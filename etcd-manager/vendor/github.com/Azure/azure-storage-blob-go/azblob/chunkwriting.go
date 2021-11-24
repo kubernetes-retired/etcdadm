@@ -18,7 +18,7 @@ import (
 // This allows us to provide a local implementation that fakes the server for hermetic testing.
 type blockWriter interface {
 	StageBlock(context.Context, string, io.ReadSeeker, LeaseAccessConditions, []byte, ClientProvidedKeyOptions) (*BlockBlobStageBlockResponse, error)
-	CommitBlockList(context.Context, []string, BlobHTTPHeaders, Metadata, BlobAccessConditions, AccessTierType, BlobTagsMap, ClientProvidedKeyOptions, ImmutabilityPolicyOptions) (*BlockBlobCommitBlockListResponse, error)
+	CommitBlockList(context.Context, []string, BlobHTTPHeaders, Metadata, BlobAccessConditions, AccessTierType, BlobTagsMap, ClientProvidedKeyOptions) (*BlockBlobCommitBlockListResponse, error)
 }
 
 // copyFromReader copies a source io.Reader to blob storage using concurrent uploads.
@@ -56,7 +56,6 @@ func copyFromReader(ctx context.Context, from io.Reader, to blockWriter, o Uploa
 	}
 	// If the error is not EOF, then we have a problem.
 	if err != nil && !errors.Is(err, io.EOF) {
-		cp.wg.Wait()
 		return nil, err
 	}
 
@@ -99,7 +98,6 @@ type copier struct {
 type copierChunk struct {
 	buffer []byte
 	id     string
-	length int
 }
 
 // getErr returns an error by priority. First, if a function set an error, it returns that error. Next, if the Context has an error
@@ -126,31 +124,37 @@ func (c *copier) sendChunk() error {
 	}
 
 	n, err := io.ReadFull(c.reader, buffer)
-	if n > 0 {
-		// Some data was read, schedule the write.
+	switch {
+	case err == nil && n == 0:
+		return nil
+	case err == nil:
 		id := c.id.next()
 		c.wg.Add(1)
 		c.o.TransferManager.Run(
 			func() {
 				defer c.wg.Done()
-				c.write(copierChunk{buffer: buffer, id: id, length: n})
+				c.write(copierChunk{buffer: buffer[0:n], id: id})
 			},
 		)
-	} else {
-		// Return the unused buffer to the manager.
-		c.o.TransferManager.Put(buffer)
-	}
-
-	if err == nil {
 		return nil
-	} else if err == io.EOF || err == io.ErrUnexpectedEOF {
+	case err != nil && (err == io.EOF || err == io.ErrUnexpectedEOF) && n == 0:
 		return io.EOF
 	}
 
-	if cerr := c.getErr(); cerr != nil {
-		return cerr
+	if err == io.EOF || err == io.ErrUnexpectedEOF {
+		id := c.id.next()
+		c.wg.Add(1)
+		c.o.TransferManager.Run(
+			func() {
+				defer c.wg.Done()
+				c.write(copierChunk{buffer: buffer[0:n], id: id})
+			},
+		)
+		return io.EOF
 	}
-
+	if err := c.getErr(); err != nil {
+		return err
+	}
 	return err
 }
 
@@ -161,12 +165,12 @@ func (c *copier) write(chunk copierChunk) {
 	if err := c.ctx.Err(); err != nil {
 		return
 	}
-
-	_, err := c.to.StageBlock(c.ctx, chunk.id, bytes.NewReader(chunk.buffer[:chunk.length]), c.o.AccessConditions.LeaseAccessConditions, nil, c.o.ClientProvidedKeyOptions)
+	_, err := c.to.StageBlock(c.ctx, chunk.id, bytes.NewReader(chunk.buffer), c.o.AccessConditions.LeaseAccessConditions, nil, c.o.ClientProvidedKeyOptions)
 	if err != nil {
 		c.errCh <- fmt.Errorf("write error: %w", err)
 		return
 	}
+	return
 }
 
 // close commits our blocks to blob storage and closes our writer.
@@ -178,7 +182,7 @@ func (c *copier) close() error {
 	}
 
 	var err error
-	c.result, err = c.to.CommitBlockList(c.ctx, c.id.issued(), c.o.BlobHTTPHeaders, c.o.Metadata, c.o.AccessConditions, c.o.BlobAccessTier, c.o.BlobTagsMap, c.o.ClientProvidedKeyOptions, c.o.ImmutabilityPolicyOptions)
+	c.result, err = c.to.CommitBlockList(c.ctx, c.id.issued(), c.o.BlobHTTPHeaders, c.o.Metadata, c.o.AccessConditions, c.o.BlobAccessTier, c.o.BlobTagsMap, c.o.ClientProvidedKeyOptions)
 	return err
 }
 
@@ -201,7 +205,7 @@ func newID() *id {
 func (id *id) next() string {
 	defer atomic.AddUint32(&id.num, 1)
 
-	binary.BigEndian.PutUint32(id.u[len(guuid.UUID{}):], atomic.LoadUint32(&id.num))
+	binary.BigEndian.PutUint32((id.u[len(guuid.UUID{}):]), atomic.LoadUint32(&id.num))
 	str := base64.StdEncoding.EncodeToString(id.u[:])
 	id.all = append(id.all, str)
 

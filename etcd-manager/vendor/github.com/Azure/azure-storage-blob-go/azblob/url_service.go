@@ -123,10 +123,7 @@ func (o *ListContainersSegmentOptions) pointers() (prefix *string, include []Lis
 	if o.MaxResults != 0 {
 		maxResults = &o.MaxResults
 	}
-	details := o.Detail.string()
-	if len(details) > 0 {
-		include = []ListContainersIncludeType{ListContainersIncludeType(details)}
-	}
+	include = []ListContainersIncludeType{ListContainersIncludeType(o.Detail.string())}
 	return
 }
 

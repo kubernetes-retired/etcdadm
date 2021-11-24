@@ -8,9 +8,9 @@ import (
 
 const keysBasePath = "v2/account/keys"
 
-// KeysService is an interface for interfacing with the SSH keys
+// KeysService is an interface for interfacing with the keys
 // endpoints of the DigitalOcean API
-// See: https://docs.digitalocean.com/reference/api/api-reference/#tag/SSH-Keys
+// See: https://developers.digitalocean.com/documentation/v2#keys
 type KeysService interface {
 	List(context.Context, *ListOptions) ([]Key, *Response, error)
 	GetByID(context.Context, int) (*Key, *Response, error)
@@ -22,7 +22,7 @@ type KeysService interface {
 	DeleteByFingerprint(context.Context, string) (*Response, error)
 }
 
-// KeysServiceOp handles communication with SSH key related method of the
+// KeysServiceOp handles communication with key related method of the
 // DigitalOcean API.
 type KeysServiceOp struct {
 	client *Client
@@ -38,7 +38,7 @@ type Key struct {
 	PublicKey   string `json:"public_key,omitempty"`
 }
 
-// KeyUpdateRequest represents a request to update an SSH key stored in a DigitalOcean account.
+// KeyUpdateRequest represents a request to update a DigitalOcean key.
 type KeyUpdateRequest struct {
 	Name string `json:"name"`
 }
@@ -57,13 +57,13 @@ func (s Key) String() string {
 	return Stringify(s)
 }
 
-// KeyCreateRequest represents a request to create a new SSH key.
+// KeyCreateRequest represents a request to create a new key.
 type KeyCreateRequest struct {
 	Name      string `json:"name"`
 	PublicKey string `json:"public_key"`
 }
 
-// List all SSH keys
+// List all keys
 func (s *KeysServiceOp) List(ctx context.Context, opt *ListOptions) ([]Key, *Response, error) {
 	path := keysBasePath
 	path, err := addOptions(path, opt)
@@ -107,7 +107,7 @@ func (s *KeysServiceOp) get(ctx context.Context, path string) (*Key, *Response, 
 	return root.SSHKey, resp, err
 }
 
-// GetByID gets an SSH key by its ID
+// GetByID gets a Key by id
 func (s *KeysServiceOp) GetByID(ctx context.Context, keyID int) (*Key, *Response, error) {
 	if keyID < 1 {
 		return nil, nil, NewArgError("keyID", "cannot be less than 1")
@@ -117,7 +117,7 @@ func (s *KeysServiceOp) GetByID(ctx context.Context, keyID int) (*Key, *Response
 	return s.get(ctx, path)
 }
 
-// GetByFingerprint gets an SSH key by its fingerprint
+// GetByFingerprint gets a Key by by fingerprint
 func (s *KeysServiceOp) GetByFingerprint(ctx context.Context, fingerprint string) (*Key, *Response, error) {
 	if len(fingerprint) < 1 {
 		return nil, nil, NewArgError("fingerprint", "cannot not be empty")
@@ -127,7 +127,7 @@ func (s *KeysServiceOp) GetByFingerprint(ctx context.Context, fingerprint string
 	return s.get(ctx, path)
 }
 
-// Create an SSH key using a KeyCreateRequest
+// Create a key using a KeyCreateRequest
 func (s *KeysServiceOp) Create(ctx context.Context, createRequest *KeyCreateRequest) (*Key, *Response, error) {
 	if createRequest == nil {
 		return nil, nil, NewArgError("createRequest", "cannot be nil")
@@ -147,7 +147,7 @@ func (s *KeysServiceOp) Create(ctx context.Context, createRequest *KeyCreateRequ
 	return root.SSHKey, resp, err
 }
 
-// UpdateByID updates an SSH key name by ID.
+// UpdateByID updates a key name by ID.
 func (s *KeysServiceOp) UpdateByID(ctx context.Context, keyID int, updateRequest *KeyUpdateRequest) (*Key, *Response, error) {
 	if keyID < 1 {
 		return nil, nil, NewArgError("keyID", "cannot be less than 1")
@@ -172,7 +172,7 @@ func (s *KeysServiceOp) UpdateByID(ctx context.Context, keyID int, updateRequest
 	return root.SSHKey, resp, err
 }
 
-// UpdateByFingerprint updates an SSH key name by fingerprint.
+// UpdateByFingerprint updates a key name by fingerprint.
 func (s *KeysServiceOp) UpdateByFingerprint(ctx context.Context, fingerprint string, updateRequest *KeyUpdateRequest) (*Key, *Response, error) {
 	if len(fingerprint) < 1 {
 		return nil, nil, NewArgError("fingerprint", "cannot be empty")
@@ -197,7 +197,7 @@ func (s *KeysServiceOp) UpdateByFingerprint(ctx context.Context, fingerprint str
 	return root.SSHKey, resp, err
 }
 
-// Delete an SSH key using a path
+// Delete key using a path
 func (s *KeysServiceOp) delete(ctx context.Context, path string) (*Response, error) {
 	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
 	if err != nil {
@@ -209,7 +209,7 @@ func (s *KeysServiceOp) delete(ctx context.Context, path string) (*Response, err
 	return resp, err
 }
 
-// DeleteByID deletes an SSH key by its id
+// DeleteByID deletes a key by its id
 func (s *KeysServiceOp) DeleteByID(ctx context.Context, keyID int) (*Response, error) {
 	if keyID < 1 {
 		return nil, NewArgError("keyID", "cannot be less than 1")
@@ -219,7 +219,7 @@ func (s *KeysServiceOp) DeleteByID(ctx context.Context, keyID int) (*Response, e
 	return s.delete(ctx, path)
 }
 
-// DeleteByFingerprint deletes an SSH key by its fingerprint
+// DeleteByFingerprint deletes a key by its fingerprint
 func (s *KeysServiceOp) DeleteByFingerprint(ctx context.Context, fingerprint string) (*Response, error) {
 	if len(fingerprint) < 1 {
 		return nil, NewArgError("fingerprint", "cannot be empty")

@@ -19,7 +19,7 @@ go_library(
         "//vendor/github.com/Azure/go-autorest/autorest/date",
         "//vendor/github.com/Azure/go-autorest/logger",
         "//vendor/github.com/Azure/go-autorest/tracing",
-        "//vendor/github.com/golang-jwt/jwt/v4:jwt",
+        "//vendor/github.com/form3tech-oss/jwt-go",
         "//vendor/golang.org/x/crypto/pkcs12",
     ],
 )

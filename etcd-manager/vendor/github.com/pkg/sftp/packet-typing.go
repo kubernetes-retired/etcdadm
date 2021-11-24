@@ -2,7 +2,8 @@ package sftp
 
 import (
 	"encoding"
-	"fmt"
+
+	"github.com/pkg/errors"
 )
 
 // all incoming packets
@@ -124,7 +125,7 @@ func makePacket(p rxPacket) (requestPacket, error) {
 	case sshFxpExtended:
 		pkt = &sshFxpExtendedPacket{}
 	default:
-		return nil, fmt.Errorf("unhandled packet type: %s", p.pktType)
+		return nil, errors.Errorf("unhandled packet type: %s", p.pktType)
 	}
 	if err := pkt.UnmarshalBinary(p.pktBytes); err != nil {
 		// Return partially unpacked packet to allow callers to return

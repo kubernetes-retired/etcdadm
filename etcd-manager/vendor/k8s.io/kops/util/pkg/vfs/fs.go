@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path"
 	"sync"
@@ -34,10 +35,8 @@ type FSPath struct {
 	location string
 }
 
-var (
-	_ Path    = &FSPath{}
-	_ HasHash = &FSPath{}
-)
+var _ Path = &FSPath{}
+var _ HasHash = &FSPath{}
 
 func NewFSPath(location string) *FSPath {
 	return &FSPath{location: location}
@@ -52,12 +51,12 @@ func (p *FSPath) Join(relativePath ...string) Path {
 
 func (p *FSPath) WriteFile(data io.ReadSeeker, acl ACL) error {
 	dir := path.Dir(p.location)
-	err := os.MkdirAll(dir, 0o755)
+	err := os.MkdirAll(dir, 0755)
 	if err != nil {
 		return fmt.Errorf("error creating directories %q: %v", dir, err)
 	}
 
-	f, err := os.CreateTemp(dir, "tmp")
+	f, err := ioutil.TempFile(dir, "tmp")
 	if err != nil {
 		return fmt.Errorf("error creating temp file in %q: %v", dir, err)
 	}
@@ -115,7 +114,7 @@ func (p *FSPath) CreateFile(data io.ReadSeeker, acl ACL) error {
 
 // ReadFile implements Path::ReadFile
 func (p *FSPath) ReadFile() ([]byte, error) {
-	file, err := os.ReadFile(p.location)
+	file, err := ioutil.ReadFile(p.location)
 	if errors.Is(err, syscall.ENOENT) {
 		err = os.ErrNotExist
 	}
@@ -134,7 +133,7 @@ func (p *FSPath) WriteTo(out io.Writer) (int64, error) {
 }
 
 func (p *FSPath) ReadDir() ([]Path, error) {
-	files, err := os.ReadDir(p.location)
+	files, err := ioutil.ReadDir(p.location)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, err
@@ -160,7 +159,7 @@ func (p *FSPath) ReadTree() ([]Path, error) {
 // readTree recursively finds files and adds them to dest
 // It excludes directories.
 func readTree(base string, dest *[]Path) error {
-	files, err := os.ReadDir(base)
+	files, err := ioutil.ReadDir(base)
 	if err != nil {
 		return err
 	}

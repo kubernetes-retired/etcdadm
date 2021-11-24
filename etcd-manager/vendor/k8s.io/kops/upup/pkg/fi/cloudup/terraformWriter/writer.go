@@ -27,8 +27,6 @@ import (
 type TerraformWriter struct {
 	// mutex protects the following items (resources & Files)
 	mutex sync.Mutex
-	// dataSources is a list of TF data sources that should be created.
-	dataSources []*terraformDataSource
 	// resources is a list of TF items that should be created
 	resources []*terraformResource
 	// outputs is a list of our TF output variables
@@ -40,12 +38,6 @@ type TerraformWriter struct {
 type OutputValue struct {
 	Value      *Literal
 	ValueArray []*Literal
-}
-
-type terraformDataSource struct {
-	DataType string
-	DataName string
-	Item     interface{}
 }
 
 type terraformResource struct {
@@ -75,20 +67,6 @@ func (t *TerraformWriter) InitTerraformWriter() {
 }
 
 func (t *TerraformWriter) AddFileBytes(resourceType string, resourceName string, key string, data []byte, base64 bool) (*Literal, error) {
-
-	path, err := t.AddFilePath(resourceType, resourceName, key, data, base64)
-	if err != nil {
-		return nil, err
-	}
-
-	fn := "file"
-	if base64 {
-		fn = "filebase64"
-	}
-	return LiteralFunctionExpression(fn, path), nil
-}
-
-func (t *TerraformWriter) AddFilePath(resourceType string, resourceName string, key string, data []byte, base64 bool) (*Literal, error) {
 	id := resourceType + "_" + resourceName + "_" + key
 
 	t.mutex.Lock()
@@ -98,23 +76,11 @@ func (t *TerraformWriter) AddFilePath(resourceType string, resourceName string, 
 	t.Files[p] = data
 
 	modulePath := fmt.Sprintf("%q", path.Join("${path.module}", p))
-
-	return LiteralTokens(modulePath), nil
-}
-
-func (t *TerraformWriter) RenderDataSource(dataType string, dataName string, e interface{}) error {
-	data := &terraformDataSource{
-		DataType: dataType,
-		DataName: dataName,
-		Item:     e,
+	fn := "file"
+	if base64 {
+		fn = "filebase64"
 	}
-
-	t.mutex.Lock()
-	defer t.mutex.Unlock()
-
-	t.dataSources = append(t.dataSources, data)
-
-	return nil
+	return LiteralFunctionExpression(fn, []string{modulePath}), nil
 }
 
 func (t *TerraformWriter) RenderResource(resourceType string, resourceName string, e interface{}) error {
@@ -166,28 +132,6 @@ func (t *TerraformWriter) AddOutputVariableArray(key string, literal *Literal) e
 	t.outputs[key].ValueArray = append(t.outputs[key].ValueArray, literal)
 
 	return nil
-}
-
-func (t *TerraformWriter) GetDataSourcesByType() (map[string]map[string]interface{}, error) {
-	dataSourcesByType := make(map[string]map[string]interface{})
-
-	for _, dataSource := range t.dataSources {
-		dataSources := dataSourcesByType[dataSource.DataType]
-		if dataSources == nil {
-			dataSources = make(map[string]interface{})
-			dataSourcesByType[dataSource.DataType] = dataSources
-		}
-
-		tfName := sanitizeName(dataSource.DataName)
-
-		if dataSources[tfName] != nil {
-			return nil, fmt.Errorf("duplicate data source found: %s.%s", dataSource.DataType, tfName)
-		}
-
-		dataSources[tfName] = dataSource.Item
-	}
-
-	return dataSourcesByType, nil
 }
 
 func (t *TerraformWriter) GetResourcesByType() (map[string]map[string]interface{}, error) {

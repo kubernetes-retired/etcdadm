@@ -19,7 +19,7 @@ package vfs
 import (
 	"context"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -29,74 +29,38 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/ec2metadata"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/denverdino/aliyungo/oss"
 	"github.com/gophercloud/gophercloud"
 	"google.golang.org/api/option"
 	storage "google.golang.org/api/storage/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/klog/v2"
+
+	vault "github.com/hashicorp/vault/api"
 )
 
 // VFSContext is a 'context' for VFS, that is normally a singleton
 // but allows us to configure S3 credentials, for example
 type VFSContext struct {
-	// mutex guards state
-	mutex sync.Mutex
-
-	// vfsContextState makes it easier to copy the state
-	vfsContextState
-}
-
-type vfsContextState struct {
 	s3Context    *S3Context
 	k8sContext   *KubernetesContext
 	memfsContext *MemFSContext
-
+	// mutex guards gcsClient
+	mutex sync.Mutex
 	// The google cloud storage client, if initialized
-	cachedGCSClient *storage.Service
-
+	gcsClient *storage.Service
 	// swiftClient is the openstack swift client
 	swiftClient *gophercloud.ServiceClient
+	// ossClient is the Aliyun Open Source Storage client
+	ossClient *oss.Client
 
+	vaultClient *vault.Client
 	azureClient *azureClient
 }
 
-// Context holds the global VFS state.
-// Deprecated: prefer FromContext.
-var Context = NewVFSContext()
-
-// NewVFSContext builds a new VFSContext
-func NewVFSContext() *VFSContext {
-	v := &VFSContext{}
-	v.s3Context = NewS3Context()
-	v.k8sContext = NewKubernetesContext()
-	return v
-}
-
-func (v *VFSContext) WithGCSClient(gcsClient *storage.Service) *VFSContext {
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
-
-	v2 := &VFSContext{
-		vfsContextState: v.vfsContextState,
-	}
-	v2.cachedGCSClient = gcsClient
-	return v2
-}
-
-type contextKeyType int
-
-var contextKey contextKeyType
-
-func FromContext(ctx context.Context) *VFSContext {
-	o := ctx.Value(contextKey)
-	if o != nil {
-		return o.(*VFSContext)
-	}
-	return Context
-}
-
-func WithContext(parent context.Context, vfsContext *VFSContext) context.Context {
-	return context.WithValue(parent, contextKey, vfsContext)
+var Context = VFSContext{
+	s3Context:  NewS3Context(),
+	k8sContext: NewKubernetesContext(),
 }
 
 type vfsOptions struct {
@@ -114,9 +78,8 @@ func WithBackoff(backoff wait.Backoff) VFSOption {
 
 // ReadFile reads a file from a vfs URL
 // It supports additional schemes which don't (yet) have full VFS implementations:
-//
-//	metadata: reads from instance metadata on GCE/AWS
-//	http / https: reads from HTTP
+//   metadata: reads from instance metadata on GCE/AWS
+//   http / https: reads from HTTP
 func (c *VFSContext) ReadFile(location string, options ...VFSOption) ([]byte, error) {
 	ctx := context.TODO()
 
@@ -177,9 +140,6 @@ func (c *VFSContext) ReadFile(location string, options ...VFSOption) ([]byte, er
 }
 
 func (c *VFSContext) BuildVfsPath(p string) (Path, error) {
-	// NOTE: we do not want this function to take a context.Context, we consider this a "builder".
-	// Instead, we are aiming to defer creation of clients to the first "real" operation (read/write/etc)
-
 	if !strings.Contains(p, "://") {
 		return NewFSPath(p), nil
 	}
@@ -213,12 +173,16 @@ func (c *VFSContext) BuildVfsPath(p string) (Path, error) {
 		return c.buildOpenstackSwiftPath(p)
 	}
 
-	if strings.HasPrefix(p, "azureblob://") {
-		return c.buildAzureBlobPath(p)
+	if strings.HasPrefix(p, "oss://") {
+		return c.buildOSSPath(p)
 	}
 
-	if strings.HasPrefix(p, "scw://") {
-		return c.buildSCWPath(p)
+	if strings.HasPrefix(p, "vault://") {
+		return c.buildVaultPath(p)
+	}
+
+	if strings.HasPrefix(p, "azureblob://") {
+		return c.buildAzureBlobPath(p)
 	}
 
 	return nil, fmt.Errorf("unknown / unhandled path type: %q", p)
@@ -264,7 +228,7 @@ func (c *VFSContext) readHTTPLocation(httpURL string, httpHeaders map[string]str
 		if err != nil {
 			return false, fmt.Errorf("error fetching %q: %v", httpURL, err)
 		}
-		body, err = io.ReadAll(response.Body)
+		body, err = ioutil.ReadAll(response.Body)
 		if err != nil {
 			return false, fmt.Errorf("error reading response for %q: %v", httpURL, err)
 		}
@@ -413,46 +377,35 @@ func (c *VFSContext) buildGCSPath(p string) (*GSPath, error) {
 
 	bucket := strings.TrimSuffix(u.Host, "/")
 
-	gcsPath := NewGSPath(c, bucket, u.Path)
+	gcsClient, err := c.getGCSClient()
+	if err != nil {
+		return nil, err
+	}
+
+	gcsPath := NewGSPath(gcsClient, bucket, u.Path)
 	return gcsPath, nil
 }
 
 // getGCSClient returns the google storage.Service client, caching it for future calls
-func (c *VFSContext) getGCSClient(ctx context.Context) (*storage.Service, error) {
+func (c *VFSContext) getGCSClient() (*storage.Service, error) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	if c.cachedGCSClient != nil {
-		return c.cachedGCSClient, nil
+	if c.gcsClient != nil {
+		return c.gcsClient, nil
 	}
 
 	// TODO: Should we fall back to read-only?
 	scope := storage.DevstorageReadWriteScope
 
+	ctx := context.Background()
 	gcsClient, err := storage.NewService(ctx, option.WithScopes(scope))
 	if err != nil {
 		return nil, fmt.Errorf("error building GCS client: %v", err)
 	}
 
-	c.cachedGCSClient = gcsClient
+	c.gcsClient = gcsClient
 	return gcsClient, nil
-}
-
-// getSwiftClient returns the openstack switch client, caching it for future calls
-func (c *VFSContext) getSwiftClient(ctx context.Context) (*gophercloud.ServiceClient, error) {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
-
-	if c.swiftClient != nil {
-		return c.swiftClient, nil
-	}
-
-	swiftClient, err := NewSwiftClient(ctx)
-	if err != nil {
-		return nil, err
-	}
-	c.swiftClient = swiftClient
-	return swiftClient, nil
 }
 
 func (c *VFSContext) buildOpenstackSwiftPath(p string) (*SwiftPath, error) {
@@ -470,7 +423,73 @@ func (c *VFSContext) buildOpenstackSwiftPath(p string) (*SwiftPath, error) {
 		return nil, fmt.Errorf("invalid swift path: %q", p)
 	}
 
-	return NewSwiftPath(c, bucket, u.Path)
+	if c.swiftClient == nil {
+		swiftClient, err := NewSwiftClient()
+		if err != nil {
+			return nil, err
+		}
+		c.swiftClient = swiftClient
+	}
+
+	return NewSwiftPath(c.swiftClient, bucket, u.Path)
+}
+
+func (c *VFSContext) buildOSSPath(p string) (*OSSPath, error) {
+	u, err := url.Parse(p)
+	if err != nil {
+		return nil, fmt.Errorf("invalid aliyun oss path: %q", p)
+	}
+
+	if u.Scheme != "oss" {
+		return nil, fmt.Errorf("invalid aliyun oss path: %q", p)
+	}
+
+	bucket := strings.TrimSuffix(u.Host, "/")
+	if bucket == "" {
+		return nil, fmt.Errorf("invalid aliyun oss path: %q", p)
+	}
+
+	if c.ossClient == nil {
+		ossClient, err := NewAliOSSClient()
+		if err != nil {
+			return nil, err
+		}
+		c.ossClient = ossClient
+	}
+
+	return NewOSSPath(c.ossClient, bucket, u.Path)
+}
+
+func (c *VFSContext) buildVaultPath(p string) (*VaultPath, error) {
+	u, err := url.Parse(p)
+	if err != nil {
+		return nil, fmt.Errorf("invalid vault url: %q", p)
+	}
+
+	var scheme string
+
+	if u.Scheme != "vault" {
+		return nil, fmt.Errorf("invalid vault url: %q", p)
+	}
+
+	queryValues := u.Query()
+
+	scheme = "https://"
+	if queryValues.Get("tls") == "false" {
+		scheme = "http://"
+	}
+
+	if c.vaultClient == nil {
+
+		vaultClient, err := newVaultClient(scheme, u.Hostname(), u.Port())
+		if err != nil {
+			return nil, err
+		}
+
+		c.vaultClient = vaultClient
+	}
+
+	return newVaultPath(c.vaultClient, scheme, u.Path)
 }
 
 func (c *VFSContext) buildAzureBlobPath(p string) (*AzureBlobPath, error) {
@@ -488,11 +507,15 @@ func (c *VFSContext) buildAzureBlobPath(p string) (*AzureBlobPath, error) {
 		return nil, fmt.Errorf("no container specified: %q", p)
 	}
 
-	return NewAzureBlobPath(c, container, u.Path), nil
+	client, err := c.getAzureBlobClient()
+	if err != nil {
+		return nil, err
+	}
+
+	return NewAzureBlobPath(client, container, u.Path), nil
 }
 
-// getAzureBlobClient returns the client for azure blob storage, caching it for future reuse.
-func (c *VFSContext) getAzureBlobClient(ctx context.Context) (*azureClient, error) {
+func (c *VFSContext) getAzureBlobClient() (*azureClient, error) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
@@ -500,28 +523,10 @@ func (c *VFSContext) getAzureBlobClient(ctx context.Context) (*azureClient, erro
 		return c.azureClient, nil
 	}
 
-	client, err := newAzureClient(ctx)
+	client, err := newAzureClient()
 	if err != nil {
 		return nil, err
 	}
 	c.azureClient = client
 	return client, nil
-}
-
-func (c *VFSContext) buildSCWPath(p string) (*S3Path, error) {
-	u, err := url.Parse(p)
-	if err != nil {
-		return nil, fmt.Errorf("invalid bucket path: %q", p)
-	}
-	if u.Scheme != "scw" {
-		return nil, fmt.Errorf("invalid bucket path: %q", p)
-	}
-
-	bucket := strings.TrimSuffix(u.Host, "/")
-	if bucket == "" {
-		return nil, fmt.Errorf("invalid bucket path: %q", p)
-	}
-
-	s3path := newS3Path(c.s3Context, u.Scheme, bucket, u.Path, false)
-	return s3path, nil
 }

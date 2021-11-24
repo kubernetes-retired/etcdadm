@@ -6,7 +6,6 @@ go_library(
         "conn_pool.go",
         "creds.go",
         "settings.go",
-        "version.go",
     ],
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/google.golang.org/api/internal",
     importpath = "google.golang.org/api/internal",

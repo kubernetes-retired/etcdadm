@@ -7,7 +7,7 @@ import (
 
 // SizesService is an interface for interfacing with the size
 // endpoints of the DigitalOcean API
-// See: https://docs.digitalocean.com/reference/api/api-reference/#tag/Sizes
+// See: https://developers.digitalocean.com/documentation/v2#sizes
 type SizesService interface {
 	List(context.Context, *ListOptions) ([]Size, *Response, error)
 }

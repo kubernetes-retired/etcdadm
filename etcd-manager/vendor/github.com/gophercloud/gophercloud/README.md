@@ -11,17 +11,29 @@ Gophercloud is an OpenStack Go SDK.
 
 ## How to install
 
-Reference a Gophercloud package in your code:
+Before installing, you need to ensure that your [GOPATH environment variable](https://golang.org/doc/code.html#GOPATH)
+is pointing to an appropriate directory where you want to install Gophercloud:
 
-```Go
-import "github.com/gophercloud/gophercloud"
+```bash
+mkdir $HOME/go
+export GOPATH=$HOME/go
 ```
 
-Then update your `go.mod`:
+To protect yourself against changes in your dependencies, we highly recommend choosing a
+[dependency management solution](https://github.com/golang/go/wiki/PackageManagementTools) for
+your projects, such as [godep](https://github.com/tools/godep). Once this is set up, you can install
+Gophercloud as a dependency like so:
 
-```shell
-go mod tidy
+```bash
+go get github.com/gophercloud/gophercloud
+
+# Edit your code to import relevant packages from "github.com/gophercloud/gophercloud"
+
+godep save ./...
 ```
+
+This will install all the source files you need into a `Godeps/_workspace` directory, which is
+referenceable from your own source files when you use the `godep go` command.
 
 ## Getting started
 
@@ -126,9 +138,7 @@ Have a look at the [FAQ](./docs/FAQ.md) for some tips on customizing the way Gop
 
 ## Backwards-Compatibility Guarantees
 
-Gophercloud versioning follows [semver](https://semver.org/spec/v2.0.0.html).
-
-Before `v1.0.0`, there were no guarantees. Starting with v1, there will be no breaking changes within a major release.
+None. Vendor it and write tests covering the parts you use.
 
 ## Contributing
 

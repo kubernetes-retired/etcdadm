@@ -118,5 +118,6 @@ Example to Create a Token using OAuth1 method
 	if err != nil {
 		panic(err)
 	}
+
 */
 package oauth1

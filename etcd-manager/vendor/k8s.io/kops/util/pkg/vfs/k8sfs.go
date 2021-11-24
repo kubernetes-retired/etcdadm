@@ -34,10 +34,8 @@ type KubernetesPath struct {
 	key        string
 }
 
-var (
-	_ Path    = &KubernetesPath{}
-	_ HasHash = &KubernetesPath{}
-)
+var _ Path = &KubernetesPath{}
+var _ HasHash = &KubernetesPath{}
 
 func newKubernetesPath(k8sContext *KubernetesContext, host string, key string) *KubernetesPath {
 	host = strings.TrimSuffix(host, "/")
