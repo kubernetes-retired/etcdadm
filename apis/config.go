@@ -17,6 +17,7 @@ limitations under the License.
 package apis
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
 	"net/url"
@@ -131,6 +132,24 @@ type URLList []url.URL
 func (l URLList) String() string {
 	stringURLs := l.StringSlice()
 	return strings.Join(stringURLs, ",")
+}
+
+// UnmarshalJSON implements a JSON deserialization, as a comma separated list.
+func (l *URLList) UnmarshalJSON(j []byte) error {
+	var s string
+	err := json.Unmarshal(j, &s)
+	if err != nil {
+		return err
+	}
+	tokens := strings.Split(s, ",")
+	for _, token := range tokens {
+		u, err := url.Parse(token)
+		if err != nil {
+			return err
+		}
+		*l = append(*l, *u)
+	}
+	return nil
 }
 
 // StringSlice TODO: add description
