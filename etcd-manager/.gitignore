@@ -20,4 +20,4 @@ bazel-testlogs
 dist/
 
 # Don't ignore vendoring
-!vendor
+!vendor/**
