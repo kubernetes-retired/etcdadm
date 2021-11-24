@@ -72,6 +72,9 @@ type EtcdAdmConfig struct {
 	AdvertiseClientURLs      URLList
 	ListenClientURLs         URLList
 
+	// ListenMetricsURLs specifies additional URLs for metrics and health, mapping to to the --listen-metrics-urls flag.
+	ListenMetricsURLs URLList
+
 	LoopbackClientURL url.URL
 
 	// ServerCertSANs sets extra Subject Alternative Names for the etcd server signing cert.
@@ -95,6 +98,16 @@ type EtcdAdmConfig struct {
 	Retry bool
 
 	InitSystem InitSystem
+
+	// Logger selects the log system, mapping to the --logger flag
+	Logger string
+
+	// LogOutputs selects the log destination, mapping to the --log-outputs flag
+	LogOutputs string
+
+	// EnableV2 configures whether the V2 client handler is configured, mapping to the --enable-v2 flag
+	// This is a bool, but we use a string because the default value changes across versions.
+	EnableV2 string
 }
 
 // InitSystem represents the different types of init system
