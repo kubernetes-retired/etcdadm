@@ -2,6 +2,9 @@ module sigs.k8s.io/etcdadm/etcd-manager
 
 go 1.18
 
+replace sigs.k8s.io/etcdadm => ../.
+
+
 require (
 	cloud.google.com/go/compute/metadata v0.2.3
 	github.com/Azure/azure-sdk-for-go v67.2.0+incompatible

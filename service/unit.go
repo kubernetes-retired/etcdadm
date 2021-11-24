@@ -63,3 +63,12 @@ func BuildEnvironment(cfg *apis.EtcdAdmConfig) ([]byte, error) {
 	}
 	return b.Bytes(), nil
 }
+
+// BuildEnvironmentMap returns the environment variables corresponding to the desired configuration, as a map.
+func BuildEnvironmentMap(cfg *apis.EtcdAdmConfig) (map[string]string, error) {
+	b, err := BuildEnvironment(cfg)
+	if err != nil {
+		return nil, err
+	}
+	return makeEnvironment(bytes.NewReader(b))
+}

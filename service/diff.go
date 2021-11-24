@@ -20,7 +20,6 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"html/template"
 	"io"
 	"os"
 	"os/exec"
@@ -51,7 +50,7 @@ func DiffEnvironmentFile(cfg *apis.EtcdAdmConfig) (map[string]string, error) {
 		return diff, nil
 	}
 
-	d, err := desiredEnvironment(cfg)
+	d, err := BuildEnvironmentMap(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("unable to generate desired environment: %v", err)
 	}
@@ -95,13 +94,6 @@ func DiffVersion(cfg *apis.EtcdAdmConfig) (string, error) {
 		return fmt.Sprintf("desired: %q, last used :%q", cv, lv), nil
 	}
 	return "", nil
-}
-
-func desiredEnvironment(cfg *apis.EtcdAdmConfig) (map[string]string, error) {
-	t := template.Must(template.New("environment").Parse(constants.EnvFileTemplate))
-	var b bytes.Buffer
-	t.Execute(&b, cfg)
-	return makeEnvironment(&b)
 }
 
 func lastUsedEnvironment(environmentFile string) (bool, map[string]string, error) {

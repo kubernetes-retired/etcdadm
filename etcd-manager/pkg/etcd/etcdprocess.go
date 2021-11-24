@@ -27,6 +27,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"strings"
 	"sync"
@@ -35,10 +36,12 @@ import (
 	"github.com/blang/semver/v4"
 	certutil "k8s.io/client-go/util/cert"
 	"k8s.io/klog/v2"
+	"sigs.k8s.io/etcdadm/apis"
 	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/backup"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdclient"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/pki"
+	"sigs.k8s.io/etcdadm/service"
 )
 
 var baseDirs = []string{"/opt"}
@@ -217,48 +220,85 @@ func (p *etcdProcess) Start() error {
 		return fmt.Errorf("unable to find self node %q in %v", p.MyNodeName, p.Cluster.Nodes)
 	}
 
-	clientUrls := me.ClientUrls
-	if p.Quarantined {
-		clientUrls = me.QuarantinedClientUrls
+	readyClientURLs, err := parseURLs(me.ClientUrls)
+	if err != nil {
+		return err
 	}
+
+	quarantinedClientURLs, err := parseURLs(me.QuarantinedClientUrls)
+	if err != nil {
+		return err
+	}
+
+	peerURLs, err := parseURLs(me.PeerUrls)
+	if err != nil {
+		return err
+	}
+
+	clientURLs := readyClientURLs
+	if p.Quarantined {
+		clientURLs = quarantinedClientURLs
+	}
+
+	var config apis.EtcdAdmConfig
+	// TODO: config.GOMAXPROCS = runtime.NumCPU()
+
 	env := make(map[string]string)
 	env["ETCD_DATA_DIR"] = p.DataDir
+	config.DataDir = p.DataDir
 
 	// etcd 3.4 deprecates '--logger=capnslog'
 	//   [WARNING] Deprecated '--logger=capnslog' flag is set; use '--logger=zap' flag instead
-	env["ETCD_LOGGER"] = "zap"
-	env["ETCD_LOG_OUTPUTS"] = "stdout"
+	config.Logger = "zap"
+	env["ETCD_LOGGER"] = config.Logger
+	config.LogOutputs = "stdout"
+	env["ETCD_LOG_OUTPUTS"] = config.LogOutputs
 
 	// etcd 3.2 requires that we listen on an IP, not a DNS name
-	env["ETCD_LISTEN_PEER_URLS"] = strings.Join(changeHost(me.PeerUrls, p.ListenAddress), ",")
-	env["ETCD_LISTEN_CLIENT_URLS"] = strings.Join(changeHost(clientUrls, p.ListenAddress), ",")
-	env["ETCD_ADVERTISE_CLIENT_URLS"] = strings.Join(clientUrls, ",")
-	env["ETCD_INITIAL_ADVERTISE_PEER_URLS"] = strings.Join(me.PeerUrls, ",")
+	config.ListenPeerURLs = changeHost(peerURLs, p.ListenAddress)
+	env["ETCD_LISTEN_PEER_URLS"] = config.ListenPeerURLs.String()
+	config.ListenClientURLs = changeHost(clientURLs, p.ListenAddress)
+	env["ETCD_LISTEN_CLIENT_URLS"] = config.ListenClientURLs.String()
+	config.AdvertiseClientURLs = clientURLs
+	env["ETCD_ADVERTISE_CLIENT_URLS"] = clientURLs.String()
+	config.InitialAdvertisePeerURLs = peerURLs
+	env["ETCD_INITIAL_ADVERTISE_PEER_URLS"] = peerURLs.String()
 
 	// This is only supported in 3.3 and later, but by using an env var it simply won't be picked up
 	if len(p.ListenMetricsURLs) != 0 {
-		env["ETCD_LISTEN_METRICS_URLS"] = strings.Join(p.ListenMetricsURLs, ",")
+		listenMetricsURLs, err := parseURLs(p.ListenMetricsURLs)
+		if err != nil {
+			return err
+		}
+		config.ListenMetricsURLs = listenMetricsURLs
+		env["ETCD_LISTEN_METRICS_URLS"] = config.ListenMetricsURLs.String()
 	}
 
 	if p.CreateNewCluster {
 		env["ETCD_INITIAL_CLUSTER_STATE"] = "new"
+		config.InitialClusterState = "new"
 	} else {
 		env["ETCD_INITIAL_CLUSTER_STATE"] = "existing"
+		config.InitialClusterState = "existing"
 	}
 
 	// Disable the etcd2 endpoint (needed for etcd <= v3.3)
 	env["ETCD_ENABLE_V2"] = "false"
+	config.EnableV2 = "false"
 
 	env["ETCD_NAME"] = p.MyNodeName
+	config.Name = p.MyNodeName
 	if p.Cluster.ClusterToken != "" {
 		env["ETCD_INITIAL_CLUSTER_TOKEN"] = p.Cluster.ClusterToken
+		config.InitialClusterToken = p.Cluster.ClusterToken
 	}
 
 	var initialCluster []string
 	for _, node := range p.Cluster.Nodes {
 		initialCluster = append(initialCluster, node.Name+"="+strings.Join(node.PeerUrls, ","))
 	}
-	env["ETCD_INITIAL_CLUSTER"] = strings.Join(initialCluster, ",")
+	config.InitialCluster = strings.Join(initialCluster, ",")
+	env["ETCD_INITIAL_CLUSTER"] = config.InitialCluster
 
 	// Avoid quorum loss
 	env["ETCD_STRICT_RECONFIG_CHECK"] = "true"
@@ -266,18 +306,26 @@ func (p *etcdProcess) Start() error {
 
 	if p.PKIPeersDir != "" {
 		env["ETCD_PEER_CLIENT_CERT_AUTH"] = "true"
-		env["ETCD_PEER_TRUSTED_CA_FILE"] = filepath.Join(p.PKIPeersDir, "ca.crt")
-		env["ETCD_PEER_CERT_FILE"] = filepath.Join(p.PKIPeersDir, "me.crt")
-		env["ETCD_PEER_KEY_FILE"] = filepath.Join(p.PKIPeersDir, "me.key")
+		// config.PeerClientCertAuth is always true
+		config.PeerTrustedCAFile = filepath.Join(p.PKIPeersDir, "ca.crt")
+		env["ETCD_PEER_TRUSTED_CA_FILE"] = config.PeerTrustedCAFile
+		config.PeerCertFile = filepath.Join(p.PKIPeersDir, "me.crt")
+		env["ETCD_PEER_CERT_FILE"] = config.PeerCertFile
+		config.PeerKeyFile = filepath.Join(p.PKIPeersDir, "me.key")
+		env["ETCD_PEER_KEY_FILE"] = config.PeerKeyFile
 	} else {
 		klog.Warningf("using insecure configuration for etcd peers")
 	}
 
 	if p.PKIClientsDir != "" {
 		env["ETCD_CLIENT_CERT_AUTH"] = "true"
-		env["ETCD_TRUSTED_CA_FILE"] = filepath.Join(p.PKIClientsDir, "ca.crt")
-		env["ETCD_CERT_FILE"] = filepath.Join(p.PKIClientsDir, "server.crt")
-		env["ETCD_KEY_FILE"] = filepath.Join(p.PKIClientsDir, "server.key")
+		// config.ClientCertAuth = true is always true
+		config.TrustedCAFile = filepath.Join(p.PKIClientsDir, "ca.crt")
+		env["ETCD_TRUSTED_CA_FILE"] = config.TrustedCAFile
+		config.CertFile = filepath.Join(p.PKIClientsDir, "server.crt")
+		env["ETCD_CERT_FILE"] = config.CertFile
+		config.KeyFile = filepath.Join(p.PKIClientsDir, "server.key")
+		env["ETCD_KEY_FILE"] = config.KeyFile
 	} else {
 		klog.Warningf("using insecure configuration for etcd clients")
 	}
@@ -306,7 +354,20 @@ func (p *etcdProcess) Start() error {
 	//IgnoreListenMetricsURLs
 	if p.IgnoreListenMetricsURLs {
 		delete(env, "ETCD_LISTEN_METRICS_URLS")
+		config.ListenMetricsURLs = nil
 	}
+
+	{
+		configEnv, err := service.BuildEnvironmentMap(&config)
+		if err != nil {
+			return fmt.Errorf("failed to build environment config: %w", err)
+		}
+		if !reflect.DeepEqual(configEnv, env) {
+			klog.Warningf("environment did not match: %v vs %v", env, configEnv)
+			return fmt.Errorf("environment did not match: %v vs %v", env, configEnv)
+		}
+	}
+
 	for k, v := range env {
 		c.Env = append(c.Env, k+"="+v)
 	}
@@ -337,23 +398,30 @@ func (p *etcdProcess) Start() error {
 	return nil
 }
 
-func changeHost(urls []string, host string) []string {
-	var remapped []string
-	for _, s := range urls {
-		u, err := url.Parse(s)
-		if err != nil {
-			klog.Warningf("error parsing url %q", s)
-			remapped = append(remapped, s)
-			continue
-		}
+func changeHost(urls apis.URLList, host string) apis.URLList {
+	var remapped apis.URLList
+	for _, u := range urls {
 		newHost := host
 		if u.Port() != "" {
 			newHost = net.JoinHostPort(newHost, u.Port())
 		}
-		u.Host = newHost
-		remapped = append(remapped, u.String())
+		r := u
+		r.Host = newHost
+		remapped = append(remapped, r)
 	}
 	return remapped
+}
+
+func parseURLs(urls []string) (apis.URLList, error) {
+	var out apis.URLList
+	for _, s := range urls {
+		u, err := url.Parse(s)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing url %q: %w", s, err)
+		}
+		out = append(out, *u)
+	}
+	return out, nil
 }
 
 func BuildTLSClientConfig(keypairs *pki.Keypairs, cn string) (*tls.Config, error) {
