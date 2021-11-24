@@ -57,7 +57,7 @@ var joinCmd = &cobra.Command{
 			log.Fatalf("[initsystem] Error detecting the init system: %s", err)
 		}
 
-		if err := initSystem.DisableAndStopService(constants.UnitFileBaseName); err != nil {
+		if err := initSystem.DisableAndStopService(); err != nil {
 			log.Fatalf("[install] Error disabling and stopping etcd service: %s", err)
 		}
 
@@ -153,7 +153,7 @@ var joinCmd = &cobra.Command{
 		if err = initSystem.Configure(); err != nil {
 			log.Fatalf("[configure] Error: %s", err)
 		}
-		if err := initSystem.EnableAndStartService(constants.UnitFileBaseName); err != nil {
+		if err := initSystem.EnableAndStartService(); err != nil {
 			log.Fatalf("[start] Error: %s", err)
 		}
 		if err := service.WriteEtcdctlEnvFile(&etcdAdmConfig); err != nil {

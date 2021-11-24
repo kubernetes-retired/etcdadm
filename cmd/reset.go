@@ -49,7 +49,7 @@ var resetCmd = &cobra.Command{
 			log.Fatalf("[initsystem] Error detecting the init system: %s", err)
 		}
 
-		active, err := initSystem.IsActive(constants.UnitFileBaseName)
+		active, err := initSystem.IsActive()
 		if err != nil {
 			log.Fatalf("[reset] Error checking if etcd service is active: %s", err)
 		}
@@ -91,7 +91,7 @@ var resetCmd = &cobra.Command{
 				}
 			}
 		}
-		if err := initSystem.DisableAndStopService(constants.UnitFileBaseName); err != nil {
+		if err := initSystem.DisableAndStopService(); err != nil {
 			log.Fatalf("[reset] Error stopping etcd: %s", err)
 		}
 

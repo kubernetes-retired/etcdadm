@@ -29,9 +29,9 @@ import (
 type InitSystem interface {
 	Install() error
 	Configure() error
-	IsActive(service string) (bool, error)
-	EnableAndStartService(service string) error
-	DisableAndStopService(service string) error
+	IsActive() (bool, error)
+	EnableAndStartService() error
+	DisableAndStopService() error
 	StartupTimeout() time.Duration
 }
 
