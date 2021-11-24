@@ -1,0 +1,29 @@
+ETCD_NAME=me
+
+# Initial cluster configuration
+ETCD_INITIAL_CLUSTER=me
+ETCD_INITIAL_CLUSTER_TOKEN=atoken
+ETCD_INITIAL_CLUSTER_STATE=me
+
+# Peer configuration
+ETCD_INITIAL_ADVERTISE_PEER_URLS=https://node1
+ETCD_LISTEN_PEER_URLS=https://node1
+
+ETCD_CLIENT_CERT_AUTH=true
+ETCD_PEER_CERT_FILE=peer.crt
+ETCD_PEER_KEY_FILE=peer.key
+ETCD_PEER_TRUSTED_CA_FILE=peer-ca.crt
+
+# Client/server configuration
+ETCD_ADVERTISE_CLIENT_URLS=https://node1,https://node2
+ETCD_LISTEN_CLIENT_URLS=https://node1,https://node2
+
+ETCD_PEER_CLIENT_CERT_AUTH=true
+ETCD_CERT_FILE=me.cert
+ETCD_KEY_FILE=me.key
+ETCD_TRUSTED_CA_FILE=ca.crt
+
+# Other
+ETCD_DATA_DIR=/data
+ETCD_STRICT_RECONFIG_CHECK=true
+GOMAXPROCS=0
