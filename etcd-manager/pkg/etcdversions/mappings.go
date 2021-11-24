@@ -35,7 +35,7 @@ const (
 	Version_3_3_17 = "3.3.17"
 	Version_3_4_3  = "3.4.3"
 	Version_3_4_13 = "3.4.13"
-	Version_3_5_0  = "3.5.0"
+	Version_3_5_1  = "3.5.1"
 )
 
 var AllEtcdVersions = []string{
@@ -47,7 +47,7 @@ var AllEtcdVersions = []string{
 	Version_3_3_17,
 	Version_3_4_3,
 	Version_3_4_13,
-	Version_3_5_0,
+	Version_3_5_1,
 }
 
 var LatestEtcdVersions = []string{
@@ -55,7 +55,7 @@ var LatestEtcdVersions = []string{
 	Version_3_2_24,
 	Version_3_3_17,
 	Version_3_4_13,
-	Version_3_5_0,
+	Version_3_5_1,
 }
 
 func UpgradeInPlaceSupported(fromVersion, toVersion string) bool {
@@ -114,7 +114,7 @@ func EtcdVersionForAdoption(fromVersion string) string {
 			return Version_3_4_13
 		}
 	case "3.5":
-		return Version_3_5_0
+		return Version_3_5_1
 	default:
 		return ""
 	}
@@ -154,7 +154,7 @@ func EtcdVersionForRestore(fromVersion string) string {
 			return Version_3_4_13
 		}
 	case "3.5":
-		return Version_3_5_0
+		return Version_3_5_1
 	default:
 		return ""
 	}

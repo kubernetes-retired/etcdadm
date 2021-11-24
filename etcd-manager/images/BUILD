@@ -16,7 +16,7 @@ load("etcd.bzl", "supported_etcd_arch_and_version")
 # Layer for etcd 3.3.17, updated recommendation for k8s 1.16.3 and later
 # Layer for etcd 3.4.3, updated recommendation for k8s 1.17 and later
 # Layer for etcd 3.4.13, updated recommendation for k8s 1.19 and later
-# Layer for etcd 3.5.0, updated recommendation for k8s 1.22 and later
+# Layer for etcd 3.5.1, updated recommendation for k8s 1.22 and later
 [
     container_layer(
         name = "etcd-{version}-layer-{arch}".format(
@@ -60,7 +60,7 @@ container_image(
             "etcd-3.3.17-layer-amd64",
             "etcd-3.4.3-layer-amd64",
             "etcd-3.4.13-layer-amd64",
-            "etcd-3.5.0-layer-amd64",
+            "etcd-3.5.1-layer-amd64",
         ],
         "@io_bazel_rules_go//go/platform:arm64": [
             "etcd-3.2.18-layer-arm64",
@@ -70,7 +70,7 @@ container_image(
             "etcd-3.3.17-layer-arm64",
             "etcd-3.4.3-layer-arm64",
             "etcd-3.4.13-layer-arm64",
-            "etcd-3.5.0-layer-arm64",
+            "etcd-3.5.1-layer-arm64",
         ],
     }),
 )
