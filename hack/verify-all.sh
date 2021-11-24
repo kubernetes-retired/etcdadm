@@ -24,77 +24,80 @@ source "$(dirname "$0")/utils.sh"
 REPO_PATH=$(get_root_path)
 cd "${REPO_PATH}"
 
-# exit code, if a script fails we'll set this to 1
-res=0
+# failed tests, if a script fails we'll add to this arry
+failures=()
 
 # run all verify scripts, optionally skipping any of them
 
 if [[ "${VERIFY_WHITESPACE:-true}" == "true" ]]; then
   echo "[*] Verifying whitespace..."
-  hack/verify-whitespace.sh || res=1
+  hack/verify-whitespace.sh || failures+=("hack/verify-whitespace.sh")
   cd "${REPO_PATH}"
 fi
 
 if [[ "${VERIFY_SPELLING:-true}" == "true" ]]; then
   echo "[*] Verifying spelling..."
-  hack/verify-spelling.sh || res=1
+  hack/verify-spelling.sh || failures+=("hack/verify-spelling.sh")
   cd "${REPO_PATH}"
 fi
 
 if [[ "${VERIFY_BOILERPLATE:-true}" == "true" ]]; then
   echo "[*] Verifying boilerplate..."
-  hack/verify-boilerplate.sh || res=1
+  hack/verify-boilerplate.sh || failures+=("hack/verify-boilerplate.sh")
   cd "${REPO_PATH}"
 fi
 
 if [[ "${VERIFY_GOFMT:-true}" == "true" ]]; then
   echo "[*] Verifying gofmt..."
-  hack/verify-gofmt.sh || res=1
+  hack/verify-gofmt.sh || failures+=("hack/verify-gofmt.sh")
   cd "${REPO_PATH}"
 fi
 
 if [[ "${VERIFY_GOLINT:-true}" == "true" ]]; then
   echo "[*] Verifying golint..."
-  hack/verify-golint.sh || res=1
+  hack/verify-golint.sh || failures+=("hack/verify-golint.sh")
   cd "${REPO_PATH}"
 fi
 
 if [[ "${VERIFY_GOVET:-true}" == "true" ]]; then
   echo "[*] Verifying govet..."
-  hack/verify-govet.sh || res=1
+  hack/verify-govet.sh || failures+=("hack/verify-govet.sh")
   cd "${REPO_PATH}"
 fi
 
 if [[ "${VERIFY_DEPS:-true}" == "true" ]]; then
   echo "[*] Verifying deps..."
-  hack/verify-deps.sh || res=1
+  hack/verify-deps.sh || failures+=("hack/verify-deps.sh")
   cd "${REPO_PATH}"
 fi
 
 if [[ "${VERIFY_GOTEST:-true}" == "true" ]]; then
   echo "[*] Verifying gotest..."
-  hack/verify-gotest.sh || res=1
+  hack/verify-gotest.sh || failures+=("hack/verify-gotest.sh")
   cd "${REPO_PATH}"
 fi
 
 if [[ "${VERIFY_BUILD:-true}" == "true" ]]; then
   echo "[*] Verifying build..."
-  hack/verify-build.sh || res=1
+  hack/verify-build.sh || failures+=("hack/verify-build.sh")
   cd "${REPO_PATH}"
 fi
 
 if [[ "${VERIFY_VERSION:-true}" == "true" ]]; then
   echo "[*] Verifying version..."
-  hack/verify-version.sh || res=1
+  hack/verify-version.sh || failures+=("hack/verify-version.sh")
   cd "${REPO_PATH}"
 fi
 
 # exit based on verify scripts
-if [[ "${res}" = 0 ]]; then
+if [[ "${#failures[@]}" -eq 0 ]]; then
   echo ""
   echo "All verify checks passed, congrats!"
 else
   echo ""
-  echo "One or more verify checks failed! See output above..."
+  echo "One or more verify checks failed! Full output is above.  Failed:"
+  for failure in "${failures}"; do
+    echo "  ${failure}"
+  done
+  exit 1
 fi
-exit "${res}"
