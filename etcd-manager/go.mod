@@ -112,6 +112,7 @@ require (
 	github.com/prometheus/common v0.28.0 // indirect
 	github.com/prometheus/procfs v0.6.0 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
+	github.com/satori/go.uuid v1.2.0 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.3 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
