@@ -47,7 +47,8 @@ func (s SystemdInitSystem) reloadSystemd() error {
 }
 
 // Start a service
-func (s SystemdInitSystem) start(service string) error {
+func (s SystemdInitSystem) start() error {
+	service := s.unitName()
 	// Before we try to start any service, make sure that systemd is ready
 	if err := s.reloadSystemd(); err != nil {
 		return err
@@ -60,7 +61,8 @@ func (s SystemdInitSystem) start(service string) error {
 }
 
 // Stop a service
-func (s SystemdInitSystem) stop(service string) error {
+func (s SystemdInitSystem) stop() error {
+	service := s.unitName()
 	// Before we try to start any service, make sure that systemd is ready
 	if err := s.reloadSystemd(); err != nil {
 		return err
@@ -73,7 +75,8 @@ func (s SystemdInitSystem) stop(service string) error {
 }
 
 // Enable a service
-func (s SystemdInitSystem) enable(service string) error {
+func (s SystemdInitSystem) enable() error {
+	service := s.unitName()
 	// Before we try to enable any service, make sure that systemd is ready
 	if err := s.reloadSystemd(); err != nil {
 		return err
@@ -86,7 +89,8 @@ func (s SystemdInitSystem) enable(service string) error {
 }
 
 // Disable a service
-func (s SystemdInitSystem) disable(service string) error {
+func (s SystemdInitSystem) disable() error {
+	service := s.unitName()
 	// Before we try to disable any service, make sure that systemd is ready
 	if err := s.reloadSystemd(); err != nil {
 		return err
@@ -99,32 +103,32 @@ func (s SystemdInitSystem) disable(service string) error {
 }
 
 // EnableAndStartService enables and starts the etcd service
-func (s SystemdInitSystem) EnableAndStartService(service string) error {
-	if err := s.enable(service); err != nil {
+func (s SystemdInitSystem) EnableAndStartService() error {
+	if err := s.enable(); err != nil {
 		return err
 	}
-	return s.start(service)
+	return s.start()
 }
 
 // DisableAndStopService disables and stops the etcd service
-func (s SystemdInitSystem) DisableAndStopService(service string) error {
-	enabled, err := s.isEnabled(service)
+func (s SystemdInitSystem) DisableAndStopService() error {
+	enabled, err := s.isEnabled()
 	if err != nil {
 		return fmt.Errorf("error checking if etcd service is enabled: %w", err)
 	}
 	if enabled {
-		if err := s.disable(service); err != nil {
+		if err := s.disable(); err != nil {
 			return err
 		}
 	}
 
-	active, err := s.IsActive(service)
+	active, err := s.IsActive()
 	if err != nil {
 		return fmt.Errorf("error checking if etcd service is active: %w", err)
 	}
 
 	if active {
-		if err := s.stop(service); err != nil {
+		if err := s.stop(); err != nil {
 			return err
 		}
 	}
@@ -133,7 +137,8 @@ func (s SystemdInitSystem) DisableAndStopService(service string) error {
 }
 
 // IsActive checks if the systemd unit is active
-func (s SystemdInitSystem) IsActive(service string) (bool, error) {
+func (s SystemdInitSystem) IsActive() (bool, error) {
+	service := s.unitName()
 	args := []string{"is-active", service}
 	if err := exec.Command("systemctl", args...).Run(); err != nil {
 		switch v := err.(type) {
@@ -149,7 +154,8 @@ func (s SystemdInitSystem) IsActive(service string) (bool, error) {
 }
 
 // isEnabled checks if the systemd unit is enabled
-func (s SystemdInitSystem) isEnabled(service string) (bool, error) {
+func (s SystemdInitSystem) isEnabled() (bool, error) {
+	service := s.unitName()
 	args := []string{"is-enabled", service}
 	if err := exec.Command("systemctl", args...).Run(); err != nil {
 		switch v := err.(type) {
@@ -232,4 +238,10 @@ func (s SystemdInitSystem) writeUnitFile() error {
 // StartupTimeout defines the max time that the system should wait for etcd to be up
 func (s SystemdInitSystem) StartupTimeout() time.Duration {
 	return defaultEtcdStartupTimeout
+}
+
+// unitName is the name of the unit (service) in system
+func (s SystemdInitSystem) unitName() string {
+	name := filepath.Base(s.etcdAdmConfig.UnitFile)
+	return name
 }

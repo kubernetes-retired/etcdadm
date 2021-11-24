@@ -27,10 +27,9 @@ const (
 	DefaultImageRepository = "quay.io/coreos/etcd"
 	DefaultCertificateDir  = "/etc/etcd/pki"
 
-	UnitFileBaseName = "etcd.service"
-	UnitFile         = "/etc/systemd/system/etcd.service"
-	EnvironmentFile  = "/etc/etcd/etcd.env"
-	EtcdctlEnvFile   = "/etc/etcd/etcdctl.env"
+	UnitFile        = "/etc/systemd/system/etcd.service"
+	EnvironmentFile = "/etc/etcd/etcd.env"
+	EtcdctlEnvFile  = "/etc/etcd/etcdctl.env"
 
 	DefaultDataDir = "/var/lib/etcd"
 

@@ -45,7 +45,7 @@ type InitSystem struct {
 }
 
 // EnableAndStartService enables and starts the etcd service
-func (s *InitSystem) EnableAndStartService(service string) error {
+func (s *InitSystem) EnableAndStartService() error {
 	cfg := s.desiredConfig
 
 	name := s.name(cfg)
@@ -77,7 +77,7 @@ func (s *InitSystem) EnableAndStartService(service string) error {
 }
 
 // DisableAndStopService disables and stops the etcd service
-func (s *InitSystem) DisableAndStopService(service string) error {
+func (s *InitSystem) DisableAndStopService() error {
 	podFile := s.podFile(s.desiredConfig)
 	if err := os.Remove(podFile); err != nil {
 		if os.IsNotExist(err) {
@@ -91,7 +91,7 @@ func (s *InitSystem) DisableAndStopService(service string) error {
 }
 
 // IsActive checks if the systemd unit is active
-func (s *InitSystem) IsActive(service string) (bool, error) {
+func (s *InitSystem) IsActive() (bool, error) {
 	podFile := s.podFile(s.desiredConfig)
 	_, err := os.Stat(podFile)
 	if err != nil {
