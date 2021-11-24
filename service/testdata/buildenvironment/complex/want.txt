@@ -27,11 +27,11 @@ ETCD_TRUSTED_CA_FILE=ca.crt
 ETCD_DATA_DIR=/data
 ETCD_STRICT_RECONFIG_CHECK=true
 GOMAXPROCS=0
-
+ETCD_ENABLE_V2=false
 
 # Logging configuration
-
-
+ETCD_LOGGER=zap
+ETCD_LOG_OUTPUTS=stdout
 
 # Profiling/metrics
-
+ETCD_LISTEN_METRICS_URLS=https://127.0.0.2,https://127.0.0.3
