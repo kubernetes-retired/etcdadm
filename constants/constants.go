@@ -20,12 +20,11 @@ import "time"
 
 // Command-line flag defaults
 const (
-	DefaultVersion    = "3.5.0"
+	DefaultVersion    = "3.5.1"
 	DefaultInstallDir = "/opt/bin/"
 
 	DefaultReleaseURL      = "https://github.com/coreos/etcd/releases/download"
 	DefaultImageRepository = "quay.io/coreos/etcd"
-	DefaultBindAddressv4   = "0.0.0.0"
 	DefaultCertificateDir  = "/etc/etcd/pki"
 
 	UnitFileBaseName = "etcd.service"
@@ -48,8 +47,6 @@ const (
 	EtcdCACertAndKeyBaseName = "ca"
 	// EtcdCACertName defines etcd's CA certificate name
 	EtcdCACertName = "ca.crt"
-	// EtcdCAKeyName defines etcd's CA key name
-	EtcdCAKeyName = "ca.key"
 
 	// EtcdServerCertAndKeyBaseName defines etcd's server certificate and key base name
 	EtcdServerCertAndKeyBaseName = "server"
@@ -67,10 +64,6 @@ const (
 
 	// APIServerEtcdClientCertAndKeyBaseName defines apiserver's etcd client certificate and key base name
 	APIServerEtcdClientCertAndKeyBaseName = "apiserver-etcd-client"
-	// APIServerEtcdClientCertName defines apiserver's etcd client certificate name
-	APIServerEtcdClientCertName = "apiserver-etcd-client.crt"
-	// APIServerEtcdClientKeyName defines apiserver's etcd client key name
-	APIServerEtcdClientKeyName = "apiserver-etcd-client.key"
 
 	// EtcdctlClientCertAndKeyBaseName defines etcdctl's client certificate and key base name
 	EtcdctlClientCertAndKeyBaseName = "etcdctl-etcd-client"

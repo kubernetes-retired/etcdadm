@@ -7,5 +7,5 @@ def supported_etcd_arch_and_version():
   ] + [
     (arch, version)
       for arch in ["amd64", "arm64"]
-      for version in ["3.2.18", "3.2.24", "3.3.10", "3.3.13", "3.3.17", "3.4.3","3.4.13","3.5.0"]
+      for version in ["3.2.18", "3.2.24", "3.3.10", "3.3.13", "3.3.17", "3.4.3","3.4.13","3.5.1"]
   ]

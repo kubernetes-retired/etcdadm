@@ -34,7 +34,7 @@ func TestClusterDataPersists(t *testing.T) {
 	defer cancel()
 
 	h := harness.NewTestHarness(t, ctx)
-	h.SeedNewCluster(&protoetcd.ClusterSpec{MemberCount: 1, EtcdVersion: "3.5.0"})
+	h.SeedNewCluster(&protoetcd.ClusterSpec{MemberCount: 1, EtcdVersion: "3.5.1"})
 	defer h.Close()
 
 	n1 := h.NewNode("127.0.0.1")
@@ -92,7 +92,7 @@ func TestHAReadWrite(t *testing.T) {
 	defer cancel()
 
 	h := harness.NewTestHarness(t, ctx)
-	h.SeedNewCluster(&protoetcd.ClusterSpec{MemberCount: 3, EtcdVersion: "3.5.0"})
+	h.SeedNewCluster(&protoetcd.ClusterSpec{MemberCount: 3, EtcdVersion: "3.5.1"})
 	defer h.Close()
 
 	n1 := h.NewNode("127.0.0.1")
@@ -160,7 +160,7 @@ func TestHARecovery(t *testing.T) {
 	defer cancel()
 
 	h := harness.NewTestHarness(t, ctx)
-	h.SeedNewCluster(&protoetcd.ClusterSpec{MemberCount: 3, EtcdVersion: "3.5.0"})
+	h.SeedNewCluster(&protoetcd.ClusterSpec{MemberCount: 3, EtcdVersion: "3.5.1"})
 	defer h.Close()
 
 	n1 := h.NewNode("127.0.0.1")
