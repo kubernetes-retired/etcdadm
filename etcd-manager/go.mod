@@ -2,6 +2,8 @@ module sigs.k8s.io/etcdadm/etcd-manager
 
 go 1.17
 
+replace sigs.k8s.io/etcdadm => ../.
+
 replace (
 	k8s.io/api => k8s.io/api v0.23.1
 	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.23.1
@@ -55,6 +57,7 @@ require (
 	k8s.io/kops v1.22.0-beta.2
 	k8s.io/mount-utils v0.23.1
 	k8s.io/utils v0.0.0-20210930125809-cb0fa318a74b
+	sigs.k8s.io/etcdadm v0.0.0
 	sigs.k8s.io/yaml v1.2.0
 )
 
