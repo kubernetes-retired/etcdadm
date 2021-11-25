@@ -364,6 +364,16 @@ func (p *etcdProcess) Start() error {
 		}
 		if !reflect.DeepEqual(configEnv, env) {
 			klog.Warningf("environment did not match: %v vs %v", env, configEnv)
+			for k := range env {
+				if configEnv[k] != env[k] {
+					klog.Warningf("diff %s=%s vs %s", k, configEnv[k], env[k])
+				}
+			}
+			for k := range configEnv {
+				if configEnv[k] != env[k] {
+					klog.Warningf("diff %s=%s vs %s", k, configEnv[k], env[k])
+				}
+			}
 			return fmt.Errorf("environment did not match: %v vs %v", env, configEnv)
 		}
 	}
