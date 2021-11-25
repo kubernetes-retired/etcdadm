@@ -256,6 +256,10 @@ func (p *etcdProcess) Start() error {
 	}
 	env["ETCD_INITIAL_CLUSTER"] = strings.Join(initialCluster, ",")
 
+	// Avoid quorum loss
+	env["ETCD_STRICT_RECONFIG_CHECK"] = "true"
+	// config.StrictReconfigCheck is always set
+
 	if p.PKIPeersDir != "" {
 		env["ETCD_PEER_CLIENT_CERT_AUTH"] = "true"
 		env["ETCD_PEER_TRUSTED_CA_FILE"] = filepath.Join(p.PKIPeersDir, "ca.crt")
