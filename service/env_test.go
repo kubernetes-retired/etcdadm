@@ -27,7 +27,26 @@ import (
 )
 
 func TestBuildEnv(t *testing.T) {
-	dir := "testdata/buildenvironment/simple"
+	basedir := "testdata/buildenvironment"
+	dirs, err := os.ReadDir(basedir)
+	if err != nil {
+		t.Fatalf("failed to read directory %q: %v", basedir, err)
+	}
+	for _, f := range dirs {
+		dir := filepath.Join(basedir, f.Name())
+
+		if !f.IsDir() {
+			t.Errorf("expected directory %s", dir)
+			continue
+		}
+
+		t.Run(f.Name(), func(t *testing.T) {
+			testBuildEnvDir(t, dir)
+		})
+	}
+}
+
+func testBuildEnvDir(t *testing.T, dir string) {
 	inputPath := filepath.Join(dir, "in.yaml")
 	inputBytes, err := os.ReadFile(inputPath)
 	if err != nil {

@@ -1,0 +1,27 @@
+CertFile: me.cert
+KeyFile: me.key
+TrustedCAFile: ca.crt
+
+DataDir: /data
+
+Name: me
+InitialCluster: me
+InitialClusterToken: atoken
+InitialClusterState: me
+
+InitialAdvertisePeerURLs: https://node1
+ListenPeerURLs: https://node1
+
+PeerCertFile: peer.crt
+PeerKeyFile: peer.key
+PeerTrustedCAFile: peer-ca.crt
+
+AdvertiseClientURLs: https://node1,https://node2
+ListenClientURLs: https://node1,https://node2
+
+Logger: zap
+LogOutputs: stdout
+
+EnableV2: false
+
+ListenMetricsURLs: https://127.0.0.2,https://127.0.0.3

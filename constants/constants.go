@@ -129,6 +129,14 @@ ETCD_TRUSTED_CA_FILE={{ .TrustedCAFile }}
 ETCD_DATA_DIR={{ .DataDir }}
 ETCD_STRICT_RECONFIG_CHECK=true
 GOMAXPROCS={{ .GOMAXPROCS }}
+{{ if .EnableV2 }}ETCD_ENABLE_V2={{ .EnableV2 }}{{ end }}
+
+# Logging configuration
+{{ if .Logger }}ETCD_LOGGER={{ .Logger }}{{ end }}
+{{ if .LogOutputs }}ETCD_LOG_OUTPUTS={{ .LogOutputs }}{{ end }}
+
+# Profiling/metrics
+{{ if .ListenMetricsURLs.String }}ETCD_LISTEN_METRICS_URLS={{ .ListenMetricsURLs.String }}{{ end }}
 `
 
 	EtcdctlEnvFileTemplate = `export ETCDCTL_API=3
