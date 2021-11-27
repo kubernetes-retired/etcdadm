@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net"
 	"reflect"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -310,7 +311,7 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 			if port == 0 {
 				port = p.defaultPort
 			}
-			s := fmt.Sprintf("%s:%v", endpoint.IP, port)
+			s := net.JoinHostPort(endpoint.IP, strconv.Itoa(port))
 			endpoints[s] = true
 		}
 

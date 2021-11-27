@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -342,7 +343,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 		o.Address = "127.0.0.1"
 	}
 
-	grpcEndpoint := fmt.Sprintf("%s:%d", o.Address, o.GrpcPort)
+	grpcEndpoint := net.JoinHostPort(o.Address, strconv.Itoa(o.GrpcPort))
 
 	if discoveryProvider == nil {
 		discoMe := discovery.Node{
