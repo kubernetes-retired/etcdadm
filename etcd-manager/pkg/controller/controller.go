@@ -621,10 +621,6 @@ func (m *EtcdController) buildMemberMap(etcdClusterState *etcdClusterState) *pro
 
 		for _, a := range peer.peer.info.Endpoints {
 			ip := a
-			colonIndex := strings.Index(ip, ":")
-			if colonIndex != -1 {
-				ip = ip[:colonIndex]
-			}
 			memberInfo.Addresses = append(memberInfo.Addresses, ip)
 		}
 

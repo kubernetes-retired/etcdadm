@@ -102,10 +102,6 @@ func (m *EtcdController) createNewCluster(ctx context.Context, clusterState *etc
 
 		for _, a := range p.peer.info.Endpoints {
 			ip := a
-			colonIndex := strings.Index(ip, ":")
-			if colonIndex != -1 {
-				ip = ip[:colonIndex]
-			}
 			memberInfo.Addresses = append(memberInfo.Addresses, ip)
 		}
 
