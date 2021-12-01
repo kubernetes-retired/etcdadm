@@ -239,7 +239,11 @@ func (s *EtcdServer) UpdateEndpoints(ctx context.Context, request *protoetcd.Upd
 		for _, m := range request.MemberMap.Members {
 			if m.Dns != "" {
 				for _, a := range m.Addresses {
-					addressToHosts[a] = append(addressToHosts[a], m.Dns)
+					ip, _, err := net.SplitHostPort(a)
+					if err != nil {
+						return nil, fmt.Errorf("failed to parse address %s: %v", a, err)
+					}
+					addressToHosts[ip] = append(addressToHosts[ip], m.Dns)
 				}
 			}
 		}

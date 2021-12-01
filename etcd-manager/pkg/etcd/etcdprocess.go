@@ -21,6 +21,7 @@ import (
 	"crypto/x509"
 	"flag"
 	"fmt"
+	"net"
 	"net/url"
 	"os"
 	"os/exec"
@@ -329,7 +330,7 @@ func changeHost(urls []string, host string) []string {
 		}
 		newHost := host
 		if u.Port() != "" {
-			newHost += ":" + u.Port()
+			newHost = net.JoinHostPort(newHost, u.Port())
 		}
 		u.Host = newHost
 		remapped = append(remapped, u.String())

@@ -163,6 +163,13 @@ func addAltNames(certConfig *certutil.Config, urls []string) error {
 		}
 	}
 	certConfig.AltNames.IPs = append(certConfig.AltNames.IPs, net.ParseIP("127.0.0.1"))
+	for _, ip := range certConfig.AltNames.IPs {
+		if ip.String() == "::1" {
+			return nil
+		}
+	}
+	certConfig.AltNames.IPs = append(certConfig.AltNames.IPs, net.ParseIP("::1"))
+
 	return nil
 }
 

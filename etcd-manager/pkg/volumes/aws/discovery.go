@@ -18,6 +18,7 @@ package aws
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
@@ -69,14 +70,20 @@ func (a *AWSVolumes) Poll() (map[string]discovery.Node, error) {
 				node := discovery.Node{
 					ID: volume.EtcdName,
 				}
-				if aws.StringValue(instance.PrivateIpAddress) != "" {
-					ip := aws.StringValue(instance.PrivateIpAddress)
+
+				if strings.HasPrefix(*instance.PrivateDnsName, "i-") {
+					ip := *instance.Ipv6Address
 					node.Endpoints = append(node.Endpoints, discovery.NodeEndpoint{IP: ip})
-				}
-				for _, ni := range instance.NetworkInterfaces {
-					if aws.StringValue(ni.PrivateIpAddress) != "" {
-						ip := aws.StringValue(ni.PrivateIpAddress)
+				} else {
+					if aws.StringValue(instance.PrivateIpAddress) != "" {
+						ip := aws.StringValue(instance.PrivateIpAddress)
 						node.Endpoints = append(node.Endpoints, discovery.NodeEndpoint{IP: ip})
+					}
+					for _, ni := range instance.NetworkInterfaces {
+						if aws.StringValue(ni.PrivateIpAddress) != "" {
+							ip := aws.StringValue(ni.PrivateIpAddress)
+							node.Endpoints = append(node.Endpoints, discovery.NodeEndpoint{IP: ip})
+						}
 					}
 				}
 				nodes[node.ID] = node
