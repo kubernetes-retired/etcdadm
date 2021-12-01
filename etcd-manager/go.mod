@@ -36,7 +36,7 @@ require (
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.7
 	github.com/Azure/go-autorest/autorest/to v0.4.0
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1059
-	github.com/aws/aws-sdk-go v1.40.38
+	github.com/aws/aws-sdk-go v1.42.16
 	github.com/blang/semver/v4 v4.0.0
 	github.com/digitalocean/godo v1.60.0
 	github.com/golang/protobuf v1.5.2
