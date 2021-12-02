@@ -26,6 +26,7 @@ import (
 	"crypto/x509"
 	"fmt"
 
+	"github.com/pkg/errors"
 	log "sigs.k8s.io/etcdadm/pkg/logrus"
 
 	certutil "k8s.io/client-go/util/cert"
@@ -33,6 +34,70 @@ import (
 	"sigs.k8s.io/etcdadm/certs/pkiutil"
 	"sigs.k8s.io/etcdadm/constants"
 )
+
+// GetDefaultCertList returns all of the certificates etcdadm requires to function.
+func GetDefaultCertList() []string {
+	return []string{
+		constants.EtcdServerCertAndKeyBaseName,
+		constants.EtcdPeerCertAndKeyBaseName,
+		constants.EtcdctlClientCertAndKeyBaseName,
+		constants.APIServerEtcdClientCertAndKeyBaseName,
+	}
+}
+
+// RenewUsingLocalCA replaces certificates with new certificates signed by the CA.
+func RenewUsingLocalCA(pkiDir, name string, csrOnly bool) (bool, error) {
+	// reads the current certificate
+	cert, err := pkiutil.TryLoadCertFromDiskIgnoreExpirationDate(pkiDir, name)
+	if err != nil {
+		return false, err
+	}
+
+	// extract the certificate config
+	cfg := certToConfig(cert)
+
+	if csrOnly {
+		csr, key, err := pkiutil.NewCSRAndKey(&cfg)
+		if err != nil {
+			return false, errors.Wrapf(err, "failed to renew csr %s", name)
+		}
+		if err := writeCSRFilesIfNotExist(pkiDir, name, csr, key); err != nil {
+			return false, errors.Wrapf(err, "failed to write new csr %s", name)
+		}
+		return true, nil
+	}
+
+	// reads the CA
+	caCert, caKey, err := loadCertificateAuthority(pkiDir, constants.EtcdCACertAndKeyBaseName)
+	if err != nil {
+		return false, err
+	}
+
+	// create a new certificate with the same config
+	newCert, newKey, err := pkiutil.NewCertAndKey(caCert, caKey, cfg)
+	if err != nil {
+		return false, errors.Wrapf(err, "failed to renew certificate %s", name)
+	}
+
+	// writes the new certificate to disk
+	if err := pkiutil.WriteCertAndKey(pkiDir, name, newCert, newKey); err != nil {
+		return false, errors.Wrapf(err, "failed to write new certificate %s", name)
+	}
+
+	return true, nil
+}
+
+func certToConfig(cert *x509.Certificate) certutil.Config {
+	return certutil.Config{
+		CommonName:   cert.Subject.CommonName,
+		Organization: cert.Subject.Organization,
+		AltNames: certutil.AltNames{
+			IPs:      cert.IPAddresses,
+			DNSNames: cert.DNSNames,
+		},
+		Usages: cert.ExtKeyUsage,
+	}
+}
 
 // CreatePKIAssets will create and write to disk all PKI assets necessary to establish the control plane.
 // If the PKI assets already exists in the target folder, they are used only if evaluated equal; otherwise an error is returned.
@@ -372,6 +437,30 @@ func writeKeyFilesIfNotExist(pkiDir string, baseName string, key *rsa.PrivateKey
 			return fmt.Errorf("failure while saving %s public key: %v", baseName, err)
 		}
 		fmt.Printf("[certificates] Generated %s key and public key.\n", baseName)
+	}
+
+	return nil
+}
+
+func writeCSRFilesIfNotExist(csrDir string, baseName string, csr *x509.CertificateRequest, key *rsa.PrivateKey) error {
+	if pkiutil.CSROrKeyExist(csrDir, baseName) {
+		_, _, err := pkiutil.TryLoadCSRAndKeyFromDisk(csrDir, baseName)
+		if err != nil {
+			return errors.Wrapf(err, "%s CSR existed but it could not be loaded properly", baseName)
+		}
+
+		fmt.Printf("[certs] Using the existing %q CSR\n", baseName)
+	} else {
+		// Write .key and .csr files to disk
+		fmt.Printf("[certs] Generating %q key and CSR\n", baseName)
+
+		if err := pkiutil.WriteKey(csrDir, baseName, key); err != nil {
+			return errors.Wrapf(err, "failure while saving %s key", baseName)
+		}
+
+		if err := pkiutil.WriteCSR(csrDir, baseName, csr); err != nil {
+			return errors.Wrapf(err, "failure while saving %s CSR", baseName)
+		}
 	}
 
 	return nil
