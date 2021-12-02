@@ -307,6 +307,56 @@ func TestTryLoadCertAndKeyFromDisk(t *testing.T) {
 	}
 }
 
+func TestTryLoadCertFromDiskIgnoreExpirationDate(t *testing.T) {
+	tmpdir, err := ioutil.TempDir("", "")
+	if err != nil {
+		t.Fatalf("Couldn't create tmpdir")
+	}
+	defer os.RemoveAll(tmpdir)
+
+	caCert, _, err := NewCertificateAuthority()
+	if err != nil {
+		t.Errorf(
+			"failed to create cert and key with an error: %v",
+			err,
+		)
+	}
+	err = WriteCert(tmpdir, "foo", caCert)
+	if err != nil {
+		t.Errorf(
+			"failed to write cert and key with an error: %v",
+			err,
+		)
+	}
+
+	var tests = []struct {
+		path     string
+		name     string
+		expected bool
+	}{
+		{
+			path:     "",
+			name:     "",
+			expected: false,
+		},
+		{
+			path:     tmpdir,
+			name:     "foo",
+			expected: true,
+		},
+	}
+	for _, rt := range tests {
+		_, actual := TryLoadCertFromDiskIgnoreExpirationDate(rt.path, rt.name)
+		if (actual == nil) != rt.expected {
+			t.Errorf(
+				"failed TryLoadCertFromDiskIgnoreExpirationDate:\n\texpected: %t\n\t  actual: %t",
+				rt.expected,
+				(actual == nil),
+			)
+		}
+	}
+}
+
 func TestTryLoadCertFromDisk(t *testing.T) {
 	tmpdir, err := ioutil.TempDir("", "")
 	if err != nil {

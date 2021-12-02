@@ -66,6 +66,22 @@ On the machine being removed, run
 etcdadm reset
 ```
 
+### Renewal certificates
+
+1. Ensure the CA certificate and key already exists on the machine.
+
+If not exists, Copy the CA certificate and key from other machine in the cluster.
+
+```
+rsync -avR /etc/etcd/pki/ca.* <Member IP address>:/
+```
+
+2. run command to renew certficates via CA certificate and key.
+
+```
+etcdadm certs renew
+```
+
 ## Advanced Usage
 
 ### Creating a new cluster from a snapshot
