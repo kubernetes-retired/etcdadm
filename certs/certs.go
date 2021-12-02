@@ -45,8 +45,8 @@ func GetDefaultCertList() []string {
 	}
 }
 
-// RenewUsingLocalCA replaces certificates with new certificates signed by the CA.
-func RenewUsingLocalCA(pkiDir, name string, csrOnly bool) (bool, error) {
+// RenewCSRUsingLocalCA creates CSRs using the on-disk CA and certificates
+func RenewCSRUsingLocalCA(pkiDir string, name string, csrDir string) (bool, error) {
 	// reads the current certificate
 	cert, err := pkiutil.TryLoadCertFromDiskIgnoreExpirationDate(pkiDir, name)
 	if err != nil {
@@ -56,16 +56,26 @@ func RenewUsingLocalCA(pkiDir, name string, csrOnly bool) (bool, error) {
 	// extract the certificate config
 	cfg := certToConfig(cert)
 
-	if csrOnly {
-		csr, key, err := pkiutil.NewCSRAndKey(&cfg)
-		if err != nil {
-			return false, errors.Wrapf(err, "failed to renew csr %s", name)
-		}
-		if err := writeCSRFilesIfNotExist(pkiDir, name, csr, key); err != nil {
-			return false, errors.Wrapf(err, "failed to write new csr %s", name)
-		}
-		return true, nil
+	csr, key, err := pkiutil.NewCSRAndKey(&cfg)
+	if err != nil {
+		return false, errors.Wrapf(err, "failed to renew csr %s", name)
 	}
+	if err := writeCSRFilesIfNotExist(csrDir, name, csr, key); err != nil {
+		return false, errors.Wrapf(err, "failed to write new csr %s", name)
+	}
+	return true, nil
+}
+
+// RenewUsingLocalCA replaces certificates with new certificates signed by the CA.
+func RenewUsingLocalCA(pkiDir string, name string) (bool, error) {
+	// reads the current certificate
+	cert, err := pkiutil.TryLoadCertFromDiskIgnoreExpirationDate(pkiDir, name)
+	if err != nil {
+		return false, err
+	}
+
+	// extract the certificate config
+	cfg := certToConfig(cert)
 
 	// reads the CA
 	caCert, caKey, err := loadCertificateAuthority(pkiDir, constants.EtcdCACertAndKeyBaseName)
