@@ -7,7 +7,6 @@ go_library(
     importpath = "google.golang.org/genproto/googleapis/rpc/status",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/golang/protobuf/proto",
         "//vendor/google.golang.org/protobuf/reflect/protoreflect",
         "//vendor/google.golang.org/protobuf/runtime/protoimpl",
         "//vendor/google.golang.org/protobuf/types/known/anypb",

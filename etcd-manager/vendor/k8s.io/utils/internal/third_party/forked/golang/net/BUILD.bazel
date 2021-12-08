@@ -1,0 +1,12 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "net",
+    srcs = [
+        "ip.go",
+        "parse.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/k8s.io/utils/internal/third_party/forked/golang/net",
+    importpath = "k8s.io/utils/internal/third_party/forked/golang/net",
+    visibility = ["//vendor/k8s.io/utils:__subpackages__"],
+)

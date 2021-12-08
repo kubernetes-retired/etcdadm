@@ -8,7 +8,6 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//vendor/google.golang.org/protobuf/reflect/protoreflect",
-        "//vendor/google.golang.org/protobuf/runtime/protoiface",
         "//vendor/google.golang.org/protobuf/runtime/protoimpl",
     ],
 )
