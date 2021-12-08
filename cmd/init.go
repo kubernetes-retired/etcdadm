@@ -115,6 +115,8 @@ func init() {
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.ReleaseURL, "release-url", constants.DefaultReleaseURL, "URL used to download etcd")
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.CertificatesDir, "certs-dir", constants.DefaultCertificateDir, "certificates directory")
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.BindAddr, "bind-address", "", "etcd bind address")
+	initCmd.PersistentFlags().IntVar(&etcdAdmConfig.PeerPort, "peer-port", constants.DefaultPeerPort, "install directory")
+	initCmd.PersistentFlags().IntVar(&etcdAdmConfig.ClientPort, "client-port", constants.DefaultClientPort, "install directory")
 	initCmd.PersistentFlags().StringSliceVar(&etcdAdmConfig.ServerCertSANs, "server-cert-extra-sans", etcdAdmConfig.ServerCertSANs, "optional extra Subject Alternative Names for the etcd server signing cert, can be multiple comma separated DNS names or IPs")
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.InstallDir, "install-dir", constants.DefaultInstallDir, "install directory")
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.Snapshot, "snapshot", "", "Etcd v3 snapshot file used to initialize member")

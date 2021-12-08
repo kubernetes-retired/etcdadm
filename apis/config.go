@@ -59,6 +59,9 @@ type EtcdAdmConfig struct {
 
 	BindAddr string
 
+	PeerPort   int
+	ClientPort int
+
 	UnitFile            string
 	EnvironmentFile     string
 	EtcdExecutable      string
@@ -309,7 +312,7 @@ func DefaultInitialAdvertisePeerURLs(cfg *EtcdAdmConfig) error {
 	}
 	cfg.InitialAdvertisePeerURLs = append(cfg.InitialAdvertisePeerURLs, url.URL{
 		Scheme: "https",
-		Host:   fmt.Sprintf("%s:%d", externalAddress.String(), constants.DefaultPeerPort),
+		Host:   fmt.Sprintf("%s:%d", externalAddress.String(), cfg.PeerPort),
 	})
 	return nil
 }
@@ -324,7 +327,7 @@ func DefaultListenPeerURLs(cfg *EtcdAdmConfig) error {
 func DefaultLoopbackClientURL(cfg *EtcdAdmConfig) {
 	cfg.LoopbackClientURL = url.URL{
 		Scheme: "https",
-		Host:   fmt.Sprintf("%s:%d", constants.DefaultLoopbackHost, constants.DefaultClientPort),
+		Host:   fmt.Sprintf("%s:%d", constants.DefaultLoopbackHost, cfg.ClientPort),
 	}
 }
 
@@ -343,7 +346,7 @@ func DefaultAdvertiseClientURLs(cfg *EtcdAdmConfig) error {
 	}
 	cfg.AdvertiseClientURLs = append(cfg.AdvertiseClientURLs, url.URL{
 		Scheme: "https",
-		Host:   fmt.Sprintf("%s:%d", externalAddress.String(), constants.DefaultClientPort),
+		Host:   fmt.Sprintf("%s:%d", externalAddress.String(), cfg.ClientPort),
 	})
 	return nil
 }

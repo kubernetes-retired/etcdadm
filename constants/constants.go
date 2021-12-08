@@ -141,6 +141,8 @@ GOMAXPROCS={{ .GOMAXPROCS }}
 
 	EtcdctlEnvFileTemplate = `export ETCDCTL_API=3
 
+export ETCDCTL_ENDPOINTS={{ .ListenClientURLs.String }}
+
 export ETCDCTL_CACERT={{ .TrustedCAFile }}
 export ETCDCTL_CERT={{ .EtcdctlCertFile }}
 export ETCDCTL_KEY={{ .EtcdctlKeyFile }}
