@@ -653,7 +653,7 @@ func (s *EtcdServer) stopEtcdProcess() (bool, error) {
 // validateHeader checks the values in the CommonRequestHeader
 func (s *EtcdServer) validateHeader(header *protoetcd.CommonRequestHeader) error {
 	if header.ClusterName != s.clusterName {
-		klog.Infof("request had incorrect ClusterName.  ClusterName=%q but header=%q", s.clusterName, header)
+		klog.Infof("request had incorrect ClusterName. ClusterName=%q but header=%q", s.clusterName, header)
 		return fmt.Errorf("ClusterName mismatch")
 	}
 
