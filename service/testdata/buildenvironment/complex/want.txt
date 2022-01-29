@@ -26,7 +26,7 @@ ETCD_TRUSTED_CA_FILE=ca.crt
 # Other
 ETCD_DATA_DIR=/data
 ETCD_STRICT_RECONFIG_CHECK=true
-GOMAXPROCS=0
+
 ETCD_ENABLE_V2=false
 
 # Logging configuration

@@ -128,7 +128,7 @@ ETCD_TRUSTED_CA_FILE={{ .TrustedCAFile }}
 # Other
 ETCD_DATA_DIR={{ .DataDir }}
 ETCD_STRICT_RECONFIG_CHECK=true
-GOMAXPROCS={{ .GOMAXPROCS }}
+{{ if .GOMAXPROCS }}GOMAXPROCS={{ .GOMAXPROCS }}{{ end }}
 {{ if .EnableV2 }}ETCD_ENABLE_V2={{ .EnableV2 }}{{ end }}
 
 # Logging configuration
