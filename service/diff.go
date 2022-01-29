@@ -131,6 +131,10 @@ func makeEnvironment(r io.Reader) (map[string]string, error) {
 			// Ignore comments
 			continue
 		}
+		if strings.TrimSpace(l) == "" {
+			// Ignore empty line
+			continue
+		}
 		// Capture values with embedded '='
 		kv := strings.SplitN(l, "=", 2)
 		var k, v string
