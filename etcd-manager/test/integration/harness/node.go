@@ -255,15 +255,18 @@ func (n *TestHarnessNode) NewClient() (*etcdclient.EtcdClient, error) {
 }
 
 func (n *TestHarnessNode) Close() error {
+	// Stop the node state machine by cancelling the context
+	// (we do this before stopping etcd, so it won't try to restart etcd)
+	if n.ctxCancel != nil {
+		n.ctxCancel()
+		n.ctxCancel = nil
+	}
+	// Stop etcd
 	if n.etcdServer != nil {
 		_, err := n.etcdServer.StopEtcdProcessForTest()
 		if err != nil {
 			return err
 		}
-	}
-	if n.ctxCancel != nil {
-		n.ctxCancel()
-		n.ctxCancel = nil
 	}
 	return nil
 }
