@@ -292,6 +292,9 @@ github.com/ryanuber/go-glob
 # github.com/satori/go.uuid v1.2.0
 ## explicit
 github.com/satori/go.uuid
+# github.com/sirupsen/logrus v1.8.1
+## explicit; go 1.13
+github.com/sirupsen/logrus
 # go.etcd.io/etcd/api/v3 v3.5.3
 ## explicit; go 1.16
 go.etcd.io/etcd/api/v3/authpb
@@ -568,7 +571,12 @@ k8s.io/utils/nsenter
 # sigs.k8s.io/etcdadm v0.0.0 => ../.
 ## explicit; go 1.12
 sigs.k8s.io/etcdadm/apis
+sigs.k8s.io/etcdadm/binary
 sigs.k8s.io/etcdadm/constants
+sigs.k8s.io/etcdadm/initsystem
+sigs.k8s.io/etcdadm/initsystem/execinitsystem
+sigs.k8s.io/etcdadm/initsystem/kubelet
+sigs.k8s.io/etcdadm/pkg/logrus
 sigs.k8s.io/etcdadm/service
 sigs.k8s.io/etcdadm/util
 # sigs.k8s.io/yaml v1.2.0

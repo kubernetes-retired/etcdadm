@@ -120,6 +120,8 @@ const (
 	Systemd InitSystem = "systemd"
 	// Kubelet represents the kubelet init system
 	Kubelet InitSystem = "kubelet"
+	// Exec represents an init system based on direct process execution
+	Exec InitSystem = "exec"
 )
 
 // EndpointStatus TODO: add description

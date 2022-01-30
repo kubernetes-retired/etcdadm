@@ -6,6 +6,7 @@ go_library(
         "backup.go",
         "etcdprocess.go",
         "etcdserver.go",
+        "initsystem.go",
         "pki.go",
         "restore.go",
         "tar.go",
@@ -29,6 +30,7 @@ go_library(
         "//vendor/k8s.io/client-go/util/cert",
         "//vendor/k8s.io/klog/v2:klog",
         "//vendor/sigs.k8s.io/etcdadm/apis",
+        "//vendor/sigs.k8s.io/etcdadm/initsystem",
         "//vendor/sigs.k8s.io/etcdadm/service",
     ],
 )
