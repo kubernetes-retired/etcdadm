@@ -65,8 +65,10 @@ func init() {
 
 // etcdProcess wraps a running etcd process
 type etcdProcess struct {
-	BinDir  string
-	DataDir string
+	BinDir string
+
+	// dataDir is the directory holding the etcd data files.
+	dataDir string
 
 	// CurrentDir is the directory in which we launch the binary (cwd)
 	CurrentDir string
@@ -79,8 +81,8 @@ type etcdProcess struct {
 	// including a client certificate & CA configuration (if needed)
 	etcdClientTLSConfig *tls.Config
 
-	// EtcdVersion is the version of etcd we are running
-	EtcdVersion string
+	// etcdVersion is the version of etcd we are running
+	etcdVersion string
 
 	CreateNewCluster bool
 
@@ -111,6 +113,16 @@ type etcdProcess struct {
 
 	// IgnoreListenMetricsURLs if this is set, we will not set Metrics URL even if ENV is set.
 	IgnoreListenMetricsURLs bool
+}
+
+// DataDir implements the EtcdProcess interface
+func (p *etcdProcess) DataDir() string {
+	return p.dataDir
+}
+
+// EtcdVersion implements the EtcdProcess interface
+func (p *etcdProcess) EtcdVersion() string {
+	return p.etcdVersion
 }
 
 func (p *etcdProcess) ExitState() (error, *os.ProcessState) {
@@ -203,33 +215,26 @@ func (p *etcdProcess) findMyNode() *protoetcd.EtcdNode {
 	return me
 }
 
-func (p *etcdProcess) Start() error {
-	c := exec.Command(path.Join(p.BinDir, "etcd"))
-	c.Dir = p.CurrentDir
-
-	if p.ForceNewCluster {
-		c.Args = append(c.Args, "--force-new-cluster")
-	}
-	klog.Infof("executing command %s %s", c.Path, c.Args)
-
+// Config builds the EtcdAdmConfig, but does not start the process
+func (p *etcdProcess) Config() (*apis.EtcdAdmConfig, error) {
 	me := p.findMyNode()
 	if me == nil {
-		return fmt.Errorf("unable to find self node %q in %v", p.MyNodeName, p.Cluster.Nodes)
+		return nil, fmt.Errorf("unable to find self node %q in %v", p.MyNodeName, p.Cluster.Nodes)
 	}
 
 	readyClientURLs, err := parseURLs(me.ClientUrls)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	quarantinedClientURLs, err := parseURLs(me.QuarantinedClientUrls)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	peerURLs, err := parseURLs(me.PeerUrls)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	clientURLs := readyClientURLs
@@ -237,12 +242,12 @@ func (p *etcdProcess) Start() error {
 		clientURLs = quarantinedClientURLs
 	}
 
-	var config apis.EtcdAdmConfig
+	config := &apis.EtcdAdmConfig{}
 	// TODO: config.GOMAXPROCS = runtime.NumCPU()
 
 	env := make(map[string]string)
-	env["ETCD_DATA_DIR"] = p.DataDir
-	config.DataDir = p.DataDir
+	env["ETCD_DATA_DIR"] = p.DataDir()
+	config.DataDir = p.DataDir()
 
 	// etcd 3.4 deprecates '--logger=capnslog'
 	//   [WARNING] Deprecated '--logger=capnslog' flag is set; use '--logger=zap' flag instead
@@ -265,7 +270,7 @@ func (p *etcdProcess) Start() error {
 	if len(p.ListenMetricsURLs) != 0 {
 		listenMetricsURLs, err := parseURLs(p.ListenMetricsURLs)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		config.ListenMetricsURLs = listenMetricsURLs
 		env["ETCD_LISTEN_METRICS_URLS"] = config.ListenMetricsURLs.String()
@@ -355,9 +360,9 @@ func (p *etcdProcess) Start() error {
 	}
 
 	{
-		configEnv, err := service.BuildEnvironmentMap(&config)
+		configEnv, err := service.BuildEnvironmentMap(config)
 		if err != nil {
-			return fmt.Errorf("failed to build environment config: %w", err)
+			return nil, fmt.Errorf("failed to build environment config: %w", err)
 		}
 		if !reflect.DeepEqual(configEnv, env) {
 			klog.Warningf("environment did not match: %v vs %v", env, configEnv)
@@ -371,8 +376,33 @@ func (p *etcdProcess) Start() error {
 					klog.Warningf("diff %s=%s vs %s", k, configEnv[k], env[k])
 				}
 			}
-			return fmt.Errorf("environment did not match: %v vs %v", env, configEnv)
+			return nil, fmt.Errorf("environment did not match: %v vs %v", env, configEnv)
 		}
+	}
+
+	config.EtcdExecutable = filepath.Join(p.BinDir, "etcd")
+	config.Version = p.etcdVersion
+
+	return config, nil
+}
+
+func (p *etcdProcess) Start() error {
+	config, err := p.Config()
+	if err != nil {
+		return err
+	}
+
+	c := exec.Command(path.Join(p.BinDir, "etcd"))
+	c.Dir = p.CurrentDir
+
+	if p.ForceNewCluster {
+		c.Args = append(c.Args, "--force-new-cluster")
+	}
+	klog.Infof("executing command %s %s", c.Path, c.Args)
+
+	env, err := service.BuildEnvironmentMap(config)
+	if err != nil {
+		return fmt.Errorf("failed to build environment config: %w", err)
 	}
 
 	for k, v := range env {
@@ -381,9 +411,10 @@ func (p *etcdProcess) Start() error {
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
 	if err := c.Start(); err != nil {
-		return fmt.Errorf("error starting etcd: %v", err)
+		return fmt.Errorf("error starting etcd: %w", err)
 	}
-	klog.Infof("started etcd with datadir %s; pid=%d", p.DataDir, c.Process.Pid)
+
+	klog.Infof("started etcd with datadir %s; pid=%d", p.DataDir(), c.Process.Pid)
 	p.cmd = c
 
 	go func() {
@@ -399,7 +430,7 @@ func (p *etcdProcess) Start() error {
 		if processState != nil {
 			exitCode = processState.ExitCode()
 		}
-		klog.Infof("etcd process exited (datadir %s; pid=%d); exitCode=%d, exitErr=%v", p.DataDir, p.cmd.Process.Pid, exitCode, err)
+		klog.Infof("etcd process exited (datadir %s; pid=%d); exitCode=%d, exitErr=%v", p.DataDir(), p.cmd.Process.Pid, exitCode, err)
 	}()
 
 	return nil
@@ -471,6 +502,10 @@ func (p *etcdProcess) NewClient() (*etcdclient.EtcdClient, error) {
 		clientURLs = me.QuarantinedClientUrls
 	}
 
+	return NewClient(clientURLs, p.CurrentDir, p.etcdClientTLSConfig)
+}
+
+func NewClient(clientURLs []string, currentDir string, etcdClientTLSConfig *tls.Config) (*etcdclient.EtcdClient, error) {
 	// If there are any relative paths, make them absolute for the client.
 	// This is a workaround for https://github.com/etcd-io/etcd/issues/12450
 	for i, clientURL := range clientURLs {
@@ -492,20 +527,20 @@ func (p *etcdProcess) NewClient() (*etcdclient.EtcdClient, error) {
 
 		path := strings.TrimPrefix(clientURL, scheme+"://")
 
-		if p.CurrentDir == "" {
+		if currentDir == "" {
 			return nil, fmt.Errorf("clientURL was set to relative path %q, but process directory was not set", clientURL)
 		}
 
-		if !filepath.IsAbs(p.CurrentDir) {
-			return nil, fmt.Errorf("process directory %q was not absolute", p.CurrentDir)
+		if !filepath.IsAbs(currentDir) {
+			return nil, fmt.Errorf("process directory %q was not absolute", currentDir)
 		}
 
-		rewrote := scheme + "://" + filepath.Join(p.CurrentDir, path)
+		rewrote := scheme + "://" + filepath.Join(currentDir, path)
 		klog.Infof("rewrote client url %q to %q", clientURLs[i], rewrote)
 		clientURLs[i] = rewrote
 	}
 
-	return etcdclient.NewClient(clientURLs, p.etcdClientTLSConfig)
+	return etcdclient.NewClient(clientURLs, etcdClientTLSConfig)
 }
 
 // DoBackup performs a backup/snapshot of the data
@@ -520,7 +555,7 @@ func (p *etcdProcess) DoBackup(store backup.Store, info *protoetcd.BackupInfo) (
 		clientUrls = me.QuarantinedClientUrls
 	}
 
-	return DoBackup(store, info, p.DataDir, clientUrls, p.etcdClientTLSConfig)
+	return DoBackup(store, info, p.dataDir, clientUrls, p.etcdClientTLSConfig)
 }
 
 // RestoreV3Snapshot calls etcdctl snapshot restore
@@ -541,7 +576,7 @@ func (p *etcdProcess) RestoreV3Snapshot(snapshotFile string) error {
 	c.Args = append(c.Args, "--initial-cluster", strings.Join(initialCluster, ","))
 	c.Args = append(c.Args, "--initial-cluster-token", p.Cluster.ClusterToken)
 	c.Args = append(c.Args, "--initial-advertise-peer-urls", strings.Join(me.PeerUrls, ","))
-	c.Args = append(c.Args, "--data-dir", p.DataDir)
+	c.Args = append(c.Args, "--data-dir", p.dataDir)
 	klog.Infof("executing command %s %s", c.Path, c.Args)
 
 	env := make(map[string]string)

@@ -29,6 +29,7 @@ import (
 
 	"k8s.io/klog/v2"
 	"k8s.io/kops/util/pkg/vfs"
+	"sigs.k8s.io/etcdadm/apis"
 	apis_etcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/backup"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/commands"
@@ -138,6 +139,7 @@ type EtcdManagerOptions struct {
 	ListenAddress         string
 	BackupStorePath       string
 	DataDir               string
+	InitSystem            apis.InitSystem
 	VolumeTags            []string
 	NameTag               string
 	BackupInterval        string
@@ -472,7 +474,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 		peerClientIPs = append(peerClientIPs, ip)
 	}
 	klog.Infof("peerClientIPs: %v", peerClientIPs)
-	etcdServer, err := etcd.NewEtcdServer(o.DataDir, o.ClusterName, o.ListenAddress, listenMetricsURLs, etcdNodeInfo, peerServer, dnsProvider, etcdClientsCA, etcdPeersCA, peerClientIPs)
+	etcdServer, err := etcd.NewEtcdServer(o.InitSystem, o.DataDir, o.ClusterName, o.ListenAddress, listenMetricsURLs, etcdNodeInfo, peerServer, dnsProvider, etcdClientsCA, etcdPeersCA, peerClientIPs)
 	if err != nil {
 		return fmt.Errorf("error initializing etcd server: %v", err)
 	}

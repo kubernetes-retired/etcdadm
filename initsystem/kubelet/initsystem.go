@@ -22,7 +22,6 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"strings"
 	"time"
 
 	"k8s.io/klog/v2"
@@ -120,28 +119,9 @@ func (s *InitSystem) SetConfiguration(cfg *apis.EtcdAdmConfig) error {
 }
 
 func (s *InitSystem) buildPod(name string, cfg *apis.EtcdAdmConfig) (*pod, error) {
-	env := make(map[string]string)
-
-	// TODO: This is not the best way to build the environment, but it lets us minimize the initial changes
-	{
-		envBytes, err := service.BuildEnvironment(cfg)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, line := range strings.Split(string(envBytes), "\n") {
-			line = strings.TrimSpace(line)
-			if line == "" || strings.HasPrefix(line, "#") {
-				continue
-			}
-
-			tokens := strings.SplitN(line, "=", 2)
-			if len(tokens) != 2 {
-				return nil, fmt.Errorf("cannot parse environment line %q", line)
-			}
-
-			env[tokens[0]] = tokens[1]
-		}
+	env, err := service.BuildEnvironmentMap(cfg)
+	if err != nil {
+		return nil, err
 	}
 
 	// TODO: Critical pod annotations

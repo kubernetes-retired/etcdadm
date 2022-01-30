@@ -29,14 +29,17 @@ import (
 	"github.com/golang/protobuf/proto"
 	"golang.org/x/net/context"
 	"k8s.io/klog/v2"
+	"sigs.k8s.io/etcdadm/apis"
 	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/backup"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/contextutil"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/dns"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdclient"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/legacy"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/pki"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/urls"
+	"sigs.k8s.io/etcdadm/initsystem"
 )
 
 const PreparedValidity = time.Minute
@@ -54,7 +57,10 @@ type EtcdServer struct {
 
 	state    *protoetcd.EtcdState
 	prepared *preparedState
-	process  *etcdProcess
+
+	initSystemConfig apis.InitSystem
+
+	process EtcdProcess
 
 	// listenAddress is the address we configure etcd to bind to
 	listenAddress string
@@ -70,13 +76,24 @@ type EtcdServer struct {
 	peerClientIPs []net.IP
 }
 
+type EtcdProcess interface {
+	DataDir() string
+	EtcdVersion() string
+
+	Stop() error
+
+	DoBackup(store backup.Store, info *protoetcd.BackupInfo) (*protoetcd.DoBackupResponse, error)
+	NewClient() (*etcdclient.EtcdClient, error)
+}
+
 type preparedState struct {
 	validUntil   time.Time
 	clusterToken string
 }
 
-func NewEtcdServer(baseDir string, clusterName string, listenAddress string, listenMetricsURLs []string, etcdNodeConfiguration *protoetcd.EtcdNode, peerServer *privateapi.Server, dnsProvider dns.Provider, etcdClientsCA *pki.CA, etcdPeersCA *pki.CA, peerClientIPs []net.IP) (*EtcdServer, error) {
+func NewEtcdServer(initSystem apis.InitSystem, baseDir string, clusterName string, listenAddress string, listenMetricsURLs []string, etcdNodeConfiguration *protoetcd.EtcdNode, peerServer *privateapi.Server, dnsProvider dns.Provider, etcdClientsCA *pki.CA, etcdPeersCA *pki.CA, peerClientIPs []net.IP) (*EtcdServer, error) {
 	s := &EtcdServer{
+		initSystemConfig:      initSystem,
 		baseDir:               baseDir,
 		clusterName:           clusterName,
 		listenAddress:         listenAddress,
@@ -112,12 +129,21 @@ func NewEtcdServer(baseDir string, clusterName string, listenAddress string, lis
 var _ protoetcd.EtcdManagerServiceServer = &EtcdServer{}
 
 func (s *EtcdServer) Run(ctx context.Context) {
-	contextutil.Forever(ctx, time.Second*10, func() {
-		err := s.runOnce()
-		if err != nil {
-			klog.Warningf("error running etcd: %v", err)
-		}
-	})
+	if s.initSystemConfig == "" {
+		contextutil.Forever(ctx, time.Second*10, func() {
+			err := s.execOnce()
+			if err != nil {
+				klog.Warningf("error running etcd: %v", err)
+			}
+		})
+	} else {
+		contextutil.Forever(ctx, time.Second*10, func() {
+			err := s.syncWithInitSystem()
+			if err != nil {
+				klog.Warningf("error running etcd: %v", err)
+			}
+		})
+	}
 }
 
 func readState(baseDir string) (*protoetcd.EtcdState, error) {
@@ -171,7 +197,7 @@ func (s *EtcdServer) initState() error {
 	return nil
 }
 
-func (s *EtcdServer) runOnce() error {
+func (s *EtcdServer) execOnce() error {
 	if err := s.initState(); err != nil {
 		return err
 	}
@@ -181,11 +207,43 @@ func (s *EtcdServer) runOnce() error {
 
 	// Check that etcd process is still running
 	if s.process != nil {
-		exitError, exitState := s.process.ExitState()
+		process := s.process.(*etcdProcess)
+		exitError, exitState := process.ExitState()
 		if exitError != nil || exitState != nil {
 			klog.Warningf("etcd process exited (error=%v, state=%v)", exitError, exitState)
 
 			s.process = nil
+		}
+	}
+
+	// Start etcd, if it is not running but should be
+	if s.state != nil && s.state.Cluster != nil && s.process == nil {
+		if err := s.startEtcdProcess(s.state); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s *EtcdServer) syncWithInitSystem() error {
+	if err := s.initState(); err != nil {
+		return err
+	}
+
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	// Check that etcd process is still running
+	if s.process != nil {
+		process := s.process.(*initSystemEtcdProcess)
+
+		isActive, err := process.IsActive()
+		if err != nil {
+			return fmt.Errorf("error checking if etcd is active: %w", err)
+		}
+		if !isActive {
+			process = nil
 		}
 	}
 
@@ -528,7 +586,7 @@ func (s *EtcdServer) DoBackup(ctx context.Context, request *protoetcd.DoBackupRe
 	}
 
 	info := request.Info
-	info.EtcdVersion = s.process.EtcdVersion
+	info.EtcdVersion = s.process.EtcdVersion()
 
 	response, err := s.process.DoBackup(backupStore, info)
 	if err != nil {
@@ -557,12 +615,76 @@ func (s *EtcdServer) findSelfNode(state *protoetcd.EtcdState) (*protoetcd.EtcdNo
 }
 
 func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
+	if s.initSystemConfig != "" {
+		p, err := s.buildEtcdProcess(s.state)
+		if err != nil {
+			return err
+		}
+
+		config, err := p.Config()
+		if err != nil {
+			return err
+		}
+
+		config.InitSystem = s.initSystemConfig
+
+		klog.Infof("using init system %q", config.InitSystem)
+
+		initSystem, err := initsystem.GetInitSystem(config)
+		if err != nil {
+			return err
+		}
+
+		if err := initSystem.Install(); err != nil {
+			return err
+		}
+
+		if err := initSystem.Configure(); err != nil {
+			return err
+		}
+
+		if err := initSystem.EnableAndStartService(); err != nil {
+			klog.Warningf("error starting etcd; will stop: %v", err)
+			if err := initSystem.DisableAndStopService(); err != nil {
+				klog.Warningf("error stopping etcd (after failed start): %v", err)
+			}
+
+			return err
+		}
+
+		s.process = &initSystemEtcdProcess{
+			initSystem:          initSystem,
+			config:              *config,
+			etcdClientTLSConfig: p.etcdClientTLSConfig,
+			baseDir:             p.CurrentDir,
+		}
+		return nil
+	}
+
+	// Older direct-execution method
 	klog.Infof("starting etcd with state %v", state)
+	p, err := s.buildEtcdProcess(state)
+	if err != nil {
+		return err
+	}
+
+	if err := p.Start(); err != nil {
+		return fmt.Errorf("error starting etcd: %v", err)
+	}
+
+	s.process = p
+
+	return nil
+}
+
+// buildEtcdProcess builds the etcdProcess, but does not start it.
+// (this is handy so we can get the config without running etcd)
+func (s *EtcdServer) buildEtcdProcess(state *protoetcd.EtcdState) (*etcdProcess, error) {
 	if state.Cluster == nil {
-		return fmt.Errorf("cluster not configured, cannot start etcd")
+		return nil, fmt.Errorf("cluster not configured, cannot start etcd")
 	}
 	if state.Cluster.ClusterToken == "" {
-		return fmt.Errorf("ClusterToken not configured, cannot start etcd")
+		return nil, fmt.Errorf("ClusterToken not configured, cannot start etcd")
 	}
 	dataDir := filepath.Join(s.baseDir, "data", state.Cluster.ClusterToken)
 	pkiDir := filepath.Join(s.baseDir, "pki", state.Cluster.ClusterToken)
@@ -573,10 +695,10 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 	// TODO: Validate this during the PREPARE phase
 	meNode, err := s.findSelfNode(state)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if meNode == nil {
-		return fmt.Errorf("self node was not included in cluster")
+		return nil, fmt.Errorf("self node was not included in cluster")
 	}
 
 	if !reflect.DeepEqual(s.etcdNodeConfiguration.ClientUrls, meNode.ClientUrls) {
@@ -590,7 +712,7 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 
 	p := &etcdProcess{
 		CreateNewCluster: false,
-		DataDir:          dataDir,
+		dataDir:          dataDir,
 		Cluster: &protoetcd.EtcdCluster{
 			ClusterToken: state.Cluster.ClusterToken,
 			Nodes:        state.Cluster.Nodes,
@@ -604,27 +726,21 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 
 	// We always generate the keypairs, as this allows us to switch to TLS without a restart
 	if err := p.createKeypairs(s.etcdPeersCA, s.etcdClientsCA, pkiDir, meNode, s.peerClientIPs); err != nil {
-		return err
+		return nil, err
 	}
 
 	binDir, err := BindirForEtcdVersion(state.EtcdVersion, "etcd")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	p.BinDir = binDir
-	p.EtcdVersion = state.EtcdVersion
+	p.etcdVersion = state.EtcdVersion
 
 	if state.NewCluster {
 		p.CreateNewCluster = true
 	}
 
-	if err := p.Start(); err != nil {
-		return fmt.Errorf("error starting etcd: %v", err)
-	}
-
-	s.process = p
-
-	return nil
+	return p, nil
 }
 
 // StopEtcdProcessForTest terminates etcd if it is running; primarily used for testing
@@ -641,9 +757,8 @@ func (s *EtcdServer) stopEtcdProcess() (bool, error) {
 		return false, nil
 	}
 
-	klog.Infof("killing etcd with datadir %s", s.process.DataDir)
-	err := s.process.Stop()
-	if err != nil {
+	klog.Infof("killing etcd with datadir %s", s.process.DataDir())
+	if err := s.process.Stop(); err != nil {
 		return true, fmt.Errorf("error killing etcd: %v", err)
 	}
 	s.process = nil

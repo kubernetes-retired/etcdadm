@@ -157,8 +157,8 @@ func RunEtcdFromBackup(backupStore backup.Store, backupName string, basedir stri
 		CreateNewCluster: true,
 		ForceNewCluster:  true,
 		BinDir:           binDir,
-		EtcdVersion:      etcdVersion,
-		DataDir:          dataDir,
+		etcdVersion:      etcdVersion,
+		dataDir:          dataDir,
 		Cluster: &protoetcd.EtcdCluster{
 			ClusterToken: clusterToken,
 			Nodes:        []*protoetcd.EtcdNode{myNode},

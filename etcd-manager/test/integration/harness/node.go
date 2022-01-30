@@ -29,6 +29,7 @@ import (
 	"k8s.io/klog/v2"
 	"k8s.io/kops/util/pkg/vfs"
 
+	"sigs.k8s.io/etcdadm/apis"
 	apis_etcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/backup"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/commands"
@@ -46,6 +47,7 @@ import (
 
 type TestHarnessNode struct {
 	TestHarness *TestHarness
+	InitSystem  apis.InitSystem
 	Address     string
 	NodeDir     string
 	EtcdVersion string
@@ -211,7 +213,7 @@ func (n *TestHarnessNode) Run() {
 	}
 
 	var peerClientIPs []net.IP
-	etcdServer, err := etcd.NewEtcdServer(n.NodeDir, n.TestHarness.ClusterName, n.Address, n.ListenMetricsURLs, me, peerServer, dnsProvider, etcdClientsCA, etcdPeersCA, peerClientIPs)
+	etcdServer, err := etcd.NewEtcdServer(n.InitSystem, n.NodeDir, n.TestHarness.ClusterName, n.Address, n.ListenMetricsURLs, me, peerServer, dnsProvider, etcdClientsCA, etcdPeersCA, peerClientIPs)
 	if err != nil {
 		t.Fatalf("error building EtcdServer: %v", err)
 	}

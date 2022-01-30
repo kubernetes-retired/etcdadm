@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"k8s.io/klog/v2"
+	"sigs.k8s.io/etcdadm/apis"
 	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/backup"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/commands"
@@ -56,12 +57,19 @@ type TestHarness struct {
 	Context context.Context
 
 	BackupInterval time.Duration
+
+	InitSystem apis.InitSystem
 }
 
 func NewTestHarness(t *testing.T, ctx context.Context) *TestHarness {
 	tmpDir, err := ioutil.TempDir("", "")
 	if err != nil {
 		t.Errorf("error building tempdir: %v", err)
+	}
+
+	initSystem := apis.InitSystem("")
+	if os.Getenv("INIT_SYSTEM") != "" {
+		initSystem = apis.InitSystem(os.Getenv("INIT_SYSTEM"))
 	}
 
 	klog.Infof("Starting new testharness for %q in %s", t.Name(), tmpDir)
@@ -74,6 +82,7 @@ func NewTestHarness(t *testing.T, ctx context.Context) *TestHarness {
 		Nodes:          make(map[string]*TestHarnessNode),
 		Context:        ctx,
 		BackupInterval: 15 * time.Minute,
+		InitSystem:     initSystem,
 	}
 
 	h.grpcCA, err = pki.NewCA(pki.NewFSStore(filepath.Join(h.WorkDir, "pki/grpc")))
@@ -143,6 +152,7 @@ func (h *TestHarness) NewNode(address string) *TestHarnessNode {
 
 	n := &TestHarnessNode{
 		TestHarness: h,
+		InitSystem:  h.InitSystem,
 		Address:     address,
 		NodeDir:     nodeDir,
 		EtcdVersion: "3.5.1",

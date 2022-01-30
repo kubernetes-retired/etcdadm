@@ -22,11 +22,13 @@ import (
 	"time"
 
 	"sigs.k8s.io/etcdadm/apis"
+	"sigs.k8s.io/etcdadm/initsystem/execinitsystem"
 	"sigs.k8s.io/etcdadm/initsystem/kubelet"
 )
 
 // InitSystem is the interface that describe behaviors of an init system
 type InitSystem interface {
+	// Install downloads etcd (if appropriate for the init system)
 	Install() error
 	Configure() error
 	IsActive() (bool, error)
@@ -43,6 +45,8 @@ func GetInitSystem(config *apis.EtcdAdmConfig) (InitSystem, error) {
 		return systemd(config)
 	case apis.Kubelet:
 		return kubelet.New(config), nil
+	case apis.Exec:
+		return execinitsystem.New(config), nil
 	default:
 		return nil, fmt.Errorf("invalid init system %s", config.InitSystem)
 	}

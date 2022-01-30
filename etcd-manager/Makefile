@@ -27,6 +27,10 @@ all: test
 test:
 	${BAZEL} test //... --test_output=streamed
 
+.PHONY: test-initsystem-exec
+test-initsystem-exec:
+	${BAZEL} test //... --test_output=streamed --test_env=INIT_SYSTEM=exec
+
 .PHONY: stress-test
 stress-test:
 	${BAZEL} test //... --test_output=streamed --runs_per_test=10
