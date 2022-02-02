@@ -18,7 +18,6 @@ package aws
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
@@ -71,7 +70,7 @@ func (a *AWSVolumes) Poll() (map[string]discovery.Node, error) {
 					ID: volume.EtcdName,
 				}
 
-				if strings.HasPrefix(*instance.PrivateDnsName, "i-") {
+				if instance.Ipv6Address != nil {
 					ip := *instance.Ipv6Address
 					node.Endpoints = append(node.Endpoints, discovery.NodeEndpoint{IP: ip})
 				} else {
