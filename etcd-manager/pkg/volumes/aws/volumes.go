@@ -103,7 +103,13 @@ func NewAWSVolumes(clusterName string, volumeTags []string, nameTag string) (*AW
 		return nil, fmt.Errorf("error querying ec2 metadata service (for instance-id): %v", err)
 	}
 
+	a.ec2 = ec2.New(s, config.WithRegion(region))
 	a.localIP, err = a.metadata.GetMetadata("ipv6")
+
+	// If we have an IPv6 address, return
+	if err == nil {
+		return a, nil
+	}
 	awsErr, isAWSErr := err.(awserr.RequestFailure)
 	if !isAWSErr || awsErr.StatusCode() != 404 {
 		return nil, fmt.Errorf("error querying ec2 metadata service (ipv6): %v", err)
@@ -113,7 +119,6 @@ func NewAWSVolumes(clusterName string, volumeTags []string, nameTag string) (*AW
 			return nil, fmt.Errorf("error querying ec2 metadata service (for local-ipv4): %v", err)
 		}
 	}
-	a.ec2 = ec2.New(s, config.WithRegion(region))
 
 	return a, nil
 }
