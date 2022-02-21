@@ -29,7 +29,7 @@ GO_IMAGE ?= golang:1.16
 default: $(BIN)
 
 container-build:
-	docker run --rm -e VERSION_OVERRIDE=${VERSION_OVERRIDE}  -e GOPROXY=$(GOPROXY) -v $(PWD):$(PACKAGE_GOPATH) -w $(PACKAGE_GOPATH) $(GIT_STORAGE_MOUNT) ${GO_IMAGE} /bin/bash -c "make"
+	docker run --rm -e VERSION_OVERRIDE=${VERSION_OVERRIDE}  -e GOPROXY -v $(PWD):$(PACKAGE_GOPATH) -w $(PACKAGE_GOPATH) $(GIT_STORAGE_MOUNT) ${GO_IMAGE} /bin/bash -c "make"
 
 $(BIN):
 	GO111MODULE=on go build -ldflags "$(LDFLAGS)"
