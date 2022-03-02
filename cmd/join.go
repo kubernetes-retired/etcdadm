@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"strings"
 
 	log "sigs.k8s.io/etcdadm/pkg/logrus"
 
@@ -84,11 +85,13 @@ func newJoinRunner() *runner {
 }
 
 func joinPhasesSetup(cmd *cobra.Command, args []string) (*phaseInput, error) {
-	endpoint := args[0]
-	if _, err := url.Parse(endpoint); err != nil {
-		return nil, fmt.Errorf("endpoint %q must be a valid URL: %s", endpoint, err)
+	endpoints := strings.Split(args[0], ",")
+	for _, endpoint := range endpoints {
+		if _, err := url.ParseRequestURI(endpoint); err != nil {
+			return nil, fmt.Errorf("endpoint %q must be a valid URL: %s", endpoint, err)
+		}
 	}
-	etcdAdmConfig.Endpoint = endpoint
+	etcdAdmConfig.Endpoints = endpoints
 
 	apis.SetDefaults(&etcdAdmConfig)
 	if err := apis.SetJoinDynamicDefaults(&etcdAdmConfig); err != nil {
@@ -133,7 +136,8 @@ func membership() phase {
 			var localMember *etcdserverpb.Member
 			var members []*etcdserverpb.Member
 			log.Println("[membership] Checking if this member was added")
-			client, err := etcd.ClientForEndpoint(in.etcdAdmConfig.Endpoint, in.etcdAdmConfig)
+			log.Printf("[membership] Generating etcd client with endpoints %s", in.etcdAdmConfig.Endpoints)
+			client, err := etcd.ClientForEndpoints(in.etcdAdmConfig.Endpoints, in.etcdAdmConfig)
 			if err != nil {
 				return fmt.Errorf("error checking membership: %v", err)
 			}

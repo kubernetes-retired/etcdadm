@@ -201,7 +201,7 @@ func healthcheck() phase {
 		phaseName: "health",
 		runFunc: func(in *phaseInput) error {
 			log.Println("[health] Checking local etcd endpoint health")
-			client, err := etcd.ClientForEndpoint(in.etcdAdmConfig.LoopbackClientURL.String(), in.etcdAdmConfig)
+			client, err := etcd.ClientForEndpoints([]string{in.etcdAdmConfig.LoopbackClientURL.String()}, in.etcdAdmConfig)
 			if err != nil {
 				return fmt.Errorf("error creating health endpoint client: %w", err)
 			}

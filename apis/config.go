@@ -107,8 +107,8 @@ type EtcdAdmConfig struct {
 
 	// EnableV2 configures whether the V2 client handler is configured, mapping to the --enable-v2 flag
 	// This is a bool, but we use a string because the default value changes across versions.
-	EnableV2 string
-	Endpoint string
+	EnableV2  string
+	Endpoints []string
 }
 
 // InitSystem represents the different types of init system

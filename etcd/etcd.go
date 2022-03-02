@@ -29,8 +29,8 @@ import (
 	"sigs.k8s.io/etcdadm/apis"
 )
 
-// ClientForEndpoint returns an etcd client that will use the given etcd endpoint.
-func ClientForEndpoint(endpoint string, cfg *apis.EtcdAdmConfig) (*clientv3.Client, error) {
+// ClientForEndpoints returns an etcd client that will use the given etcd endpoints.
+func ClientForEndpoints(endpoints []string, cfg *apis.EtcdAdmConfig) (*clientv3.Client, error) {
 	tlsInfo := transport.TLSInfo{
 		CertFile:      cfg.EtcdctlCertFile,
 		KeyFile:       cfg.EtcdctlKeyFile,
@@ -42,7 +42,7 @@ func ClientForEndpoint(endpoint string, cfg *apis.EtcdAdmConfig) (*clientv3.Clie
 	}
 
 	cli, err := clientv3.New(clientv3.Config{
-		Endpoints:   []string{endpoint},
+		Endpoints:   endpoints,
 		DialTimeout: 5 * time.Second,
 		TLS:         tlsConfig,
 	})

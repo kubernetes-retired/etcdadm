@@ -62,7 +62,7 @@ var resetCmd = &cobra.Command{
 			if !skipRemoveMember {
 				var localMember *etcdserverpb.Member
 				log.Println("[membership] Checking if this member was removed")
-				client, err := etcd.ClientForEndpoint(etcdAdmConfig.LoopbackClientURL.String(), &etcdAdmConfig)
+				client, err := etcd.ClientForEndpoints([]string{etcdAdmConfig.LoopbackClientURL.String()}, &etcdAdmConfig)
 				if err != nil {
 					log.Fatalf("[membership] Error checking membership: %v", err)
 				}

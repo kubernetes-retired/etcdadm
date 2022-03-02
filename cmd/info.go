@@ -38,7 +38,7 @@ var infoCmd = &cobra.Command{
 			log.Fatalf("[defaults] Error: %s", err)
 		}
 
-		client, err := etcd.ClientForEndpoint(etcdAdmConfig.LoopbackClientURL.String(), &etcdAdmConfig)
+		client, err := etcd.ClientForEndpoints([]string{etcdAdmConfig.LoopbackClientURL.String()}, &etcdAdmConfig)
 		if err != nil {
 			log.Fatalf("[membership] Error requesting member information: %s", err)
 		}
