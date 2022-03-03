@@ -51,6 +51,8 @@ func init() {
 	initCmd.PersistentFlags().StringArrayVar(&etcdAdmConfig.EtcdDiskPriorities, "disk-priorities", constants.DefaultEtcdDiskPriorities, "Setting etcd disk priority")
 	initCmd.PersistentFlags().StringVar((*string)(&etcdAdmConfig.InitSystem), "init-system", string(apis.Systemd), "init system type (systemd or kubelet)")
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.ImageRepository, "image-repository", constants.DefaultImageRepository, "image repository when using kubelet init system")
+	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.DataDir, "data-dir", constants.DefaultDataDir, "etcd data directory")
+	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.PodSpecDir, "kubelet-pod-manifest-path", constants.DefaultPodSpecDir, "kubelet podspec directory")
 
 	runner.registerPhasesAsSubcommands(initCmd)
 }
