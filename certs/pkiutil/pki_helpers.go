@@ -34,12 +34,13 @@ import (
 	"path/filepath"
 	"time"
 
+	"math"
+	"math/big"
+
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/util/validation"
 	certutil "k8s.io/client-go/util/cert"
 	"k8s.io/client-go/util/keyutil"
-	"math"
-	"math/big"
 	"sigs.k8s.io/etcdadm/apis"
 	"sigs.k8s.io/etcdadm/constants"
 )
@@ -54,7 +55,7 @@ const (
 	// RSAPrivateKeyBlockType is a possible value for pem.Block.Type.
 	RSAPrivateKeyBlockType = "RSA PRIVATE KEY"
 	rsaKeySize             = 2048
-	certificateValidity    = time.Hour * 24 * 365
+	certificateValidity    = time.Hour * 24 * 365 * 10
 )
 
 // NewCertificateAuthority creates new certificate and private key for the certificate authority
