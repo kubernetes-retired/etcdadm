@@ -59,8 +59,8 @@ type EtcdAdmConfig struct {
 	PodSpecDir string
 
 	BindAddr   string
-	ClientPort int32
-	PeerPort   int32
+	ClientPort int
+	PeerPort   int
 
 	UnitFile            string
 	EnvironmentFile     string
