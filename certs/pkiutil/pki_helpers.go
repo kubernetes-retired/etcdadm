@@ -55,7 +55,7 @@ const (
 	// RSAPrivateKeyBlockType is a possible value for pem.Block.Type.
 	RSAPrivateKeyBlockType = "RSA PRIVATE KEY"
 	rsaKeySize             = 2048
-	certificateValidity    = time.Hour * 24 * 365
+	certificateValidity    = time.Hour * 24 * 365 * 10
 )
 
 // NewCertificateAuthority creates new certificate and private key for the certificate authority
