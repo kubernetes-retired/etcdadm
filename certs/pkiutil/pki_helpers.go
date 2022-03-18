@@ -55,7 +55,7 @@ const (
 	// RSAPrivateKeyBlockType is a possible value for pem.Block.Type.
 	RSAPrivateKeyBlockType = "RSA PRIVATE KEY"
 	rsaKeySize             = 2048
-	certificateValidity    = time.Hour * 24 * 365 * 10
+	certificateValidity    = time.Hour * 24 * 365
 )
 
 // NewCertificateAuthority creates new certificate and private key for the certificate authority
@@ -83,7 +83,7 @@ func NewCertAndKey(caCert *x509.Certificate, caKey *rsa.PrivateKey, config certu
 		return nil, nil, fmt.Errorf("unable to create private key [%v]", err)
 	}
 
-	cert, err := NewSignedCert(&config, key, caCert, caKey)
+	cert, err := NewSignedCert(&config, key, caCert, caKey, validate)
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to sign certificate [%v]", err)
 	}
@@ -325,7 +325,7 @@ func NewPrivateKey() (*rsa.PrivateKey, error) {
 }
 
 // NewSignedCert creates a signed certificate using the given CA certificate and key
-func NewSignedCert(cfg *certutil.Config, key crypto.Signer, caCert *x509.Certificate, caKey crypto.Signer) (*x509.Certificate, error) {
+func NewSignedCert(cfg *certutil.Config, key crypto.Signer, caCert *x509.Certificate, caKey crypto.Signer, validate int) (*x509.Certificate, error) {
 	serial, err := cryptorand.Int(cryptorand.Reader, new(big.Int).SetInt64(math.MaxInt64))
 	if err != nil {
 		return nil, err
@@ -346,7 +346,7 @@ func NewSignedCert(cfg *certutil.Config, key crypto.Signer, caCert *x509.Certifi
 		IPAddresses:  cfg.AltNames.IPs,
 		SerialNumber: serial,
 		NotBefore:    caCert.NotBefore,
-		NotAfter:     time.Now().Add(certificateValidity).UTC(),
+		NotAfter:     time.Now().Add(certificateValidity * time.Duration(validate)).UTC(),
 		KeyUsage:     x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
 		ExtKeyUsage:  cfg.Usages,
 	}
