@@ -77,7 +77,7 @@ func NewCertificateAuthority() (*x509.Certificate, *rsa.PrivateKey, error) {
 }
 
 // NewCertAndKey creates new certificate and key by passing the certificate authority certificate and key
-func NewCertAndKey(caCert *x509.Certificate, caKey *rsa.PrivateKey, config certutil.Config) (*x509.Certificate, *rsa.PrivateKey, error) {
+func NewCertAndKey(caCert *x509.Certificate, caKey *rsa.PrivateKey, config certutil.Config, validate int) (*x509.Certificate, *rsa.PrivateKey, error) {
 	key, err := NewPrivateKey()
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to create private key [%v]", err)

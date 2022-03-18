@@ -44,6 +44,7 @@ func init() {
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.CertificatesDir, "certs-dir", constants.DefaultCertificateDir, "certificates directory")
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.BindAddr, "bind-address", "", "etcd bind address")
 	initCmd.PersistentFlags().IntVar(&etcdAdmConfig.ClientPort, "client-port", 2379, "etcd port listening from client")
+	initCmd.PersistentFlags().IntVar(&etcdAdmConfig.CertValid, "cert-valid", 1, "cert validate time. (by year)")
 	initCmd.PersistentFlags().IntVar(&etcdAdmConfig.PeerPort, "peer-port", 2380, "etcd port listening from peer etcd instance")
 	initCmd.PersistentFlags().StringSliceVar(&etcdAdmConfig.ServerCertSANs, "server-cert-extra-sans", etcdAdmConfig.ServerCertSANs, "optional extra Subject Alternative Names for the etcd server signing cert, can be multiple comma separated DNS names or IPs")
 	initCmd.PersistentFlags().StringVar(&etcdAdmConfig.InstallDir, "install-dir", constants.DefaultInstallDir, "install directory")

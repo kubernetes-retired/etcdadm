@@ -62,6 +62,8 @@ type EtcdAdmConfig struct {
 	ClientPort int
 	PeerPort   int
 
+	CertValid int
+
 	UnitFile            string
 	EnvironmentFile     string
 	EtcdExecutable      string

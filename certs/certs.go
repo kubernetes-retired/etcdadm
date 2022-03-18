@@ -111,7 +111,7 @@ func CreateEtcdPeerCertAndKeyFiles(cfg *apis.EtcdAdmConfig) error {
 		return err
 	}
 
-	etcdPeerCert, etcdPeerKey, err := NewEtcdPeerCertAndKey(cfg, etcdCACert, etcdCAKey)
+	etcdPeerCert, etcdPeerKey, err := NewEtcdPeerCertAndKey(cfg, etcdCACert, etcdCAKey, cfg.CertValid)
 	if err != nil {
 		return err
 	}
@@ -137,7 +137,7 @@ func CreateEtcdctlClientCertAndKeyFiles(cfg *apis.EtcdAdmConfig) error {
 
 	commonName := fmt.Sprintf("%s-etcdctl", cfg.Name)
 	organization := constants.MastersGroup
-	etcdctlClientCert, etcdctlClientKey, err := NewEtcdClientCertAndKey(etcdCACert, etcdCAKey, commonName, organization)
+	etcdctlClientCert, etcdctlClientKey, err := NewEtcdClientCertAndKey(etcdCACert, etcdCAKey, commonName, organization, cfg.CertValid)
 	if err != nil {
 		return err
 	}
@@ -162,7 +162,7 @@ func CreateAPIServerEtcdClientCertAndKeyFiles(cfg *apis.EtcdAdmConfig) error {
 	}
 	commonName := fmt.Sprintf("%s-kube-apiserver-etcd-client", cfg.Name)
 	organization := constants.MastersGroup
-	apiEtcdClientCert, apiEtcdClientKey, err := NewEtcdClientCertAndKey(etcdCACert, etcdCAKey, commonName, organization)
+	apiEtcdClientCert, apiEtcdClientKey, err := NewEtcdClientCertAndKey(etcdCACert, etcdCAKey, commonName, organization, cfg.CertValid)
 	if err != nil {
 		return err
 	}
@@ -200,7 +200,7 @@ func NewEtcdServerCertAndKey(cfg *apis.EtcdAdmConfig, caCert *x509.Certificate, 
 		AltNames:   *altNames,
 		Usages:     []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
 	}
-	etcdServerCert, etcdServerKey, err := pkiutil.NewCertAndKey(caCert, caKey, config)
+	etcdServerCert, etcdServerKey, err := pkiutil.NewCertAndKey(caCert, caKey, config, cfg.CertValid)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failure while creating etcd key and certificate: %v", err)
 	}
@@ -209,7 +209,7 @@ func NewEtcdServerCertAndKey(cfg *apis.EtcdAdmConfig, caCert *x509.Certificate, 
 }
 
 // NewEtcdPeerCertAndKey generate certificate for etcd peering, signed by the given CA.
-func NewEtcdPeerCertAndKey(cfg *apis.EtcdAdmConfig, caCert *x509.Certificate, caKey *rsa.PrivateKey) (*x509.Certificate, *rsa.PrivateKey, error) {
+func NewEtcdPeerCertAndKey(cfg *apis.EtcdAdmConfig, caCert *x509.Certificate, caKey *rsa.PrivateKey, validate int) (*x509.Certificate, *rsa.PrivateKey, error) {
 
 	altNames, err := pkiutil.GetEtcdPeerAltNames(cfg)
 	if err != nil {
@@ -221,7 +221,7 @@ func NewEtcdPeerCertAndKey(cfg *apis.EtcdAdmConfig, caCert *x509.Certificate, ca
 		AltNames:   *altNames,
 		Usages:     []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
 	}
-	etcdPeerCert, etcdPeerKey, err := pkiutil.NewCertAndKey(caCert, caKey, config)
+	etcdPeerCert, etcdPeerKey, err := pkiutil.NewCertAndKey(caCert, caKey, config, validate)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failure while creating etcd peer key and certificate: %v", err)
 	}
@@ -230,14 +230,14 @@ func NewEtcdPeerCertAndKey(cfg *apis.EtcdAdmConfig, caCert *x509.Certificate, ca
 }
 
 // NewEtcdClientCertAndKey generates a client certificate to connect to etcd securely, signed by the given CA.
-func NewEtcdClientCertAndKey(caCert *x509.Certificate, caKey *rsa.PrivateKey, commonName string, organization string) (*x509.Certificate, *rsa.PrivateKey, error) {
+func NewEtcdClientCertAndKey(caCert *x509.Certificate, caKey *rsa.PrivateKey, commonName string, organization string, validate int) (*x509.Certificate, *rsa.PrivateKey, error) {
 
 	config := certutil.Config{
 		CommonName:   commonName,
 		Organization: []string{organization},
 		Usages:       []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
 	}
-	apiClientCert, apiClientKey, err := pkiutil.NewCertAndKey(caCert, caKey, config)
+	apiClientCert, apiClientKey, err := pkiutil.NewCertAndKey(caCert, caKey, config, validate)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failure while creating %q etcd client key and certificate: %v", commonName, err)
 	}

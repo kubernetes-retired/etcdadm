@@ -81,7 +81,8 @@ func TestNewCertAndKey(t *testing.T) {
 			Organization: []string{"test"},
 			Usages:       []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
 		}
-		_, _, actual := NewCertAndKey(caCert, caKey, config)
+		validate := 1
+		_, _, actual := NewCertAndKey(caCert, caKey, config, validate)
 		if (actual == nil) != rt.expected {
 			t.Errorf(
 				"failed NewCertAndKey:\n\texpected: %t\n\t  actual: %t",
@@ -93,6 +94,7 @@ func TestNewCertAndKey(t *testing.T) {
 }
 
 func TestHasServerAuth(t *testing.T) {
+	validate := 1
 	caCert, caKey, _ := NewCertificateAuthority()
 
 	var tests = []struct {
@@ -116,7 +118,7 @@ func TestHasServerAuth(t *testing.T) {
 	}
 
 	for _, rt := range tests {
-		cert, _, err := NewCertAndKey(caCert, caKey, rt.config)
+		cert, _, err := NewCertAndKey(caCert, caKey, rt.config, validate)
 		if err != nil {
 			t.Fatalf("Couldn't create cert: %v", err)
 		}
