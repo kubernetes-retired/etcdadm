@@ -46,6 +46,7 @@ func init() {
 	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.BindAddr, "bind-address", "", "etcd bind address")
 	joinCmd.PersistentFlags().IntVar(&etcdAdmConfig.ClientPort, "client-port", 2379, "etcd port listening from client")
 	joinCmd.PersistentFlags().IntVar(&etcdAdmConfig.PeerPort, "peer-port", 2380, "etcd port listening from peer etcd instance")
+	joinCmd.PersistentFlags().IntVar(&etcdAdmConfig.CertValid, "cert-valid", 1, "cert validate time. (by year)")
 	joinCmd.PersistentFlags().StringSliceVar(&etcdAdmConfig.ServerCertSANs, "server-cert-extra-sans", etcdAdmConfig.ServerCertSANs, "optional extra Subject Alternative Names for the etcd server signing cert, can be multiple comma separated DNS names or IPs")
 	joinCmd.PersistentFlags().StringVar(&etcdAdmConfig.InstallDir, "install-dir", constants.DefaultInstallDir, "install directory")
 	joinCmd.PersistentFlags().StringArrayVar(&etcdAdmConfig.EtcdDiskPriorities, "disk-priorities", constants.DefaultEtcdDiskPriorities, "Setting etcd disk priority")
