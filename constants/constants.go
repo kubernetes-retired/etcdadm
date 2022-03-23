@@ -27,6 +27,7 @@ const (
 	DefaultImageRepository = "quay.io/coreos/etcd"
 	DefaultCertificateDir  = "/etc/etcd/pki"
 
+	// TODO: replace default name
 	UnitFile        = "/etc/systemd/system/etcd.service"
 	EnvironmentFile = "/etc/etcd/etcd.env"
 	EtcdctlEnvFile  = "/etc/etcd/etcdctl.env"
