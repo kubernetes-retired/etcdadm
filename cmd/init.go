@@ -92,7 +92,6 @@ func newInitRunner() *runner {
 }
 
 func initPhasesSetup(_ *cobra.Command, _ []string) (*phaseInput, error) {
-	apis.SetDefaults(&etcdAdmConfig)
 	if err := apis.SetInitDynamicDefaults(&etcdAdmConfig); err != nil {
 		return nil, fmt.Errorf("[defaults] error setting init dynamic defaults: %w", err)
 	}

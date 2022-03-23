@@ -212,12 +212,7 @@ func SetDownloadDynamicDefaults(cfg *EtcdAdmConfig) error {
 	return setDynamicDefaults(cfg)
 }
 
-// SetDefaults sets configuration values defined at build time
-func SetDefaults(cfg *EtcdAdmConfig) {
-	cfg.UnitFile = cfg.UnitFile
-	cfg.EnvironmentFile = cfg.EnvironmentFile
-	cfg.EtcdctlEnvFile = cfg.EtcdctlEnvFile
-}
+
 
 func setDynamicDefaults(cfg *EtcdAdmConfig) error {
 	if len(cfg.Name) == 0 {

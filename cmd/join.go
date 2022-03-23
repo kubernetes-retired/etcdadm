@@ -98,7 +98,6 @@ func joinPhasesSetup(cmd *cobra.Command, args []string) (*phaseInput, error) {
 	}
 	etcdAdmConfig.Endpoint = endpoint
 
-	apis.SetDefaults(&etcdAdmConfig)
 	if err := apis.SetJoinDynamicDefaults(&etcdAdmConfig); err != nil {
 		return nil, fmt.Errorf("[defaults] error setting join dynamic defaults: %w", err)
 	}

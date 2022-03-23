@@ -38,7 +38,6 @@ var resetCmd = &cobra.Command{
 	Short: "Remove this etcd member from the cluster and uninstall etcd",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Load constants & defaults
-		apis.SetDefaults(&etcdAdmConfig)
 		err := apis.SetResetDynamicDefaults(&etcdAdmConfig)
 		if err != nil {
 			log.Fatalf("[defaults] Error: %s", err)
