@@ -1,5 +1,5 @@
-owner: kopeio
-repo: etcd-manager
+owner: kubernetes-sigs
+repo: etcdadm
 assets:
 - source: dist/etcd-manager-ctl-windows-amd64
   githubName: etcd-manager-ctl-windows-amd64
