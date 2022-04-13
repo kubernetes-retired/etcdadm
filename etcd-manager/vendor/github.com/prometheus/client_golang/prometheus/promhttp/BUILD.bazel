@@ -7,6 +7,7 @@ go_library(
         "http.go",
         "instrument_client.go",
         "instrument_server.go",
+        "option.go",
     ],
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/prometheus/client_golang/prometheus/promhttp",
     importpath = "github.com/prometheus/client_golang/prometheus/promhttp",
