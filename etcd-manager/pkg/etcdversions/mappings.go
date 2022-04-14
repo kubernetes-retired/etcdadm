@@ -118,11 +118,7 @@ func EtcdVersionForAdoption(fromVersion string) string {
 			return Version_3_4_13
 		}
 	case "3.5":
-		if fromSemver.Patch <= 1 {
-			return Version_3_5_1
-		} else {
-			return Version_3_5_3
-		}
+		return Version_3_5_3
 	default:
 		return ""
 	}
@@ -162,11 +158,7 @@ func EtcdVersionForRestore(fromVersion string) string {
 			return Version_3_4_13
 		}
 	case "3.5":
-		if fromSemver.Patch <= 1 {
-			return Version_3_5_1
-		} else {
-			return Version_3_5_3
-		}
+		return Version_3_5_3
 	default:
 		return ""
 	}
