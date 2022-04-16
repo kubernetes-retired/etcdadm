@@ -32,6 +32,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/blang/semver/v4"
 	certutil "k8s.io/client-go/util/cert"
 	"k8s.io/klog/v2"
 	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
@@ -278,6 +279,17 @@ func (p *etcdProcess) Start() error {
 		klog.Warningf("using insecure configuration for etcd clients")
 	}
 
+	// etcd 3.5 had some corruption issues and recommends this setting,
+	// which is planned as the default in 3.6
+	version, err := semver.ParseTolerant(p.EtcdVersion)
+	if err != nil {
+		klog.Warningf("error parsing version %q: %v", p.EtcdVersion, err)
+	}
+
+	if version.Major == 3 && version.Minor == 5 {
+		env["ETCD_EXPERIMENTAL_INITIAL_CORRUPT_CHECK"] = "true"
+	}
+
 	// This should be the last step before setting the env vars for the
 	// command so that any param can be overwritten.
 	for _, e := range os.Environ() {
@@ -297,8 +309,7 @@ func (p *etcdProcess) Start() error {
 	}
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
-	err := c.Start()
-	if err != nil {
+	if err := c.Start(); err != nil {
 		return fmt.Errorf("error starting etcd: %v", err)
 	}
 	klog.Infof("started etcd with datadir %s; pid=%d", p.DataDir, c.Process.Pid)
