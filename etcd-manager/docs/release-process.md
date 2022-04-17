@@ -72,6 +72,10 @@ gh pr create --fill
 
 ## Propose promotion of artifacts
 
+The following tool is a prerequisite:
+
+* [`kpromo`](https://github.com/kubernetes-sigs/promo-tools)
+
 Create container promotion PR:
 
 ```
@@ -92,14 +96,14 @@ git checkout -b etcdadm_images_${RELEASE_VERSION}
 cd k8s.gcr.io/images/k8s-staging-etcdadm
 echo "" >> images.yaml
 echo "# ${RELEASE_VERSION}" >> images.yaml
-k8s-container-image-promoter --snapshot gcr.io/k8s-staging-etcdadm --snapshot-tag ${STAGING_VERSION} | sed s@${STAGING_VERSION}@${RELEASE_VERSION}@g >> images.yaml
+kpromo cip --snapshot gcr.io/k8s-staging-etcdadm --snapshot-tag ${STAGING_VERSION} | sed s@${STAGING_VERSION}@${RELEASE_VERSION}@g >> images.yaml
 ```
 
 You can dry-run the promotion with
 
 ```
 cd ${GOPATH}/src/k8s.io/k8s.io
-k8s-container-image-promoter --thin-manifest-dir k8s.gcr.io
+kpromo cip --thin-manifest-dir k8s.gcr.io
 ```
 
 Send the image promotion PR:
