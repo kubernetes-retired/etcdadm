@@ -51,6 +51,7 @@ import (
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/do"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/external"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/gce"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/hetzner"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/openstack"
 )
 
@@ -261,6 +262,16 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 
 			volumeProvider = doVolumeProvider
 			discoveryProvider = doVolumeProvider
+
+		case "hetzner":
+			hetznerVolumeProvider, err := hetzner.NewHetznerVolumes(o.ClusterName, o.VolumeTags, o.NameTag)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%v\n", err)
+				os.Exit(1)
+			}
+
+			volumeProvider = hetznerVolumeProvider
+			discoveryProvider = hetznerVolumeProvider
 
 		case "alicloud":
 			alicloudVolumeProvider, err := alicloud.NewAlicloudVolumes(o.ClusterName, o.VolumeTags, o.NameTag)

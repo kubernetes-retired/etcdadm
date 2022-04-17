@@ -1,0 +1,13 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "instrumentation",
+    srcs = ["metrics.go"],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/hetznercloud/hcloud-go/hcloud/internal/instrumentation",
+    importpath = "github.com/hetznercloud/hcloud-go/hcloud/internal/instrumentation",
+    visibility = ["//vendor/github.com/hetznercloud/hcloud-go/hcloud:__subpackages__"],
+    deps = [
+        "//vendor/github.com/prometheus/client_golang/prometheus",
+        "//vendor/github.com/prometheus/client_golang/prometheus/promhttp",
+    ],
+)

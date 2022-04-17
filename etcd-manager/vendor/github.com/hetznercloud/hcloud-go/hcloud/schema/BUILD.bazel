@@ -1,0 +1,29 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "schema",
+    srcs = [
+        "action.go",
+        "certificate.go",
+        "datacenter.go",
+        "error.go",
+        "firewall.go",
+        "floating_ip.go",
+        "image.go",
+        "iso.go",
+        "load_balancer.go",
+        "load_balancer_type.go",
+        "location.go",
+        "meta.go",
+        "network.go",
+        "placement_group.go",
+        "pricing.go",
+        "server.go",
+        "server_type.go",
+        "ssh_key.go",
+        "volume.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/hetznercloud/hcloud-go/hcloud/schema",
+    importpath = "github.com/hetznercloud/hcloud-go/hcloud/schema",
+    visibility = ["//visibility:public"],
+)
