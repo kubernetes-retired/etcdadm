@@ -23,6 +23,7 @@ go_library(
         "//pkg/pki",
         "//pkg/privateapi",
         "//pkg/urls",
+        "//vendor/github.com/blang/semver/v4:semver",
         "//vendor/github.com/golang/protobuf/proto",
         "//vendor/golang.org/x/net/context",
         "//vendor/k8s.io/client-go/util/cert",
