@@ -25,7 +25,7 @@ import (
 	"strings"
 	"time"
 
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 	"sigs.k8s.io/etcdadm/apis"
 	"sigs.k8s.io/etcdadm/service"
 	"sigs.k8s.io/yaml"
