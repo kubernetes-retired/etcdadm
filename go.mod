@@ -9,6 +9,7 @@ require (
 	github.com/coreos/go-systemd v0.0.0-20180511133405-39ca1b05acc7 // indirect
 	github.com/coreos/pkg v0.0.0-20180108230652-97fdf19511ea // indirect
 	github.com/ghodss/yaml v1.0.0
+	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/golang/groupcache v0.0.0-20190129154638-5b532d6fd5ef // indirect
 	github.com/google/go-cmp v0.3.0
 	github.com/gorilla/websocket v1.4.0 // indirect
@@ -30,6 +31,6 @@ require (
 	k8s.io/apimachinery v0.0.0-20191128180518-03184f823e28
 	k8s.io/client-go v0.0.0-20191204082519-e9644b2e3edc
 	k8s.io/component-base v0.0.0-20191204083906-3ac1376c73aa
-	k8s.io/klog v1.0.0
+	k8s.io/klog/v2 v2.60.1
 	sigs.k8s.io/yaml v1.1.0
 )

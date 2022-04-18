@@ -51,7 +51,7 @@ require (
 	gopkg.in/gcfg.v1 v1.2.3
 	k8s.io/apimachinery v0.23.1
 	k8s.io/client-go v0.23.1
-	k8s.io/klog/v2 v2.30.0
+	k8s.io/klog/v2 v2.60.1
 	k8s.io/kops v1.22.0-beta.2
 	k8s.io/mount-utils v0.23.1
 	k8s.io/utils v0.0.0-20210930125809-cb0fa318a74b
@@ -77,7 +77,7 @@ require (
 	github.com/dimchansky/utfbom v1.1.1 // indirect
 	github.com/form3tech-oss/jwt-go v3.2.3+incompatible // indirect
 	github.com/go-ini/ini v1.62.0 // indirect
-	github.com/go-logr/logr v1.2.0 // indirect
+	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/snappy v0.0.1 // indirect
