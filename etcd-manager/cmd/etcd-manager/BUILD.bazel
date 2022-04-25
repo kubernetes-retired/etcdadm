@@ -22,7 +22,6 @@ go_library(
         "//pkg/tlsconfig",
         "//pkg/urls",
         "//pkg/volumes",
-        "//pkg/volumes/alicloud",
         "//pkg/volumes/aws",
         "//pkg/volumes/azure",
         "//pkg/volumes/do",
