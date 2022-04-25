@@ -43,19 +43,6 @@ github.com/Azure/go-autorest/logger
 # github.com/Azure/go-autorest/tracing v0.6.0
 ## explicit; go 1.12
 github.com/Azure/go-autorest/tracing
-# github.com/aliyun/alibaba-cloud-sdk-go v1.61.1059
-## explicit; go 1.13
-github.com/aliyun/alibaba-cloud-sdk-go/sdk
-github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth
-github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials
-github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials/provider
-github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/signers
-github.com/aliyun/alibaba-cloud-sdk-go/sdk/endpoints
-github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors
-github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests
-github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses
-github.com/aliyun/alibaba-cloud-sdk-go/sdk/utils
-github.com/aliyun/alibaba-cloud-sdk-go/services/ecs
 # github.com/aws/aws-sdk-go v1.42.16
 ## explicit; go 1.11
 github.com/aws/aws-sdk-go/aws
@@ -240,9 +227,6 @@ github.com/hetznercloud/hcloud-go/hcloud/schema
 # github.com/jmespath/go-jmespath v0.4.0
 ## explicit; go 1.14
 github.com/jmespath/go-jmespath
-# github.com/json-iterator/go v1.1.12
-## explicit; go 1.12
-github.com/json-iterator/go
 # github.com/kr/fs v0.1.0
 ## explicit
 github.com/kr/fs
@@ -258,12 +242,6 @@ github.com/mitchellh/go-homedir
 # github.com/mitchellh/mapstructure v1.4.1
 ## explicit; go 1.14
 github.com/mitchellh/mapstructure
-# github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
-## explicit
-github.com/modern-go/concurrent
-# github.com/modern-go/reflect2 v1.0.2
-## explicit; go 1.12
-github.com/modern-go/reflect2
 # github.com/pierrec/lz4 v2.0.5+incompatible
 ## explicit
 github.com/pierrec/lz4
@@ -517,9 +495,6 @@ gopkg.in/gcfg.v1
 gopkg.in/gcfg.v1/scanner
 gopkg.in/gcfg.v1/token
 gopkg.in/gcfg.v1/types
-# gopkg.in/ini.v1 v1.62.0
-## explicit
-gopkg.in/ini.v1
 # gopkg.in/square/go-jose.v2 v2.5.1
 ## explicit
 gopkg.in/square/go-jose.v2
