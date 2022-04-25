@@ -1,0 +1,18 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "hetzner",
+    srcs = [
+        "discovery.go",
+        "volumes.go",
+    ],
+    importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/hetzner",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/privateapi/discovery",
+        "//pkg/volumes",
+        "//vendor/github.com/hetznercloud/hcloud-go/hcloud",
+        "//vendor/github.com/hetznercloud/hcloud-go/hcloud/metadata",
+        "//vendor/k8s.io/klog/v2:klog",
+    ],
+)

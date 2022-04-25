@@ -41,6 +41,7 @@ require (
 	github.com/digitalocean/godo v1.60.0
 	github.com/golang/protobuf v1.5.2
 	github.com/gophercloud/gophercloud v0.18.0
+	github.com/hetznercloud/hcloud-go v1.33.1
 	github.com/prometheus/client_golang v1.11.1
 	go.etcd.io/etcd/api/v3 v3.5.3
 	go.etcd.io/etcd/client/v3 v3.5.3
