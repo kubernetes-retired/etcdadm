@@ -14,6 +14,7 @@ go_library(
         "helper.go",
         "image.go",
         "iso.go",
+        "labels.go",
         "load_balancer.go",
         "load_balancer_type.go",
         "location.go",
