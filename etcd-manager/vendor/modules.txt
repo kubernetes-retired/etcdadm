@@ -218,7 +218,7 @@ github.com/hashicorp/vault/sdk/helper/hclutil
 github.com/hashicorp/vault/sdk/helper/jsonutil
 github.com/hashicorp/vault/sdk/helper/parseutil
 github.com/hashicorp/vault/sdk/helper/strutil
-# github.com/hetznercloud/hcloud-go v1.33.1
+# github.com/hetznercloud/hcloud-go v1.33.2
 ## explicit; go 1.17
 github.com/hetznercloud/hcloud-go/hcloud
 github.com/hetznercloud/hcloud-go/hcloud/internal/instrumentation
