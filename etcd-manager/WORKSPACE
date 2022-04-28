@@ -225,6 +225,18 @@ http_file(
     urls = ["https://github.com/etcd-io/etcd/releases/download/v3.5.3/etcd-v3.5.3-linux-arm64.tar.gz"],
 )
 
+http_file(
+    name = "etcd_3.5.4_amd64_tar",
+    sha256 = "b1091166153df1ee0bb29b47fb1943ef0ddf0cd5d07a8fe69827580a08134def",
+    urls = ["https://github.com/etcd-io/etcd/releases/download/v3.5.4/etcd-v3.5.4-linux-amd64.tar.gz"],
+)
+
+http_file(
+    name = "etcd_3.5.4_arm64_tar",
+    sha256 = "8e9c2c28ed6b35f36fd94300541da10e1385f335d677afd8efccdcba026f1fa7",
+    urls = ["https://github.com/etcd-io/etcd/releases/download/v3.5.4/etcd-v3.5.4-linux-arm64.tar.gz"],
+)
+
 #=============================================================================
 
 http_file(
