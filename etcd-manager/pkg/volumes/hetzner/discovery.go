@@ -48,10 +48,11 @@ func (a *HetznerVolumes) Poll() (map[string]discovery.Node, error) {
 		// TODO: Get all servers in a single requests to reduce the number of calls to the could API
 		// Hetzner Cloud API is limited to 3600 requests/hour (see: https://docs.hetzner.cloud/#rate-limiting)
 		server, _, err := a.hcloudClient.Server.GetByID(context.TODO(), serverID)
-		if err != nil {
+		if err != nil || server == nil {
 			return nil, fmt.Errorf("failed to retrieve info for server %d: %w", serverID, err)
 		}
-		if server == nil || len(server.PrivateNet) == 0 {
+
+		if len(server.PrivateNet) == 0 {
 			return nil, fmt.Errorf("failed to find private net info for server %d: ", serverID)
 		}
 		serverPrivateIP := server.PrivateNet[0].IP
