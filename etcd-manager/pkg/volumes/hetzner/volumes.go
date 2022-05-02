@@ -178,7 +178,7 @@ func (a *HetznerVolumes) AttachVolume(volume *volumes.Volume) error {
 
 	for {
 		hetznerVolume, _, err := a.hcloudClient.Volume.GetByID(context.TODO(), volumeID)
-		if err != nil {
+		if err != nil || hetznerVolume == nil {
 			return fmt.Errorf("failed to get info for volume id %q: %w", volume.ProviderID, err)
 		}
 
