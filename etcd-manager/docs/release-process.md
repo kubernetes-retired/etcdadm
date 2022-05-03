@@ -6,35 +6,29 @@ etcdadm & etcd-manager are released on an as-needed basis.
 
 Ensure the commit you are tagging is showing as green in github & prow test results.
 
-## Tag the branch
+## Tag the release
 
-(TODO: Automate this following the kOps pull-request pattern)
-
+Pull the latest changes:
 ```
 git checkout master
-git fetch origin
-git reset --hard origin/master
+git pull upstream master
 ```
 
-Make sure you are on the correct commit, and not a newer one!
-
+Set the version using `dev/set-version.sh`:
 ```
-TODAY=`date +%Y%m%d`
-VERSION="3.0.${TODAY}"
-echo "VERSION=${VERSION}"
+etcd-manager/dev/set-version.sh
+VERSION="$(cat etcd-manager/version.txt)"
 ```
 
-We push an annotated tag:
+Create the branch and commit the changes (without pushing):
 ```
-git tag -a etcd-manager/v${VERSION} -m "etcd-manager/v${VERSION}"
-git show etcd-manager/v${VERSION}
+git checkout -b release_${VERSION}
+git add etcd-manager/version.txt && git commit -m "Release etcd-manager/v${VERSION}"
 ```
 
-Double check it is the correct commit!
-
+This is the "release commit". Push and create a PR.
 ```
-git push git@github.com:kubernetes-sigs/etcdadm etcd-manager/v${VERSION}
-git fetch origin # sync back up
+gh pr create -f
 ```
 
 
