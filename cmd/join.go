@@ -132,6 +132,22 @@ func membership() phase {
 				return nil
 			}
 
+			var lastErr error
+			retrySteps := 1
+			if in.etcdAdmConfig.Retry {
+				retrySteps = constants.DefaultBackOffSteps
+			}
+
+			// Exponential backoff for MemberList and MemberAdd (values exclude jitter):
+			// If --retry=false, add member only try one times, otherwise try five times.
+			// The backoff duration is 0, 2, 4, 8, 16 s
+			opts := wait.Backoff{
+				Duration: constants.DefaultBackOffDuration,
+				Steps:    retrySteps,
+				Factor:   constants.DefaultBackOffFactor,
+				Jitter:   0.1,
+			}
+
 			var localMember *etcdserverpb.Member
 			var members []*etcdserverpb.Member
 			log.Println("[membership] Checking if this member was added")
@@ -139,13 +155,23 @@ func membership() phase {
 			if err != nil {
 				return fmt.Errorf("error checking membership: %v", err)
 			}
-			ctx, cancel := context.WithTimeout(context.Background(), constants.DefaultEtcdRequestTimeout)
-			mresp, err := client.MemberList(ctx)
-			cancel()
+
+			err = wait.ExponentialBackoff(opts, func() (bool, error) {
+				ctx, cancel := context.WithTimeout(context.Background(), constants.DefaultEtcdRequestTimeout)
+				mresp, err := client.MemberList(ctx)
+				cancel()
+				if err != nil {
+					log.Warningf("[membership] Error listing members: %v, will retry after %s.", err, opts.Step())
+					lastErr = err
+					return false, nil
+				}
+				members = mresp.Members
+				return true, nil
+			})
 			if err != nil {
-				return fmt.Errorf("error listing members: %v", err)
+				return fmt.Errorf("error listing members: %v", lastErr)
 			}
-			members = mresp.Members
+
 			localMember, ok := etcd.MemberForPeerURLs(members, in.etcdAdmConfig.InitialAdvertisePeerURLs.StringSlice())
 			if !ok {
 				log.Printf("[membership] Member was not added")
@@ -153,21 +179,6 @@ func membership() phase {
 				os.RemoveAll(in.etcdAdmConfig.DataDir)
 				log.Println("[membership] Adding member")
 
-				var lastErr error
-				retrySteps := 1
-				if in.etcdAdmConfig.Retry {
-					retrySteps = constants.DefaultBackOffSteps
-				}
-
-				// Exponential backoff for MemberAdd (values exclude jitter):
-				// If --retry=false, add member only try one times, otherwise try five times.
-				// The backoff duration is 0, 2, 4, 8, 16 s
-				opts := wait.Backoff{
-					Duration: constants.DefaultBackOffDuration,
-					Steps:    retrySteps,
-					Factor:   constants.DefaultBackOffFactor,
-					Jitter:   0.1,
-				}
 				err := wait.ExponentialBackoff(opts, func() (bool, error) {
 					ctx, cancel := context.WithTimeout(context.Background(), constants.DefaultEtcdRequestTimeout)
 					mresp, err := client.MemberAdd(ctx, in.etcdAdmConfig.InitialAdvertisePeerURLs.StringSlice())
