@@ -19,6 +19,7 @@ package openstack
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -34,11 +35,30 @@ import (
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/volumeattach"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
 	"k8s.io/klog/v2"
+	"k8s.io/mount-utils"
 	utilexec "k8s.io/utils/exec"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes"
 )
 
-const MetadataLatest string = "http://169.254.169.254/openstack/latest/meta_data.json"
+const (
+	// MetadataLatestPath is the path to the metadata on the config drive
+	MetadataLatestPath string = "openstack/latest/meta_data.json"
+
+	// MetadataID is the identifier for the metadata service
+	MetadataID string = "metadataService"
+
+	// MetadataLastestServiceURL points to the latest metadata of the metadata service
+	MetadataLatestServiceURL string = "http://169.254.169.254/" + MetadataLatestPath
+
+	// ConfigDriveID is the identifier for the config drive containing metadata
+	ConfigDriveID string = "configDrive"
+
+	// ConfigDriveLabel identifies the config drive by label on the OS
+	ConfigDriveLabel string = "config-2"
+
+	// DefaultMetadataSearchOrder defines the default order in which the metadata services are queried
+	DefaultMetadataSearchOrder string = ConfigDriveID + ", " + MetadataID
+)
 
 type InstanceMetadata struct {
 	Name             string `json:"name"`
@@ -64,6 +84,14 @@ type OpenstackVolumes struct {
 	nameTag       string
 	zone          string
 	ignoreAZ      bool
+}
+
+type MetadataService struct {
+	serviceURL      string
+	configDrivePath string
+	mounter         *mount.SafeFormatAndMount
+	mountTarget     string
+	searchOrder     string
 }
 
 var _ volumes.Volumes = &OpenstackVolumes{}
@@ -106,28 +134,135 @@ func NewOpenstackVolumes(clusterName string, volumeTags []string, nameTag string
 	return stack, nil
 }
 
-func getLocalMetadata() (*InstanceMetadata, error) {
-	var meta InstanceMetadata
+// getFromConfigDrive tries to get metadata by mounting a config drive and returns it as InstanceMetadata
+// It will return an error if there is no disk labelled as ConfigDriveLabel or other errors while mounting the disk, or reading the file occur.
+func (mds MetadataService) getFromConfigDrive() (*InstanceMetadata, error) {
+	dev := path.Join(volumes.PathFor("/dev/disk/by-label/"), ConfigDriveLabel)
+	if _, err := os.Stat(dev); os.IsNotExist(err) {
+		out, err := mds.mounter.Exec.Command(
+			"blkid", "-l",
+			"-t", fmt.Sprintf("LABEL=%s", ConfigDriveLabel),
+			"-o", "device",
+		).CombinedOutput()
+		if err != nil {
+			return nil, fmt.Errorf("unable to run blkid: %v", err)
+		}
+		dev = strings.TrimSpace(string(out))
+	}
+
+	err := mds.mounter.Mount(dev, mds.mountTarget, "iso9660", []string{"ro"})
+	if err != nil {
+		err = mds.mounter.Mount(dev, mds.mountTarget, "vfat", []string{"ro"})
+	}
+	if err != nil {
+		return nil, fmt.Errorf("error mounting configdrive '%s': %v", dev, err)
+	}
+	defer mds.mounter.Unmount(mds.mountTarget)
+
+	f, err := os.Open(
+		path.Join(mds.mountTarget, mds.configDrivePath))
+	if err != nil {
+		return nil, fmt.Errorf("error reading '%s' on config drive: %v", mds.configDrivePath, err)
+	}
+	defer f.Close()
+
+	return mds.parseMetadata(f)
+}
+
+// getFromMetadataService tries to get metadata from a metadata service endpoint and returns it as InstanceMetadata.
+// If the service endpoint cannot be contacted or reports a different status than StatusOK it will return an error.
+func (mds MetadataService) getFromMetadataService() (*InstanceMetadata, error) {
 	var client http.Client
+
 	mc := NewMetricContext("metadata", "get")
-	resp, err := client.Get(MetadataLatest)
+	resp, err := client.Get(mds.serviceURL)
 	if mc.ObserveRequest(err) != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusOK {
-		bodyBytes, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		err = json.Unmarshal(bodyBytes, &meta)
-		if err != nil {
-			return nil, err
-		}
-		return &meta, nil
+		return mds.parseMetadata(resp.Body)
 	}
+
+	err = fmt.Errorf("fetching metadata from '%s' returned status code '%d'", mds.serviceURL, resp.StatusCode)
 	return nil, err
+}
+
+// parseMetadata reads JSON data from a Reader and returns it as InstanceMetadata.
+func (mds MetadataService) parseMetadata(r io.Reader) (*InstanceMetadata, error) {
+	var meta InstanceMetadata
+
+	data, err := ioutil.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(data, &meta)
+	if err != nil {
+		return nil, err
+	}
+
+	return &meta, nil
+}
+
+// getMetadata tries to get metadata for the instance by mounting the config drive and/or querying the metadata service endpoint.
+// Depending on the searchOrder it will return data from the first source which successfully returns.
+// If all the sources in searchOrder are erroneous it will propagate the last error to its caller.
+func (mds MetadataService) getMetadata() (*InstanceMetadata, error) {
+	// Note(ederst): I used and modified code for getting the config drive metadata to work from here:
+	//   * https://github.com/kubernetes/cloud-provider-openstack/blob/27b6fc483451b6df2112a6a4a40a34ffc9093635/pkg/util/metadata/metadata.go
+
+	var meta *InstanceMetadata
+	var err error
+
+	ids := strings.Split(mds.searchOrder, ",")
+	for _, id := range ids {
+		id = strings.TrimSpace(id)
+		switch id {
+		case ConfigDriveID:
+			meta, err = mds.getFromConfigDrive()
+		case MetadataID:
+			meta, err = mds.getFromMetadataService()
+		default:
+			err = fmt.Errorf("%s is not a valid metadata search order option. Supported options are %s and %s", id, ConfigDriveID, MetadataID)
+		}
+
+		if err == nil {
+			break
+		}
+	}
+
+	return meta, err
+}
+
+func newMetadataService(serviceURL string, configDrivePath string, mounter *mount.SafeFormatAndMount, mountTarget string, searchOrder string) *MetadataService {
+	return &MetadataService{
+		serviceURL:      serviceURL,
+		configDrivePath: configDrivePath,
+		mounter:         mounter,
+		mountTarget:     mountTarget,
+		searchOrder:     searchOrder,
+	}
+}
+
+// getDefaultMounter returns a mount and executor interface to use for getting metadata from a config drive
+func getDefaultMounter() *mount.SafeFormatAndMount {
+	mounter := mount.New("")
+	exec := utilexec.New()
+	return &mount.SafeFormatAndMount{
+		Interface: mounter,
+		Exec:      exec,
+	}
+}
+
+func getLocalMetadata() (*InstanceMetadata, error) {
+	mountTarget, err := ioutil.TempDir("", "configdrive")
+	if err != nil {
+		return nil, err
+	}
+	defer os.Remove(mountTarget)
+
+	return newMetadataService(MetadataLatestServiceURL, MetadataLatestPath, getDefaultMounter(), mountTarget, DefaultMetadataSearchOrder).getMetadata()
 }
 
 func getCredential() (gophercloud.AuthOptions, string, bool, error) {

@@ -536,6 +536,7 @@ k8s.io/mount-utils
 ## explicit; go 1.12
 k8s.io/utils/clock
 k8s.io/utils/exec
+k8s.io/utils/exec/testing
 k8s.io/utils/internal/third_party/forked/golang/net
 k8s.io/utils/io
 k8s.io/utils/keymutex
