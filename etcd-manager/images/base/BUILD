@@ -47,7 +47,7 @@ architectures = [
 
 [genrule(
     name = "pkg_tar_%s_%s" % (pkg, arch),
-    srcs = ["@debian_packages_gz_%s//file" % (arch)],
+    srcs = ["@debian_packages_gz_%s//file" % arch],
     outs = ["%s_%s.tar" % (pkg, arch)],
     cmd = "./$(location @deb_tools//:deb-tools) --cache-dir $$TMPDIR --mirror http://snapshot.debian.org/archive/debian/20201101T154040Z/ --out \"$@\" --package %s --packages ./$(location @debian_packages_gz_%s//file)" % (pkg, arch),
     tools = ["@deb_tools//:deb-tools"],
@@ -62,7 +62,7 @@ architectures = [
 ) for pkg in packages for arch in architectures]
 
 [container_image(
-    name = "base_image_%s" % (arch),
-    base = "@distroless-base-%s//image" % (arch),
+    name = "base_image_%s" % arch,
+    base = "@distroless-base-%s//image" % arch,
     tars = [":pkg_tar_%s_%s" % (pkg, arch) for pkg in packages],
 ) for arch in architectures]

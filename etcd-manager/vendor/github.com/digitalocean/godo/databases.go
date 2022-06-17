@@ -11,6 +11,7 @@ import (
 const (
 	databaseBasePath           = "/v2/databases"
 	databaseSinglePath         = databaseBasePath + "/%s"
+	databaseCAPath             = databaseBasePath + "/%s/ca"
 	databaseResizePath         = databaseBasePath + "/%s/resize"
 	databaseMigratePath        = databaseBasePath + "/%s/migrate"
 	databaseMaintenancePath    = databaseBasePath + "/%s/maintenance"
@@ -87,10 +88,11 @@ const (
 // help make these entities distinct from Databases in godo, we refer to them
 // here as DatabaseDBs.
 //
-// See: https://developers.digitalocean.com/documentation/v2#databases
+// See: https://docs.digitalocean.com/reference/api/api-reference/#tag/Databases
 type DatabasesService interface {
 	List(context.Context, *ListOptions) ([]Database, *Response, error)
 	Get(context.Context, string) (*Database, *Response, error)
+	GetCA(context.Context, string) (*DatabaseCA, *Response, error)
 	Create(context.Context, *DatabaseCreateRequest) (*Database, *Response, error)
 	Delete(context.Context, string) (*Response, error)
 	Resize(context.Context, string, *DatabaseResizeRequest) (*Response, error)
@@ -152,6 +154,12 @@ type Database struct {
 	CreatedAt          time.Time                  `json:"created_at,omitempty"`
 	PrivateNetworkUUID string                     `json:"private_network_uuid,omitempty"`
 	Tags               []string                   `json:"tags,omitempty"`
+	ProjectID          string                     `json:"project_id,omitempty"`
+}
+
+// DatabaseCA represents a database ca.
+type DatabaseCA struct {
+	Certificate []byte `json:"certificate"`
 }
 
 // DatabaseConnection represents a database connection
@@ -210,6 +218,7 @@ type DatabaseCreateRequest struct {
 	PrivateNetworkUUID string                 `json:"private_network_uuid"`
 	Tags               []string               `json:"tags,omitempty"`
 	BackupRestore      *DatabaseBackupRestore `json:"backup_restore,omitempty"`
+	ProjectID          string                 `json:"project_id"`
 }
 
 // DatabaseResizeRequest can be used to initiate a database resize operation.
@@ -232,7 +241,7 @@ type DatabaseUpdateMaintenanceRequest struct {
 
 // DatabaseDB represents an engine-specific database created within a database cluster. For SQL
 // databases like PostgreSQL or MySQL, a "DB" refers to a database created on the RDBMS. For instance,
-// a PostgreSQL database server can contain many database schemas, each with it's own settings, access
+// a PostgreSQL database server can contain many database schemas, each with its own settings, access
 // permissions and data. ListDBs will return all databases present on the server.
 type DatabaseDB struct {
 	Name string `json:"name"`
@@ -333,6 +342,10 @@ type databaseRoot struct {
 	Database *Database `json:"database"`
 }
 
+type databaseCARoot struct {
+	CA *DatabaseCA `json:"ca"`
+}
+
 type databaseBackupsRoot struct {
 	Backups []DatabaseBackup `json:"backups"`
 }
@@ -402,6 +415,21 @@ func (svc *DatabasesServiceOp) Get(ctx context.Context, databaseID string) (*Dat
 		return nil, resp, err
 	}
 	return root.Database, resp, nil
+}
+
+// GetCA retrieves the CA of a database cluster.
+func (svc *DatabasesServiceOp) GetCA(ctx context.Context, databaseID string) (*DatabaseCA, *Response, error) {
+	path := fmt.Sprintf(databaseCAPath, databaseID)
+	req, err := svc.client.NewRequest(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+	root := new(databaseCARoot)
+	resp, err := svc.client.Do(ctx, req, root)
+	if err != nil {
+		return nil, resp, err
+	}
+	return root.CA, resp, nil
 }
 
 // Create creates a database cluster

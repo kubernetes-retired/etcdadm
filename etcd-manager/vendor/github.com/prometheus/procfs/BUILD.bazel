@@ -5,6 +5,7 @@ go_library(
     srcs = [
         "arp.go",
         "buddyinfo.go",
+        "cmdline.go",
         "cpuinfo.go",
         "cpuinfo_armx.go",
         "cpuinfo_mipsx.go",
@@ -32,6 +33,7 @@ go_library(
         "net_tcp.go",
         "net_udp.go",
         "net_unix.go",
+        "netstat.go",
         "proc.go",
         "proc_cgroup.go",
         "proc_environ.go",

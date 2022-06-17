@@ -19,7 +19,7 @@ package vfs
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -29,7 +29,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/ec2metadata"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/denverdino/aliyungo/oss"
 	"github.com/gophercloud/gophercloud"
 	"google.golang.org/api/option"
 	storage "google.golang.org/api/storage/v1"
@@ -51,8 +50,6 @@ type VFSContext struct {
 	gcsClient *storage.Service
 	// swiftClient is the openstack swift client
 	swiftClient *gophercloud.ServiceClient
-	// ossClient is the Aliyun Open Source Storage client
-	ossClient *oss.Client
 
 	vaultClient *vault.Client
 	azureClient *azureClient
@@ -173,10 +170,6 @@ func (c *VFSContext) BuildVfsPath(p string) (Path, error) {
 		return c.buildOpenstackSwiftPath(p)
 	}
 
-	if strings.HasPrefix(p, "oss://") {
-		return c.buildOSSPath(p)
-	}
-
 	if strings.HasPrefix(p, "vault://") {
 		return c.buildVaultPath(p)
 	}
@@ -228,7 +221,7 @@ func (c *VFSContext) readHTTPLocation(httpURL string, httpHeaders map[string]str
 		if err != nil {
 			return false, fmt.Errorf("error fetching %q: %v", httpURL, err)
 		}
-		body, err = ioutil.ReadAll(response.Body)
+		body, err = io.ReadAll(response.Body)
 		if err != nil {
 			return false, fmt.Errorf("error reading response for %q: %v", httpURL, err)
 		}
@@ -432,32 +425,6 @@ func (c *VFSContext) buildOpenstackSwiftPath(p string) (*SwiftPath, error) {
 	}
 
 	return NewSwiftPath(c.swiftClient, bucket, u.Path)
-}
-
-func (c *VFSContext) buildOSSPath(p string) (*OSSPath, error) {
-	u, err := url.Parse(p)
-	if err != nil {
-		return nil, fmt.Errorf("invalid aliyun oss path: %q", p)
-	}
-
-	if u.Scheme != "oss" {
-		return nil, fmt.Errorf("invalid aliyun oss path: %q", p)
-	}
-
-	bucket := strings.TrimSuffix(u.Host, "/")
-	if bucket == "" {
-		return nil, fmt.Errorf("invalid aliyun oss path: %q", p)
-	}
-
-	if c.ossClient == nil {
-		ossClient, err := NewAliOSSClient()
-		if err != nil {
-			return nil, err
-		}
-		c.ossClient = ossClient
-	}
-
-	return NewOSSPath(c.ossClient, bucket, u.Path)
 }
 
 func (c *VFSContext) buildVaultPath(p string) (*VaultPath, error) {

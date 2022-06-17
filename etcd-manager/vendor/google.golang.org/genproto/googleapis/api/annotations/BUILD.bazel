@@ -8,6 +8,7 @@ go_library(
         "field_behavior.pb.go",
         "http.pb.go",
         "resource.pb.go",
+        "routing.pb.go",
     ],
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/google.golang.org/genproto/googleapis/api/annotations",
     importpath = "google.golang.org/genproto/googleapis/api/annotations",

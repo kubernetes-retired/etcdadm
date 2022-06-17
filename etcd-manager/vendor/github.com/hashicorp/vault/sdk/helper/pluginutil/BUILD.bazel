@@ -1,0 +1,34 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "pluginutil",
+    srcs = [
+        "env.go",
+        "multiplexing.go",
+        "multiplexing.pb.go",
+        "multiplexing_grpc.pb.go",
+        "run_config.go",
+        "runner.go",
+        "tls.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/hashicorp/vault/sdk/helper/pluginutil",
+    importpath = "github.com/hashicorp/vault/sdk/helper/pluginutil",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/hashicorp/errwrap",
+        "//vendor/github.com/hashicorp/go-hclog",
+        "//vendor/github.com/hashicorp/go-plugin",
+        "//vendor/github.com/hashicorp/go-secure-stdlib/mlock",
+        "//vendor/github.com/hashicorp/go-uuid",
+        "//vendor/github.com/hashicorp/go-version",
+        "//vendor/github.com/hashicorp/vault/sdk/helper/certutil",
+        "//vendor/github.com/hashicorp/vault/sdk/helper/consts",
+        "//vendor/github.com/hashicorp/vault/sdk/helper/wrapping",
+        "//vendor/github.com/hashicorp/vault/sdk/version",
+        "//vendor/google.golang.org/grpc",
+        "//vendor/google.golang.org/grpc/codes",
+        "//vendor/google.golang.org/grpc/status",
+        "//vendor/google.golang.org/protobuf/reflect/protoreflect",
+        "//vendor/google.golang.org/protobuf/runtime/protoimpl",
+    ],
+)
