@@ -26,7 +26,7 @@ load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_depe
 go_rules_dependencies()
 
 go_register_toolchains(
-    go_version = "1.18.1",
+    go_version = "1.18.3",
 )
 
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
@@ -254,33 +254,33 @@ http_file(
 container_pull(
     name = "distroless-base-amd64",
     architecture = "amd64",
-    digest = "sha256:7d57eac73dd3bbe097632d6b3b2cb1fee8368f8731ade38f49c67df9285bc473",
+    digest = "sha256:6010a285f9a871e8f1f33142d53e2ad6d9d102d647704ac191c191f5becc2516",
     registry = "gcr.io/distroless",
-    repository = "base-debian10",
+    repository = "base-debian11",
 )
 
 container_pull(
     name = "distroless-base-amd64-debug",
     architecture = "amd64",
-    digest = "sha256:faeef0829d9736cf18ea3113898634ced46542c9d4445cbe15af8a19dda9ce0c",
+    digest = "sha256:a22b876968a05507fc2e002b76999557353616f07e8694396763e1bb96c56f97",
     registry = "gcr.io/distroless",
-    repository = "base-debian10",
+    repository = "base-debian11",
 )
 
 container_pull(
     name = "distroless-base-arm64",
     architecture = "arm64",
-    digest = "sha256:2b90e75fde5abf0ee5e5f5f9f34760005258bfb05e72cade687e46d6643b6c8b",
+    digest = "sha256:2345ef1376a7bf76c770c06b5144c793be04ee0df210d0090bce44f26b573f6b",
     registry = "gcr.io/distroless",
-    repository = "base-debian10",
+    repository = "base-debian11",
 )
 
 container_pull(
     name = "distroless-base-arm64-debug",
     architecture = "arm64",
-    digest = "sha256:bb3ad4bd962ba6368c6c307939d9b94e4b79719c7b55e5a4a34b8d28360b5c23",
+    digest = "sha256:89a6d468ded60c80e56a828b31dd6876bbbec1fe9630380d5bdec44367367438",
     registry = "gcr.io/distroless",
-    repository = "base-debian10",
+    repository = "base-debian11",
 )
 
 local_repository(

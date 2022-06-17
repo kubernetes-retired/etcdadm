@@ -5,8 +5,6 @@ go_library(
     srcs = [
         "configure_http2_go116.go",
         "configure_http2_not_go116.go",
-        "default_transport_go113.go",
-        "default_transport_not_go113.go",
         "dial.go",
     ],
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/google.golang.org/api/transport/http",

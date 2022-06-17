@@ -8,6 +8,7 @@ go_library(
         "error.go",
         "plugin_types.go",
         "replication.go",
+        "token_consts.go",
     ],
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/hashicorp/vault/sdk/helper/consts",
     importpath = "github.com/hashicorp/vault/sdk/helper/consts",

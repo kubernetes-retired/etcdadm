@@ -23,7 +23,7 @@ if [ $# -eq 0 ]; then
 fi
 
 VERSION=$1
-PLATFORMS="linux_amd64 linux_arm64 darwin_amd64 windows_amd64"
+PLATFORMS="linux_amd64 linux_arm64 darwin_amd64 darwin_arm64 windows_amd64"
 CMDS="etcd-manager-ctl"
 
 # cd to the etcd-manager root

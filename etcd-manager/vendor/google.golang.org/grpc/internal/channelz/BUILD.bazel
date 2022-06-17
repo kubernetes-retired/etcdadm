@@ -4,6 +4,7 @@ go_library(
     name = "channelz",
     srcs = [
         "funcs.go",
+        "id.go",
         "logging.go",
         "types.go",
         "types_linux.go",

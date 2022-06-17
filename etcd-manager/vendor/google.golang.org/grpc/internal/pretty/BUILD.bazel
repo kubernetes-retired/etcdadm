@@ -1,0 +1,15 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "pretty",
+    srcs = ["pretty.go"],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/google.golang.org/grpc/internal/pretty",
+    importpath = "google.golang.org/grpc/internal/pretty",
+    visibility = ["//vendor/google.golang.org/grpc:__subpackages__"],
+    deps = [
+        "//vendor/github.com/golang/protobuf/jsonpb",
+        "//vendor/github.com/golang/protobuf/proto",
+        "//vendor/google.golang.org/protobuf/encoding/protojson",
+        "//vendor/google.golang.org/protobuf/proto",
+    ],
+)

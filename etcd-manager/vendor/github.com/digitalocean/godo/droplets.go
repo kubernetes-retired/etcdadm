@@ -14,7 +14,7 @@ var errNoNetworks = errors.New("no networks have been defined")
 
 // DropletsService is an interface for interfacing with the Droplet
 // endpoints of the DigitalOcean API
-// See: https://developers.digitalocean.com/documentation/v2#droplets
+// See: https://docs.digitalocean.com/reference/api/api-reference/#tag/Droplets
 type DropletsService interface {
 	List(context.Context, *ListOptions) ([]Droplet, *Response, error)
 	ListByTag(context.Context, string, *ListOptions) ([]Droplet, *Response, error)
@@ -180,7 +180,7 @@ func (d DropletCreateImage) MarshalJSON() ([]byte, error) {
 // DropletCreateVolume identifies a volume to attach for the create request.
 type DropletCreateVolume struct {
 	ID string
-	// Deprecated: You must pass a the volume's ID when creating a Droplet.
+	// Deprecated: You must pass the volume's ID when creating a Droplet.
 	Name string
 }
 
@@ -229,6 +229,7 @@ type DropletCreateRequest struct {
 	Volumes           []DropletCreateVolume `json:"volumes,omitempty"`
 	Tags              []string              `json:"tags"`
 	VPCUUID           string                `json:"vpc_uuid,omitempty"`
+	WithDropletAgent  *bool                 `json:"with_droplet_agent,omitempty"`
 }
 
 // DropletMultiCreateRequest is a request to create multiple Droplets.
@@ -245,6 +246,7 @@ type DropletMultiCreateRequest struct {
 	UserData          string                `json:"user_data,omitempty"`
 	Tags              []string              `json:"tags"`
 	VPCUUID           string                `json:"vpc_uuid,omitempty"`
+	WithDropletAgent  *bool                 `json:"with_droplet_agent,omitempty"`
 }
 
 func (d DropletCreateRequest) String() string {

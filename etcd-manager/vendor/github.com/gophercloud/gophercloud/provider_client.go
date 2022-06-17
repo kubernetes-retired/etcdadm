@@ -25,7 +25,13 @@ type UserAgent struct {
 	prepend []string
 }
 
-type RetryFunc func(context.Context, *ErrUnexpectedResponseCode, error, uint) error
+type RetryBackoffFunc func(context.Context, *ErrUnexpectedResponseCode, error, uint) error
+
+// RetryFunc is a catch-all function for retrying failed API requests.
+// If it returns nil, the request will be retried.  If it returns an error,
+// the request method will exit with that error.  failCount is the number of
+// times the request has failed (starting at 1).
+type RetryFunc func(context context.Context, method, url string, options *RequestOpts, err error, failCount uint) error
 
 // Prepend prepends a user-defined string to the default User-Agent string. Users
 // may pass in one or more strings to prepend.
@@ -85,11 +91,15 @@ type ProviderClient struct {
 	// Context is the context passed to the HTTP request.
 	Context context.Context
 
-	// Retry backoff func
-	RetryBackoffFunc RetryFunc
+	// Retry backoff func is called when rate limited.
+	RetryBackoffFunc RetryBackoffFunc
 
 	// MaxBackoffRetries set the maximum number of backoffs. When not set, defaults to DefaultMaxBackoffRetries
 	MaxBackoffRetries uint
+
+	// A general failed request handler method - this is always called in the end if a request failed. Leave as nil
+	// to abort when an error is encountered.
+	RetryFunc RetryFunc
 
 	// mut is a mutex for the client. It protects read and write access to client attributes such as getting
 	// and setting the TokenID.
@@ -315,10 +325,12 @@ type RequestOpts struct {
 	// OkCodes contains a list of numeric HTTP status codes that should be interpreted as success. If
 	// the response has a different code, an error will be returned.
 	OkCodes []int
-	// MoreHeaders specifies additional HTTP headers to be provide on the request. If a header is
-	// provided with a blank value (""), that header will be *omitted* instead: use this to suppress
-	// the default Accept header or an inferred Content-Type, for example.
+	// MoreHeaders specifies additional HTTP headers to be provided on the request.
+	// MoreHeaders will be overridden by OmitHeaders
 	MoreHeaders map[string]string
+	// OmitHeaders specifies the HTTP headers which should be omitted.
+	// OmitHeaders will override MoreHeaders
+	OmitHeaders []string
 	// ErrorContext specifies the resource error type to return if an error is encountered.
 	// This lets resources override default error messages based on the response status code.
 	ErrorContext error
@@ -386,7 +398,8 @@ func (client *ProviderClient) doRequest(method, url string, options *RequestOpts
 		req = req.WithContext(client.Context)
 	}
 
-	// Populate the request headers. Apply options.MoreHeaders last, to give the caller the chance to
+	// Populate the request headers.
+	// Apply options.MoreHeaders and options.OmitHeaders, to give the caller the chance to
 	// modify or omit any header.
 	if contentType != nil {
 		req.Header.Set("Content-Type", *contentType)
@@ -398,12 +411,12 @@ func (client *ProviderClient) doRequest(method, url string, options *RequestOpts
 
 	if options.MoreHeaders != nil {
 		for k, v := range options.MoreHeaders {
-			if v != "" {
-				req.Header.Set(k, v)
-			} else {
-				req.Header.Del(k)
-			}
+			req.Header.Set(k, v)
 		}
+	}
+
+	for _, v := range options.OmitHeaders {
+		req.Header.Del(v)
 	}
 
 	// get latest token from client
@@ -416,6 +429,16 @@ func (client *ProviderClient) doRequest(method, url string, options *RequestOpts
 	// Issue the request.
 	resp, err := client.HTTPClient.Do(req)
 	if err != nil {
+		if client.RetryFunc != nil {
+			var e error
+			state.retries = state.retries + 1
+			e = client.RetryFunc(client.Context, method, url, options, err, state.retries)
+			if e != nil {
+				return nil, e
+			}
+
+			return client.doRequest(method, url, options, state)
+		}
 		return nil, err
 	}
 
@@ -459,6 +482,7 @@ func (client *ProviderClient) doRequest(method, url string, options *RequestOpts
 				if err != nil {
 					e := &ErrUnableToReauthenticate{}
 					e.ErrOriginal = respErr
+					e.ErrReauth = err
 					return nil, e
 				}
 				if options.RawBody != nil {
@@ -539,15 +563,36 @@ func (client *ProviderClient) doRequest(method, url string, options *RequestOpts
 			if error500er, ok := errType.(Err500er); ok {
 				err = error500er.Error500(respErr)
 			}
+		case http.StatusBadGateway:
+			err = ErrDefault502{respErr}
+			if error502er, ok := errType.(Err502er); ok {
+				err = error502er.Error502(respErr)
+			}
 		case http.StatusServiceUnavailable:
 			err = ErrDefault503{respErr}
 			if error503er, ok := errType.(Err503er); ok {
 				err = error503er.Error503(respErr)
 			}
+		case http.StatusGatewayTimeout:
+			err = ErrDefault504{respErr}
+			if error504er, ok := errType.(Err504er); ok {
+				err = error504er.Error504(respErr)
+			}
 		}
 
 		if err == nil {
 			err = respErr
+		}
+
+		if err != nil && client.RetryFunc != nil {
+			var e error
+			state.retries = state.retries + 1
+			e = client.RetryFunc(client.Context, method, url, options, err, state.retries)
+			if e != nil {
+				return resp, e
+			}
+
+			return client.doRequest(method, url, options, state)
 		}
 
 		return resp, err
@@ -563,6 +608,16 @@ func (client *ProviderClient) doRequest(method, url string, options *RequestOpts
 			return resp, err
 		}
 		if err := json.NewDecoder(resp.Body).Decode(options.JSONResponse); err != nil {
+			if client.RetryFunc != nil {
+				var e error
+				state.retries = state.retries + 1
+				e = client.RetryFunc(client.Context, method, url, options, err, state.retries)
+				if e != nil {
+					return resp, e
+				}
+
+				return client.doRequest(method, url, options, state)
+			}
 			return nil, err
 		}
 	}

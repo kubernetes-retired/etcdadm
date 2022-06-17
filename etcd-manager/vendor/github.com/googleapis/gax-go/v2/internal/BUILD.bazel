@@ -1,0 +1,9 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "internal",
+    srcs = ["version.go"],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/googleapis/gax-go/v2/internal",
+    importpath = "github.com/googleapis/gax-go/v2/internal",
+    visibility = ["//vendor/github.com/googleapis/gax-go/v2:__subpackages__"],
+)

@@ -39,8 +39,10 @@ type AzureBlobPath struct {
 	md5Hash   string
 }
 
-var _ Path = &AzureBlobPath{}
-var _ HasHash = &AzureBlobPath{}
+var (
+	_ Path    = &AzureBlobPath{}
+	_ HasHash = &AzureBlobPath{}
+)
 
 // NewAzureBlobPath returns a new AzureBlobPath.
 func NewAzureBlobPath(client *azureClient, container string, key string) *AzureBlobPath {
@@ -182,6 +184,7 @@ func (p *AzureBlobPath) WriteFile(data io.ReadSeeker, acl ACL) error {
 		azblob.AccessTierNone,
 		azblob.BlobTagsMap{},
 		azblob.ClientProvidedKeyOptions{},
+		azblob.ImmutabilityPolicyOptions{},
 	)
 	return err
 }

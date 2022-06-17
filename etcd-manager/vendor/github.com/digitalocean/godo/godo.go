@@ -20,7 +20,7 @@ import (
 )
 
 const (
-	libraryVersion = "1.60.0"
+	libraryVersion = "1.81.0"
 	defaultBaseURL = "https://api.digitalocean.com/"
 	userAgent      = "godo/" + libraryVersion
 	mediaType      = "application/json"
@@ -64,6 +64,8 @@ type Client struct {
 	Sizes             SizesService
 	FloatingIPs       FloatingIPsService
 	FloatingIPActions FloatingIPActionsService
+	ReservedIPs       ReservedIPsService
+	ReservedIPActions ReservedIPActionsService
 	Snapshots         SnapshotsService
 	Storage           StorageService
 	StorageActions    StorageActionsService
@@ -77,6 +79,7 @@ type Client struct {
 	Databases         DatabasesService
 	VPCs              VPCsService
 	OneClick          OneClickService
+	Monitoring        MonitoringService
 
 	// Optional function called after every successful request made to the DO APIs
 	onRequestCompleted RequestCompletionCallback
@@ -98,6 +101,20 @@ type ListOptions struct {
 	PerPage int `url:"per_page,omitempty"`
 }
 
+// TokenListOptions specifies the optional parameters to various List methods that support token pagination.
+type TokenListOptions struct {
+	// For paginated result sets, page of results to retrieve.
+	Page int `url:"page,omitempty"`
+
+	// For paginated result sets, the number of results to include per page.
+	PerPage int `url:"per_page,omitempty"`
+
+	// For paginated result sets which support tokens, the token provided by the last set
+	// of results in order to retrieve the next set of results. This is expected to be faster
+	// than incrementing or decrementing the page number.
+	Token string `url:"page_token,omitempty"`
+}
+
 // Response is a DigitalOcean response. This wraps the standard http.Response returned from DigitalOcean.
 type Response struct {
 	*http.Response
@@ -110,6 +127,8 @@ type Response struct {
 	Meta *Meta
 
 	// Monitoring URI
+	// Deprecated: This field is not populated. To poll for the status of a
+	// newly created Droplet, use Links.Actions[0].HREF
 	Monitor string
 
 	Rate
@@ -202,6 +221,8 @@ func NewClient(httpClient *http.Client) *Client {
 	c.Firewalls = &FirewallsServiceOp{client: c}
 	c.FloatingIPs = &FloatingIPsServiceOp{client: c}
 	c.FloatingIPActions = &FloatingIPActionsServiceOp{client: c}
+	c.ReservedIPs = &ReservedIPsServiceOp{client: c}
+	c.ReservedIPActions = &ReservedIPActionsServiceOp{client: c}
 	c.Images = &ImagesServiceOp{client: c}
 	c.ImageActions = &ImageActionsServiceOp{client: c}
 	c.Invoices = &InvoicesServiceOp{client: c}
@@ -219,6 +240,7 @@ func NewClient(httpClient *http.Client) *Client {
 	c.Databases = &DatabasesServiceOp{client: c}
 	c.VPCs = &VPCsServiceOp{client: c}
 	c.OneClick = &OneClickServiceOp{client: c}
+	c.Monitoring = &MonitoringServiceOp{client: c}
 
 	c.headers = make(map[string]string)
 
@@ -365,7 +387,7 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*Res
 
 	defer func() {
 		// Ensure the response body is fully read and closed
-		// before we reconnect, so that we reuse the same TCPconnection.
+		// before we reconnect, so that we reuse the same TCPConnection.
 		// Close the previous response's body. But read at least some of
 		// the body so if it's small the underlying TCP connection will be
 		// re-used. No need to check for errors: if it fails, the Transport
@@ -433,6 +455,7 @@ func (r *ErrorResponse) Error() string {
 // CheckResponse checks the API response for errors, and returns them if present. A response is considered an
 // error if it has a status code outside the 200 range. API error responses are expected to have either no response
 // body, or a JSON response body that maps to ErrorResponse. Any other response body will be silently ignored.
+// If the API error response does not include the request ID in its body, the one from its header will be used.
 func CheckResponse(r *http.Response) error {
 	if c := r.StatusCode; c >= 200 && c <= 299 {
 		return nil
@@ -445,6 +468,10 @@ func CheckResponse(r *http.Response) error {
 		if err != nil {
 			errorResponse.Message = string(data)
 		}
+	}
+
+	if errorResponse.RequestID == "" {
+		errorResponse.RequestID = r.Header.Get("x-request-id")
 	}
 
 	return errorResponse

@@ -8,6 +8,7 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//vendor/google.golang.org/api/googleapi",
+        "//vendor/google.golang.org/api/internal",
         "//vendor/google.golang.org/api/internal/gensupport",
         "//vendor/google.golang.org/api/option",
         "//vendor/google.golang.org/api/option/internaloption",

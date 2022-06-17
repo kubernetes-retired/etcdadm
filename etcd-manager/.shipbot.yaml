@@ -9,7 +9,15 @@ assets:
   githubName: etcd-manager-ctl-darwin-amd64
 - source: dist/etcd-manager-ctl-darwin-amd64-sha-256
   githubName: etcd-manager-ctl-darwin-amd64-sha256
+- source: dist/etcd-manager-ctl-darwin-arm64
+  githubName: etcd-manager-ctl-darwin-arm64
+- source: dist/etcd-manager-ctl-darwin-arm64-sha-256
+  githubName: etcd-manager-ctl-darwin-arm64-sha256
 - source: dist/etcd-manager-ctl-linux-amd64
   githubName: etcd-manager-ctl-linux-amd64
 - source: dist/etcd-manager-ctl-linux-amd64-sha-256
   githubName: etcd-manager-ctl-linux-amd64-sha256
+- source: dist/etcd-manager-ctl-linux-arm64
+  githubName: etcd-manager-ctl-linux-arm64
+- source: dist/etcd-manager-ctl-linux-arm64-sha-256
+  githubName: etcd-manager-ctl-linux-arm64-sha256
