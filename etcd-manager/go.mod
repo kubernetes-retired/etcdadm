@@ -7,7 +7,7 @@ require (
 	github.com/Azure/azure-sdk-for-go v65.0.0+incompatible
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.11
 	github.com/Azure/go-autorest/autorest/to v0.4.0
-	github.com/aws/aws-sdk-go v1.44.36
+	github.com/aws/aws-sdk-go v1.44.56
 	github.com/blang/semver/v4 v4.0.0
 	github.com/digitalocean/godo v1.81.0
 	github.com/golang/protobuf v1.5.2
