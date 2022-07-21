@@ -33,7 +33,7 @@ import (
 var HourlyBackupsRetention = 24 * 7 * time.Hour
 
 // DailyBackupsRetention controls how long daily backups are kept.
-var DailyBackupsRetention = 24 * 7 * 365 * time.Hour
+var DailyBackupsRetention = 24 * 2 * 365 * time.Hour
 
 // ParseHumanDuration parses a go-style duration string, but
 // recognizes additional suffixes: d means "day" and is interpreted as
