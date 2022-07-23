@@ -141,7 +141,9 @@ func (a *HetznerVolumes) FindVolumes() ([]*volumes.Volume, error) {
 
 		if volume.Server != nil {
 			localEtcdVolume.AttachedTo = strconv.Itoa(volume.Server.ID)
-			localEtcdVolume.LocalDevice = fmt.Sprintf("%s%d", localDevicePrefix, volume.ID)
+			if volume.Server.ID == a.server.ID {
+				localEtcdVolume.LocalDevice = fmt.Sprintf("%s%d", localDevicePrefix, volume.ID)
+			}
 		}
 
 		localEtcdVolumes = append(localEtcdVolumes, localEtcdVolume)
