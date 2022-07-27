@@ -144,7 +144,7 @@ func InstallFromCache(version, installDir, cacheDir string) (bool, error) {
 	return true, nil
 }
 
-//Install copies binaries from srcDir to installDir
+// Install copies binaries from srcDir to installDir
 func Install(srcDir, installDir string) error {
 	etcdSrcPath := filepath.Join(srcDir, "etcd")
 	etcdDestPath := filepath.Join(installDir, "etcd")
