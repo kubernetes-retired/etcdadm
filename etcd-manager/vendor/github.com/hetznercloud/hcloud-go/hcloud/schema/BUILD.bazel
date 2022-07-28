@@ -18,6 +18,7 @@ go_library(
         "network.go",
         "placement_group.go",
         "pricing.go",
+        "primary_ip.go",
         "server.go",
         "server_type.go",
         "ssh_key.go",
