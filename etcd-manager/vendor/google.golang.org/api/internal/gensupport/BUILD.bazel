@@ -19,7 +19,9 @@ go_library(
     importpath = "google.golang.org/api/internal/gensupport",
     visibility = ["//vendor/google.golang.org/api:__subpackages__"],
     deps = [
+        "//vendor/github.com/google/uuid",
         "//vendor/github.com/googleapis/gax-go/v2:gax-go",
         "//vendor/google.golang.org/api/googleapi",
+        "//vendor/google.golang.org/api/internal",
     ],
 )

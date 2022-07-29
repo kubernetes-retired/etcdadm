@@ -21,6 +21,7 @@ go_library(
         "network.go",
         "placement_group.go",
         "pricing.go",
+        "primary_ip.go",
         "rdns.go",
         "resource.go",
         "schema.go",
@@ -37,5 +38,6 @@ go_library(
         "//vendor/github.com/hetznercloud/hcloud-go/hcloud/internal/instrumentation",
         "//vendor/github.com/hetznercloud/hcloud-go/hcloud/schema",
         "//vendor/github.com/prometheus/client_golang/prometheus",
+        "//vendor/golang.org/x/net/http/httpguts",
     ],
 )
