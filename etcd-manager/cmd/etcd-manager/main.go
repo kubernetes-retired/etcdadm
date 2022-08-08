@@ -101,6 +101,8 @@ func main() {
 	var volumeTags stringSliceFlag
 	flag.Var(&volumeTags, "volume-tag", "tag which volume is required to have")
 
+	flag.StringVar(&o.NetworkCIDR, "network-cidr", o.NetworkCIDR, "filter for a specific IP address by network CIDR (OpenStack only)")
+
 	flag.Parse()
 
 	o.VolumeTags = volumeTags
@@ -162,6 +164,9 @@ type EtcdManagerOptions struct {
 
 	// EtcdManagerMetricsPort allows exposing statistics from etcd-manager
 	EtcdManagerMetricsPort int
+
+	// NetworkCIDR allows filtering for a specific IP address by network CIDR (OpenStack only)
+	NetworkCIDR string
 }
 
 // InitDefaults populates the default flag values
@@ -200,6 +205,19 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 
 	if o.BackupStorePath == "" {
 		return fmt.Errorf("backup-store is required")
+	}
+
+	var networkCIDR *net.IPNet
+	if o.NetworkCIDR != "" {
+		if o.VolumeProviderID != "openstack" {
+			return fmt.Errorf("network-cidr is only supported with provider 'openstack'")
+		}
+
+		var err error
+		_, networkCIDR, err = net.ParseCIDR(o.NetworkCIDR)
+		if err != nil {
+			return fmt.Errorf("parsing network-cidr: %w", err)
+		}
 	}
 
 	backupInterval, err := time.ParseDuration(o.BackupInterval)
@@ -244,7 +262,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 			discoveryProvider = gceVolumeProvider
 
 		case "openstack":
-			osVolumeProvider, err := openstack.NewOpenstackVolumes(o.ClusterName, o.VolumeTags, o.NameTag)
+			osVolumeProvider, err := openstack.NewOpenstackVolumes(o.ClusterName, o.VolumeTags, o.NameTag, networkCIDR)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				os.Exit(1)

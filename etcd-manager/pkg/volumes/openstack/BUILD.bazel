@@ -31,7 +31,10 @@ go_library(
 
 go_test(
     name = "openstack_test",
-    srcs = ["volumes_test.go"],
+    srcs = [
+        "util_test.go",
+        "volumes_test.go",
+    ],
     data = glob(["testdata/**"]),
     embed = [":openstack"],
     deps = [

@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
 
 go_library(
     name = "etcd-manager_lib",
@@ -39,4 +39,10 @@ go_binary(
     name = "etcd-manager",
     embed = [":etcd-manager_lib"],
     visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "etcd-manager_test",
+    srcs = ["main_test.go"],
+    embed = [":etcd-manager_lib"],
 )

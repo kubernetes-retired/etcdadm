@@ -52,7 +52,7 @@ func (os *OpenstackVolumes) Poll() (map[string]discovery.Node, error) {
 		node := discovery.Node{
 			ID: volume.EtcdName,
 		}
-		address, err := GetServerFixedIP(server.Addresses, server.Name)
+		address, err := GetServerFixedIP(server.Addresses, server.Name, os.networkCIDR)
 		if err != nil {
 			klog.Warningf("Could not find servers fixed ip %s: %v", server.Name, err)
 			continue
