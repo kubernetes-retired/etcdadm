@@ -351,6 +351,19 @@ github.com/prometheus/procfs/internal/util
 # github.com/ryanuber/go-glob v1.0.0
 ## explicit
 github.com/ryanuber/go-glob
+# github.com/scaleway/scaleway-sdk-go v1.0.0-beta.9
+## explicit; go 1.17
+github.com/scaleway/scaleway-sdk-go/api/instance/v1
+github.com/scaleway/scaleway-sdk-go/api/marketplace/v1
+github.com/scaleway/scaleway-sdk-go/internal/async
+github.com/scaleway/scaleway-sdk-go/internal/auth
+github.com/scaleway/scaleway-sdk-go/internal/errors
+github.com/scaleway/scaleway-sdk-go/internal/marshaler
+github.com/scaleway/scaleway-sdk-go/internal/parameter
+github.com/scaleway/scaleway-sdk-go/logger
+github.com/scaleway/scaleway-sdk-go/namegenerator
+github.com/scaleway/scaleway-sdk-go/scw
+github.com/scaleway/scaleway-sdk-go/validation
 # go.etcd.io/etcd/api/v3 v3.5.4
 ## explicit; go 1.16
 go.etcd.io/etcd/api/v3/authpb

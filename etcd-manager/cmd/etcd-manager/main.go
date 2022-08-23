@@ -52,6 +52,7 @@ import (
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/gce"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/hetzner"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/openstack"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/scaleway"
 )
 
 type stringSliceFlag []string
@@ -66,6 +67,8 @@ func (v *stringSliceFlag) Set(value string) error {
 }
 
 func main() {
+	klog.Infof("HELLO, YOU'RE USING A CUSTOM VERSION OF ETCD-MANAGER")
+
 	klog.InitFlags(nil)
 
 	flag.BoolVar(&volumes.Containerized, "containerized", volumes.Containerized, "set if we are running containerized")
@@ -105,6 +108,8 @@ func main() {
 	o.VolumeTags = volumeTags
 
 	fmt.Printf("etcd-manager\n")
+
+	fmt.Printf("HELLO, Looking for tags [%v]", volumeTags)
 
 	err := RunEtcdManager(&o)
 	if err != nil {
@@ -281,6 +286,16 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 
 			volumeProvider = azureVolumeProvider
 			discoveryProvider = azureVolumeProvider
+
+		case "scaleway":
+			scwVolumeProvider, err := scaleway.NewScwVolumes(o.ClusterName, o.VolumeTags, o.NameTag)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%v\n", err)
+				os.Exit(1)
+			}
+
+			volumeProvider = scwVolumeProvider
+			discoveryProvider = scwVolumeProvider
 
 		case "external":
 			volumeDir := volumes.PathFor("/mnt/disks")

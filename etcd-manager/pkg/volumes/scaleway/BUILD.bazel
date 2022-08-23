@@ -1,0 +1,18 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "scaleway",
+    srcs = [
+        "discovery.go",
+        "volumes.go",
+    ],
+    importpath = "sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/scaleway",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/privateapi/discovery",
+        "//pkg/volumes",
+        "//vendor/github.com/scaleway/scaleway-sdk-go/api/instance/v1",
+        "//vendor/github.com/hscaleway/scaleway-sdk-go/scw",
+        "//vendor/k8s.io/klog/v2:klog",
+    ],
+)
