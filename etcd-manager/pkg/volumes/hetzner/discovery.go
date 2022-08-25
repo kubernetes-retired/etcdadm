@@ -32,13 +32,13 @@ var _ discovery.Interface = &HetznerVolumes{}
 func (a *HetznerVolumes) Poll() (map[string]discovery.Node, error) {
 	peers := make(map[string]discovery.Node)
 
-	klog.V(2).Infof("Discovering volumes for %q", a.nameTag)
-	etcdVolumes, err := getMatchingVolumes(a.hcloudClient, a.matchTags)
+	klog.V(2).Infof("Discovering peers with volumes matching labels: %v", a.matchPeerTags)
+	matchingVolumes, err := getMatchingVolumes(a.hcloudClient, a.matchPeerTags)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get matching volumes: %w", err)
 	}
 
-	for _, volume := range etcdVolumes {
+	for _, volume := range matchingVolumes {
 		if volume.Server == nil {
 			// Volume doesn't have a server attached yet
 			continue
