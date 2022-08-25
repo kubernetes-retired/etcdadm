@@ -46,7 +46,12 @@ build-etcd-manager-amd64 build-etcd-manager-arm64: build-etcd-manager-%:
 
 .PHONY: push-etcd-manager
 push-etcd-manager:
-	KO_DOCKER_REPO="${DOCKER_REGISTRY}/${DOCKER_IMAGE_PREFIX}etcd-manager" ko build --tags ${DOCKER_TAG} --platform=linux/amd64,linux/arm64 --bare ./cmd/etcd-manager/
+	echo $(REGISTRY_NAME)
+	docker login rg.fr-par.scw.cloud/$(REGISTRY_NAME) -u nologin --password $(SCW_SECRET_KEY)
+	docker build -t etcd-manager:$(STABLE_DOCKER_TAG) .
+	docker tag etcd-manager:$(STABLE_DOCKER_TAG) rg.fr-par.scw.cloud/$(REGISTRY_NAME)/etcd-manager:$(STABLE_DOCKER_TAG)
+	docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_PREFIX)etcd-manager:$(STABLE_DOCKER_TAG)
+#	KO_DOCKER_REPO="etcd-manager" ko build --tags ${DOCKER_TAG} --platform=linux/amd64,linux/arm64 --bare ./cmd/etcd-manager/
 #	${BAZEL} run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //images:push-etcd-manager
 #	${BAZEL} run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_arm64 //images:push-etcd-manager
 
