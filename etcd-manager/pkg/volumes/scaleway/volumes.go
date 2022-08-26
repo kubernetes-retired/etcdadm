@@ -191,14 +191,14 @@ func (a *ScwVolumes) AttachVolume(volume *volumes.Volume) error {
 			return nil
 		}
 
-		err = a.instanceAPI.ServerActionAndWait(&instance.ServerActionAndWaitRequest{
-			ServerID: a.server.ID,
-			Zone:     a.zone,
-			Action:   instance.ServerActionPoweroff,
-		})
-		if err != nil {
-			return fmt.Errorf("failed to power-off server %s before attaching volume", a.server.ID)
-		}
+		//err = a.instanceAPI.ServerActionAndWait(&instance.ServerActionAndWaitRequest{
+		//	ServerID: a.server.ID,
+		//	Zone:     a.zone,
+		//	Action:   instance.ServerActionPoweroff,
+		//})
+		//if err != nil {
+		//	return fmt.Errorf("failed to power-off server %s before attaching volume", a.server.ID)
+		//}
 
 		klog.V(2).Infof("Attaching volume %s(%d) to the running server", scwVolume.Name, scwVolume.ID)
 		_, err = a.instanceAPI.AttachVolume(&instance.AttachVolumeRequest{
@@ -212,14 +212,14 @@ func (a *ScwVolumes) AttachVolume(volume *volumes.Volume) error {
 		//if vol.Server.State != instance.ServerStateRunning && vol.Server.State != instance.ServerStateStarting {
 		//	return fmt.Errorf("found invalid status for volume %s(%d): %s", scwVolume.Name, scwVolume.ID, action.Status)
 		//}
-		_, err = a.instanceAPI.ServerAction(&instance.ServerActionRequest{
-			ServerID: a.server.ID,
-			Zone:     a.zone,
-			Action:   instance.ServerActionPoweron,
-		})
-		if err != nil {
-			return fmt.Errorf("failed to power server %s back on after attaching volume", a.server.ID)
-		}
+		//_, err = a.instanceAPI.ServerAction(&instance.ServerActionRequest{
+		//	ServerID: a.server.ID,
+		//	Zone:     a.zone,
+		//	Action:   instance.ServerActionPoweron,
+		//})
+		//if err != nil {
+		//	return fmt.Errorf("failed to power server %s back on after attaching volume", a.server.ID)
+		//}
 
 		time.Sleep(10 * time.Second)
 	}
