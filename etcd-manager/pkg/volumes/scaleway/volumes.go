@@ -19,9 +19,7 @@ package scaleway
 import (
 	"fmt"
 	"os"
-	"time"
 
-	//kopsv "k8s.io/kops"
 	"github.com/scaleway/scaleway-sdk-go/api/instance/v1"
 	"github.com/scaleway/scaleway-sdk-go/scw"
 	"k8s.io/klog/v2"
@@ -49,19 +47,24 @@ var _ volumes.Volumes = &ScwVolumes{}
 // NewScwVolumes returns a new Scaleway Cloud volume provider.
 func NewScwVolumes(clusterName string, volumeTags []string, nameTag string) (*ScwVolumes, error) {
 	scwClient, err := scw.NewClient(
-		// TODO(Mia-Cross): Fix import for kopsv
-		//scw.WithUserAgent("kubernetes-kops/"+kopsv.Version),
 		scw.WithEnv(),
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	metadataAPI := instance.NewMetadataAPI()
-	metadata, err := metadataAPI.GetMetadata()
-	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve server metadata: %s", err)
-	}
+	//metadataAPI := instance.NewMetadataAPI()
+	//metadata, err := metadataAPI.GetMetadata()
+	//if err != nil {
+	//	return nil, fmt.Errorf("failed to retrieve server metadata: %s", err)
+	//}
+	//TODO(Mia-Cross): The previous segment only works if launched from instance
+	// For developpement purposes, we can execute the following code instead
+	master, err := instance.NewAPI(scwClient).ListServers(&instance.ListServersRequest{
+		Zone: scw.Zone(os.Getenv("SCW_DEFAULT_ZONE")),
+		Tags: []string{"instance-group=master-fr-par-1"},
+	})
+	metadata := master.Servers[0]
 
 	serverID := metadata.ID
 	klog.V(2).Infof("Found ID of the running server: %v", serverID)
@@ -127,7 +130,7 @@ func (a *ScwVolumes) FindVolumes() ([]*volumes.Volume, error) {
 		if volumeLocation != a.zone {
 			continue
 		}
-		klog.V(2).Infof("Found attachable volume %s(%d) with status %q", volume.Name, volume.ID, volume.State)
+		klog.V(2).Infof("Found attachable volume %s(%d) of type %s with status %q", volume.Name, volume.ID, volume.VolumeType, volume.State)
 
 		localEtcdVolume := &volumes.Volume{
 			ProviderID: volume.ID,
@@ -186,7 +189,7 @@ func (a *ScwVolumes) AttachVolume(volume *volumes.Volume) error {
 			if scwVolume.Server.ID != a.server.ID {
 				return fmt.Errorf("found volume %s(%s) attached to a different server: %s", scwVolume.Name, scwVolume.ID, scwVolume.Server.ID)
 			}
-			klog.V(2).Infof("Attached volume %s(%d) to the running server", scwVolume.Name, scwVolume.ID)
+			klog.V(2).Infof("Attached volume %s(%d) of type %s to the running server", scwVolume.Name, scwVolume.ID, scwVolume.VolumeType)
 			volume.LocalDevice = fmt.Sprintf("%s%s", localDevicePrefix, scwVolume.ID)
 			return nil
 		}
@@ -200,7 +203,7 @@ func (a *ScwVolumes) AttachVolume(volume *volumes.Volume) error {
 		//	return fmt.Errorf("failed to power-off server %s before attaching volume", a.server.ID)
 		//}
 
-		klog.V(2).Infof("Attaching volume %s(%d) to the running server", scwVolume.Name, scwVolume.ID)
+		klog.V(2).Infof("Attaching volume %s(%d) of type %s to the running server", scwVolume.Name, scwVolume.ID, scwVolume.VolumeType)
 		_, err = a.instanceAPI.AttachVolume(&instance.AttachVolumeRequest{
 			Zone:     a.zone,
 			ServerID: a.server.ID,
@@ -209,9 +212,7 @@ func (a *ScwVolumes) AttachVolume(volume *volumes.Volume) error {
 		if err != nil {
 			return fmt.Errorf("failed to attach volume %s(%s): %w", scwVolume.Name, scwVolume.ID, err)
 		}
-		//if vol.Server.State != instance.ServerStateRunning && vol.Server.State != instance.ServerStateStarting {
-		//	return fmt.Errorf("found invalid status for volume %s(%d): %s", scwVolume.Name, scwVolume.ID, action.Status)
-		//}
+
 		//_, err = a.instanceAPI.ServerAction(&instance.ServerActionRequest{
 		//	ServerID: a.server.ID,
 		//	Zone:     a.zone,
@@ -221,7 +222,20 @@ func (a *ScwVolumes) AttachVolume(volume *volumes.Volume) error {
 		//	return fmt.Errorf("failed to power server %s back on after attaching volume", a.server.ID)
 		//}
 
-		time.Sleep(10 * time.Second)
+		_, err = a.instanceAPI.WaitForVolume(&instance.WaitForVolumeRequest{
+			VolumeID: scwVolume.ID,
+			Zone:     a.zone,
+		})
+		if err != nil {
+			return fmt.Errorf("error waiting for volume %s(%s): %w", scwVolume.Name, scwVolume.ID, err)
+		}
+		_, err = a.instanceAPI.WaitForServer(&instance.WaitForServerRequest{
+			ServerID: a.server.ID,
+			Zone:     a.zone,
+		})
+		if err != nil {
+			return fmt.Errorf("error waiting for server %s(%s): %w", a.server.Name, a.server.ID, err)
+		}
 	}
 }
 

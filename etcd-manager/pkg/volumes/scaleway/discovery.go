@@ -44,8 +44,7 @@ func (a *ScwVolumes) Poll() (map[string]discovery.Node, error) {
 		}
 		serverID := volume.Server.ID
 
-		// TODO: Get all servers in a single requests to reduce the number of calls to the could API
-		// Hetzner Cloud API is limited to 3600 requests/hour (see: https://docs.hetzner.cloud/#rate-limiting)
+		// TODO(Mia-Cross): shall we worry about rate limiting for this request ?
 		server, err := a.instanceAPI.GetServer(&instance.GetServerRequest{
 			ServerID: serverID,
 			Zone:     a.zone,
@@ -60,7 +59,7 @@ func (a *ScwVolumes) Poll() (map[string]discovery.Node, error) {
 		}
 		serverPrivateIP := server.Server.PrivateIP
 
-		klog.V(2).Infof("Discovered volume %s(%d) attached to server %s(%d)", volume.Name, volume.ID, server.Server.Name, serverID)
+		klog.V(2).Infof("Discovered volume %s(%d) of type %s attached to server %s(%d)", volume.Name, volume.ID, volume.VolumeType, server.Server.Name, serverID)
 		// We use the etcd node ID as the persistent identifier, because the data determines who we are
 		node := discovery.Node{
 			ID:        "vol-" + volume.ID,

@@ -67,8 +67,6 @@ func (v *stringSliceFlag) Set(value string) error {
 }
 
 func main() {
-	klog.Infof("HELLO, YOU'RE USING A CUSTOM VERSION OF ETCD-MANAGER")
-
 	klog.InitFlags(nil)
 
 	flag.BoolVar(&volumes.Containerized, "containerized", volumes.Containerized, "set if we are running containerized")
@@ -108,8 +106,6 @@ func main() {
 	o.VolumeTags = volumeTags
 
 	fmt.Printf("etcd-manager\n")
-
-	fmt.Printf("HELLO, Looking for tags [%v]", volumeTags)
 
 	err := RunEtcdManager(&o)
 	if err != nil {

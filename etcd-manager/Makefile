@@ -20,6 +20,13 @@ IMAGE_BASE                 := $(STABLE_DOCKER_REGISTRY)/$(STABLE_DOCKER_IMAGE_PR
 BAZEL?=bazelisk
 BAZEL_FLAGS=--features=pure --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64
 
+#PASSWORD=$(shell cat /home/leila/.scw/hashicorp/skey)
+#PASSWORD=$(shell cat /home/leila/.scw/skey)
+#REGISTRY_NAME=kops-bin
+#DOCKER_REGISTRY=rg.fr-par.scw.cloud
+#DOCKER_IMAGE_PREFIX=$REGISTRY_NAME/
+#DOCKER_TAG=1.25.0-alpha.2
+
 .PHONY: all
 all: test
 
@@ -46,7 +53,6 @@ build-etcd-manager-amd64 build-etcd-manager-arm64: build-etcd-manager-%:
 
 .PHONY: push-etcd-manager
 push-etcd-manager:
-	echo $(REGISTRY_NAME)
 	docker login rg.fr-par.scw.cloud/$(REGISTRY_NAME) -u nologin --password $(SCW_SECRET_KEY)
 	docker build -t etcd-manager:$(STABLE_DOCKER_TAG) .
 	docker tag etcd-manager:$(STABLE_DOCKER_TAG) rg.fr-par.scw.cloud/$(REGISTRY_NAME)/etcd-manager:$(STABLE_DOCKER_TAG)
