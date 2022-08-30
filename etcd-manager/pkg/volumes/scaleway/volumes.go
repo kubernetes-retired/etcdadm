@@ -27,7 +27,7 @@ import (
 )
 
 const (
-	localDevicePrefix = "/dev/disk/by-id/scsi-0HC_Volume_"
+	localDevicePrefix = "/dev/disk/by-id/scsi-0SCW_b_ssd_volume-"
 )
 
 // ScwVolumes defines the Scaleway Cloud volume implementation.
@@ -64,6 +64,9 @@ func NewScwVolumes(clusterName string, volumeTags []string, nameTag string) (*Sc
 		Zone: scw.Zone(os.Getenv("SCW_DEFAULT_ZONE")),
 		Tags: []string{"instance-group=master-fr-par-1"},
 	})
+	if err != nil {
+		return nil, err
+	}
 	metadata := master.Servers[0]
 
 	serverID := metadata.ID

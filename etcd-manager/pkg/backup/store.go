@@ -17,6 +17,7 @@ limitations under the License.
 package backup
 
 import (
+	"fmt"
 	"k8s.io/kops/util/pkg/vfs"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
 )
@@ -57,7 +58,9 @@ func NewStore(storage string) (Store, error) {
 	//	return nil, fmt.Errorf("unknown storage scheme %q", storage)
 	//}
 
+	fmt.Printf("storage = %s\n", storage)
 	p, err := vfs.Context.BuildVfsPath(storage)
+	fmt.Printf("path built = %v\npath() = %s", p, p.Path())
 	if err != nil {
 		return nil, err
 	}

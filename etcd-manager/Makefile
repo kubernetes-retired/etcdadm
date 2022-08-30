@@ -22,10 +22,10 @@ BAZEL_FLAGS=--features=pure --platforms=@io_bazel_rules_go//go/toolchain:linux_a
 
 #PASSWORD=$(shell cat /home/leila/.scw/hashicorp/skey)
 #PASSWORD=$(shell cat /home/leila/.scw/skey)
-#REGISTRY_NAME=kops-bin
-#DOCKER_REGISTRY=rg.fr-par.scw.cloud
+REGISTRY_NAME=kops
+DOCKER_REGISTRY=rg.fr-par.scw.cloud
 #DOCKER_IMAGE_PREFIX=$REGISTRY_NAME/
-#DOCKER_TAG=1.25.0-alpha.2
+DOCKER_TAG=1.25.0-alpha.2
 
 .PHONY: all
 all: test
@@ -53,10 +53,10 @@ build-etcd-manager-amd64 build-etcd-manager-arm64: build-etcd-manager-%:
 
 .PHONY: push-etcd-manager
 push-etcd-manager:
-	docker login rg.fr-par.scw.cloud/$(REGISTRY_NAME) -u nologin --password $(SCW_SECRET_KEY)
-	docker build -t etcd-manager:$(STABLE_DOCKER_TAG) .
-	docker tag etcd-manager:$(STABLE_DOCKER_TAG) rg.fr-par.scw.cloud/$(REGISTRY_NAME)/etcd-manager:$(STABLE_DOCKER_TAG)
-	docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_PREFIX)etcd-manager:$(STABLE_DOCKER_TAG)
+	docker login $(DOCKER_REGISTRY)/$(REGISTRY_NAME) -u nologin --password $(SCW_SECRET_KEY)
+	docker build -t etcd-manager:$(DOCKER_TAG) .
+	docker tag etcd-manager:$(DOCKER_TAG) $(DOCKER_REGISTRY)/$(REGISTRY_NAME)/etcd-manager:$(DOCKER_TAG)
+	docker push $(DOCKER_REGISTRY)/$(REGISTRY_NAME)/etcd-manager:$(DOCKER_TAG)
 #	KO_DOCKER_REPO="etcd-manager" ko build --tags ${DOCKER_TAG} --platform=linux/amd64,linux/arm64 --bare ./cmd/etcd-manager/
 #	${BAZEL} run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //images:push-etcd-manager
 #	${BAZEL} run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_arm64 //images:push-etcd-manager

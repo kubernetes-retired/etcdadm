@@ -98,7 +98,7 @@ func main() {
 
 	backupStore, err := backup.NewStore(backupStorePath)
 	if err != nil {
-		klog.Fatalf("error initializing backup store: %v", err)
+		klog.Fatalf("-> error initializing backup store: %v", err)
 	}
 	clientURLs := []string{clientURL}
 	c, err := backupcontroller.NewBackupController(backupStore, clusterName, clientURLs, etcdClientTLSConfig, dataDir, backupInterval)

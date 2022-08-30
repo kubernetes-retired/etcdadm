@@ -463,7 +463,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 
 	backupStore, err := backup.NewStore(o.BackupStorePath)
 	if err != nil {
-		return fmt.Errorf("error initializing backup store: %v", err)
+		return fmt.Errorf("--> error initializing backup store: %v", err)
 	}
 
 	commandStore, err := commands.NewStore(o.BackupStorePath)
