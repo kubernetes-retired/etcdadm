@@ -49,7 +49,7 @@ e.g.
 ```
 git checkout -b relnotes_${VERSION}
 
-PREVIOUS_TAG=`git tag -l | grep etcd-manager/v | tail -n2 | head -n -1 | sed -e s@etcd-manager/v@@g`
+PREVIOUS_TAG=`git tag -l | grep etcd-manager/v | tail -n2 | head -n1 | sed -e s@etcd-manager/v@@g`
 LATEST_TAG=`git tag -l | grep etcd-manager/v | tail -n1 | sed -e s@etcd-manager/v@@g`
 git log etcd-manager/v${PREVIOUS_TAG}..etcd-manager/v${LATEST_TAG} --oneline | grep Merge.pull | grep -v Revert..Merge.pull | cut -f 5 -d ' ' | tac  > /tmp/prs
 echo -e "\n# ${LATEST_TAG}\n"  >> etcd-manager/docs/releases/3.0.md
