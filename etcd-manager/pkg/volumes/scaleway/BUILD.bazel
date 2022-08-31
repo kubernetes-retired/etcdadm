@@ -11,8 +11,8 @@ go_library(
     deps = [
         "//pkg/privateapi/discovery",
         "//pkg/volumes",
-        "//vendor/github.com/scaleway/scaleway-sdk-go/api/instance/v1",
-        "//vendor/github.com/hscaleway/scaleway-sdk-go/scw",
+        "//vendor/github.com/scaleway/scaleway-sdk-go/api/instance/v1:instance",
+        "//vendor/github.com/scaleway/scaleway-sdk-go/scw",
         "//vendor/k8s.io/klog/v2:klog",
     ],
 )

@@ -1,0 +1,12 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "logger",
+    srcs = [
+        "default_logger.go",
+        "logger.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/scaleway/scaleway-sdk-go/logger",
+    importpath = "github.com/scaleway/scaleway-sdk-go/logger",
+    visibility = ["//visibility:public"],
+)

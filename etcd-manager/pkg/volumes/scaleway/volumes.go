@@ -53,21 +53,21 @@ func NewScwVolumes(clusterName string, volumeTags []string, nameTag string) (*Sc
 		return nil, err
 	}
 
-	//metadataAPI := instance.NewMetadataAPI()
-	//metadata, err := metadataAPI.GetMetadata()
-	//if err != nil {
-	//	return nil, fmt.Errorf("failed to retrieve server metadata: %s", err)
-	//}
-	//TODO(Mia-Cross): The previous segment only works if launched from instance
-	// For developpement purposes, we can execute the following code instead
-	master, err := instance.NewAPI(scwClient).ListServers(&instance.ListServersRequest{
-		Zone: scw.Zone(os.Getenv("SCW_DEFAULT_ZONE")),
-		Tags: []string{"instance-group=master-fr-par-1"},
-	})
+	metadataAPI := instance.NewMetadataAPI()
+	metadata, err := metadataAPI.GetMetadata()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to retrieve server metadata: %s", err)
 	}
-	metadata := master.Servers[0]
+	////TODO(Mia-Cross): The previous segment only works if launched from instance
+	//// For developpement purposes, we can execute the following code instead
+	//master, err := instance.NewAPI(scwClient).ListServers(&instance.ListServersRequest{
+	//	Zone: scw.Zone("fr-par-1"),
+	//	Tags: []string{"instance-group=master-test"},
+	//})
+	//if err != nil {
+	//	return nil, err
+	//}
+	//metadata := master.Servers[0]
 
 	serverID := metadata.ID
 	klog.V(2).Infof("Found ID of the running server: %v", serverID)

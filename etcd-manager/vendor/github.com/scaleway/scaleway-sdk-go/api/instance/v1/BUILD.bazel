@@ -1,0 +1,28 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "instance",
+    srcs = [
+        "image_utils.go",
+        "instance_metadata_sdk.go",
+        "instance_sdk.go",
+        "instance_utils.go",
+        "security_group_utils.go",
+        "server_utils.go",
+        "snapshot_utils.go",
+        "volume_utils.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/scaleway/scaleway-sdk-go/api/instance/v1",
+    importpath = "github.com/scaleway/scaleway-sdk-go/api/instance/v1",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/scaleway/scaleway-sdk-go/api/marketplace/v1:marketplace",
+        "//vendor/github.com/scaleway/scaleway-sdk-go/internal/async",
+        "//vendor/github.com/scaleway/scaleway-sdk-go/internal/errors",
+        "//vendor/github.com/scaleway/scaleway-sdk-go/internal/marshaler",
+        "//vendor/github.com/scaleway/scaleway-sdk-go/internal/parameter",
+        "//vendor/github.com/scaleway/scaleway-sdk-go/namegenerator",
+        "//vendor/github.com/scaleway/scaleway-sdk-go/scw",
+        "//vendor/github.com/scaleway/scaleway-sdk-go/validation",
+    ],
+)

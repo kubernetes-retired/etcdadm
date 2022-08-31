@@ -1,0 +1,11 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "namegenerator",
+    srcs = [
+        "name_generator.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/scaleway/scaleway-sdk-go/namegenerator",
+    importpath = "github.com/scaleway/scaleway-sdk-go/namegenerator",
+    visibility = ["//visibility:public"],
+)
