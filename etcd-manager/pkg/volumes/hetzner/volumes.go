@@ -185,40 +185,43 @@ func (a *HetznerVolumes) FindMountedVolume(volume *volumes.Volume) (string, erro
 
 // AttachVolume attaches the specified volume to the running server and returns the mountpoint if successful.
 func (a *HetznerVolumes) AttachVolume(volume *volumes.Volume) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
 	volumeID, err := strconv.Atoi(volume.ProviderID)
 	if err != nil {
 		return fmt.Errorf("failed to convert volume id %q to int: %w", volume.ProviderID, err)
 	}
 
-	for {
-		hetznerVolume, _, err := a.hcloudClient.Volume.GetByID(context.TODO(), volumeID)
-		if err != nil || hetznerVolume == nil {
-			return fmt.Errorf("failed to get info for volume id %q: %w", volume.ProviderID, err)
-		}
-
-		if hetznerVolume.Server != nil {
-			if hetznerVolume.Server.ID != a.server.ID {
-				return fmt.Errorf("found volume %s(%d) attached to a different server: %d", hetznerVolume.Name, hetznerVolume.ID, hetznerVolume.Server.ID)
-			}
-
-			klog.V(2).Infof("Attached volume %s(%d) to the running server", hetznerVolume.Name, hetznerVolume.ID)
-
-			volume.LocalDevice = fmt.Sprintf("%s%d", localDevicePrefix, hetznerVolume.ID)
-			return nil
-		}
-
-		klog.V(2).Infof("Attaching volume %s(%d) to the running server", hetznerVolume.Name, hetznerVolume.ID)
-
-		action, _, err := a.hcloudClient.Volume.Attach(context.TODO(), hetznerVolume, a.server)
-		if err != nil {
-			return fmt.Errorf("failed to attach volume %s(%d): %w", hetznerVolume.Name, hetznerVolume.ID, err)
-		}
-		if action.Status != hcloud.ActionStatusRunning && action.Status != hcloud.ActionStatusSuccess {
-			return fmt.Errorf("found invalid status for volume %s(%d): %s", hetznerVolume.Name, hetznerVolume.ID, action.Status)
-		}
-
-		time.Sleep(10 * time.Second)
+	hetznerVolume, _, err := a.hcloudClient.Volume.GetByID(ctx, volumeID)
+	if err != nil || hetznerVolume == nil {
+		return fmt.Errorf("failed to get info for volume id %q: %w", volume.ProviderID, err)
 	}
+
+	if hetznerVolume.Server != nil {
+		if hetznerVolume.Server.ID != a.server.ID {
+			return fmt.Errorf("found volume %s(%d) attached to a different server: %d", hetznerVolume.Name, hetznerVolume.ID, hetznerVolume.Server.ID)
+		}
+
+		klog.V(2).Infof("Attached volume %s(%d) to the running server", hetznerVolume.Name, hetznerVolume.ID)
+
+		volume.LocalDevice = fmt.Sprintf("%s%d", localDevicePrefix, hetznerVolume.ID)
+		return nil
+	}
+
+	klog.V(2).Infof("Attaching volume %s(%d) to the running server", hetznerVolume.Name, hetznerVolume.ID)
+
+	action, _, err := a.hcloudClient.Volume.Attach(ctx, hetznerVolume, a.server)
+	if err != nil {
+		return fmt.Errorf("failed to attach volume %s(%d): %w", hetznerVolume.Name, hetznerVolume.ID, err)
+	}
+
+	_, errCh := a.hcloudClient.Action.WatchProgress(ctx, action)
+	if err := <-errCh; err != nil {
+		return fmt.Errorf("failed to wait for volume to %s(%d) be ready: %w", hetznerVolume.Name, hetznerVolume.ID, err)
+	}
+
+	return nil
 }
 
 // MyIP returns the first private IP of the running server if successful.
