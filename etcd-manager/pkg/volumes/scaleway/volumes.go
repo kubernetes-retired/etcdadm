@@ -58,16 +58,6 @@ func NewScwVolumes(clusterName string, volumeTags []string, nameTag string) (*Sc
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve server metadata: %s", err)
 	}
-	////TODO(Mia-Cross): The previous segment only works if launched from instance
-	//// For developpement purposes, we can execute the following code instead
-	//master, err := instance.NewAPI(scwClient).ListServers(&instance.ListServersRequest{
-	//	Zone: scw.Zone("fr-par-1"),
-	//	Tags: []string{"instance-group=master-test"},
-	//})
-	//if err != nil {
-	//	return nil, err
-	//}
-	//metadata := master.Servers[0]
 
 	serverID := metadata.ID
 	klog.V(2).Infof("Found ID of the running server: %v", serverID)
@@ -78,8 +68,6 @@ func NewScwVolumes(clusterName string, volumeTags []string, nameTag string) (*Sc
 		return nil, fmt.Errorf("unable to parse Scaleway zone: %s", err)
 	}
 	klog.V(2).Infof("Found zone of the running server: %v", zone)
-	//privateIP := metadata.PrivateIP
-	//klog.V(2).Infof("Found first private net IP of the running server: %q", privateIP)
 
 	instanceAPI := instance.NewAPI(scwClient)
 	server, err := instanceAPI.GetServer(&instance.GetServerRequest{
@@ -100,15 +88,6 @@ func NewScwVolumes(clusterName string, volumeTags []string, nameTag string) (*Sc
 		zone:        zone,
 		instanceAPI: instance.NewAPI(scwClient),
 	}
-
-	//for _, volumeTag := range volumeTags {
-	//	tokens := strings.SplitN(volumeTag, "=", 2)
-	//	if len(tokens) == 1 {
-	//		a.matchTags[tokens[0]] = ""
-	//	} else {
-	//		a.matchTags[tokens[0]] = tokens[1]
-	//	}
-	//}
 
 	return a, nil
 }
@@ -197,15 +176,6 @@ func (a *ScwVolumes) AttachVolume(volume *volumes.Volume) error {
 			return nil
 		}
 
-		//err = a.instanceAPI.ServerActionAndWait(&instance.ServerActionAndWaitRequest{
-		//	ServerID: a.server.ID,
-		//	Zone:     a.zone,
-		//	Action:   instance.ServerActionPoweroff,
-		//})
-		//if err != nil {
-		//	return fmt.Errorf("failed to power-off server %s before attaching volume", a.server.ID)
-		//}
-
 		klog.V(2).Infof("Attaching volume %s(%d) of type %s to the running server", scwVolume.Name, scwVolume.ID, scwVolume.VolumeType)
 		_, err = a.instanceAPI.AttachVolume(&instance.AttachVolumeRequest{
 			Zone:     a.zone,
@@ -215,15 +185,6 @@ func (a *ScwVolumes) AttachVolume(volume *volumes.Volume) error {
 		if err != nil {
 			return fmt.Errorf("failed to attach volume %s(%s): %w", scwVolume.Name, scwVolume.ID, err)
 		}
-
-		//_, err = a.instanceAPI.ServerAction(&instance.ServerActionRequest{
-		//	ServerID: a.server.ID,
-		//	Zone:     a.zone,
-		//	Action:   instance.ServerActionPoweron,
-		//})
-		//if err != nil {
-		//	return fmt.Errorf("failed to power server %s back on after attaching volume", a.server.ID)
-		//}
 
 		_, err = a.instanceAPI.WaitForVolume(&instance.WaitForVolumeRequest{
 			VolumeID: scwVolume.ID,

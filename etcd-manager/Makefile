@@ -20,11 +20,6 @@ IMAGE_BASE                 := $(STABLE_DOCKER_REGISTRY)/$(STABLE_DOCKER_IMAGE_PR
 BAZEL?=bazelisk
 BAZEL_FLAGS=--features=pure --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64
 
-REGISTRY_NAME=kops
-DOCKER_REGISTRY=rg.fr-par.scw.cloud
-#DOCKER_IMAGE_PREFIX=$REGISTRY_NAME/
-DOCKER_TAG=1.25.0-alpha.2
-
 .PHONY: all
 all: test
 
@@ -50,12 +45,8 @@ build-etcd-manager-amd64 build-etcd-manager-arm64: build-etcd-manager-%:
 
 .PHONY: push-etcd-manager
 push-etcd-manager:
-	docker login $(DOCKER_REGISTRY)/$(REGISTRY_NAME) -u nologin --password $(SCW_SECRET_KEY)
 	${BAZEL} run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //images:push-etcd-manager
-# ${BAZEL} run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_arm64 //images:push-etcd-manager
-#	docker build -t etcd-manager:$(DOCKER_TAG) .
-#	docker tag etcd-manager:$(DOCKER_TAG) $(DOCKER_REGISTRY)/$(REGISTRY_NAME)/etcd-manager:$(DOCKER_TAG)
-#	docker push $(DOCKER_REGISTRY)/$(REGISTRY_NAME)/etcd-manager:$(DOCKER_TAG)
+ 	${BAZEL} run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_arm64 //images:push-etcd-manager
 
 .PHONY: push-etcd-manager-manifest
 push-etcd-manager-manifest:

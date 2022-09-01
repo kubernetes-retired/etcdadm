@@ -9,5 +9,5 @@ go_library(
     ],
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/scaleway/scaleway-sdk-go/internal/auth",
     importpath = "github.com/scaleway/scaleway-sdk-go/internal/auth",
-    visibility = ["//visibility:public"],
+    visibility = ["//vendor/github.com/scaleway/scaleway-sdk-go:__subpackages__"],
 )

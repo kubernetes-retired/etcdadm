@@ -44,7 +44,6 @@ func (a *ScwVolumes) Poll() (map[string]discovery.Node, error) {
 		}
 		serverID := volume.Server.ID
 
-		// TODO(Mia-Cross): shall we worry about rate limiting for this request ?
 		server, err := a.instanceAPI.GetServer(&instance.GetServerRequest{
 			ServerID: serverID,
 			Zone:     a.zone,

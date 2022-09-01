@@ -14,6 +14,7 @@ require (
 	github.com/gophercloud/gophercloud v1.0.0
 	github.com/hetznercloud/hcloud-go v1.35.2
 	github.com/prometheus/client_golang v1.13.0
+	github.com/scaleway/scaleway-sdk-go v1.0.0-beta.9
 	go.etcd.io/etcd/api/v3 v3.5.4
 	go.etcd.io/etcd/client/v3 v3.5.4
 	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b
@@ -98,7 +99,6 @@ require (
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
-	github.com/scaleway/scaleway-sdk-go v1.0.0-beta.9 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.4 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
