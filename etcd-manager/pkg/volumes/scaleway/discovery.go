@@ -24,11 +24,11 @@ import (
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi/discovery"
 )
 
-// ScwVolumes also allows the discovery of peer nodes
-var _ discovery.Interface = &ScwVolumes{}
+// Volumes also allows the discovery of peer nodes
+var _ discovery.Interface = &Volumes{}
 
 // Poll returns all etcd cluster peers.
-func (a *ScwVolumes) Poll() (map[string]discovery.Node, error) {
+func (a *Volumes) Poll() (map[string]discovery.Node, error) {
 	peers := make(map[string]discovery.Node)
 
 	klog.V(2).Infof("Discovering volumes for %q", a.nameTag)
@@ -49,7 +49,7 @@ func (a *ScwVolumes) Poll() (map[string]discovery.Node, error) {
 			Zone:     a.zone,
 		})
 		if err != nil || server == nil {
-			return nil, fmt.Errorf("failed to get the running server: %s", err)
+			return nil, fmt.Errorf("failed to get the running server: %w", err)
 		}
 		klog.V(2).Infof("Found the running server: %q", server.Server.Name)
 

@@ -284,7 +284,7 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 			discoveryProvider = azureVolumeProvider
 
 		case "scaleway":
-			scwVolumeProvider, err := scaleway.NewScwVolumes(o.ClusterName, o.VolumeTags, o.NameTag)
+			scwVolumeProvider, err := scaleway.NewVolumes(o.ClusterName, o.VolumeTags, o.NameTag)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				os.Exit(1)

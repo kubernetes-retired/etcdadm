@@ -30,8 +30,8 @@ const (
 	localDevicePrefix = "/dev/disk/by-id/scsi-0SCW_b_ssd_volume-"
 )
 
-// ScwVolumes defines the Scaleway Cloud volume implementation.
-type ScwVolumes struct {
+// Volumes defines the Scaleway Cloud volume implementation.
+type Volumes struct {
 	clusterName string
 	matchTags   []string
 	nameTag     string
@@ -42,30 +42,30 @@ type ScwVolumes struct {
 	instanceAPI *instance.API
 }
 
-var _ volumes.Volumes = &ScwVolumes{}
+var _ volumes.Volumes = &Volumes{}
 
-// NewScwVolumes returns a new Scaleway Cloud volume provider.
-func NewScwVolumes(clusterName string, volumeTags []string, nameTag string) (*ScwVolumes, error) {
+// NewVolumes returns a new Scaleway Cloud volume provider.
+func NewVolumes(clusterName string, volumeTags []string, nameTag string) (*Volumes, error) {
 	scwClient, err := scw.NewClient(
 		scw.WithEnv(),
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error creating Scaleway client: %w", err)
 	}
 
 	metadataAPI := instance.NewMetadataAPI()
 	metadata, err := metadataAPI.GetMetadata()
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve server metadata: %s", err)
+		return nil, fmt.Errorf("failed to retrieve server metadata: %w", err)
 	}
 
 	serverID := metadata.ID
-	klog.V(2).Infof("Found ID of the running server: %v", serverID)
+	klog.V(2).Infof("Found ID of the running server: %s", serverID)
 
 	zoneID := metadata.Location.ZoneID
 	zone, err := scw.ParseZone(zoneID)
 	if err != nil {
-		return nil, fmt.Errorf("unable to parse Scaleway zone: %s", err)
+		return nil, fmt.Errorf("unable to parse Scaleway zone: %w", err)
 	}
 	klog.V(2).Infof("Found zone of the running server: %v", zone)
 
@@ -75,11 +75,11 @@ func NewScwVolumes(clusterName string, volumeTags []string, nameTag string) (*Sc
 		Zone:     zone,
 	})
 	if err != nil || server == nil {
-		return nil, fmt.Errorf("failed to get the running server: %s", err)
+		return nil, fmt.Errorf("failed to get the running server: %w", err)
 	}
 	klog.V(2).Infof("Found the running server: %q", server.Server.Name)
 
-	a := &ScwVolumes{
+	a := &Volumes{
 		clusterName: clusterName,
 		matchTags:   volumeTags,
 		nameTag:     nameTag,
@@ -93,26 +93,26 @@ func NewScwVolumes(clusterName string, volumeTags []string, nameTag string) (*Sc
 }
 
 // FindVolumes returns all volumes that can be attached to the running server.
-func (a *ScwVolumes) FindVolumes() ([]*volumes.Volume, error) {
+func (a *Volumes) FindVolumes() ([]*volumes.Volume, error) {
 	klog.V(2).Infof("Finding attachable etcd volumes")
 
 	allEtcdVolumes, err := getMatchingVolumes(a.instanceAPI, a.zone, a.matchTags)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get matching volumes: %s", err)
+		return nil, fmt.Errorf("failed to get matching volumes: %w", err)
 	}
 
 	var localEtcdVolumes []*volumes.Volume
 	for _, volume := range allEtcdVolumes {
 		// Only volumes from the same location can be mounted
 		if volume.Zone == "" {
-			klog.Warningf("failed to find volume location for %s(%d)", volume.Name, volume.ID)
+			klog.Warningf("failed to find volume location for %s(%s)", volume.Name, volume.ID)
 			continue
 		}
 		volumeLocation := volume.Zone
 		if volumeLocation != a.zone {
 			continue
 		}
-		klog.V(2).Infof("Found attachable volume %s(%d) of type %s with status %q", volume.Name, volume.ID, volume.VolumeType, volume.State)
+		klog.V(2).Infof("Found attachable volume %s(%s) of type %s with status %q", volume.Name, volume.ID, volume.VolumeType, volume.State)
 
 		localEtcdVolume := &volumes.Volume{
 			ProviderID: volume.ID,
@@ -137,7 +137,7 @@ func (a *ScwVolumes) FindVolumes() ([]*volumes.Volume, error) {
 }
 
 // FindMountedVolume returns the device where the volume is mounted to the running server.
-func (a *ScwVolumes) FindMountedVolume(volume *volumes.Volume) (string, error) {
+func (a *Volumes) FindMountedVolume(volume *volumes.Volume) (string, error) {
 	device := volume.LocalDevice
 
 	klog.V(2).Infof("Finding mounted volume %q", device)
@@ -148,7 +148,7 @@ func (a *ScwVolumes) FindMountedVolume(volume *volumes.Volume) (string, error) {
 	}
 
 	if !os.IsNotExist(err) {
-		return "", fmt.Errorf("failed to find local device %q: %v", device, err)
+		return "", fmt.Errorf("failed to find local device %q: %w", device, err)
 	}
 
 	// When not found, the interface says to return ("", nil)
@@ -156,7 +156,7 @@ func (a *ScwVolumes) FindMountedVolume(volume *volumes.Volume) (string, error) {
 }
 
 // AttachVolume attaches the specified volume to the running server and returns the mountpoint if successful.
-func (a *ScwVolumes) AttachVolume(volume *volumes.Volume) error {
+func (a *Volumes) AttachVolume(volume *volumes.Volume) error {
 	for {
 		volumeResp, err := a.instanceAPI.GetVolume(&instance.GetVolumeRequest{
 			VolumeID: volume.ProviderID,
@@ -171,12 +171,12 @@ func (a *ScwVolumes) AttachVolume(volume *volumes.Volume) error {
 			if scwVolume.Server.ID != a.server.ID {
 				return fmt.Errorf("found volume %s(%s) attached to a different server: %s", scwVolume.Name, scwVolume.ID, scwVolume.Server.ID)
 			}
-			klog.V(2).Infof("Attached volume %s(%d) of type %s to the running server", scwVolume.Name, scwVolume.ID, scwVolume.VolumeType)
+			klog.V(2).Infof("Volume %s(%s) of type %q is already attached to the running server", scwVolume.Name, scwVolume.ID, scwVolume.VolumeType)
 			volume.LocalDevice = fmt.Sprintf("%s%s", localDevicePrefix, scwVolume.ID)
 			return nil
 		}
 
-		klog.V(2).Infof("Attaching volume %s(%d) of type %s to the running server", scwVolume.Name, scwVolume.ID, scwVolume.VolumeType)
+		klog.V(2).Infof("Attaching volume %s(%s) of type %q to the running server", scwVolume.Name, scwVolume.ID, scwVolume.VolumeType)
 		_, err = a.instanceAPI.AttachVolume(&instance.AttachVolumeRequest{
 			Zone:     a.zone,
 			ServerID: a.server.ID,
@@ -204,11 +204,11 @@ func (a *ScwVolumes) AttachVolume(volume *volumes.Volume) error {
 }
 
 // MyIP returns the first private IP of the running server if successful.
-func (a *ScwVolumes) MyIP() (string, error) {
+func (a *Volumes) MyIP() (string, error) {
 	if a.server.PrivateIP == nil || *a.server.PrivateIP == "" {
-		return "", fmt.Errorf("failed to find private IP of server %s: ", a.server.ID)
+		return "", fmt.Errorf("failed to find private IP of server %s", a.server.ID)
 	}
-	klog.V(2).Infof("Found first private IP of the running server: %s", a.server.PrivateIP)
+	klog.V(2).Infof("Found first private IP of the running server: %s", *a.server.PrivateIP)
 	return *a.server.PrivateIP, nil
 }
 

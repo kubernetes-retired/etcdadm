@@ -46,7 +46,7 @@ build-etcd-manager-amd64 build-etcd-manager-arm64: build-etcd-manager-%:
 .PHONY: push-etcd-manager
 push-etcd-manager:
 	${BAZEL} run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //images:push-etcd-manager
- 	${BAZEL} run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_arm64 //images:push-etcd-manager
+	${BAZEL} run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_arm64 //images:push-etcd-manager
 
 .PHONY: push-etcd-manager-manifest
 push-etcd-manager-manifest:
