@@ -1,9 +1,0 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
-
-go_library(
-    name = "subtle",
-    srcs = ["aliasing.go"],
-    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/crypto/internal/subtle",
-    importpath = "golang.org/x/crypto/internal/subtle",
-    visibility = ["//vendor/golang.org/x/crypto:__subpackages__"],
-)

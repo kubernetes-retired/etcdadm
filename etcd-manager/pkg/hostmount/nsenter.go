@@ -37,6 +37,7 @@ func New(ne *nsenter.Nsenter) *Mounter {
 
 type Mounter struct {
 	ne *nsenter.Nsenter
+	mount.Interface
 }
 
 var _ mount.Interface = &Mounter{}
