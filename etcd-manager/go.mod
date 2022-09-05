@@ -14,6 +14,7 @@ require (
 	github.com/gophercloud/gophercloud v1.0.0
 	github.com/hetznercloud/hcloud-go v1.35.2
 	github.com/prometheus/client_golang v1.13.0
+	github.com/scaleway/scaleway-sdk-go v1.0.0-beta.9
 	go.etcd.io/etcd/api/v3 v3.5.4
 	go.etcd.io/etcd/client/v3 v3.5.4
 	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b

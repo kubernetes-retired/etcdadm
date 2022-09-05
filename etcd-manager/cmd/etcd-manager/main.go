@@ -52,6 +52,7 @@ import (
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/gce"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/hetzner"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/openstack"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes/scaleway"
 )
 
 type stringSliceFlag []string
@@ -281,6 +282,16 @@ func RunEtcdManager(o *EtcdManagerOptions) error {
 
 			volumeProvider = azureVolumeProvider
 			discoveryProvider = azureVolumeProvider
+
+		case "scaleway":
+			scwVolumeProvider, err := scaleway.NewVolumes(o.ClusterName, o.VolumeTags, o.NameTag)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%v\n", err)
+				os.Exit(1)
+			}
+
+			volumeProvider = scwVolumeProvider
+			discoveryProvider = scwVolumeProvider
 
 		case "external":
 			volumeDir := volumes.PathFor("/mnt/disks")

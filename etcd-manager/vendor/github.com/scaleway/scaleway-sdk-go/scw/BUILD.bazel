@@ -1,0 +1,30 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "scw",
+    srcs = [
+        "client.go",
+        "client_option.go",
+        "config.go",
+        "config_legacy.go",
+        "convert.go",
+        "custom_types.go",
+        "env.go",
+        "errors.go",
+        "locality.go",
+        "path.go",
+        "request.go",
+        "request_option.go",
+        "version.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/scaleway/scaleway-sdk-go/scw",
+    importpath = "github.com/scaleway/scaleway-sdk-go/scw",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/scaleway/scaleway-sdk-go/internal/auth",
+        "//vendor/github.com/scaleway/scaleway-sdk-go/internal/errors",
+        "//vendor/github.com/scaleway/scaleway-sdk-go/logger",
+        "//vendor/github.com/scaleway/scaleway-sdk-go/validation",
+        "//vendor/gopkg.in/yaml.v2:yaml_v2",
+    ],
+)

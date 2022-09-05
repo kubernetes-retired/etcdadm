@@ -1,0 +1,9 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "errors",
+    srcs = ["error.go"],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/scaleway/scaleway-sdk-go/internal/errors",
+    importpath = "github.com/scaleway/scaleway-sdk-go/internal/errors",
+    visibility = ["//vendor/github.com/scaleway/scaleway-sdk-go:__subpackages__"],
+)
