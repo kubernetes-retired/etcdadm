@@ -11,14 +11,17 @@ go_library(
         "expvar_collector.go",
         "fnv.go",
         "gauge.go",
+        "get_pid.go",
         "go_collector.go",
         "go_collector_go116.go",
         "go_collector_latest.go",
         "histogram.go",
         "labels.go",
         "metric.go",
+        "num_threads.go",
         "observer.go",
         "process_collector.go",
+        "process_collector_js.go",
         "process_collector_other.go",
         "process_collector_windows.go",
         "registry.go",
@@ -61,9 +64,6 @@ go_library(
             "//vendor/github.com/prometheus/procfs",
         ],
         "@io_bazel_rules_go//go/platform:ios": [
-            "//vendor/github.com/prometheus/procfs",
-        ],
-        "@io_bazel_rules_go//go/platform:js": [
             "//vendor/github.com/prometheus/procfs",
         ],
         "@io_bazel_rules_go//go/platform:linux": [

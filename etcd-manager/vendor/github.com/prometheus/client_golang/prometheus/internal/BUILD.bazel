@@ -3,6 +3,8 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "internal",
     srcs = [
+        "difflib.go",
+        "go_collector_options.go",
         "go_runtime_metrics.go",
         "metric.go",
     ],

@@ -15,7 +15,6 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//vendor/github.com/golang/protobuf/proto",
-        "//vendor/github.com/golang/protobuf/ptypes",
         "//vendor/github.com/matttproud/golang_protobuf_extensions/pbutil",
         "//vendor/github.com/prometheus/client_model/go",
         "//vendor/github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg",
