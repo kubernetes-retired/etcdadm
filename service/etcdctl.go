@@ -51,6 +51,11 @@ func WriteEtcdctlEnvFile(cfg *apis.EtcdAdmConfig) error {
 func WriteEtcdctlShellWrapper(cfg *apis.EtcdAdmConfig) error {
 	t := template.Must(template.New("etcdctl-shell-wrapper").Parse(constants.EtcdctlShellWrapperTemplate))
 
+	environmentFileDir := filepath.Dir(cfg.EtcdctlShellWrapper)
+	if err := os.MkdirAll(environmentFileDir, 0755); err != nil {
+		return fmt.Errorf("unable to create environment file directory %q: %s", environmentFileDir, err)
+	}
+
 	f, err := os.OpenFile(cfg.EtcdctlShellWrapper, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
 	if err != nil {
 		return fmt.Errorf("unable to create the etcd shell wrapper %q: %v", cfg.EtcdctlShellWrapper, err)
