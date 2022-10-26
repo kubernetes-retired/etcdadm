@@ -68,6 +68,8 @@ type peer struct {
 
 	// DiscoveryPollInterval is the frequency with which we perform peer discovery
 	DiscoveryPollInterval time.Duration
+
+	cancelPing context.CancelFunc
 }
 
 func (s *Server) runDiscovery(ctx context.Context) {
@@ -98,7 +100,10 @@ func (s *Server) updateFromPingRequest(request *PingRequest) {
 		}
 		existing.updatePeerInfo(request.Info)
 		s.peers[id] = existing
-		go existing.Run(s.context, s.PingInterval)
+
+		ctx, cancel := context.WithCancel(s.context)
+		s.peers[id].cancelPing = cancel
+		go existing.Run(ctx, s.PingInterval) /// GOROUTINE HERE  // remove later (Mia-Cross)
 	} else {
 		existing.updatePeerInfo(request.Info)
 	}
@@ -121,10 +126,31 @@ func (s *Server) updateFromDiscovery(discoveryNode discovery.Node) {
 		}
 		existing.updateFromDiscovery(discoveryNode)
 		s.peers[id] = existing
-		go existing.Run(s.context, s.PingInterval)
+
+		ctx, cancel := context.WithCancel(s.context)
+		s.peers[id].cancelPing = cancel
+		go existing.Run(ctx, s.PingInterval) /// GOROUTINE HERE  // remove later (Mia-Cross)
 	} else {
 		existing.updateFromDiscovery(discoveryNode)
 	}
+}
+
+// removeOldPeers is used by Scaleway to stop trying to contact deleted volumes
+func (s *Server) removeOldPeers(newDiscoveryPeers map[string]discovery.Node) {
+	newPeers := make(map[PeerId]*peer)
+
+	for peerId, peer := range s.peers {
+		if _, exists := newDiscoveryPeers[string(peerId)]; exists {
+			newPeers[peerId] = peer
+		} else {
+			klog.Infof("%s got removed from peers", peerId)
+			if peer.cancelPing != nil {
+				peer.cancelPing()
+			}
+		}
+	}
+
+	s.peers = newPeers
 }
 
 func (s *Server) runDiscoveryOnce() error {
@@ -132,6 +158,12 @@ func (s *Server) runDiscoveryOnce() error {
 	if err != nil {
 		return fmt.Errorf("error during peer discovery: %v", err)
 	}
+
+	klog.Infof("$$$$$ len(nodes)=%d && len(s.peers)=%d", len(nodes), len(s.peers)) // remove later (Mia-Cross)
+	if len(nodes) < len(s.peers) {
+		s.removeOldPeers(nodes)
+	}
+	klog.Infof("$$$$ -> len(nodes)=%d && len(s.peers)=%d", len(nodes), len(s.peers)) // remove later (Mia-Cross)
 
 	for k := range nodes {
 		s.updateFromDiscovery(nodes[k])
@@ -225,9 +257,14 @@ func (p *peer) status(healthyTimeout time.Duration) (*PeerInfo, bool) {
 
 func (p *peer) Run(ctx context.Context, pingInterval time.Duration) {
 	contextutil.Forever(ctx, pingInterval, func() {
-		err := p.sendPings(ctx, pingInterval)
-		if err != nil {
-			klog.Warningf("unexpected error from peer intercommunications: %v", err)
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			err := p.sendPings(ctx, pingInterval)
+			if err != nil {
+				klog.Warningf("unexpected error from peer intercommunications: %v", err)
+			}
 		}
 	})
 }
@@ -306,6 +343,7 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 	endpoints := make(map[string]bool)
 	{
 		p.mutex.Lock()
+		klog.Infof("CONNECT **** got list of %d endpoints", len(p.discoveryNode.Endpoints)) // remove later (Mia-Cross)
 		for _, endpoint := range p.discoveryNode.Endpoints {
 			port := endpoint.Port
 			if port == 0 {
@@ -315,7 +353,9 @@ func (p *peer) connect() (*grpc.ClientConn, error) {
 			endpoints[s] = true
 		}
 
+		klog.Infof("CONNECT **** last info = %+v", p.lastInfo) // remove later (Mia-Cross)
 		if p.lastInfo != nil {
+			klog.Infof("CONNECT **** last info endpoints len = %d", len(p.lastInfo.Endpoints)) // remove later (Mia-Cross)
 			for _, endpoint := range p.lastInfo.Endpoints {
 				endpoints[endpoint] = true
 			}

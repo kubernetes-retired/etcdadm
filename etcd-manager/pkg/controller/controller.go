@@ -297,8 +297,8 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	if err != nil {
 		return false, fmt.Errorf("error building cluster state: %v", err)
 	}
-	klog.V(3).Infof("etcd cluster state: %s", clusterState)
-	klog.V(2).Infof("etcd cluster members: %s", clusterState.members)
+	klog.V(3).Infof("etcd cluster state: %s", clusterState)           // this is ok (Mia-Cross)
+	klog.V(2).Infof("etcd cluster members: %s", clusterState.members) // this is empty (Mia-Cross)
 
 	now := time.Now()
 
@@ -472,6 +472,7 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		}
 	}
 
+	// Investigate (Mia-Cross)
 	if len(clusterState.members) < int(clusterSpec.MemberCount) {
 		if len(clusterState.members) == 0 {
 			if err := m.InvalidateControlStore(); err != nil {
@@ -592,6 +593,7 @@ func randomToken() string {
 
 func (m *EtcdController) buildMemberMap(etcdClusterState *etcdClusterState) *protoetcd.MemberMap {
 	memberMap := &protoetcd.MemberMap{}
+	klog.Infof("BUILD MEMBER MAP ***** got peers map of len %d", len(etcdClusterState.peers)) // remove later (Mia-Cross)
 	for _, peer := range etcdClusterState.peers {
 		if peer.peer == nil || peer.peer.info == nil {
 			continue
@@ -626,6 +628,8 @@ func (m *EtcdController) buildMemberMap(etcdClusterState *etcdClusterState) *pro
 
 		memberMap.Members = append(memberMap.Members, memberInfo)
 	}
+
+	klog.Infof("BUILD MEMBER MAP ***** built members map of len %d", len(memberMap.Members)) // remove later (Mia-Cross)
 
 	return memberMap
 }
@@ -699,6 +703,7 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 		klog.V(2).Infof("base client OK for etcd for client urls %s", clientUrls)
 		etcdClientCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 		members, err := etcdClient.ListMembers(etcdClientCtx)
+		klog.Infof("&&&&&&&&&& len from return of listMembers = %d", len(members)) // remove later (Mia-Cross)
 		cancel()
 
 		etcdclient.LoggedClose(etcdClient)
@@ -709,6 +714,7 @@ func (m *EtcdController) updateClusterState(ctx context.Context, peers []*peer) 
 
 		clusterState.members = make(map[EtcdMemberId]*etcdclient.EtcdProcessMember)
 		for _, m := range members {
+			klog.Infof("&&&&& member.name = %s", m.Name) // remove later (Mia-Cross)
 			// Note that members don't necessarily have names, when they are added but not yet merged
 			memberID := EtcdMemberId(m.ID)
 			if memberID == "" {

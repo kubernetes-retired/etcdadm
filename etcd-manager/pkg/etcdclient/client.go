@@ -221,6 +221,7 @@ func (c *EtcdClient) CopyTo(ctx context.Context, dest NodeSink) (int, error) {
 
 func (c *EtcdClient) ListMembers(ctx context.Context) ([]*EtcdProcessMember, error) {
 	response, err := c.cluster.MemberList(ctx)
+	klog.Infof("^^^^^^ return de cluster.memberlist = %v+", response) // remove later (Mia-Cross)
 	if err != nil {
 		return nil, err
 	}

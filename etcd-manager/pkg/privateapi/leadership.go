@@ -122,7 +122,10 @@ func (s *Server) addPeersFromView(view *View) {
 			}
 			s.peers[peerId] = existing
 			existing.updatePeerInfo(p)
-			go existing.Run(s.context, s.PingInterval)
+
+			ctx, cancel := context.WithCancel(s.context)
+			s.peers[peerId].cancelPing = cancel
+			go existing.Run(ctx, s.PingInterval) /// GOROUTINE HERE   // remove later (Mia-Cross)
 		}
 	}
 }

@@ -18,6 +18,7 @@ package scaleway
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/scaleway/scaleway-sdk-go/api/instance/v1"
 	"k8s.io/klog/v2"
@@ -32,7 +33,14 @@ func (a *Volumes) Poll() (map[string]discovery.Node, error) {
 	peers := make(map[string]discovery.Node)
 
 	klog.V(2).Infof("Discovering volumes for %q", a.nameTag)
-	etcdVolumes, err := getMatchingVolumes(a.instanceAPI, a.zone, a.matchTags)
+	matchTags := []string(nil)
+	for _, tag := range a.matchTags {
+		if !strings.HasPrefix(tag, "instance-group") {
+			//if !strings.HasPrefix(tag, scaleway.TagInstanceGroup) {    // change later (Mia-Cross)
+			matchTags = append(matchTags, tag)
+		}
+	}
+	etcdVolumes, err := getMatchingVolumes(a.instanceAPI, a.zone, matchTags)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get matching volumes: %w", err)
 	}
@@ -58,7 +66,7 @@ func (a *Volumes) Poll() (map[string]discovery.Node, error) {
 		}
 		serverPrivateIP := server.Server.PrivateIP
 
-		klog.V(2).Infof("Discovered volume %s(%d) of type %s attached to server %s(%d)", volume.Name, volume.ID, volume.VolumeType, server.Server.Name, serverID)
+		klog.V(2).Infof("Discovered volume %s(%s) of type %s attached to server %s(%s)", volume.Name, volume.ID, volume.VolumeType, server.Server.Name, serverID)
 		// We use the etcd node ID as the persistent identifier, because the data determines who we are
 		node := discovery.Node{
 			ID:        "vol-" + volume.ID,
@@ -66,6 +74,7 @@ func (a *Volumes) Poll() (map[string]discovery.Node, error) {
 		}
 		peers[node.ID] = node
 	}
+	klog.Infof("****** Poll is returning a map of %d peers", len(peers)) // remove later (Mia-Cross)
 
 	return peers, nil
 }
