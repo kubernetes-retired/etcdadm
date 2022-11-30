@@ -98,7 +98,6 @@ func (s *Server) updateFromPingRequest(request *PingRequest) {
 		}
 		existing.updatePeerInfo(request.Info)
 		s.peers[id] = existing
-
 		go existing.Run(s.context, s.PingInterval)
 	} else {
 		existing.updatePeerInfo(request.Info)
@@ -122,7 +121,6 @@ func (s *Server) updateFromDiscovery(discoveryNode discovery.Node) {
 		}
 		existing.updateFromDiscovery(discoveryNode)
 		s.peers[id] = existing
-
 		go existing.Run(s.context, s.PingInterval)
 	} else {
 		existing.updateFromDiscovery(discoveryNode)

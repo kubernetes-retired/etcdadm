@@ -122,7 +122,6 @@ func (s *Server) addPeersFromView(view *View) {
 			}
 			s.peers[peerId] = existing
 			existing.updatePeerInfo(p)
-
 			go existing.Run(s.context, s.PingInterval)
 		}
 	}

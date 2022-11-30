@@ -297,8 +297,6 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 	if err != nil {
 		return false, fmt.Errorf("error building cluster state: %v", err)
 	}
-	klog.V(3).Infof("etcd cluster state: %s", clusterState)           // this is ok (Mia-Cross)
-	klog.V(2).Infof("etcd cluster members: %s", clusterState.members) // this is empty (Mia-Cross)
 
 	now := time.Now()
 
@@ -472,7 +470,6 @@ func (m *EtcdController) run(ctx context.Context) (bool, error) {
 		}
 	}
 
-	// Investigate (Mia-Cross)
 	if len(clusterState.members) < int(clusterSpec.MemberCount) {
 		if len(clusterState.members) == 0 {
 			if err := m.InvalidateControlStore(); err != nil {

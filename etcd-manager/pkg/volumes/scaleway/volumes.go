@@ -132,6 +132,7 @@ func (a *Volumes) FindVolumes() ([]*volumes.Volume, error) {
 
 		localEtcdVolumes = append(localEtcdVolumes, localEtcdVolume)
 	}
+
 	return localEtcdVolumes, nil
 }
 
