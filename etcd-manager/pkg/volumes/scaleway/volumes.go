@@ -96,27 +96,43 @@ func NewVolumes(clusterName string, volumeTags []string, nameTag string) (*Volum
 func (a *Volumes) FindVolumes() ([]*volumes.Volume, error) {
 	klog.V(2).Infof("Finding attachable etcd volumes")
 
-	etcdVolume, err := getAvailableVolume(a.instanceAPI, a.zone, a.matchTags)
+	allEtcdVolumes, err := getMatchingVolumes(a.instanceAPI, a.zone, a.matchTags)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get matching volume: %w", err)
-	}
-	klog.V(2).Infof("Found attachable volume %s(%s) of type %s with status %q", etcdVolume.Name, etcdVolume.ID, etcdVolume.VolumeType, etcdVolume.State)
-
-	localEtcdVolume := &volumes.Volume{
-		ProviderID: etcdVolume.ID,
-		Info: volumes.VolumeInfo{
-			Description: a.clusterName + "-" + etcdVolume.ID,
-		},
-		MountName: "scw-" + etcdVolume.ID,
-		EtcdName:  "vol-" + etcdVolume.ID,
+		return nil, fmt.Errorf("failed to get matching volumes: %w", err)
 	}
 
-	if etcdVolume.Server != nil {
-		localEtcdVolume.AttachedTo = etcdVolume.Server.ID
-		localEtcdVolume.LocalDevice = fmt.Sprintf("%s%s", localDevicePrefix, etcdVolume.ID)
-	}
+	var localEtcdVolumes []*volumes.Volume
+	for _, volume := range allEtcdVolumes {
+		// Only volumes from the same location can be mounted
+		if volume.Zone == "" {
+			klog.Warningf("failed to find volume location for %s(%s)", volume.Name, volume.ID)
+			continue
+		}
+		volumeLocation := volume.Zone
+		if volumeLocation != a.zone {
+			continue
+		}
+		klog.V(2).Infof("Found attachable volume %s(%s) of type %s with status %q", volume.Name, volume.ID, volume.VolumeType, volume.State)
 
-	return []*volumes.Volume{localEtcdVolume}, nil
+		localEtcdVolume := &volumes.Volume{
+			ProviderID: volume.ID,
+			Info: volumes.VolumeInfo{
+				Description: a.clusterName + "-" + volume.ID,
+			},
+			MountName: "scw-" + volume.ID,
+			EtcdName:  "vol-" + volume.ID,
+		}
+
+		if volume.Server != nil {
+			localEtcdVolume.AttachedTo = volume.Server.ID
+			if volume.Server.ID == a.server.ID {
+				localEtcdVolume.LocalDevice = fmt.Sprintf("%s%s", localDevicePrefix, volume.ID)
+			}
+		}
+
+		localEtcdVolumes = append(localEtcdVolumes, localEtcdVolume)
+	}
+	return localEtcdVolumes, nil
 }
 
 // FindMountedVolume returns the device where the volume is mounted to the running server.
@@ -186,28 +202,6 @@ func (a *Volumes) AttachVolume(volume *volumes.Volume) error {
 		if err != nil {
 			return fmt.Errorf("error waiting for server %s(%s): %w", a.server.Name, a.server.ID, err)
 		}
-
-		// We fetch the volume again to check if the server is attached as expected
-		volumeResp, err = a.instanceAPI.GetVolume(&instance.GetVolumeRequest{
-			VolumeID: volume.ProviderID,
-			Zone:     a.zone,
-		})
-		if err != nil || volumeResp.Volume == nil {
-			return fmt.Errorf("failed to get info for volume id %q: %w", volume.ProviderID, err)
-		}
-
-		// We check that the attached volume is the one we expected, and we add the local device prefix
-		scwVolume = volumeResp.Volume
-		if scwVolume.Server != nil {
-			if scwVolume.Server.ID != a.server.ID {
-				return fmt.Errorf("found volume %s(%s) attached to a different server: %s", scwVolume.Name, scwVolume.ID, scwVolume.Server.ID)
-			}
-			klog.V(2).Infof("Volume %s(%s) of type %q is indeed attached to the running server", scwVolume.Name, scwVolume.ID, scwVolume.VolumeType)
-			volume.LocalDevice = fmt.Sprintf("%s%s", localDevicePrefix, scwVolume.ID)
-			return nil
-		} else {
-			return fmt.Errorf("XXX volume was not attached after operation XXX")
-		}
 	}
 }
 
@@ -218,26 +212,6 @@ func (a *Volumes) MyIP() (string, error) {
 	}
 	klog.V(2).Infof("Found first private IP of the running server: %s", *a.server.PrivateIP)
 	return *a.server.PrivateIP, nil
-}
-
-// getAvailableVolume returns the first available volume matching matchLabels if successful.
-func getAvailableVolume(instanceAPI *instance.API, zone scw.Zone, matchLabels []string) (*instance.Volume, error) {
-	matchingVolumes, err := instanceAPI.ListVolumes(&instance.ListVolumesRequest{
-		Zone: zone,
-		Tags: matchLabels,
-	}, scw.WithAllPages())
-	if err != nil {
-		return nil, fmt.Errorf("failed to get volumes matching name %q: %w", matchLabels, err)
-	}
-
-	for _, volume := range matchingVolumes.Volumes {
-		if volume.Server == nil && volume.State == instance.VolumeStateAvailable {
-			klog.V(6).Infof("found 1 matching and available volume")
-			return volume, nil
-		}
-	}
-
-	return nil, fmt.Errorf("could not find any available volume matching %q: %w", matchLabels, err)
 }
 
 // getMatchingVolumes returns all the volumes matching matchLabels if successful.

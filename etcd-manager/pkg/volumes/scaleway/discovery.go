@@ -18,7 +18,6 @@ package scaleway
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/scaleway/scaleway-sdk-go/api/instance/v1"
 	"k8s.io/klog/v2"
@@ -33,14 +32,7 @@ func (a *Volumes) Poll() (map[string]discovery.Node, error) {
 	peers := make(map[string]discovery.Node)
 
 	klog.V(2).Infof("Discovering volumes for %q", a.nameTag)
-	matchTags := []string(nil)
-	for _, tag := range a.matchTags {
-		if !strings.HasPrefix(tag, "instance-group") {
-			//if !strings.HasPrefix(tag, scaleway.TagInstanceGroup) {    // change later (Mia-Cross)
-			matchTags = append(matchTags, tag)
-		}
-	}
-	etcdVolumes, err := getMatchingVolumes(a.instanceAPI, a.zone, matchTags)
+	etcdVolumes, err := getMatchingVolumes(a.instanceAPI, a.zone, a.matchTags)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get matching volumes: %w", err)
 	}
