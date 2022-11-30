@@ -30,8 +30,8 @@ var _ discovery.Interface = &Volumes{}
 // Poll returns all etcd cluster peers.
 func (a *Volumes) Poll() (map[string]discovery.Node, error) {
 	peers := make(map[string]discovery.Node)
+	klog.V(2).Infof("Discovering peers with volumes matching labels: %v", a.matchTags)
 
-	klog.V(2).Infof("Discovering volumes for %q", a.nameTag)
 	etcdVolumes, err := getMatchingVolumes(a.instanceAPI, a.zone, a.matchTags)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get matching volumes: %w", err)
@@ -58,7 +58,7 @@ func (a *Volumes) Poll() (map[string]discovery.Node, error) {
 		}
 		serverPrivateIP := server.Server.PrivateIP
 
-		klog.V(2).Infof("Discovered volume %s(%d) of type %s attached to server %s(%d)", volume.Name, volume.ID, volume.VolumeType, server.Server.Name, serverID)
+		klog.V(2).Infof("Discovered volume %s(%s) of type %s attached to server %s(%s)", volume.Name, volume.ID, volume.VolumeType, server.Server.Name, serverID)
 		// We use the etcd node ID as the persistent identifier, because the data determines who we are
 		node := discovery.Node{
 			ID:        "vol-" + volume.ID,
