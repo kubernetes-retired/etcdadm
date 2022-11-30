@@ -5,6 +5,7 @@ go_library(
     srcs = [
         "agent.go",
         "consts.go",
+        "deprecation_status.go",
         "error.go",
         "plugin_types.go",
         "replication.go",
