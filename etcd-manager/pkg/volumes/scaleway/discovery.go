@@ -66,7 +66,6 @@ func (a *Volumes) Poll() (map[string]discovery.Node, error) {
 		}
 		peers[node.ID] = node
 	}
-	klog.Infof("****** Poll is returning a map of %d peers", len(peers)) // remove later (Mia-Cross)
 
 	return peers, nil
 }
