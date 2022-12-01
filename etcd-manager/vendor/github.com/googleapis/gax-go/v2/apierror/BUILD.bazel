@@ -12,5 +12,6 @@ go_library(
         "//vendor/google.golang.org/genproto/googleapis/rpc/errdetails",
         "//vendor/google.golang.org/grpc/status",
         "//vendor/google.golang.org/protobuf/encoding/protojson",
+        "//vendor/google.golang.org/protobuf/proto",
     ],
 )

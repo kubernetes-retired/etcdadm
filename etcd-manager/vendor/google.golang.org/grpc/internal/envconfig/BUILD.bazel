@@ -4,6 +4,7 @@ go_library(
     name = "envconfig",
     srcs = [
         "envconfig.go",
+        "observability.go",
         "xds.go",
     ],
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/google.golang.org/grpc/internal/envconfig",

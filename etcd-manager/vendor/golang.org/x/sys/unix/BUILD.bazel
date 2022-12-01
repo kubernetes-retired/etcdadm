@@ -57,8 +57,6 @@ go_library(
         "syscall_aix.go",
         "syscall_aix_ppc64.go",
         "syscall_bsd.go",
-        "syscall_darwin.1_12.go",
-        "syscall_darwin.1_13.go",
         "syscall_darwin.go",
         "syscall_darwin_amd64.go",
         "syscall_darwin_arm64.go",
@@ -145,12 +143,8 @@ go_library(
         "zptrace_x86_linux.go",
         "zsyscall_aix_ppc64.go",
         "zsyscall_aix_ppc64_gc.go",
-        "zsyscall_darwin_amd64.1_13.go",
-        "zsyscall_darwin_amd64.1_13.s",
         "zsyscall_darwin_amd64.go",
         "zsyscall_darwin_amd64.s",
-        "zsyscall_darwin_arm64.1_13.go",
-        "zsyscall_darwin_arm64.1_13.s",
         "zsyscall_darwin_arm64.go",
         "zsyscall_darwin_arm64.s",
         "zsyscall_dragonfly_amd64.go",
@@ -224,7 +218,6 @@ go_library(
         "ztypes_freebsd_amd64.go",
         "ztypes_freebsd_arm.go",
         "ztypes_freebsd_arm64.go",
-        "ztypes_illumos_amd64.go",
         "ztypes_linux.go",
         "ztypes_linux_386.go",
         "ztypes_linux_amd64.go",
@@ -252,37 +245,4 @@ go_library(
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/sys/unix",
     importpath = "golang.org/x/sys/unix",
     visibility = ["//visibility:public"],
-    deps = select({
-        "@io_bazel_rules_go//go/platform:aix": [
-            "//vendor/golang.org/x/sys/internal/unsafeheader",
-        ],
-        "@io_bazel_rules_go//go/platform:android": [
-            "//vendor/golang.org/x/sys/internal/unsafeheader",
-        ],
-        "@io_bazel_rules_go//go/platform:darwin": [
-            "//vendor/golang.org/x/sys/internal/unsafeheader",
-        ],
-        "@io_bazel_rules_go//go/platform:dragonfly": [
-            "//vendor/golang.org/x/sys/internal/unsafeheader",
-        ],
-        "@io_bazel_rules_go//go/platform:freebsd": [
-            "//vendor/golang.org/x/sys/internal/unsafeheader",
-        ],
-        "@io_bazel_rules_go//go/platform:ios": [
-            "//vendor/golang.org/x/sys/internal/unsafeheader",
-        ],
-        "@io_bazel_rules_go//go/platform:linux": [
-            "//vendor/golang.org/x/sys/internal/unsafeheader",
-        ],
-        "@io_bazel_rules_go//go/platform:netbsd": [
-            "//vendor/golang.org/x/sys/internal/unsafeheader",
-        ],
-        "@io_bazel_rules_go//go/platform:openbsd": [
-            "//vendor/golang.org/x/sys/internal/unsafeheader",
-        ],
-        "@io_bazel_rules_go//go/platform:solaris": [
-            "//vendor/golang.org/x/sys/internal/unsafeheader",
-        ],
-        "//conditions:default": [],
-    }),
 )
