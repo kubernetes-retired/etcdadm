@@ -96,13 +96,13 @@ func NewVolumes(clusterName string, volumeTags []string, nameTag string) (*Volum
 func (a *Volumes) FindVolumes() ([]*volumes.Volume, error) {
 	klog.V(2).Infof("Finding attachable etcd volumes")
 
-	allEtcdVolumes, err := getMatchingVolumes(a.instanceAPI, a.zone, a.matchTags)
+	matchingEtcdVolumes, err := getMatchingVolumes(a.instanceAPI, a.zone, append(a.matchTags, a.nameTag))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get matching volumes: %w", err)
 	}
 
 	var localEtcdVolumes []*volumes.Volume
-	for _, volume := range allEtcdVolumes {
+	for _, volume := range matchingEtcdVolumes {
 		// Only volumes from the same location can be mounted
 		if volume.Zone == "" {
 			klog.Warningf("failed to find volume location for %s(%s)", volume.Name, volume.ID)
@@ -166,6 +166,7 @@ func (a *Volumes) AttachVolume(volume *volumes.Volume) error {
 			return fmt.Errorf("failed to get info for volume id %q: %w", volume.ProviderID, err)
 		}
 
+		// We check if the volume is already attached
 		scwVolume := volumeResp.Volume
 		if scwVolume.Server != nil {
 			if scwVolume.Server.ID != a.server.ID {
@@ -176,6 +177,7 @@ func (a *Volumes) AttachVolume(volume *volumes.Volume) error {
 			return nil
 		}
 
+		// We attach the volume to the server
 		klog.V(2).Infof("Attaching volume %s(%s) of type %q to the running server", scwVolume.Name, scwVolume.ID, scwVolume.VolumeType)
 		_, err = a.instanceAPI.AttachVolume(&instance.AttachVolumeRequest{
 			Zone:     a.zone,
@@ -186,6 +188,7 @@ func (a *Volumes) AttachVolume(volume *volumes.Volume) error {
 			return fmt.Errorf("failed to attach volume %s(%s): %w", scwVolume.Name, scwVolume.ID, err)
 		}
 
+		// We wait for the volume and the server to be in a stable state
 		_, err = a.instanceAPI.WaitForVolume(&instance.WaitForVolumeRequest{
 			VolumeID: scwVolume.ID,
 			Zone:     a.zone,
@@ -212,14 +215,14 @@ func (a *Volumes) MyIP() (string, error) {
 	return *a.server.PrivateIP, nil
 }
 
-// getMatchingVolumes returns all the volumes matching matchLabels if successful.
-func getMatchingVolumes(instanceAPI *instance.API, zone scw.Zone, matchLabels []string) ([]*instance.Volume, error) {
+// getMatchingVolumes returns all the volumes matching matchTags if successful.
+func getMatchingVolumes(instanceAPI *instance.API, zone scw.Zone, matchTags []string) ([]*instance.Volume, error) {
 	matchingVolumes, err := instanceAPI.ListVolumes(&instance.ListVolumesRequest{
 		Zone: zone,
-		Tags: matchLabels,
+		Tags: matchTags,
 	}, scw.WithAllPages())
 	if err != nil {
-		return nil, fmt.Errorf("failed to get volumes matching labels %q: %w", matchLabels, err)
+		return nil, fmt.Errorf("failed to get volumes matching tags %q: %w", matchTags, err)
 	}
 	klog.V(6).Infof("Got %d matching volumes", matchingVolumes.TotalCount)
 	return matchingVolumes.Volumes, nil
