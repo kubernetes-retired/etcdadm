@@ -61,7 +61,7 @@ func TestResizeCluster(t *testing.T) {
 					t.Fatalf("unable to set test key: %v", err)
 				}
 
-				n1.AssertVersion(t, etcdVersion)
+				n1.AssertVersion(t, etcdversions.EtcdVersionForAdoption(etcdVersion))
 			}
 
 			n2 := h.NewNode("127.0.0.2")
@@ -107,9 +107,9 @@ func TestResizeCluster(t *testing.T) {
 					t.Fatalf("unexpected test key value after upgrade: %q", v)
 				}
 
-				n1.AssertVersion(t, etcdVersion)
-				n2.AssertVersion(t, etcdVersion)
-				n3.AssertVersion(t, etcdVersion)
+				n1.AssertVersion(t, etcdversions.EtcdVersionForAdoption(etcdVersion))
+				n2.AssertVersion(t, etcdversions.EtcdVersionForAdoption(etcdVersion))
+				n3.AssertVersion(t, etcdversions.EtcdVersionForAdoption(etcdVersion))
 			}
 
 			cancel()

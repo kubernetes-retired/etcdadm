@@ -32,6 +32,7 @@ import (
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/backup"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/contextutil"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/dns"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdversions"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/legacy"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/pki"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi"
@@ -87,7 +88,7 @@ func NewEtcdServer(baseDir string, clusterName string, listenAddress string, lis
 	}
 
 	// Make sure we have read state from disk before serving
-	if err := s.initState(); err != nil {
+	if err := s.initStateOnStartup(); err != nil {
 		return nil, err
 	}
 
@@ -117,7 +118,11 @@ func (s *EtcdServer) Run(ctx context.Context) {
 	})
 }
 
-func readState(baseDir string) (*protoetcd.EtcdState, error) {
+// readState loads the saved state from the directory.
+// If no state is found, returns (nil, nil).
+// If replaceEtcdVersion is true, we will "bump" old etcd patch versions to a supported version.
+// replaceEtcdVersion means we don't need to have every etcd version available.
+func readState(baseDir string, replaceEtcdVersion bool) (*protoetcd.EtcdState, error) {
 	p := filepath.Join(baseDir, "state")
 	b, err := os.ReadFile(p)
 	if err != nil {
@@ -131,6 +136,16 @@ func readState(baseDir string) (*protoetcd.EtcdState, error) {
 	if err := proto.Unmarshal(b, state); err != nil {
 		// TODO: Have multiple state files?
 		return nil, fmt.Errorf("error parsing state file: %v", err)
+	}
+
+	// Maybe use the recommended etcd version
+	if replaceEtcdVersion && state.EtcdVersion != "" {
+		etcdVersion := state.EtcdVersion
+		startWith := etcdversions.EtcdVersionForAdoption(etcdVersion)
+		if startWith != "" && startWith != etcdVersion {
+			klog.Warningf("starting server from etcd %q, will start with %q", etcdVersion, startWith)
+			state.EtcdVersion = startWith
+		}
 	}
 
 	return state, nil
@@ -150,12 +165,16 @@ func writeState(baseDir string, state *protoetcd.EtcdState) error {
 	return nil
 }
 
-func (s *EtcdServer) initState() error {
+// initStateOnStartup populates the state from local disk.
+// It should only be called on initial startup; after that
+// we are under control of the leader.
+func (s *EtcdServer) initStateOnStartup() error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
 	if s.state == nil {
-		state, err := readState(s.baseDir)
+		replaceEtcdVersion := true
+		state, err := readState(s.baseDir, replaceEtcdVersion)
 		if err != nil {
 			return err
 		}
@@ -169,7 +188,7 @@ func (s *EtcdServer) initState() error {
 }
 
 func (s *EtcdServer) runOnce() error {
-	if err := s.initState(); err != nil {
+	if err := s.initStateOnStartup(); err != nil {
 		return err
 	}
 
@@ -329,6 +348,7 @@ func (s *EtcdServer) JoinCluster(ctx context.Context, request *protoetcd.JoinClu
 			Nodes:        request.Nodes,
 		}
 		s.state.Quarantined = true
+
 		s.state.EtcdVersion = request.EtcdVersion
 
 		if err := writeState(s.baseDir, s.state); err != nil {
@@ -604,12 +624,13 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 		return err
 	}
 
-	binDir, err := BindirForEtcdVersion(state.EtcdVersion, "etcd")
+	p.EtcdVersion = state.EtcdVersion
+
+	binDir, err := BindirForEtcdVersion(p.EtcdVersion, "etcd")
 	if err != nil {
 		return err
 	}
 	p.BinDir = binDir
-	p.EtcdVersion = state.EtcdVersion
 
 	if state.NewCluster {
 		p.CreateNewCluster = true
