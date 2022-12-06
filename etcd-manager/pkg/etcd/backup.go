@@ -21,7 +21,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 
 	"k8s.io/klog/v2"
@@ -38,69 +37,6 @@ func DoBackup(backupStore backup.Store, info *protoetcd.BackupInfo, dataDir stri
 	}
 
 	return DoBackupV3(backupStore, info, clientUrls, tlsConfig)
-}
-
-// DoBackupV2 performs a backup of etcd v2, it needs etcdctl available
-func DoBackupV2(backupStore backup.Store, info *protoetcd.BackupInfo, dataDir string) (*protoetcd.DoBackupResponse, error) {
-	etcdVersion := info.EtcdVersion
-
-	if dataDir == "" {
-		return nil, fmt.Errorf("dataDir must be set for etcd version 2")
-	}
-	if etcdVersion == "" {
-		return nil, fmt.Errorf("EtcdVersion not set")
-	}
-
-	tempDir, err := ioutil.TempDir("", "")
-	if err != nil {
-		return nil, fmt.Errorf("error creating etcd backup temp directory: %v", err)
-	}
-
-	defer func() {
-		err := os.RemoveAll(tempDir)
-		if err != nil {
-			klog.Warningf("error deleting backup temp directory %q: %v", tempDir, err)
-		}
-	}()
-
-	binDir, err := BindirForEtcdVersion(etcdVersion, "etcdctl")
-	if err != nil {
-		return nil, fmt.Errorf("etdctl not available for version %q", etcdVersion)
-	}
-
-	backupDir := filepath.Join(tempDir, "data")
-
-	c := exec.Command(filepath.Join(binDir, "etcdctl"))
-
-	c.Args = append(c.Args, "backup")
-	c.Args = append(c.Args, "--data-dir", dataDir)
-	c.Args = append(c.Args, "--backup-dir", backupDir)
-	klog.Infof("executing command %s %s", c.Path, c.Args)
-
-	env := make(map[string]string)
-	for k, v := range env {
-		c.Env = append(c.Env, k+"="+v)
-	}
-
-	c.Stdout = os.Stdout
-	c.Stderr = os.Stderr
-	if err := c.Start(); err != nil {
-		return nil, fmt.Errorf("error running etcdctl backup: %v", err)
-	}
-	processState, err := c.Process.Wait()
-	if err != nil {
-		return nil, fmt.Errorf("etcdctl backup returned an error: %v", err)
-	}
-
-	if !processState.Success() {
-		return nil, fmt.Errorf("etcdctl backup returned a non-zero exit code")
-	}
-
-	tgzFile := filepath.Join(tempDir, "backup.tgz")
-	if err := createTgz(tgzFile, backupDir); err != nil {
-		return nil, err
-	}
-	return uploadBackup(backupStore, info, tgzFile)
 }
 
 // DoBackupV3 performs a backup of etcd v3; using the etcd v3 API

@@ -64,8 +64,6 @@ type EtcdController struct {
 	backupInterval time.Duration
 	backupStore    backup.Store
 
-	mutex sync.Mutex
-
 	peers privateapi.Peers
 
 	leaderLock      locking.Lock

@@ -33,7 +33,6 @@ type EtcdProcessMember struct {
 	etcdVersion string
 
 	ID   string
-	idv2 string
 	idv3 uint64
 }
 

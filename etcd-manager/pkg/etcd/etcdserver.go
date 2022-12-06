@@ -47,8 +47,6 @@ type EtcdServer struct {
 	clusterName           string
 	dnsProvider           dns.Provider
 
-	backupStore backup.Store
-
 	mutex sync.Mutex
 
 	state    *protoetcd.EtcdState

@@ -21,7 +21,6 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"time"
 
 	"k8s.io/klog/v2"
 	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
@@ -162,55 +161,4 @@ func (s *etcdClusterState) etcdRemoveMember(ctx context.Context, member *etcdcli
 		return nil
 	}
 	return fmt.Errorf("unable to reach any cluster member, when trying to remove member %s", member)
-}
-
-func (s *etcdClusterState) etcdGet(ctx context.Context, key string) ([]byte, error) {
-	for _, member := range s.members {
-		if len(member.ClientURLs) == 0 {
-			klog.Warningf("skipping member with no ClientURLs: %v", member)
-			continue
-		}
-
-		etcdClient, err := s.newEtcdClient(member)
-		if err != nil {
-			klog.Warningf("unable to build client for member %s: %v", member, err)
-			continue
-		}
-
-		response, err := etcdClient.Get(ctx, key, true, 2*time.Second)
-		etcdclient.LoggedClose(etcdClient)
-		if err != nil {
-			klog.Warningf("error reading from member %s: %v", member, err)
-			continue
-		}
-
-		return response, nil
-	}
-
-	return nil, fmt.Errorf("unable to reach any cluster member, when trying to read key %q", key)
-}
-
-func (s *etcdClusterState) etcdCreate(ctx context.Context, key string, value []byte) error {
-	for _, member := range s.members {
-		if len(member.ClientURLs) == 0 {
-			klog.Warningf("skipping member with no ClientURLs: %v", member)
-			continue
-		}
-
-		etcdClient, err := s.newEtcdClient(member)
-		if err != nil {
-			klog.Warningf("unable to build client for member %s: %v", member.Name, err)
-			continue
-		}
-
-		err = etcdClient.Put(ctx, key, value)
-		etcdclient.LoggedClose(etcdClient)
-		if err != nil {
-			return fmt.Errorf("error creating %q on member %s: %v", key, member, err)
-		}
-
-		return nil
-	}
-
-	return fmt.Errorf("unable to reach any cluster member, when trying to write key %q", key)
 }
