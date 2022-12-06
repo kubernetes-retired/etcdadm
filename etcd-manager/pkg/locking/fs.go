@@ -23,7 +23,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"time"
 
@@ -72,7 +72,7 @@ func (l *FSContentLock) Acquire(ctx context.Context, id string) (LockGuard, erro
 		return nil, fmt.Errorf("error creating lock file %q: %v", l.p, err)
 	}
 
-	fileBytes, err := ioutil.ReadAll(f)
+	fileBytes, err := io.ReadAll(f)
 	if err != nil {
 		if errC := f.Close(); errC != nil {
 			klog.Fatalf("error closing lock file %q: %v", l.p, errC)
@@ -153,7 +153,7 @@ func (l *FSContentLockGuard) Release() error {
 		return fmt.Errorf("error opening file %q: %v", l.p, errO)
 	}
 
-	fileBytes, errR := ioutil.ReadAll(f)
+	fileBytes, errR := io.ReadAll(f)
 	if errR != nil {
 		if errC := f.Close(); errC != nil {
 			klog.Fatalf("error closing lock file %q: %v", l.p, errC)

@@ -20,7 +20,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
@@ -193,7 +192,7 @@ func (mds MetadataService) getFromMetadataService() (*InstanceMetadata, error) {
 func (mds MetadataService) parseMetadata(r io.Reader) (*InstanceMetadata, error) {
 	var meta InstanceMetadata
 
-	data, err := ioutil.ReadAll(r)
+	data, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}
@@ -256,7 +255,7 @@ func getDefaultMounter() *mount.SafeFormatAndMount {
 }
 
 func getLocalMetadata() (*InstanceMetadata, error) {
-	mountTarget, err := ioutil.TempDir("", "configdrive")
+	mountTarget, err := os.MkdirTemp("", "configdrive")
 	if err != nil {
 		return nil, err
 	}
@@ -491,7 +490,7 @@ func findDevicePath(volumeID string) (string, error) {
 		fmt.Sprintf("wwn-0x%s", strings.Replace(volumeID, "-", "", -1)),
 	}
 
-	files, err := ioutil.ReadDir(volumes.PathFor("/dev/disk/by-id/"))
+	files, err := os.ReadDir(volumes.PathFor("/dev/disk/by-id/"))
 	if err != nil {
 		return "", err
 	}
@@ -512,11 +511,11 @@ func findDevicePath(volumeID string) (string, error) {
 func probeVolume() error {
 	// rescan scsi bus
 	scsiPath := "/sys/class/scsi_host/"
-	if dirs, err := ioutil.ReadDir(scsiPath); err == nil {
+	if dirs, err := os.ReadDir(scsiPath); err == nil {
 		for _, f := range dirs {
 			name := scsiPath + f.Name() + "/scan"
 			data := []byte("- - -")
-			ioutil.WriteFile(name, data, 0666)
+			os.WriteFile(name, data, 0666)
 		}
 	}
 

@@ -18,7 +18,6 @@ package etcd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net"
 	"os"
 	"path/filepath"
@@ -122,7 +121,7 @@ func (s *EtcdServer) Run(ctx context.Context) {
 
 func readState(baseDir string) (*protoetcd.EtcdState, error) {
 	p := filepath.Join(baseDir, "state")
-	b, err := ioutil.ReadFile(p)
+	b, err := os.ReadFile(p)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
@@ -147,7 +146,7 @@ func writeState(baseDir string, state *protoetcd.EtcdState) error {
 		return fmt.Errorf("error marshaling state data: %v", err)
 	}
 
-	if err := ioutil.WriteFile(p, b, 0755); err != nil {
+	if err := os.WriteFile(p, b, 0755); err != nil {
 		return fmt.Errorf("error writing state file %q: %v", p, err)
 	}
 	return nil

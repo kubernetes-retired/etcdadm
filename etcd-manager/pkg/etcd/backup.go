@@ -20,7 +20,6 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -106,7 +105,7 @@ func DoBackupV2(backupStore backup.Store, info *protoetcd.BackupInfo, dataDir st
 
 // DoBackupV3 performs a backup of etcd v3; using the etcd v3 API
 func DoBackupV3(backupStore backup.Store, info *protoetcd.BackupInfo, clientUrls []string, tlsConfig *tls.Config) (*protoetcd.DoBackupResponse, error) {
-	tempDir, err := ioutil.TempDir("", "")
+	tempDir, err := os.MkdirTemp("", "")
 	if err != nil {
 		return nil, fmt.Errorf("error creating etcd backup temp directory: %v", err)
 	}

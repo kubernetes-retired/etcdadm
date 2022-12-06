@@ -19,7 +19,6 @@ package legacy
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -66,7 +65,7 @@ var etcdKeys = []string{"etcd", "etcd-events"}
 func ScanForExisting(baseDir string, controlStore commands.Store) (bool, error) {
 	for _, k := range etcdKeys {
 		p := filepath.Join(baseDir, "k8s.io", "manifests", k+".manifest")
-		b, err := ioutil.ReadFile(p)
+		b, err := os.ReadFile(p)
 		if err != nil {
 			if os.IsNotExist(err) {
 				continue
@@ -95,7 +94,7 @@ func ScanForExisting(baseDir string, controlStore commands.Store) (bool, error) 
 func ImportExistingEtcd(baseDir string, etcdNodeConfiguration *protoetcd.EtcdNode) (*protoetcd.EtcdState, error) {
 	for _, k := range etcdKeys {
 		p := filepath.Join(baseDir, "k8s.io", "manifests", k+".manifest")
-		b, err := ioutil.ReadFile(p)
+		b, err := os.ReadFile(p)
 		if err != nil {
 			if os.IsNotExist(err) {
 				continue
@@ -260,7 +259,7 @@ func copyDir(src, dest string) error {
 	if err := os.MkdirAll(dest, 0755); err != nil {
 		return fmt.Errorf("error creating directories %s: %v", dest, err)
 	}
-	paths, err := ioutil.ReadDir(src)
+	paths, err := os.ReadDir(src)
 	if err != nil {
 		return fmt.Errorf("error reading source directory %s: %v", src, err)
 	}

@@ -26,7 +26,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -156,7 +155,7 @@ func (x *PackageExtractor) downloadPackage(ctx context.Context, u string, expect
 		klog.Warningf("cache file %q did not have expected hash %q, was %q", cacheFile, expectedSHA256, hash)
 	}
 
-	f, err := ioutil.TempFile(cacheDir, "download")
+	f, err := os.CreateTemp(cacheDir, "download")
 	if err != nil {
 		return "", fmt.Errorf("error creating cache file: %w", err)
 	}

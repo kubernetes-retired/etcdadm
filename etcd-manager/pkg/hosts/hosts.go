@@ -19,7 +19,6 @@ package hosts
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	math_rand "math/rand"
 	"net"
 	"os"
@@ -91,7 +90,7 @@ func updateHostsFileWithRecords(p string, key string, addrToHosts map[string][]s
 		return fmt.Errorf("error getting file status of %q: %v", p, err)
 	}
 
-	data, err := ioutil.ReadFile(p)
+	data, err := os.ReadFile(p)
 	if err != nil {
 		return fmt.Errorf("error reading file %q: %v", p, err)
 	}
@@ -214,7 +213,7 @@ func pseudoAtomicWrite(p string, b []byte, mode os.FileMode) error {
 			return fmt.Errorf("failed to consistently write file %q - too many retries", p)
 		}
 
-		if err := ioutil.WriteFile(p, b, mode); err != nil {
+		if err := os.WriteFile(p, b, mode); err != nil {
 			klog.Warningf("error writing file %q: %v", p, err)
 			continue
 		}
@@ -222,7 +221,7 @@ func pseudoAtomicWrite(p string, b []byte, mode os.FileMode) error {
 		n := 1 + math_rand.Intn(20)
 		time.Sleep(time.Duration(n) * time.Millisecond)
 
-		contents, err := ioutil.ReadFile(p)
+		contents, err := os.ReadFile(p)
 		if err != nil {
 			klog.Warningf("error re-reading file %q: %v", p, err)
 			continue
@@ -239,7 +238,7 @@ func pseudoAtomicWrite(p string, b []byte, mode os.FileMode) error {
 func atomicWriteFile(filename string, data []byte, perm os.FileMode) error {
 	dir := filepath.Dir(filename)
 
-	tempFile, err := ioutil.TempFile(dir, ".tmp"+filepath.Base(filename))
+	tempFile, err := os.CreateTemp(dir, ".tmp"+filepath.Base(filename))
 	if err != nil {
 		return fmt.Errorf("error creating temp file in %q: %v", dir, err)
 	}

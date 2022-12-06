@@ -19,7 +19,6 @@ package harness
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -59,7 +58,7 @@ type TestHarness struct {
 }
 
 func NewTestHarness(t *testing.T, ctx context.Context) *TestHarness {
-	tmpDir, err := ioutil.TempDir("", "")
+	tmpDir, err := os.MkdirTemp("", "")
 	if err != nil {
 		t.Errorf("error building tempdir: %v", err)
 	}

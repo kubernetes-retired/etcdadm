@@ -22,7 +22,6 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
@@ -184,7 +183,7 @@ func (s *FSStore) LoadCA(name string) (*CA, error) {
 }
 
 func loadPrivateKey(privateKeyPath string) (*rsa.PrivateKey, error) {
-	privateKeyBytes, err := ioutil.ReadFile(privateKeyPath)
+	privateKeyBytes, err := os.ReadFile(privateKeyPath)
 	if err != nil {
 		if !os.IsNotExist(err) {
 			return nil, fmt.Errorf("unable to read key %v: %v", privateKeyPath, err)
@@ -210,7 +209,7 @@ func loadPrivateKey(privateKeyPath string) (*rsa.PrivateKey, error) {
 }
 
 func loadCertificate(certificatePath string, keypair *Keypair) error {
-	certBytes, err := ioutil.ReadFile(certificatePath)
+	certBytes, err := os.ReadFile(certificatePath)
 	if err != nil {
 		if !os.IsNotExist(err) {
 			return fmt.Errorf("unable to read certificate %v: %v", certificatePath, err)
@@ -231,7 +230,7 @@ func loadCertificate(certificatePath string, keypair *Keypair) error {
 }
 
 func loadCertificateBundle(certificatePath string) ([]*x509.Certificate, error) {
-	certBytes, err := ioutil.ReadFile(certificatePath)
+	certBytes, err := os.ReadFile(certificatePath)
 	if err != nil {
 		if !os.IsNotExist(err) {
 			return nil, fmt.Errorf("unable to read certificate %v: %v", certificatePath, err)

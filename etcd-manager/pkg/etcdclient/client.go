@@ -23,7 +23,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -119,7 +118,7 @@ func (c *EtcdClient) ServerVersion(ctx context.Context) (string, error) {
 			klog.Warningf("failed to fetch %s: %v", u, err)
 			continue
 		}
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		resp.Body.Close()
 		if err != nil {
 			klog.Warningf("failed to read %s: %v", u, err)

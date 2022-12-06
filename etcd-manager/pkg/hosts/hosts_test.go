@@ -17,7 +17,6 @@ limitations under the License.
 package hosts
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -99,16 +98,7 @@ c\t
 func runTest(t *testing.T, in string, expected string) {
 	expected = strings.Replace(expected, "\\t", "\t", -1)
 
-	dir, err := ioutil.TempDir("", "")
-	if err != nil {
-		t.Fatalf("error creating temp dir: %v", err)
-	}
-	defer func() {
-		err := os.RemoveAll(dir)
-		if err != nil {
-			t.Errorf("failed to remove temp dir %q: %v", dir, err)
-		}
-	}()
+	dir := t.TempDir()
 
 	p := filepath.Join(dir, "hosts")
 	key := "etcd-manager[etcd]"
@@ -118,7 +108,7 @@ func runTest(t *testing.T, in string, expected string) {
 		"c": {},
 	}
 
-	if err := ioutil.WriteFile(p, []byte(in), 0755); err != nil {
+	if err := os.WriteFile(p, []byte(in), 0755); err != nil {
 		t.Fatalf("error writing hosts file: %v", err)
 	}
 
@@ -127,7 +117,7 @@ func runTest(t *testing.T, in string, expected string) {
 			t.Fatalf("error updating hosts file: %v", err)
 		}
 
-		b, err := ioutil.ReadFile(p)
+		b, err := os.ReadFile(p)
 		if err != nil {
 			t.Fatalf("error reading output file: %v", err)
 		}

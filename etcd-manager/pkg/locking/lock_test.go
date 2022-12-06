@@ -19,7 +19,7 @@ package locking
 import (
 	"context"
 	"flag"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -101,7 +101,7 @@ func checkLocks(t *testing.T, l1, l2 Lock) {
 }
 
 func TestFSFlockLock(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", "")
+	tmpDir, err := os.MkdirTemp("", "")
 	if err != nil {
 		t.Errorf("error building tempdir: %v", err)
 	}
@@ -120,7 +120,7 @@ func TestFSFlockLock(t *testing.T) {
 }
 
 func TestFSContentLock(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", "")
+	tmpDir, err := os.MkdirTemp("", "")
 	if err != nil {
 		t.Errorf("error building tempdir: %v", err)
 	}

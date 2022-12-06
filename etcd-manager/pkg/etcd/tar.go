@@ -21,7 +21,6 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -145,7 +144,7 @@ func (g *gzFile) expand(destFile string) error {
 
 // addTreeToTar copies the file tree from srcdir, writing it to the tar.Writer with a prefix
 func addTreeToTar(w *tar.Writer, srcdir string, prefix string) error {
-	files, err := ioutil.ReadDir(srcdir)
+	files, err := os.ReadDir(srcdir)
 	if err != nil {
 		return fmt.Errorf("error listing %q: %v", srcdir, err)
 	}
@@ -160,7 +159,11 @@ func addTreeToTar(w *tar.Writer, srcdir string, prefix string) error {
 			continue
 		}
 
-		h, err := tar.FileInfoHeader(f, "")
+		i, err := f.Info()
+		if err != nil {
+			return fmt.Errorf("error reading tar file info: %v", err)
+		}
+		h, err := tar.FileInfoHeader(i, "")
 		if err != nil {
 			return fmt.Errorf("error building tar file header: %v", err)
 		}
