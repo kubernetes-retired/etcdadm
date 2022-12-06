@@ -26,7 +26,6 @@ import (
 
 	"k8s.io/klog/v2"
 	"k8s.io/kops/util/pkg/vfs"
-	"sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
 	protoetcd "sigs.k8s.io/etcdadm/etcd-manager/pkg/apis/etcd"
 )
 
@@ -67,7 +66,7 @@ func (s *vfsStore) AddCommand(cmd *protoetcd.Command) error {
 
 	// Save the command file
 	{
-		data, err := etcd.ToJson(cmd)
+		data, err := protoetcd.ToJson(cmd)
 		if err != nil {
 			return fmt.Errorf("error marshalling command: %v", err)
 		}
@@ -103,7 +102,7 @@ func (s *vfsStore) ListCommands() ([]Command, error) {
 		}
 
 		command := &vfsCommand{}
-		if err = etcd.FromJson(string(data), &command.data); err != nil {
+		if err = protoetcd.FromJson(string(data), &command.data); err != nil {
 			return nil, fmt.Errorf("error parsing command %q: %v", f, err)
 		}
 		command.p = f
@@ -145,7 +144,7 @@ func (s *vfsStore) GetExpectedClusterSpec() (*protoetcd.ClusterSpec, error) {
 	}
 
 	spec := &protoetcd.ClusterSpec{}
-	if err = etcd.FromJson(string(data), spec); err != nil {
+	if err = protoetcd.FromJson(string(data), spec); err != nil {
 		return nil, fmt.Errorf("error parsing cluster spec %s: %v", p.Path(), err)
 	}
 
@@ -153,7 +152,7 @@ func (s *vfsStore) GetExpectedClusterSpec() (*protoetcd.ClusterSpec, error) {
 }
 
 func (s *vfsStore) SetExpectedClusterSpec(spec *protoetcd.ClusterSpec) error {
-	data, err := etcd.ToJson(spec)
+	data, err := protoetcd.ToJson(spec)
 	if err != nil {
 		return fmt.Errorf("error serializing cluster spec: %v", err)
 	}
