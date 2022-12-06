@@ -26,7 +26,7 @@ load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_depe
 go_rules_dependencies()
 
 go_register_toolchains(
-    go_version = "1.18.3",
+    go_version = "1.18.8",
 )
 
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
@@ -67,24 +67,6 @@ docker_go_deps()
 load(
     "@io_bazel_rules_docker//container:container.bzl",
     "container_pull",
-)
-
-container_pull(
-    name = "debian-hyperkube-base-amd64",
-    architecture = "amd64",
-    digest = "sha256:5d4ea2fb5fbe9a9a9da74f67cf2faefc881968bc39f2ac5d62d9167e575812a1",
-    registry = "k8s.gcr.io",
-    repository = "debian-hyperkube-base",
-    tag = "0.12.1",  # ignored, but kept here for documentation
-)
-
-container_pull(
-    name = "debian-hyperkube-base-arm64",
-    architecture = "arm64",
-    digest = "sha256:78eeb1a31eef7c16f954444d64636d939d89307e752964ad6d9d06966c722da3",
-    registry = "k8s.gcr.io",
-    repository = "debian-hyperkube-base",
-    tag = "0.12.1",  # ignored, but kept here for documentation
 )
 
 #=============================================================================
@@ -237,24 +219,36 @@ http_file(
     urls = ["https://github.com/etcd-io/etcd/releases/download/v3.5.4/etcd-v3.5.4-linux-arm64.tar.gz"],
 )
 
+http_file(
+    name = "etcd_3.5.6_amd64_tar",
+    sha256 = "4db32e3bc06dd0999e2171f76a87c1cffed8369475ec7aa7abee9023635670fb",
+    urls = ["https://github.com/etcd-io/etcd/releases/download/v3.5.6/etcd-v3.5.6-linux-amd64.tar.gz"],
+)
+
+http_file(
+    name = "etcd_3.5.6_arm64_tar",
+    sha256 = "888e25c9c94702ac1254c7655709b44bb3711ebaabd3cb05439f3dd1f2b51a87",
+    urls = ["https://github.com/etcd-io/etcd/releases/download/v3.5.6/etcd-v3.5.6-linux-arm64.tar.gz"],
+)
+
 #=============================================================================
 
 http_file(
     name = "debian_packages_gz_amd64",
-    sha256 = "369d45f6c138af98d8ea8a598564dcabc1f6991ac777fb2d351e846f195cdc13",
-    urls = ["http://snapshot.debian.org/archive/debian/20201101T154040Z/dists/buster/main/binary-amd64/Packages.gz"],
+    sha256 = "895f3926ff51f89f86f7aad95538c3e30982f94596dd7ddf3961c9df6682feac",
+    urls = ["http://snapshot.debian.org/archive/debian/20221201T090253Z/dists/buster/main/binary-amd64/Packages.gz"],
 )
 
 http_file(
     name = "debian_packages_gz_arm64",
-    sha256 = "62a7e0c34f45a2524024ef4871e48f061f8d57d54e6f9d75d2aa2bff55ca91b8",
-    urls = ["http://snapshot.debian.org/archive/debian/20201101T154040Z/dists/buster/main/binary-arm64/Packages.gz"],
+    sha256 = "0f85a5dac5f7ec8d5c389c8d2f835c343f7a8138a7b2b91da7c8d577c590d3b5",
+    urls = ["http://snapshot.debian.org/archive/debian/20221201T090253Z/dists/buster/main/binary-arm64/Packages.gz"],
 )
 
 container_pull(
     name = "distroless-base-amd64",
     architecture = "amd64",
-    digest = "sha256:6010a285f9a871e8f1f33142d53e2ad6d9d102d647704ac191c191f5becc2516",
+    digest = "sha256:b9b124f955961599e72630654107a0cf04e08e6fa777fa250b8f840728abd770",
     registry = "gcr.io/distroless",
     repository = "base-debian11",
 )
@@ -262,7 +256,7 @@ container_pull(
 container_pull(
     name = "distroless-base-amd64-debug",
     architecture = "amd64",
-    digest = "sha256:a22b876968a05507fc2e002b76999557353616f07e8694396763e1bb96c56f97",
+    digest = "sha256:65668d2b78d25df3d8ccf5a778d017fcaba513b52078c700083eaeef212b9979",
     registry = "gcr.io/distroless",
     repository = "base-debian11",
 )
@@ -270,7 +264,7 @@ container_pull(
 container_pull(
     name = "distroless-base-arm64",
     architecture = "arm64",
-    digest = "sha256:2345ef1376a7bf76c770c06b5144c793be04ee0df210d0090bce44f26b573f6b",
+    digest = "sha256:3552d4adeabdc6630fe1877198c3b853e977c53c439b0f7afaa7be760ee5ed6d",
     registry = "gcr.io/distroless",
     repository = "base-debian11",
 )
@@ -278,7 +272,7 @@ container_pull(
 container_pull(
     name = "distroless-base-arm64-debug",
     architecture = "arm64",
-    digest = "sha256:89a6d468ded60c80e56a828b31dd6876bbbec1fe9630380d5bdec44367367438",
+    digest = "sha256:c030e82e982395140c1a1f31ac70d673a49ee6202593bb32285a04a8343146bf",
     registry = "gcr.io/distroless",
     repository = "base-debian11",
 )

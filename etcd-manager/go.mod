@@ -15,8 +15,8 @@ require (
 	github.com/hetznercloud/hcloud-go v1.37.0
 	github.com/prometheus/client_golang v1.14.0
 	github.com/scaleway/scaleway-sdk-go v1.0.0-beta.10
-	go.etcd.io/etcd/api/v3 v3.5.4
-	go.etcd.io/etcd/client/v3 v3.5.4
+	go.etcd.io/etcd/api/v3 v3.5.6
+	go.etcd.io/etcd/client/v3 v3.5.6
 	golang.org/x/net v0.2.0
 	golang.org/x/oauth2 v0.2.0
 	google.golang.org/api v0.103.0
@@ -100,7 +100,7 @@ require (
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
-	go.etcd.io/etcd/client/pkg/v3 v3.5.4 // indirect
+	go.etcd.io/etcd/client/pkg/v3 v3.5.6 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
