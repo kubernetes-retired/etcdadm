@@ -110,11 +110,11 @@ type etcdProcess struct {
 	IgnoreListenMetricsURLs bool
 }
 
-func (p *etcdProcess) ExitState() (error, *os.ProcessState) {
+func (p *etcdProcess) ExitState() (*os.ProcessState, error) {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 
-	return p.exitError, p.exitState
+	return p.exitState, p.exitError
 }
 
 func (p *etcdProcess) Stop() error {

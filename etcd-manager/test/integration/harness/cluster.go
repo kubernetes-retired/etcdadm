@@ -256,8 +256,7 @@ func (h *TestHarness) WaitForBackup(t *testing.T, timeout time.Duration) {
 	}
 	wantBackups := len(backups) + 1
 
-	description := fmt.Sprintf("wait for new backup")
-	h.WaitFor(timeout, description, func() error {
+	h.WaitFor(timeout, "wait for new backup", func() error {
 		backups, err := backupStore.ListBackups()
 		if err != nil {
 			return fmt.Errorf("error listing backups: %w", err)

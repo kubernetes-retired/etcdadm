@@ -178,7 +178,7 @@ func (s *EtcdServer) runOnce() error {
 
 	// Check that etcd process is still running
 	if s.process != nil {
-		exitError, exitState := s.process.ExitState()
+		exitState, exitError := s.process.ExitState()
 		if exitError != nil || exitState != nil {
 			klog.Warningf("etcd process exited (error=%v, state=%v)", exitError, exitState)
 
@@ -514,10 +514,10 @@ func (s *EtcdServer) DoBackup(ctx context.Context, request *protoetcd.DoBackupRe
 	}
 
 	if request.Storage == "" {
-		return nil, fmt.Errorf("Storage is required")
+		return nil, fmt.Errorf("request Storage is required")
 	}
 	if request.Info == nil {
-		return nil, fmt.Errorf("Info is required")
+		return nil, fmt.Errorf("request Info is required")
 	}
 	backupStore, err := backup.NewStore(request.Storage)
 	if err != nil {

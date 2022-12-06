@@ -580,7 +580,7 @@ func (m *EtcdController) maybeBackup(ctx context.Context, clusterSpec *protoetcd
 }
 
 func randomToken() string {
-	b := make([]byte, 16, 16)
+	b := make([]byte, 16)
 	_, err := io.ReadFull(crypto_rand.Reader, b)
 	if err != nil {
 		klog.Fatalf("error generating random token: %v", err)
@@ -956,7 +956,6 @@ func (m *EtcdController) removeNodeFromCluster(ctx context.Context, clusterSpec 
 						klog.Infof("peer %v is unhealthy, but waiting for %s (currently %s)", member, removeUnhealthyDeadline, age)
 						continue
 					}
-
 				}
 
 				victim = member

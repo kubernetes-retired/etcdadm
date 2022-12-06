@@ -77,9 +77,7 @@ func (m *EtcdController) updatePeerURLs(ctx context.Context, peerID privateapi.P
 
 func normalize(in []string) []string {
 	var c []string
-	for _, s := range in {
-		c = append(c, s)
-	}
+	c = append(c, in...)
 	sort.Strings(c)
 	return c
 }
@@ -145,7 +143,7 @@ func (m *EtcdController) reconcileTLS(ctx context.Context, clusterState *etcdClu
 			}
 		}
 
-		if node.TlsEnabled == false {
+		if !node.TlsEnabled {
 			request := &protoetcd.ReconfigureRequest{
 				Header:      m.buildHeader(),
 				Quarantined: p.info.EtcdState.Quarantined,

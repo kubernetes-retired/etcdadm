@@ -51,10 +51,10 @@ func (s *EtcdServer) DoRestore(ctx context.Context, request *protoetcd.DoRestore
 	}
 
 	if request.Storage == "" {
-		return nil, fmt.Errorf("Storage is required")
+		return nil, fmt.Errorf("request Storage is required")
 	}
 	if request.BackupName == "" {
-		return nil, fmt.Errorf("BackupName is required")
+		return nil, fmt.Errorf("request BackupName is required")
 	}
 
 	backupStore, err := backup.NewStore(request.Storage)
@@ -219,7 +219,7 @@ func copyEtcd(ctx context.Context, source *etcdProcess, dest etcdclient.NodeSink
 			break
 		}
 
-		exitError, exitState := source.ExitState()
+		exitState, exitError := source.ExitState()
 		if exitError != nil || exitState != nil {
 			return fmt.Errorf("source etcd process exited (state=%v): %w", exitState, exitError)
 		}
