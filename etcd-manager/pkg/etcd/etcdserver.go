@@ -32,6 +32,7 @@ import (
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/backup"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/contextutil"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/dns"
+	"sigs.k8s.io/etcdadm/etcd-manager/pkg/etcdversions"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/legacy"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/pki"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi"
@@ -604,12 +605,22 @@ func (s *EtcdServer) startEtcdProcess(state *protoetcd.EtcdState) error {
 		return err
 	}
 
-	binDir, err := BindirForEtcdVersion(state.EtcdVersion, "etcd")
+	etcdVersion := state.EtcdVersion
+	// Use the recommended etcd version
+	{
+		startWith := etcdversions.EtcdVersionForAdoption(etcdVersion)
+		if startWith != "" && startWith != etcdVersion {
+			klog.Warningf("starting server from etcd %q, will start with %q", etcdVersion, startWith)
+			etcdVersion = startWith
+		}
+	}
+	p.EtcdVersion = etcdVersion
+
+	binDir, err := BindirForEtcdVersion(etcdVersion, "etcd")
 	if err != nil {
 		return err
 	}
 	p.BinDir = binDir
-	p.EtcdVersion = state.EtcdVersion
 
 	if state.NewCluster {
 		p.CreateNewCluster = true
