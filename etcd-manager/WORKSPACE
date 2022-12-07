@@ -172,54 +172,6 @@ http_file(
 )
 
 http_file(
-    name = "etcd_3.5.0_amd64_tar",
-    sha256 = "864baa0437f8368e0713d44b83afe21dce1fb4ee7dae4ca0f9dd5f0df22d01c4",
-    urls = ["https://github.com/etcd-io/etcd/releases/download/v3.5.0/etcd-v3.5.0-linux-amd64.tar.gz"],
-)
-
-http_file(
-    name = "etcd_3.5.0_arm64_tar",
-    sha256 = "444e10e6880595d75aaf55762901c722049b29d56fef50b2f23464bb7f9db74d",
-    urls = ["https://github.com/etcd-io/etcd/releases/download/v3.5.0/etcd-v3.5.0-linux-arm64.tar.gz"],
-)
-
-http_file(
-    name = "etcd_3.5.1_amd64_tar",
-    sha256 = "728a14914217ce60de2e1299fc1a2c2c5564e7ffd0d9dadf3f5073103ab619b4",
-    urls = ["https://github.com/etcd-io/etcd/releases/download/v3.5.1/etcd-v3.5.1-linux-amd64.tar.gz"],
-)
-
-http_file(
-    name = "etcd_3.5.1_arm64_tar",
-    sha256 = "86203022e23d7368bac23d96095270dc6300f356ea882e435926a9effd7e5f0e",
-    urls = ["https://github.com/etcd-io/etcd/releases/download/v3.5.1/etcd-v3.5.1-linux-arm64.tar.gz"],
-)
-
-http_file(
-    name = "etcd_3.5.3_amd64_tar",
-    sha256 = "e13e119ff9b28234561738cd261c2a031eb1c8688079dcf96d8035b3ad19ca58",
-    urls = ["https://github.com/etcd-io/etcd/releases/download/v3.5.3/etcd-v3.5.3-linux-amd64.tar.gz"],
-)
-
-http_file(
-    name = "etcd_3.5.3_arm64_tar",
-    sha256 = "8b00f2f51568303799368ee4a3c9b9ff8a3dd9f8b7772c4f6589e46bc62f7115",
-    urls = ["https://github.com/etcd-io/etcd/releases/download/v3.5.3/etcd-v3.5.3-linux-arm64.tar.gz"],
-)
-
-http_file(
-    name = "etcd_3.5.4_amd64_tar",
-    sha256 = "b1091166153df1ee0bb29b47fb1943ef0ddf0cd5d07a8fe69827580a08134def",
-    urls = ["https://github.com/etcd-io/etcd/releases/download/v3.5.4/etcd-v3.5.4-linux-amd64.tar.gz"],
-)
-
-http_file(
-    name = "etcd_3.5.4_arm64_tar",
-    sha256 = "8e9c2c28ed6b35f36fd94300541da10e1385f335d677afd8efccdcba026f1fa7",
-    urls = ["https://github.com/etcd-io/etcd/releases/download/v3.5.4/etcd-v3.5.4-linux-arm64.tar.gz"],
-)
-
-http_file(
     name = "etcd_3.5.6_amd64_tar",
     sha256 = "4db32e3bc06dd0999e2171f76a87c1cffed8369475ec7aa7abee9023635670fb",
     urls = ["https://github.com/etcd-io/etcd/releases/download/v3.5.6/etcd-v3.5.6-linux-amd64.tar.gz"],
