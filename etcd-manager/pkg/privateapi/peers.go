@@ -373,7 +373,7 @@ func (s *Server) Peers() []*PeerInfo {
 
 	for _, peer := range s.peers {
 		lastInfo, status := peer.status(s.HealthyTimeout)
-		if status == false {
+		if !status {
 			continue
 		}
 		infos = append(infos, lastInfo)
@@ -392,7 +392,7 @@ func (s *Server) GetPeerClient(peerId PeerId) (*grpc.ClientConn, error) {
 	s.mutex.Unlock()
 
 	_, status := peer.status(s.HealthyTimeout)
-	if status == false {
+	if !status {
 		return nil, fmt.Errorf("peer %q is not healthy", peerId)
 	}
 

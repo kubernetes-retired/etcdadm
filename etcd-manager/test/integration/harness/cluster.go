@@ -19,7 +19,6 @@ package harness
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -59,7 +58,7 @@ type TestHarness struct {
 }
 
 func NewTestHarness(t *testing.T, ctx context.Context) *TestHarness {
-	tmpDir, err := ioutil.TempDir("", "")
+	tmpDir, err := os.MkdirTemp("", "")
 	if err != nil {
 		t.Errorf("error building tempdir: %v", err)
 	}
@@ -257,8 +256,7 @@ func (h *TestHarness) WaitForBackup(t *testing.T, timeout time.Duration) {
 	}
 	wantBackups := len(backups) + 1
 
-	description := fmt.Sprintf("wait for new backup")
-	h.WaitFor(timeout, description, func() error {
+	h.WaitFor(timeout, "wait for new backup", func() error {
 		backups, err := backupStore.ListBackups()
 		if err != nil {
 			return fmt.Errorf("error listing backups: %w", err)

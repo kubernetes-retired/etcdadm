@@ -19,7 +19,6 @@ package backup
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"sort"
@@ -171,7 +170,7 @@ func (s *vfsStore) DownloadBackup(name string, destFile string) error {
 		return fmt.Errorf("error creating directories %q: %v", dir, err)
 	}
 
-	f, err := ioutil.TempFile(dir, "tmp")
+	f, err := os.CreateTemp(dir, "tmp")
 	if err != nil {
 		return fmt.Errorf("error creating temp file in %q: %v", dir, err)
 	}

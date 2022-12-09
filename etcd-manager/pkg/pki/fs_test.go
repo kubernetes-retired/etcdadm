@@ -20,7 +20,6 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
-	"io/ioutil"
 	"os"
 	"path"
 	"sort"
@@ -86,7 +85,7 @@ func TestFSStore_LoadCA(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			tempDir, err := ioutil.TempDir("", "test")
+			tempDir, err := os.MkdirTemp("", "test")
 			if err != nil {
 				t.Fatalf("failed to create temp dir: %v", err)
 			}

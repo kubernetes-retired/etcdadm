@@ -18,7 +18,6 @@ package external
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net"
 	"os"
 	"path/filepath"
@@ -126,7 +125,7 @@ func findLocalIP() (net.IP, error) {
 }
 
 func (a *ExternalVolumes) FindVolumes() ([]*volumes.Volume, error) {
-	files, err := ioutil.ReadDir(a.basedir)
+	files, err := os.ReadDir(a.basedir)
 	if err != nil {
 		return nil, fmt.Errorf("error reading %s: %v", a.basedir, err)
 	}

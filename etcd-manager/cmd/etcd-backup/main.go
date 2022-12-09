@@ -22,7 +22,6 @@ import (
 	"crypto/x509"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"time"
 
@@ -81,7 +80,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		raw, err := ioutil.ReadFile(clientCAFile)
+		raw, err := os.ReadFile(clientCAFile)
 		if err != nil {
 			klog.Fatalf("error loading etcd ca cert file: %v", err)
 			os.Exit(1)

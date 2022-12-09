@@ -18,7 +18,6 @@ package privateapi
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -30,7 +29,7 @@ import (
 func PersistentPeerId(basedir string) (PeerId, error) {
 	idFile := filepath.Join(basedir, "myid")
 
-	b, err := ioutil.ReadFile(idFile)
+	b, err := os.ReadFile(idFile)
 	if err != nil {
 		if os.IsNotExist(err) {
 			token := randomToken()

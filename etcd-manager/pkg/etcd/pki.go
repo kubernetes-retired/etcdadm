@@ -52,9 +52,7 @@ func (p *etcdProcess) createKeypairs(peersCA *pki.CA, clientsCA *pki.CA, pkiDir 
 
 		// etcd 3.2 does some deeper client-certiifcate validation, so we want to include our client IP address
 		// (as the DNS name might not be immediately ready, see https://github.com/kopeio/etcd-manager/issues/371)
-		for _, ip := range peerClientIPs {
-			certConfig.AltNames.IPs = append(certConfig.AltNames.IPs, ip)
-		}
+		certConfig.AltNames.IPs = append(certConfig.AltNames.IPs, peerClientIPs...)
 		klog.Infof("adding peerClientIPs %v", peerClientIPs)
 
 		if err := addAltNames(&certConfig, me.PeerUrls); err != nil {

@@ -122,7 +122,7 @@ func runDump(backupFile string, out string) error {
 			break
 		}
 
-		exitError, exitState := process.ExitState()
+		exitState, exitError := process.ExitState()
 		if exitError != nil || exitState != nil {
 			return fmt.Errorf("etcd process exited (state=%v): %w", exitState, exitError)
 		}

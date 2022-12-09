@@ -18,7 +18,6 @@ package etcd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net"
 	"os"
 	"path/filepath"
@@ -47,8 +46,6 @@ type EtcdServer struct {
 	etcdNodeConfiguration *protoetcd.EtcdNode
 	clusterName           string
 	dnsProvider           dns.Provider
-
-	backupStore backup.Store
 
 	mutex sync.Mutex
 
@@ -122,7 +119,7 @@ func (s *EtcdServer) Run(ctx context.Context) {
 
 func readState(baseDir string) (*protoetcd.EtcdState, error) {
 	p := filepath.Join(baseDir, "state")
-	b, err := ioutil.ReadFile(p)
+	b, err := os.ReadFile(p)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
@@ -147,7 +144,7 @@ func writeState(baseDir string, state *protoetcd.EtcdState) error {
 		return fmt.Errorf("error marshaling state data: %v", err)
 	}
 
-	if err := ioutil.WriteFile(p, b, 0755); err != nil {
+	if err := os.WriteFile(p, b, 0755); err != nil {
 		return fmt.Errorf("error writing state file %q: %v", p, err)
 	}
 	return nil
@@ -181,7 +178,7 @@ func (s *EtcdServer) runOnce() error {
 
 	// Check that etcd process is still running
 	if s.process != nil {
-		exitError, exitState := s.process.ExitState()
+		exitState, exitError := s.process.ExitState()
 		if exitError != nil || exitState != nil {
 			klog.Warningf("etcd process exited (error=%v, state=%v)", exitError, exitState)
 
@@ -517,10 +514,10 @@ func (s *EtcdServer) DoBackup(ctx context.Context, request *protoetcd.DoBackupRe
 	}
 
 	if request.Storage == "" {
-		return nil, fmt.Errorf("Storage is required")
+		return nil, fmt.Errorf("request Storage is required")
 	}
 	if request.Info == nil {
-		return nil, fmt.Errorf("Info is required")
+		return nil, fmt.Errorf("request Info is required")
 	}
 	backupStore, err := backup.NewStore(request.Storage)
 	if err != nil {

@@ -18,8 +18,8 @@ package external
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net"
+	"os"
 	"strings"
 
 	"k8s.io/klog/v2"
@@ -42,7 +42,7 @@ func NewExternalDiscovery(seeddir string, volumes *ExternalVolumes) *ExternalDis
 func (a *ExternalDiscovery) Poll() (map[string]discovery.Node, error) {
 	nodes := make(map[string]discovery.Node)
 
-	files, err := ioutil.ReadDir(a.seeddir)
+	files, err := os.ReadDir(a.seeddir)
 	if err != nil {
 		return nil, fmt.Errorf("error reading seed directory %s: %v", a.seeddir, err)
 	}

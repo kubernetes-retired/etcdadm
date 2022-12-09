@@ -164,13 +164,9 @@ func ensureKeypair(store MutableKeypair, config certutil.Config, signer *CA) (*K
 				var expectedNames []string
 				var actualNames []string
 
-				for _, s := range config.AltNames.DNSNames {
-					expectedNames = append(expectedNames, s)
-				}
+				expectedNames = append(expectedNames, config.AltNames.DNSNames...)
 
-				for _, s := range cert.DNSNames {
-					actualNames = append(actualNames, s)
-				}
+				actualNames = append(actualNames, cert.DNSNames...)
 
 				sort.Strings(expectedNames)
 				sort.Strings(actualNames)
