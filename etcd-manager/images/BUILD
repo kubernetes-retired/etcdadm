@@ -6,7 +6,7 @@ load(
     "container_layer",
     "container_push",
 )
-load("etcd.bzl", "supported_etcd_arch_and_version")
+load(":etcd.bzl", "supported_etcd_arch_and_version")
 
 # Layer for etcd 3.1.12, as used in k8s 1.10
 # Layer for etcd 3.2.18, as originally used in k8s 1.11
@@ -27,8 +27,7 @@ load("etcd.bzl", "supported_etcd_arch_and_version")
             arch = arch,
             version = version,
         ),
-        directory = "/opt/etcd-v{version}-linux-{arch}/".format(
-            arch = arch,
+        directory = "/opt/etcd-v{version}/".format(
             version = version,
         ),
         files = [
