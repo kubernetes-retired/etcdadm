@@ -45,6 +45,7 @@ go_library(
         "strings.go",
         "tags.go",
         "timestamp.go",
+        "tokens.go",
         "vpcs.go",
     ],
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/digitalocean/godo",

@@ -34,30 +34,69 @@ import (
 	storage "google.golang.org/api/storage/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/klog/v2"
-
-	vault "github.com/hashicorp/vault/api"
 )
 
 // VFSContext is a 'context' for VFS, that is normally a singleton
 // but allows us to configure S3 credentials, for example
 type VFSContext struct {
+	// mutex guards state
+	mutex sync.Mutex
+
+	// vfsContextState makes it easier to copy the state
+	vfsContextState
+}
+
+type vfsContextState struct {
 	s3Context    *S3Context
 	k8sContext   *KubernetesContext
 	memfsContext *MemFSContext
-	// mutex guards gcsClient
-	mutex sync.Mutex
+
 	// The google cloud storage client, if initialized
-	gcsClient *storage.Service
+	cachedGCSClient *storage.Service
+
 	// swiftClient is the openstack swift client
 	swiftClient *gophercloud.ServiceClient
 
-	vaultClient *vault.Client
 	azureClient *azureClient
 }
 
-var Context = VFSContext{
-	s3Context:  NewS3Context(),
-	k8sContext: NewKubernetesContext(),
+// Context holds the global VFS state.
+// Deprecated: prefer FromContext.
+var Context = NewVFSContext()
+
+// NewVFSContext builds a new VFSContext
+func NewVFSContext() *VFSContext {
+	v := &VFSContext{}
+	v.s3Context = NewS3Context()
+	v.k8sContext = NewKubernetesContext()
+	return v
+}
+
+func (v *VFSContext) WithGCSClient(gcsClient *storage.Service) *VFSContext {
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
+
+	v2 := &VFSContext{
+		vfsContextState: v.vfsContextState,
+	}
+	v2.cachedGCSClient = gcsClient
+	return v2
+}
+
+type contextKeyType int
+
+var contextKey contextKeyType
+
+func FromContext(ctx context.Context) *VFSContext {
+	o := ctx.Value(contextKey)
+	if o != nil {
+		return o.(*VFSContext)
+	}
+	return Context
+}
+
+func WithContext(parent context.Context, vfsContext *VFSContext) context.Context {
+	return context.WithValue(parent, contextKey, vfsContext)
 }
 
 type vfsOptions struct {
@@ -138,6 +177,9 @@ func (c *VFSContext) ReadFile(location string, options ...VFSOption) ([]byte, er
 }
 
 func (c *VFSContext) BuildVfsPath(p string) (Path, error) {
+	// NOTE: we do not want this function to take a context.Context, we consider this a "builder".
+	// Instead, we are aiming to defer creation of clients to the first "real" operation (read/write/etc)
+
 	if !strings.Contains(p, "://") {
 		return NewFSPath(p), nil
 	}
@@ -169,10 +211,6 @@ func (c *VFSContext) BuildVfsPath(p string) (Path, error) {
 
 	if strings.HasPrefix(p, "swift://") {
 		return c.buildOpenstackSwiftPath(p)
-	}
-
-	if strings.HasPrefix(p, "vault://") {
-		return c.buildVaultPath(p)
 	}
 
 	if strings.HasPrefix(p, "azureblob://") {
@@ -375,35 +413,46 @@ func (c *VFSContext) buildGCSPath(p string) (*GSPath, error) {
 
 	bucket := strings.TrimSuffix(u.Host, "/")
 
-	gcsClient, err := c.getGCSClient()
-	if err != nil {
-		return nil, err
-	}
-
-	gcsPath := NewGSPath(gcsClient, bucket, u.Path)
+	gcsPath := NewGSPath(c, bucket, u.Path)
 	return gcsPath, nil
 }
 
 // getGCSClient returns the google storage.Service client, caching it for future calls
-func (c *VFSContext) getGCSClient() (*storage.Service, error) {
+func (c *VFSContext) getGCSClient(ctx context.Context) (*storage.Service, error) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	if c.gcsClient != nil {
-		return c.gcsClient, nil
+	if c.cachedGCSClient != nil {
+		return c.cachedGCSClient, nil
 	}
 
 	// TODO: Should we fall back to read-only?
 	scope := storage.DevstorageReadWriteScope
 
-	ctx := context.Background()
 	gcsClient, err := storage.NewService(ctx, option.WithScopes(scope))
 	if err != nil {
 		return nil, fmt.Errorf("error building GCS client: %v", err)
 	}
 
-	c.gcsClient = gcsClient
+	c.cachedGCSClient = gcsClient
 	return gcsClient, nil
+}
+
+// getSwiftClient returns the openstack switch client, caching it for future calls
+func (c *VFSContext) getSwiftClient(ctx context.Context) (*gophercloud.ServiceClient, error) {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
+	if c.swiftClient != nil {
+		return c.swiftClient, nil
+	}
+
+	swiftClient, err := NewSwiftClient(ctx)
+	if err != nil {
+		return nil, err
+	}
+	c.swiftClient = swiftClient
+	return swiftClient, nil
 }
 
 func (c *VFSContext) buildOpenstackSwiftPath(p string) (*SwiftPath, error) {
@@ -421,47 +470,7 @@ func (c *VFSContext) buildOpenstackSwiftPath(p string) (*SwiftPath, error) {
 		return nil, fmt.Errorf("invalid swift path: %q", p)
 	}
 
-	if c.swiftClient == nil {
-		swiftClient, err := NewSwiftClient()
-		if err != nil {
-			return nil, err
-		}
-		c.swiftClient = swiftClient
-	}
-
-	return NewSwiftPath(c.swiftClient, bucket, u.Path)
-}
-
-func (c *VFSContext) buildVaultPath(p string) (*VaultPath, error) {
-	u, err := url.Parse(p)
-	if err != nil {
-		return nil, fmt.Errorf("invalid vault url: %q", p)
-	}
-
-	var scheme string
-
-	if u.Scheme != "vault" {
-		return nil, fmt.Errorf("invalid vault url: %q", p)
-	}
-
-	queryValues := u.Query()
-
-	scheme = "https://"
-	if queryValues.Get("tls") == "false" {
-		scheme = "http://"
-	}
-
-	if c.vaultClient == nil {
-
-		vaultClient, err := newVaultClient(scheme, u.Hostname(), u.Port())
-		if err != nil {
-			return nil, err
-		}
-
-		c.vaultClient = vaultClient
-	}
-
-	return newVaultPath(c.vaultClient, scheme, u.Path)
+	return NewSwiftPath(c, bucket, u.Path)
 }
 
 func (c *VFSContext) buildAzureBlobPath(p string) (*AzureBlobPath, error) {
@@ -479,15 +488,11 @@ func (c *VFSContext) buildAzureBlobPath(p string) (*AzureBlobPath, error) {
 		return nil, fmt.Errorf("no container specified: %q", p)
 	}
 
-	client, err := c.getAzureBlobClient()
-	if err != nil {
-		return nil, err
-	}
-
-	return NewAzureBlobPath(client, container, u.Path), nil
+	return NewAzureBlobPath(c, container, u.Path), nil
 }
 
-func (c *VFSContext) getAzureBlobClient() (*azureClient, error) {
+// getAzureBlobClient returns the client for azure blob storage, caching it for future reuse.
+func (c *VFSContext) getAzureBlobClient(ctx context.Context) (*azureClient, error) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
@@ -495,7 +500,7 @@ func (c *VFSContext) getAzureBlobClient() (*azureClient, error) {
 		return c.azureClient, nil
 	}
 
-	client, err := newAzureClient()
+	client, err := newAzureClient(ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -2,7 +2,10 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "rate",
-    srcs = ["rate.go"],
+    srcs = [
+        "rate.go",
+        "sometimes.go",
+    ],
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/time/rate",
     importpath = "golang.org/x/time/rate",
     visibility = ["//visibility:public"],
