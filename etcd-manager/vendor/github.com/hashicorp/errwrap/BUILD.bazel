@@ -1,9 +1,0 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
-
-go_library(
-    name = "errwrap",
-    srcs = ["errwrap.go"],
-    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/hashicorp/errwrap",
-    importpath = "github.com/hashicorp/errwrap",
-    visibility = ["//visibility:public"],
-)

@@ -56,6 +56,7 @@ go_library(
         "//vendor/google.golang.org/grpc/internal/resolver/passthrough",
         "//vendor/google.golang.org/grpc/internal/resolver/unix",
         "//vendor/google.golang.org/grpc/internal/serviceconfig",
+        "//vendor/google.golang.org/grpc/internal/status",
         "//vendor/google.golang.org/grpc/internal/transport",
         "//vendor/google.golang.org/grpc/keepalive",
         "//vendor/google.golang.org/grpc/metadata",

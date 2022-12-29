@@ -14,8 +14,10 @@ go_library(
     importpath = "google.golang.org/genproto/googleapis/api/annotations",
     visibility = ["//visibility:public"],
     deps = [
+        "//vendor/google.golang.org/genproto/googleapis/api",
         "//vendor/google.golang.org/protobuf/reflect/protoreflect",
         "//vendor/google.golang.org/protobuf/runtime/protoimpl",
         "//vendor/google.golang.org/protobuf/types/descriptorpb",
+        "//vendor/google.golang.org/protobuf/types/known/durationpb",
     ],
 )

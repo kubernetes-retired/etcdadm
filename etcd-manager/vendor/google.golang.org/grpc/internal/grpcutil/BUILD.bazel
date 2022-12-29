@@ -3,6 +3,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "grpcutil",
     srcs = [
+        "compressor.go",
         "encode_duration.go",
         "grpcutil.go",
         "metadata.go",
@@ -12,5 +13,8 @@ go_library(
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/google.golang.org/grpc/internal/grpcutil",
     importpath = "google.golang.org/grpc/internal/grpcutil",
     visibility = ["//vendor/google.golang.org/grpc:__subpackages__"],
-    deps = ["//vendor/google.golang.org/grpc/metadata"],
+    deps = [
+        "//vendor/google.golang.org/grpc/internal/envconfig",
+        "//vendor/google.golang.org/grpc/metadata",
+    ],
 )

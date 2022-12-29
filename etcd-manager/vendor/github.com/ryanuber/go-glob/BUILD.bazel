@@ -1,9 +1,0 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
-
-go_library(
-    name = "go-glob",
-    srcs = ["glob.go"],
-    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/ryanuber/go-glob",
-    importpath = "github.com/ryanuber/go-glob",
-    visibility = ["//visibility:public"],
-)
