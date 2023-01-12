@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes"
 	"github.com/spf13/cobra"
+	"go.etcd.io/etcd/api/v3/v3rpc/rpctypes"
 
 	"sigs.k8s.io/etcdadm/apis"
 	"sigs.k8s.io/etcdadm/certs"

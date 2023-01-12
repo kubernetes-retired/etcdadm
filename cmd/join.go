@@ -24,7 +24,7 @@ import (
 
 	log "sigs.k8s.io/etcdadm/pkg/logrus"
 
-	"github.com/coreos/etcd/etcdserver/etcdserverpb"
+	"go.etcd.io/etcd/api/v3/etcdserverpb"
 
 	"sigs.k8s.io/etcdadm/apis"
 	"sigs.k8s.io/etcdadm/constants"
@@ -132,7 +132,6 @@ func membership() phase {
 				return nil
 			}
 
-			var localMember *etcdserverpb.Member
 			var members []*etcdserverpb.Member
 			log.Println("[membership] Checking if this member was added")
 			client, err := etcd.ClientForEndpoint(in.etcdAdmConfig.Endpoint, in.etcdAdmConfig)

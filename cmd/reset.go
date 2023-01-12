@@ -22,7 +22,8 @@ import (
 
 	log "sigs.k8s.io/etcdadm/pkg/logrus"
 
-	"github.com/coreos/etcd/etcdserver/etcdserverpb"
+	"go.etcd.io/etcd/api/v3/etcdserverpb"
+
 	"github.com/spf13/cobra"
 	"sigs.k8s.io/etcdadm/apis"
 	"sigs.k8s.io/etcdadm/binary"
