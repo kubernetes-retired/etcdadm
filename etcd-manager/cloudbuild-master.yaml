@@ -3,7 +3,7 @@ steps:
   args: ['version']
 
 - name: gcr.io/cloud-builders/bazel
-  args: ['build', '//cmd/...', '//images:etcd-manager', '//images:etcd-backup', '//images:etcd-dump']
+  args: ['build', '//cmd/...', '//images:etcd-manager', '//images:etcd-manager-slim', '//images:etcd-backup', '//images:etcd-dump']
   # To build with GCS cache
   #args: ['build', '--google_default_credentials', '--spawn_strategy=remote', '--genrule_strategy=remote', '--strategy=Javac=remote', '--strategy=Closure=remote', '--remote_http_cache=https://storage.googleapis.com/cache-bucket', '//cmd/...']
 
@@ -12,6 +12,12 @@ steps:
 
 - name: gcr.io/cloud-builders/bazel
   args: ['run', '//images:push-etcd-manager']
+  env:
+  - 'DOCKER_REGISTRY=${_DOCKER_REGISTRY}'
+  - 'DOCKER_IMAGE_PREFIX=${_DOCKER_IMAGE_PREFIX}'
+  - 'DOCKER_TAG=${COMMIT_SHA}'
+- name: gcr.io/cloud-builders/bazel
+  args: ['run', '//images:push-etcd-manager-slim']
   env:
   - 'DOCKER_REGISTRY=${_DOCKER_REGISTRY}'
   - 'DOCKER_IMAGE_PREFIX=${_DOCKER_IMAGE_PREFIX}'

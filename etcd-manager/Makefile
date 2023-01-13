@@ -57,6 +57,20 @@ push-etcd-manager-manifest:
 	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest push --purge \
 		$(IMAGE_BASE)etcd-manager:$(STABLE_DOCKER_TAG)
 
+.PHONY: push-etcd-manager-slim
+push-etcd-manager-slim:
+	${BAZEL} run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //images:push-etcd-manager-slim
+	${BAZEL} run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_arm64 //images:push-etcd-manager-slim
+
+.PHONY: push-etcd-manager-slim-manifest
+push-etcd-manager-slim-manifest:
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest create \
+		$(IMAGE_BASE)etcd-manager:$(STABLE_DOCKER_TAG)-slim \
+		$(IMAGE_BASE)etcd-manager:$(STABLE_DOCKER_TAG)-slim-amd64 \
+		$(IMAGE_BASE)etcd-manager:$(STABLE_DOCKER_TAG)-slim-arm64
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest push --purge \
+		$(IMAGE_BASE)etcd-manager:$(STABLE_DOCKER_TAG)-slim
+
 .PHONY: push-etcd-dump
 push-etcd-dump:
 	${BAZEL} run ${BAZEL_FLAGS} --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //images:push-etcd-dump
@@ -86,11 +100,11 @@ push-etcd-backup-manifest:
 		$(IMAGE_BASE)etcd-backup:$(STABLE_DOCKER_TAG)
 
 .PHONY: push-images
-push-images: push-etcd-manager push-etcd-dump push-etcd-backup
+push-images: push-etcd-manager push-etcd-manager-slim push-etcd-dump push-etcd-backup
 	echo "pushed images"
 
 .PHONY: push-manifests
-push-manifests: push-etcd-manager-manifest push-etcd-dump-manifest push-etcd-backup-manifest
+push-manifests: push-etcd-manager-manifest push-etcd-manager-slim-manifest push-etcd-dump-manifest push-etcd-backup-manifest
 	echo "pushed manifests"
 
 .PHONY: push

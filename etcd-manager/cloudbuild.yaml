@@ -5,7 +5,7 @@ steps:
 
 - name: gcr.io/cloud-marketplace-containers/google/bazel:3.5.0
   entrypoint: bazel
-  args: ['build', '//cmd/...', '//images:etcd-manager', '//images:etcd-backup', '//images:etcd-dump']
+  args: ['build', '//cmd/...', '//images:etcd-manager', '//images:etcd-manager-slim', '//images:etcd-backup', '//images:etcd-dump']
   # To build with GCS cache
   #args: ['build', '--google_default_credentials', '--spawn_strategy=remote', '--genrule_strategy=remote', '--strategy=Javac=remote', '--strategy=Closure=remote', '--remote_http_cache=https://storage.googleapis.com/cache-bucket', '//cmd/...']
 
