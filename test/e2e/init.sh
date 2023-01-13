@@ -28,7 +28,7 @@ go build
 
 # Prepare container
 trap "docker rm -f etcdadm-0" EXIT
-docker run --name etcdadm-0 --detach --privileged --security-opt seccomp=unconfined --tmpfs /tmp --tmpfs /run  --volume ${PWD}:/etcdadm kindest/node:v1.16.2
+docker run --name etcdadm-0 --detach --privileged --security-opt seccomp=unconfined --tmpfs /tmp --tmpfs /run  --volume ${PWD}:/etcdadm kindest/node:v1.26.0
 
 # Run init
 docker exec etcdadm-0  /etcdadm/etcdadm init
