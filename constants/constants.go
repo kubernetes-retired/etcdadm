@@ -20,7 +20,7 @@ import "time"
 
 // Command-line flag defaults
 const (
-	DefaultVersion    = "3.5.1"
+	DefaultVersion    = "3.5.6"
 	DefaultInstallDir = "/opt/bin/"
 
 	DefaultReleaseURL      = "https://github.com/coreos/etcd/releases/download"
