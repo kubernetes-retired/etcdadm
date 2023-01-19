@@ -105,6 +105,27 @@ container_image(
     ],
 )
 
+container_image(
+    name = "etcd-manager-slim",
+    architecture = select({
+        "@io_bazel_rules_go//go/platform:amd64": "amd64",
+        "@io_bazel_rules_go//go/platform:arm64": "arm64",
+    }),
+    base = select({
+        "@io_bazel_rules_go//go/platform:amd64": "//images/base:base_image_amd64",
+        "@io_bazel_rules_go//go/platform:arm64": "//images/base:base_image_arm64",
+    }),
+    entrypoint = ["/etcd-manager"],
+    env = select({
+        "@io_bazel_rules_go//go/platform:amd64": {},
+        "@io_bazel_rules_go//go/platform:arm64": {"ETCD_UNSUPPORTED_ARCH": "arm64"},
+    }),
+    files = [
+        "//cmd/etcd-manager",
+        "//cmd/etcd-manager-ctl",
+    ],
+)
+
 container_push(
     name = "push-etcd-manager",
     format = "Docker",
@@ -114,6 +135,18 @@ container_push(
     tag = select({
         "@io_bazel_rules_go//go/platform:amd64": "{STABLE_DOCKER_TAG}-amd64",
         "@io_bazel_rules_go//go/platform:arm64": "{STABLE_DOCKER_TAG}-arm64",
+    }),
+)
+
+container_push(
+    name = "push-etcd-manager-slim",
+    format = "Docker",
+    image = ":etcd-manager-slim",
+    registry = "{STABLE_DOCKER_REGISTRY}",
+    repository = "{STABLE_DOCKER_IMAGE_PREFIX}etcd-manager",
+    tag = select({
+        "@io_bazel_rules_go//go/platform:amd64": "{STABLE_DOCKER_TAG}-slim-amd64",
+        "@io_bazel_rules_go//go/platform:arm64": "{STABLE_DOCKER_TAG}-slim-arm64",
     }),
 )
 
