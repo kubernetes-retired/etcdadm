@@ -73,40 +73,33 @@ The following tool is a prerequisite:
 Create container promotion PR:
 
 ```
-STAGING_VERSION=v${VERSION}
-RELEASE_VERSION=v${VERSION}
-
-# Should show image
-gcrane ls gcr.io/k8s-staging-etcdadm/etcd-manager | grep "gcr.io/k8s-staging-etcdadm/etcd-manager:${STAGING_VERSION}"
+# Should show image tags
+crane ls gcr.io/k8s-staging-etcdadm/etcd-manager | grep "${VERSION}"
 ```
 
 ```
-cd ${GOPATH}/src/k8s.io/k8s.io
+cd ../k8s.io
 
 git checkout main
 git pull
-git checkout -b etcdadm_images_${RELEASE_VERSION}
+git checkout -b etcdadm_images_${VERSION}
 
-cd k8s.gcr.io/images/k8s-staging-etcdadm
-echo "" >> images.yaml
-echo "# ${RELEASE_VERSION}" >> images.yaml
-kpromo cip --snapshot gcr.io/k8s-staging-etcdadm --snapshot-tag ${STAGING_VERSION} | sed s@${STAGING_VERSION}@${RELEASE_VERSION}@g >> images.yaml
+echo "# ${VERSION}" >> k8s.gcr.io/images/k8s-staging-etcdadm/images.yaml
+kpromo cip --snapshot gcr.io/k8s-staging-etcdadm --snapshot-tag "v${VERSION}" >> k8s.gcr.io/images/k8s-staging-etcdadm/images.yaml
 ```
 
 You can dry-run the promotion with
 
 ```
-cd ${GOPATH}/src/k8s.io/k8s.io
 kpromo cip --thin-manifest-dir k8s.gcr.io
 ```
 
 Send the image promotion PR:
 
 ```
-cd ${GOPATH}/src/k8s.io/k8s.io
 git add -p k8s.gcr.io/images/k8s-staging-etcdadm/images.yaml
-git commit -m "Promote etcdadm $RELEASE_VERSION images"
-gh pr create --base main --fill
+git commit -m "Promote etcdadm ${VERSION} images"
+gh pr create --fill --base main --repo kubernetes/k8s.io
 ```
 
 
