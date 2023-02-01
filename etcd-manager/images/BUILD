@@ -146,10 +146,10 @@ container_push(
     format = "Docker",
     image = ":etcd-manager-slim",
     registry = "{STABLE_DOCKER_REGISTRY}",
-    repository = "{STABLE_DOCKER_IMAGE_PREFIX}etcd-manager",
+    repository = "{STABLE_DOCKER_IMAGE_PREFIX}etcd-manager-slim",
     tag = select({
-        "@io_bazel_rules_go//go/platform:amd64": "{STABLE_DOCKER_TAG}-slim-amd64",
-        "@io_bazel_rules_go//go/platform:arm64": "{STABLE_DOCKER_TAG}-slim-arm64",
+        "@io_bazel_rules_go//go/platform:amd64": "{STABLE_DOCKER_TAG}-amd64",
+        "@io_bazel_rules_go//go/platform:arm64": "{STABLE_DOCKER_TAG}-arm64",
     }),
 )
 
