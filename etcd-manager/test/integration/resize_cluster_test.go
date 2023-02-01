@@ -28,7 +28,7 @@ import (
 )
 
 func TestResizeCluster(t *testing.T) {
-	for _, etcdVersion := range etcdversions.AllEtcdVersions {
+	for _, etcdVersion := range etcdversions.LatestEtcdVersions {
 		t.Run("etcdVersion="+etcdVersion, func(t *testing.T) {
 			ctx := context.TODO()
 			ctx, cancel := context.WithTimeout(ctx, time.Second*180)

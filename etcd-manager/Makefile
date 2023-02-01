@@ -65,11 +65,11 @@ push-etcd-manager-slim:
 .PHONY: push-etcd-manager-slim-manifest
 push-etcd-manager-slim-manifest:
 	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest create \
-		$(IMAGE_BASE)etcd-manager:$(STABLE_DOCKER_TAG)-slim \
-		$(IMAGE_BASE)etcd-manager:$(STABLE_DOCKER_TAG)-slim-amd64 \
-		$(IMAGE_BASE)etcd-manager:$(STABLE_DOCKER_TAG)-slim-arm64
+		$(IMAGE_BASE)etcd-manager-slim:$(STABLE_DOCKER_TAG) \
+		$(IMAGE_BASE)etcd-manager-slim:$(STABLE_DOCKER_TAG)-amd64 \
+		$(IMAGE_BASE)etcd-manager-slim:$(STABLE_DOCKER_TAG)-arm64
 	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest push --purge \
-		$(IMAGE_BASE)etcd-manager:$(STABLE_DOCKER_TAG)-slim
+		$(IMAGE_BASE)etcd-manager-slim:$(STABLE_DOCKER_TAG)
 
 .PHONY: push-etcd-dump
 push-etcd-dump:

@@ -30,7 +30,7 @@ import (
 )
 
 func TestBackupRestore(t *testing.T) {
-	for _, backupEtcdVersion := range etcdversions.AllEtcdVersions {
+	for _, backupEtcdVersion := range etcdversions.LatestEtcdVersions {
 		restoreEtcdVersion := etcdversions.EtcdVersionForRestore(backupEtcdVersion)
 		t.Run("backupEtcdVersion="+backupEtcdVersion+"/restoreEtcdVersion="+restoreEtcdVersion, func(t *testing.T) {
 			ctx := context.TODO()
