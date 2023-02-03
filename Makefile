@@ -14,7 +14,7 @@
 #
 # Usage:
 # make                 # builds the artifact
-# make container-build # build artifact on a Linux based container using golang:1.16
+# make container-build # build artifact on a Linux based container using golang:1.20
 
 SHELL := /usr/bin/env bash
 CWD := $(shell pwd)
@@ -22,7 +22,7 @@ BIN := etcdadm
 PACKAGE_GOPATH := /go/src/sigs.k8s.io/$(BIN)
 LDFLAGS := $(shell source ./version.sh ; KUBE_ROOT=. ; KUBE_GIT_VERSION=${VERSION_OVERRIDE} ; kube::version::ldflags)
 GIT_STORAGE_MOUNT := $(shell source ./git_utils.sh; container_git_storage_mount)
-GO_IMAGE ?= golang:1.16
+GO_IMAGE ?= golang:1.20
 
 .PHONY: clean container-build default ensure diagrams $(BIN)
 
