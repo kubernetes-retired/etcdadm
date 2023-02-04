@@ -22,8 +22,8 @@ import (
 
 	log "sigs.k8s.io/etcdadm/pkg/logrus"
 
-	"github.com/ghodss/yaml"
 	"github.com/spf13/cobra"
+	"sigs.k8s.io/yaml"
 
 	apimachineryversion "k8s.io/apimachinery/pkg/version"
 	"k8s.io/component-base/version"

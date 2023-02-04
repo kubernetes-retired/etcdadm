@@ -23,7 +23,7 @@ source "$(dirname "$0")/utils.sh"
 
 DATA_VOLUME_NAME="etcdadm-volume"
 DATA_VOLUME_MOUNT_PATH="/opt/etcd/pki"
-IMAGE="kindest/node:v1.16.2"
+IMAGE="kindest/node:v1.26.0"
 
 cd_root_path
 
