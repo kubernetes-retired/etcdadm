@@ -22,8 +22,6 @@ import (
 
 	log "sigs.k8s.io/etcdadm/pkg/logrus"
 
-	"go.etcd.io/etcd/api/v3/etcdserverpb"
-
 	"github.com/spf13/cobra"
 	"sigs.k8s.io/etcdadm/apis"
 	"sigs.k8s.io/etcdadm/binary"
@@ -61,7 +59,7 @@ var resetCmd = &cobra.Command{
 			log.Println("[reset] etcd service is running")
 			// Remove self as member from etcd cluster
 			if !skipRemoveMember {
-				var localMember *etcdserverpb.Member
+				var localMember *etcd.Member
 				log.Println("[membership] Checking if this member was removed")
 				client, err := etcd.ClientForEndpoint(etcdAdmConfig.LoopbackClientURL.String(), &etcdAdmConfig)
 				if err != nil {
