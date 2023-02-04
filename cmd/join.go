@@ -138,6 +138,8 @@ func membership() phase {
 			if err != nil {
 				return fmt.Errorf("error checking membership: %v", err)
 			}
+			defer client.Close()
+
 			ctx, cancel := context.WithTimeout(context.Background(), constants.DefaultEtcdRequestTimeout)
 			mresp, err := client.MemberList(ctx)
 			cancel()

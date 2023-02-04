@@ -207,6 +207,8 @@ func healthcheck() phase {
 			if err != nil {
 				return fmt.Errorf("error creating health endpoint client: %w", err)
 			}
+			defer client.Close()
+
 			ctx, cancel := context.WithTimeout(context.Background(), in.initSystem.StartupTimeout())
 			_, err = client.Get(ctx, constants.EtcdHealthCheckKey)
 			cancel()

@@ -67,6 +67,8 @@ var resetCmd = &cobra.Command{
 				if err != nil {
 					log.Fatalf("[membership] Error checking membership: %v", err)
 				}
+				defer client.Close()
+
 				ctx, cancel := context.WithTimeout(context.Background(), constants.DefaultEtcdRequestTimeout)
 				mresp, err := client.MemberList(ctx)
 				cancel()
