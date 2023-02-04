@@ -24,8 +24,6 @@ import (
 
 	log "sigs.k8s.io/etcdadm/pkg/logrus"
 
-	"go.etcd.io/etcd/api/v3/etcdserverpb"
-
 	"sigs.k8s.io/etcdadm/apis"
 	"sigs.k8s.io/etcdadm/constants"
 	"sigs.k8s.io/etcdadm/etcd"
@@ -132,7 +130,7 @@ func membership() phase {
 				return nil
 			}
 
-			var members []*etcdserverpb.Member
+			var members []*etcd.Member
 			log.Println("[membership] Checking if this member was added")
 			client, err := etcd.ClientForEndpoint(in.etcdAdmConfig.Endpoint, in.etcdAdmConfig)
 			if err != nil {
@@ -199,7 +197,7 @@ func membership() phase {
 				localMember.Name = in.etcdAdmConfig.Name
 				localMember.PeerURLs = in.etcdAdmConfig.InitialAdvertisePeerURLs.StringSlice()
 
-				var desiredMembers []*etcdserverpb.Member
+				var desiredMembers []*etcd.Member
 				for _, m := range members {
 					if m.ID == localMember.ID {
 						continue

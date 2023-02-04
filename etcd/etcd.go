@@ -21,17 +21,29 @@ import (
 	"strings"
 	"time"
 
-	"go.etcd.io/etcd/api/v3/etcdserverpb"
-	"go.etcd.io/etcd/client/pkg/v3/transport"
-	clientv3 "go.etcd.io/etcd/client/v3"
-	"go.etcd.io/etcd/etcdutl/v3/snapshot"
+	clientv3 "go.etcd.io/etcd/clientv3"
+	snapshot "go.etcd.io/etcd/clientv3/snapshot"
+	"go.etcd.io/etcd/etcdserver/api/v3rpc/rpctypes"
+	etcdpb "go.etcd.io/etcd/etcdserver/etcdserverpb"
+	"go.etcd.io/etcd/pkg/transport"
 
 	"sigs.k8s.io/etcdadm/apis"
 )
 
+// Some type aliases to try to isolate us from etcd client churn
+
+// Member is an alias to the Member message used in the etcd protocol.
+type Member = etcdpb.Member
+
+// IsPermissionDenied returns true if the error is the well-known etcd permission-denied error.
+func IsPermissionDenied(err error) bool {
+	return err == rpctypes.ErrPermissionDenied
+}
+
 // ClientForEndpoint returns an etcd client that will use the given etcd endpoint.
 // Callers should Close() the returned connection after use.
 func ClientForEndpoint(endpoint string, cfg *apis.EtcdAdmConfig) (*clientv3.Client, error) {
+
 	tlsInfo := transport.TLSInfo{
 		CertFile:      cfg.EtcdctlCertFile,
 		KeyFile:       cfg.EtcdctlKeyFile,
@@ -51,7 +63,7 @@ func ClientForEndpoint(endpoint string, cfg *apis.EtcdAdmConfig) (*clientv3.Clie
 }
 
 // MemberForPeerURLs searches the list for a member with matching peerURLs.
-func MemberForPeerURLs(members []*etcdserverpb.Member, peerURLs []string) (*etcdserverpb.Member, bool) {
+func MemberForPeerURLs(members []*Member, peerURLs []string) (*Member, bool) {
 	for _, m := range members {
 		if stringSlicesEqual(m.PeerURLs, peerURLs) {
 			return m, true
@@ -74,7 +86,7 @@ func stringSlicesEqual(l, r []string) bool {
 }
 
 // MemberForID searches the list for a member with a matching ID.
-func MemberForID(members []*etcdserverpb.Member, id uint64) (*etcdserverpb.Member, bool) {
+func MemberForID(members []*Member, id uint64) (*Member, bool) {
 	for _, m := range members {
 		if m.ID == id {
 			return m, true
@@ -84,12 +96,13 @@ func MemberForID(members []*etcdserverpb.Member, id uint64) (*etcdserverpb.Membe
 }
 
 // Started checks whether the member has started.
-func Started(member *etcdserverpb.Member) bool {
+func Started(member *Member) bool {
 	unstarted := (member.Name == "" && len(member.ClientURLs) == 0)
 	return !unstarted
 }
 
 // RestoreSnapshot initializes the etcd data directory from a snapshot
+// Deprecated: we should be using the correct library version for this.
 func RestoreSnapshot(cfg *apis.EtcdAdmConfig) error {
 	sp := snapshot.NewV3(nil)
 
@@ -105,7 +118,7 @@ func RestoreSnapshot(cfg *apis.EtcdAdmConfig) error {
 }
 
 // InitialClusterFromMembers derives an "initial cluster" string from a member list
-func InitialClusterFromMembers(members []*etcdserverpb.Member) string {
+func InitialClusterFromMembers(members []*Member) string {
 	namePeerURLs := []string{}
 	for _, m := range members {
 		for _, u := range m.PeerURLs {

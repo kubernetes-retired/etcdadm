@@ -22,7 +22,6 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"go.etcd.io/etcd/api/v3/v3rpc/rpctypes"
 
 	"sigs.k8s.io/etcdadm/apis"
 	"sigs.k8s.io/etcdadm/certs"
@@ -214,7 +213,7 @@ func healthcheck() phase {
 			cancel()
 			// Healthy because the cluster reaches consensus for the get request,
 			// even if permission (to get the key) is denied.
-			if err == nil || err == rpctypes.ErrPermissionDenied {
+			if err == nil || etcd.IsPermissionDenied(err) {
 				log.Println("[health] Local etcd endpoint is healthy")
 			} else {
 				return fmt.Errorf("local etcd endpoint is unhealthy: %w", err)
