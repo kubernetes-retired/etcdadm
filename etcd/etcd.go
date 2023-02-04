@@ -21,11 +21,11 @@ import (
 	"strings"
 	"time"
 
-	clientv3 "go.etcd.io/etcd/clientv3"
-	snapshot "go.etcd.io/etcd/clientv3/snapshot"
-	"go.etcd.io/etcd/etcdserver/api/v3rpc/rpctypes"
-	etcdpb "go.etcd.io/etcd/etcdserver/etcdserverpb"
-	"go.etcd.io/etcd/pkg/transport"
+	etcdpb "go.etcd.io/etcd/api/v3/etcdserverpb"
+	"go.etcd.io/etcd/api/v3/v3rpc/rpctypes"
+	"go.etcd.io/etcd/client/pkg/v3/transport"
+	clientv3 "go.etcd.io/etcd/client/v3"
+	"go.etcd.io/etcd/etcdutl/v3/snapshot"
 
 	"sigs.k8s.io/etcdadm/apis"
 )
