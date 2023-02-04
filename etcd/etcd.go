@@ -30,6 +30,7 @@ import (
 )
 
 // ClientForEndpoint returns an etcd client that will use the given etcd endpoint.
+// Callers should Close() the returned connection after use.
 func ClientForEndpoint(endpoint string, cfg *apis.EtcdAdmConfig) (*clientv3.Client, error) {
 	tlsInfo := transport.TLSInfo{
 		CertFile:      cfg.EtcdctlCertFile,

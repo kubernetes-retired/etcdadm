@@ -42,6 +42,8 @@ var infoCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalf("[membership] Error requesting member information: %s", err)
 		}
+		defer client.Close()
+
 		ctx, cancel := context.WithTimeout(context.Background(), constants.DefaultEtcdRequestTimeout)
 		mresp, err := client.MemberList(ctx)
 		cancel()
