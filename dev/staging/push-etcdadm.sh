@@ -34,6 +34,22 @@ if [[ "${ARTIFACT_LOCATION}" != */ ]]; then
   ARTIFACT_LOCATION="${ARTIFACT_LOCATION}/"
 fi
 
-# Build and upload etcdadm binary
+# Build etcdadm binary
 make etcdadm
+
+# Upload etcdadm binary
+DOWNLOAD_URL="https://dl.google.com/dl/cloudsdk/channels/rapid/google-cloud-sdk.tar.gz"
+echo "Downloading google-cloud-sdk.tar.gz from $DOWNLOAD_URL"
+curl -L -o "/tmp/google-cloud-sdk.tar.gz" "${DOWNLOAD_URL}"
+tar xzf /tmp/google-cloud-sdk.tar.gz -C /
+rm /tmp/google-cloud-sdk.tar.gz
+/google-cloud-sdk/install.sh \
+    --bash-completion=false \
+    --usage-reporting=false \
+    --quiet
+ln -s /google-cloud-sdk/bin/gcloud /usr/local/bin/gcloud
+ln -s /google-cloud-sdk/bin/gsutil /usr/local/bin/gsutil
+gcloud info
+gcloud config list
+gcloud auth list
 gsutil -h "Cache-Control:private, max-age=0, no-transform" -m cp -n etcdadm ${ARTIFACT_LOCATION}${VERSION}/etcdadm

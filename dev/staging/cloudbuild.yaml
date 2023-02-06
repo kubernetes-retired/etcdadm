@@ -6,6 +6,7 @@ options:
 
 steps:
 - name: golang:1.19
+  waitFor: ['-']
   env:
   - PULL_BASE_REF=$_PULL_BASE_REF
   - VERSION=$_GIT_TAG
@@ -13,7 +14,8 @@ steps:
   - DOCKER_IMAGE_PREFIX=$_DOCKER_IMAGE_PREFIX
   - ARTIFACT_LOCATION=$_ARTIFACT_LOCATION
   entrypoint: dev/staging/push-etcdadm.sh
-- name: golang:1.19
+- name: gcr.io/google.com/cloudsdktool/google-cloud-cli:slim
+  waitFor: ['-']
   env:
   - PULL_BASE_REF=$_PULL_BASE_REF
   # We don't pass version; we want to use our own version tagging from git
