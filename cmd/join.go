@@ -139,7 +139,7 @@ func membership() phase {
 			defer client.Close()
 
 			ctx, cancel := context.WithTimeout(context.Background(), constants.DefaultEtcdRequestTimeout)
-			mresp, err := client.MemberList(ctx)
+			mresp, err := etcd.NonQuorumMemberList(ctx, client)
 			cancel()
 			if err != nil {
 				return fmt.Errorf("error listing members: %v", err)

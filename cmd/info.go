@@ -45,7 +45,7 @@ var infoCmd = &cobra.Command{
 		defer client.Close()
 
 		ctx, cancel := context.WithTimeout(context.Background(), constants.DefaultEtcdRequestTimeout)
-		mresp, err := client.MemberList(ctx)
+		mresp, err := etcd.NonQuorumMemberList(ctx, client)
 		cancel()
 		if err != nil {
 			log.Fatalf("[membership] Error listing members: %v", err)

@@ -17,6 +17,7 @@ limitations under the License.
 package etcd
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -127,4 +128,21 @@ func InitialClusterFromMembers(members []*Member) string {
 		}
 	}
 	return strings.Join(namePeerURLs, ",")
+}
+
+// NonQuorumMemberList performs a member list that does not require the cluster to have quorum.
+// The results may not be 100% accurate in the case of split-brain.
+// This is needed because when we are growing a cluster node-by-node,
+// we can be in states where we do not have quorum, in this state
+// a quorum member-list call will fail.
+func NonQuorumMemberList(ctx context.Context, client *clientv3.Client) (*etcdpb.MemberListResponse, error) {
+	conn := client.ActiveConnection()
+	clusterClient := etcdpb.NewClusterClient(conn)
+
+	req := &etcdpb.MemberListRequest{Linearizable: false}
+	response, err := clusterClient.MemberList(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
 }
