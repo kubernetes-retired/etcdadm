@@ -15,4 +15,4 @@ steps:
 
 timeout: 3000s
 options:
-  machineType: N1_HIGHCPU_8
+  machineType: E2_HIGHCPU_8
