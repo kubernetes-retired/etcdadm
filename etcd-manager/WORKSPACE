@@ -259,7 +259,7 @@ http_file(
 container_pull(
     name = "distroless-base-amd64",
     architecture = "amd64",
-    digest = "sha256:b9b124f955961599e72630654107a0cf04e08e6fa777fa250b8f840728abd770",
+    digest = "sha256:a713d945f4a1a71828d34313456268ffc4f35db85fbbeea45dda99b5547cb0f1",
     registry = "gcr.io/distroless",
     repository = "base-debian11",
 )
@@ -267,7 +267,7 @@ container_pull(
 container_pull(
     name = "distroless-base-amd64-debug",
     architecture = "amd64",
-    digest = "sha256:65668d2b78d25df3d8ccf5a778d017fcaba513b52078c700083eaeef212b9979",
+    digest = "sha256:cd6490f180b9ae53122aec81d9da12ab2b32860357939353bea11b1829962b65",
     registry = "gcr.io/distroless",
     repository = "base-debian11",
 )
@@ -275,7 +275,7 @@ container_pull(
 container_pull(
     name = "distroless-base-arm64",
     architecture = "arm64",
-    digest = "sha256:3552d4adeabdc6630fe1877198c3b853e977c53c439b0f7afaa7be760ee5ed6d",
+    digest = "sha256:039ee280d66386a5e9b32ef7d45c6e9682d91c070e83ba898f55a83eccb34a4a",
     registry = "gcr.io/distroless",
     repository = "base-debian11",
 )
@@ -283,7 +283,7 @@ container_pull(
 container_pull(
     name = "distroless-base-arm64-debug",
     architecture = "arm64",
-    digest = "sha256:c030e82e982395140c1a1f31ac70d673a49ee6202593bb32285a04a8343146bf",
+    digest = "sha256:d611b0cafecc9af644b813a5349fc1ffe8139310db75282c866e1888d6f319ed",
     registry = "gcr.io/distroless",
     repository = "base-debian11",
 )
