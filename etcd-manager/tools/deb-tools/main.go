@@ -311,15 +311,14 @@ func parsePackages(p string, packagesFormat string) (map[string]*PackageInfo, er
 	}
 
 	scanner := bufio.NewScanner(r)
+	scanner.Buffer(nil, 256*1024)
+
 	currentPackage := &PackageInfo{}
 	// We support multi-line keys
 	key := ""
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		if line == "" || !strings.HasPrefix(line, " ") {
-
-		}
 
 		if line == "" {
 			if currentPackage.Package != "" {
