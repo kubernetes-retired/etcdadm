@@ -99,7 +99,7 @@ func writePrivateKey(path string, privateKey *rsa.PrivateKey) error {
 		return fmt.Errorf("creating directories for private key file %q: %v", path, err)
 	}
 
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return fmt.Errorf("opening private key file %q: %v", path, err)
 	}
