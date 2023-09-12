@@ -308,6 +308,60 @@ func (p *SwiftPath) Remove() error {
 	}
 }
 
+func (p *SwiftPath) RemoveAll() error {
+	ctx := context.TODO()
+
+	tree, err := p.ReadTree()
+	if err != nil {
+		return err
+	}
+
+	objects := make([]string, len(tree))
+	for i := range tree {
+		swiftObject, isSwiftObject := tree[i].(*SwiftPath)
+		if !isSwiftObject {
+			return fmt.Errorf("invalid path in swiftfs tree: %s", tree[i].Path())
+		}
+		objects[i] = swiftObject.key
+	}
+
+	objectsToDelete := []string(nil)
+	for len(objects) > 0 {
+		// BulkDelete can only process 10000 objects per call
+		if len(objects) > 10000 {
+			objectsToDelete = objects[:10000]
+			objects = objects[10000:]
+		} else {
+			objectsToDelete = objects
+			objects = nil
+		}
+
+		done, err := RetryWithBackoff(swiftWriteBackoff, func() (bool, error) {
+			client, err := p.getClient(ctx)
+			if err != nil {
+				return false, err
+			}
+			if _, err := swiftobject.BulkDelete(client, p.bucket, objectsToDelete).Extract(); err != nil {
+				if isSwiftNotFound(err) {
+					return true, os.ErrNotExist
+				}
+				return false, fmt.Errorf("error remove %d files: %w", len(objectsToDelete), err)
+			}
+
+			return true, nil
+		})
+		if err != nil {
+			return err
+		} else if done {
+			continue
+		} else {
+			return wait.ErrWaitTimeout
+		}
+	}
+
+	return nil
+}
+
 func (p *SwiftPath) RemoveAllVersions() error {
 	return p.Remove()
 }
@@ -323,9 +377,7 @@ func (p *SwiftPath) Join(relativePath ...string) Path {
 	}
 }
 
-func (p *SwiftPath) WriteFile(data io.ReadSeeker, acl ACL) error {
-	ctx := context.TODO()
-
+func (p *SwiftPath) WriteFile(ctx context.Context, data io.ReadSeeker, acl ACL) error {
 	done, err := RetryWithBackoff(swiftWriteBackoff, func() (bool, error) {
 		client, err := p.getClient(ctx)
 		if err != nil {
@@ -360,9 +412,7 @@ func (p *SwiftPath) WriteFile(data io.ReadSeeker, acl ACL) error {
 // TODO: should we enable versioning?
 var createFileLockSwift sync.Mutex
 
-func (p *SwiftPath) CreateFile(data io.ReadSeeker, acl ACL) error {
-	ctx := context.TODO()
-
+func (p *SwiftPath) CreateFile(ctx context.Context, data io.ReadSeeker, acl ACL) error {
 	client, err := p.getClient(ctx)
 	if err != nil {
 		return err
@@ -394,7 +444,7 @@ func (p *SwiftPath) CreateFile(data io.ReadSeeker, acl ACL) error {
 		return err
 	}
 
-	return p.WriteFile(data, acl)
+	return p.WriteFile(ctx, data, acl)
 }
 
 func (p *SwiftPath) createBucket() error {
@@ -427,7 +477,7 @@ func (p *SwiftPath) createBucket() error {
 }
 
 // ReadFile implements Path::ReadFile
-func (p *SwiftPath) ReadFile() ([]byte, error) {
+func (p *SwiftPath) ReadFile(ctx context.Context) ([]byte, error) {
 	var b bytes.Buffer
 	done, err := RetryWithBackoff(swiftReadBackoff, func() (bool, error) {
 		b.Reset()

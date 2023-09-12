@@ -7,7 +7,8 @@ go_library(
     importpath = "github.com/prometheus/client_model/go",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/golang/protobuf/proto",
-        "//vendor/github.com/golang/protobuf/ptypes/timestamp",
+        "//vendor/google.golang.org/protobuf/reflect/protoreflect",
+        "//vendor/google.golang.org/protobuf/runtime/protoimpl",
+        "//vendor/google.golang.org/protobuf/types/known/timestamppb",
     ],
 )

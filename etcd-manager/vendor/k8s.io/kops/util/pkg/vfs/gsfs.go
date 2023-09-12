@@ -22,7 +22,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
@@ -119,15 +118,6 @@ func (p *GSPath) String() string {
 	return p.Path()
 }
 
-// TerraformProvider returns the provider name and necessary arguments
-func (p *GSPath) TerraformProvider() (*TerraformProvider, error) {
-	provider := &TerraformProvider{
-		Name:      "google",
-		Arguments: map[string]string{}, // GCS doesn't need the project and region specified
-	}
-	return provider, nil
-}
-
 func (p *GSPath) Remove() error {
 	ctx := context.TODO()
 	done, err := RetryWithBackoff(gcsWriteBackoff, func() (bool, error) {
@@ -152,6 +142,22 @@ func (p *GSPath) Remove() error {
 	}
 }
 
+func (p *GSPath) RemoveAll() error {
+	tree, err := p.ReadTree()
+	if err != nil {
+		return err
+	}
+
+	for _, objectPath := range tree {
+		err := objectPath.Remove()
+		if err != nil {
+			return fmt.Errorf("error removing file %s: %w", objectPath, err)
+		}
+	}
+
+	return nil
+}
+
 func (p *GSPath) RemoveAllVersions() error {
 	return p.Remove()
 }
@@ -167,9 +173,7 @@ func (p *GSPath) Join(relativePath ...string) Path {
 	}
 }
 
-func (p *GSPath) WriteFile(data io.ReadSeeker, acl ACL) error {
-	ctx := context.TODO()
-
+func (p *GSPath) WriteFile(ctx context.Context, data io.ReadSeeker, acl ACL) error {
 	md5Hash, err := hashing.HashAlgorithmMD5.Hash(data)
 	if err != nil {
 		return err
@@ -224,12 +228,12 @@ func (p *GSPath) WriteFile(data io.ReadSeeker, acl ACL) error {
 // TODO: should we enable versioning?
 var createFileLockGCS sync.Mutex
 
-func (p *GSPath) CreateFile(data io.ReadSeeker, acl ACL) error {
+func (p *GSPath) CreateFile(ctx context.Context, data io.ReadSeeker, acl ACL) error {
 	createFileLockGCS.Lock()
 	defer createFileLockGCS.Unlock()
 
 	// Check if exists
-	_, err := p.ReadFile()
+	_, err := p.ReadFile(ctx)
 	if err == nil {
 		return os.ErrExist
 	}
@@ -238,11 +242,11 @@ func (p *GSPath) CreateFile(data io.ReadSeeker, acl ACL) error {
 		return err
 	}
 
-	return p.WriteFile(data, acl)
+	return p.WriteFile(ctx, data, acl)
 }
 
 // ReadFile implements Path::ReadFile
-func (p *GSPath) ReadFile() ([]byte, error) {
+func (p *GSPath) ReadFile(ctx context.Context) ([]byte, error) {
 	var b bytes.Buffer
 	done, err := RetryWithBackoff(gcsReadBackoff, func() (bool, error) {
 		b.Reset()
@@ -431,10 +435,13 @@ type terraformGSObjectAccessControl struct {
 }
 
 func (p *GSPath) RenderTerraform(w *terraformWriter.TerraformWriter, name string, data io.Reader, acl ACL) error {
-	bytes, err := ioutil.ReadAll(data)
+	bytes, err := io.ReadAll(data)
 	if err != nil {
 		return fmt.Errorf("reading data: %v", err)
 	}
+
+	tfProviderArguments := map[string]string{} // GCS doesn't need the project and region specified
+	w.EnsureTerraformProvider("google", tfProviderArguments)
 
 	content, err := w.AddFilePath("google_storage_bucket_object", name, "content", bytes, false)
 	if err != nil {
@@ -464,7 +471,7 @@ func (p *GSPath) RenderTerraform(w *terraformWriter.TerraformWriter, name string
 			// https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_object_acl#role_entity
 			tfACL.RoleEntity = append(tfACL.RoleEntity, fmt.Sprintf("%v:%v", re.Role, re.Entity))
 		}
-		return w.RenderResource("google_storage_object_access_control", name, tfACL)
+		return w.RenderResource("google_storage_object_acl", name, tfACL)
 	}
 	return nil
 }

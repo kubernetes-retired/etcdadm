@@ -1,0 +1,20 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "tlsconfigstore",
+    srcs = ["tlsconfigstore.go"],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/google/s2a-go/internal/v2/tlsconfigstore",
+    importpath = "github.com/google/s2a-go/internal/v2/tlsconfigstore",
+    visibility = ["//vendor/github.com/google/s2a-go:__subpackages__"],
+    deps = [
+        "//vendor/github.com/google/s2a-go/internal/proto/common_go_proto",
+        "//vendor/github.com/google/s2a-go/internal/proto/v2/common_go_proto",
+        "//vendor/github.com/google/s2a-go/internal/proto/v2/s2a_go_proto",
+        "//vendor/github.com/google/s2a-go/internal/tokenmanager",
+        "//vendor/github.com/google/s2a-go/internal/v2/certverifier",
+        "//vendor/github.com/google/s2a-go/internal/v2/remotesigner",
+        "//vendor/github.com/google/s2a-go/stream",
+        "//vendor/google.golang.org/grpc/codes",
+        "//vendor/google.golang.org/grpc/grpclog",
+    ],
+)

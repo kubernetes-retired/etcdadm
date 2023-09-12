@@ -6,6 +6,7 @@ go_library(
         "action.go",
         "certificate.go",
         "datacenter.go",
+        "deprecation.go",
         "error.go",
         "firewall.go",
         "floating_ip.go",

@@ -99,7 +99,7 @@ func (p *AzureBlobPath) Join(relativePath ...string) Path {
 }
 
 // ReadFile returns the content of the blob.
-func (p *AzureBlobPath) ReadFile() ([]byte, error) {
+func (p *AzureBlobPath) ReadFile(ctx context.Context) ([]byte, error) {
 	var b bytes.Buffer
 	_, err := p.WriteTo(&b)
 	if err != nil {
@@ -146,27 +146,25 @@ func (p *AzureBlobPath) WriteTo(w io.Writer) (n int64, err error) {
 var createFileLockAzureBlob sync.Mutex
 
 // CreateFile writes the file contents only if the file does not already exist.
-func (p *AzureBlobPath) CreateFile(data io.ReadSeeker, acl ACL) error {
+func (p *AzureBlobPath) CreateFile(ctx context.Context, data io.ReadSeeker, acl ACL) error {
 	createFileLockAzureBlob.Lock()
 	defer createFileLockAzureBlob.Unlock()
 
 	// Check if the blob exists.
-	_, err := p.ReadFile()
+	_, err := p.ReadFile(ctx)
 	if err == nil {
 		return os.ErrExist
 	}
 	if !os.IsNotExist(err) {
 		return err
 	}
-	return p.WriteFile(data, acl)
+	return p.WriteFile(ctx, data, acl)
 }
 
 // WriteFile writes the blob to the reader.
 //
 // TODO(kenji): Support ACL.
-func (p *AzureBlobPath) WriteFile(data io.ReadSeeker, acl ACL) error {
-	ctx := context.TODO()
-
+func (p *AzureBlobPath) WriteFile(ctx context.Context, data io.ReadSeeker, acl ACL) error {
 	client, err := p.getClient(ctx)
 	if err != nil {
 		return err
@@ -219,6 +217,22 @@ func (p *AzureBlobPath) Remove() error {
 	// Delete the blob, but keep its snapshot.
 	_, err = cURL.NewBlockBlobURL(p.key).Delete(ctx, azblob.DeleteSnapshotsOptionNone, azblob.BlobAccessConditions{})
 	return err
+}
+
+func (p *AzureBlobPath) RemoveAll() error {
+	tree, err := p.ReadTree()
+	if err != nil {
+		return err
+	}
+
+	for _, blobPath := range tree {
+		err := blobPath.Remove()
+		if err != nil {
+			return fmt.Errorf("error removing file %s: %w", blobPath, err)
+		}
+	}
+
+	return nil
 }
 
 func (p *AzureBlobPath) RemoveAllVersions() error {

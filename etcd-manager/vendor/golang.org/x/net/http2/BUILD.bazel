@@ -26,6 +26,7 @@ go_library(
         "writesched.go",
         "writesched_priority.go",
         "writesched_random.go",
+        "writesched_roundrobin.go",
     ],
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/net/http2",
     importpath = "golang.org/x/net/http2",

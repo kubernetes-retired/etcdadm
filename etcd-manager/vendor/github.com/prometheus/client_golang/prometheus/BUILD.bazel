@@ -30,6 +30,7 @@ go_library(
         "untyped.go",
         "value.go",
         "vec.go",
+        "vnext.go",
         "wrap.go",
     ],
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/prometheus/client_golang/prometheus",
@@ -38,11 +39,11 @@ go_library(
     deps = [
         "//vendor/github.com/beorn7/perks/quantile",
         "//vendor/github.com/cespare/xxhash/v2:xxhash",
-        "//vendor/github.com/golang/protobuf/proto",
         "//vendor/github.com/prometheus/client_golang/prometheus/internal",
         "//vendor/github.com/prometheus/client_model/go",
         "//vendor/github.com/prometheus/common/expfmt",
         "//vendor/github.com/prometheus/common/model",
+        "//vendor/google.golang.org/protobuf/proto",
         "//vendor/google.golang.org/protobuf/types/known/timestamppb",
     ] + select({
         "@io_bazel_rules_go//go/platform:aix": [

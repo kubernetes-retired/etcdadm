@@ -13,6 +13,8 @@ go_library(
         "locality.go",
         "path.go",
         "request.go",
+        "request_header.go",
+        "request_header_wasm.go",
         "request_option.go",
         "transport.go",
         "version.go",

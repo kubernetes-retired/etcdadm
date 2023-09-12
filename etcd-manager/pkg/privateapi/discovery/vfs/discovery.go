@@ -18,6 +18,7 @@ package fs
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -56,13 +57,15 @@ func (d *VFSDiscovery) publish() error {
 
 	klog.Infof("publishing discovery record: %v", d.me)
 
+	ctx := context.TODO()
+
 	meJson, err := json.Marshal(d.me)
 	if err != nil {
 		return fmt.Errorf("error marshalling to JSON: %v", err)
 	}
 
 	p := d.base.Join(string(d.me.ID))
-	if err := p.WriteFile(bytes.NewReader(meJson), nil); err != nil {
+	if err := p.WriteFile(ctx, bytes.NewReader(meJson), nil); err != nil {
 		return fmt.Errorf("error writing file %s: %v", p, err)
 	}
 
@@ -73,6 +76,8 @@ func (d *VFSDiscovery) Poll() (map[string]discovery.Node, error) {
 	klog.V(2).Infof("polling discovery directory: %s", d.base)
 	nodes := make(map[string]discovery.Node)
 
+	ctx := context.TODO()
+
 	files, err := d.base.ReadDir()
 	if err != nil {
 		return nil, fmt.Errorf("error reading directory %s: %v", d.base, err)
@@ -81,7 +86,7 @@ func (d *VFSDiscovery) Poll() (map[string]discovery.Node, error) {
 	for _, p := range files {
 		id := p.Base()
 
-		data, err := p.ReadFile()
+		data, err := p.ReadFile(ctx)
 		if err != nil {
 			klog.Warningf("error reading node discovery file %s: %v", p, err)
 			continue

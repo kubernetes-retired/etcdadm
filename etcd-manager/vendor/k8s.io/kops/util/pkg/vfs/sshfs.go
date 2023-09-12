@@ -116,6 +116,22 @@ func (p *SSHPath) Remove() error {
 	return nil
 }
 
+func (p *SSHPath) RemoveAll() error {
+	tree, err := p.ReadTree()
+	if err != nil {
+		return err
+	}
+
+	for _, filePath := range tree {
+		err := filePath.Remove()
+		if err != nil {
+			return fmt.Errorf("error removing file %s: %w", filePath, err)
+		}
+	}
+
+	return nil
+}
+
 func (p *SSHPath) RemoveAllVersions() error {
 	return p.Remove()
 }
@@ -154,9 +170,7 @@ func mkdirAll(sftpClient *sftp.Client, dir string) error {
 	return nil
 }
 
-func (p *SSHPath) WriteFile(data io.ReadSeeker, acl ACL) error {
-	ctx := context.TODO()
-
+func (p *SSHPath) WriteFile(ctx context.Context, data io.ReadSeeker, acl ACL) error {
 	sftpClient, err := p.newClient(ctx)
 	if err != nil {
 		return err
@@ -244,12 +258,12 @@ func (p *SSHPath) WriteFile(data io.ReadSeeker, acl ACL) error {
 // Not a great approach, but fine for a single process (with low concurrency)
 var createFileLockSSH sync.Mutex
 
-func (p *SSHPath) CreateFile(data io.ReadSeeker, acl ACL) error {
+func (p *SSHPath) CreateFile(ctx context.Context, data io.ReadSeeker, acl ACL) error {
 	createFileLockSSH.Lock()
 	defer createFileLockSSH.Unlock()
 
 	// Check if exists
-	_, err := p.ReadFile()
+	_, err := p.ReadFile(ctx)
 	if err == nil {
 		return os.ErrExist
 	}
@@ -258,11 +272,11 @@ func (p *SSHPath) CreateFile(data io.ReadSeeker, acl ACL) error {
 		return err
 	}
 
-	return p.WriteFile(data, acl)
+	return p.WriteFile(ctx, data, acl)
 }
 
 // ReadFile implements Path::ReadFile
-func (p *SSHPath) ReadFile() ([]byte, error) {
+func (p *SSHPath) ReadFile(ctx context.Context) ([]byte, error) {
 	var b bytes.Buffer
 	_, err := p.WriteTo(&b)
 	if err != nil {

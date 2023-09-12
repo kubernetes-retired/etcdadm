@@ -3,7 +3,9 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "auth",
     srcs = [
+        "access_key.go",
         "auth.go",
+        "jwt.go",
         "no_auth.go",
         "token.go",
     ],

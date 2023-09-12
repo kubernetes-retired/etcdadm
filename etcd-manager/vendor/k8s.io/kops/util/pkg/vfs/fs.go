@@ -17,6 +17,7 @@ limitations under the License.
 package vfs
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -50,7 +51,7 @@ func (p *FSPath) Join(relativePath ...string) Path {
 	return &FSPath{location: joined}
 }
 
-func (p *FSPath) WriteFile(data io.ReadSeeker, acl ACL) error {
+func (p *FSPath) WriteFile(ctx context.Context, data io.ReadSeeker, acl ACL) error {
 	dir := path.Dir(p.location)
 	err := os.MkdirAll(dir, 0o755)
 	if err != nil {
@@ -96,7 +97,7 @@ func (p *FSPath) WriteFile(data io.ReadSeeker, acl ACL) error {
 // TODO: should we take a file lock or equivalent here?  Can we use RENAME_NOREPLACE ?
 var createFileLock sync.Mutex
 
-func (p *FSPath) CreateFile(data io.ReadSeeker, acl ACL) error {
+func (p *FSPath) CreateFile(ctx context.Context, data io.ReadSeeker, acl ACL) error {
 	createFileLock.Lock()
 	defer createFileLock.Unlock()
 
@@ -110,11 +111,11 @@ func (p *FSPath) CreateFile(data io.ReadSeeker, acl ACL) error {
 		return err
 	}
 
-	return p.WriteFile(data, acl)
+	return p.WriteFile(ctx, data, acl)
 }
 
 // ReadFile implements Path::ReadFile
-func (p *FSPath) ReadFile() ([]byte, error) {
+func (p *FSPath) ReadFile(ctx context.Context) ([]byte, error) {
 	file, err := os.ReadFile(p.location)
 	if errors.Is(err, syscall.ENOENT) {
 		err = os.ErrNotExist
@@ -192,6 +193,22 @@ func (p *FSPath) String() string {
 
 func (p *FSPath) Remove() error {
 	return os.Remove(p.location)
+}
+
+func (p *FSPath) RemoveAll() error {
+	tree, err := p.ReadTree()
+	if err != nil {
+		return err
+	}
+
+	for _, filePath := range tree {
+		err := filePath.Remove()
+		if err != nil {
+			return fmt.Errorf("error removing file %s: %w", filePath, err)
+		}
+	}
+
+	return nil
 }
 
 func (p *FSPath) RemoveAllVersions() error {

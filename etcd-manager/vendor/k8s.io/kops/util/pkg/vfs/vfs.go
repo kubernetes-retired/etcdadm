@@ -17,6 +17,7 @@ limitations under the License.
 package vfs
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strings"
@@ -48,13 +49,16 @@ type Path interface {
 	// ReadFile returns the contents of the file, or an error if the file could not be read.
 	// If the file did not exist, err = os.ErrNotExist
 	// As this reads the entire file into memory, consider using WriteTo for bigger files
-	ReadFile() ([]byte, error)
-	WriteFile(data io.ReadSeeker, acl ACL) error
+	ReadFile(ctx context.Context) ([]byte, error)
+	WriteFile(ctx context.Context, data io.ReadSeeker, acl ACL) error
 	// CreateFile writes the file contents, but only if the file does not already exist
-	CreateFile(data io.ReadSeeker, acl ACL) error
+	CreateFile(ctx context.Context, data io.ReadSeeker, acl ACL) error
 
 	// Remove deletes the file
 	Remove() error
+
+	// RemoveAll deletes all files recursively, deletes only files as returned per ReadTree
+	RemoveAll() error
 
 	// RemoveAllVersions completely deletes the file (with all its versions and markers).
 	RemoveAllVersions() error
@@ -78,17 +82,6 @@ type TerraformPath interface {
 	Path
 	// RenderTerraform renders the file to a TerraformWriter.
 	RenderTerraform(writer *terraformWriter.TerraformWriter, name string, data io.Reader, acl ACL) error
-
-	// TerraformProvider returns provider information
-	TerraformProvider() (*TerraformProvider, error)
-}
-
-// TerraformProvider is a provider definition for a TerraformPath
-type TerraformProvider struct {
-	// Name is the name of the terraform provider
-	Name string
-	// Arguments are additional settings used in the provider definition
-	Arguments map[string]string
 }
 
 type HasHash interface {

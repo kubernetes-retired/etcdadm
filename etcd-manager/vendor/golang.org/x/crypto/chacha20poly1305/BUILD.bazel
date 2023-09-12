@@ -1,0 +1,26 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "chacha20poly1305",
+    srcs = [
+        "chacha20poly1305.go",
+        "chacha20poly1305_amd64.go",
+        "chacha20poly1305_amd64.s",
+        "chacha20poly1305_generic.go",
+        "chacha20poly1305_noasm.go",
+        "xchacha20poly1305.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/crypto/chacha20poly1305",
+    importpath = "golang.org/x/crypto/chacha20poly1305",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/golang.org/x/crypto/chacha20",
+        "//vendor/golang.org/x/crypto/internal/alias",
+        "//vendor/golang.org/x/crypto/internal/poly1305",
+    ] + select({
+        "@io_bazel_rules_go//go/platform:amd64": [
+            "//vendor/golang.org/x/sys/cpu",
+        ],
+        "//conditions:default": [],
+    }),
+)

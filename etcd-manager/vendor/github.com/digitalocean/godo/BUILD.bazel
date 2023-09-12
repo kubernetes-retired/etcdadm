@@ -45,7 +45,6 @@ go_library(
         "strings.go",
         "tags.go",
         "timestamp.go",
-        "tokens.go",
         "uptime.go",
         "vpcs.go",
     ],
@@ -55,6 +54,7 @@ go_library(
     deps = [
         "//vendor/github.com/digitalocean/godo/metrics",
         "//vendor/github.com/google/go-querystring/query",
+        "//vendor/github.com/hashicorp/go-retryablehttp",
         "//vendor/golang.org/x/oauth2",
         "//vendor/golang.org/x/time/rate",
     ],

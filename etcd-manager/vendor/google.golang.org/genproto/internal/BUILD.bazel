@@ -1,0 +1,9 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "internal",
+    srcs = ["doc.go"],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/google.golang.org/genproto/internal",
+    importpath = "google.golang.org/genproto/internal",
+    visibility = ["//vendor/google.golang.org/genproto:__subpackages__"],
+)
