@@ -56,7 +56,7 @@ var versionCmd = &cobra.Command{
 			if short {
 				fmt.Println(clientVersion.GitVersion)
 			} else {
-				fmt.Println(fmt.Sprintf("%#v", clientVersion))
+				fmt.Printf("%#v\n", clientVersion)
 			}
 		case "yaml":
 			marshalled, err := yaml.Marshal(&versionInfo)
