@@ -4,6 +4,7 @@ go_library(
     name = "containers",
     srcs = [
         "doc.go",
+        "errors.go",
         "requests.go",
         "results.go",
         "urls.go",

@@ -12,9 +12,8 @@ go_library(
         "//vendor/golang.org/x/oauth2",
         "//vendor/google.golang.org/api/googleapi/transport",
         "//vendor/google.golang.org/api/internal",
+        "//vendor/google.golang.org/api/internal/cert",
         "//vendor/google.golang.org/api/option",
-        "//vendor/google.golang.org/api/transport/cert",
         "//vendor/google.golang.org/api/transport/http/internal/propagation",
-        "//vendor/google.golang.org/api/transport/internal/dca",
     ],
 )

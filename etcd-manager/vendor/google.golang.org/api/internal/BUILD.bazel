@@ -3,8 +3,10 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "internal",
     srcs = [
+        "cba.go",
         "conn_pool.go",
         "creds.go",
+        "s2a.go",
         "settings.go",
         "version.go",
     ],
@@ -12,9 +14,14 @@ go_library(
     importpath = "google.golang.org/api/internal",
     visibility = ["//vendor/google.golang.org/api:__subpackages__"],
     deps = [
+        "//vendor/cloud.google.com/go/compute/metadata",
+        "//vendor/github.com/google/s2a-go",
+        "//vendor/github.com/google/s2a-go/fallback",
         "//vendor/golang.org/x/oauth2",
         "//vendor/golang.org/x/oauth2/google",
+        "//vendor/google.golang.org/api/internal/cert",
         "//vendor/google.golang.org/api/internal/impersonate",
         "//vendor/google.golang.org/grpc",
+        "//vendor/google.golang.org/grpc/credentials",
     ],
 )

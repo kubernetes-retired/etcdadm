@@ -18,6 +18,7 @@ package commands
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -57,6 +58,8 @@ func (c *vfsCommand) Data() protoetcd.Command {
 }
 
 func (s *vfsStore) AddCommand(cmd *protoetcd.Command) error {
+	ctx := context.TODO()
+
 	sequence := "000000"
 	now := time.Now()
 
@@ -73,7 +76,7 @@ func (s *vfsStore) AddCommand(cmd *protoetcd.Command) error {
 
 		p := s.commandsBase.Join(name, CommandFilename)
 		klog.Infof("Adding command at %s: %v", p, cmd)
-		if err := p.WriteFile(bytes.NewReader([]byte(data)), nil); err != nil {
+		if err := p.WriteFile(ctx, bytes.NewReader([]byte(data)), nil); err != nil {
 			return fmt.Errorf("error writing file %q: %v", p.Path(), err)
 		}
 	}
@@ -82,6 +85,8 @@ func (s *vfsStore) AddCommand(cmd *protoetcd.Command) error {
 }
 
 func (s *vfsStore) ListCommands() ([]Command, error) {
+	ctx := context.TODO()
+
 	files, err := s.commandsBase.ReadTree()
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -96,7 +101,7 @@ func (s *vfsStore) ListCommands() ([]Command, error) {
 			continue
 		}
 
-		data, err := f.ReadFile()
+		data, err := f.ReadFile(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("error reading %s: %v", f, err)
 		}
@@ -133,8 +138,10 @@ func (s *vfsStore) RemoveCommand(command Command) error {
 }
 
 func (s *vfsStore) GetExpectedClusterSpec() (*protoetcd.ClusterSpec, error) {
+	ctx := context.TODO()
+
 	p := s.commandsBase.Join(EtcdClusterSpec)
-	data, err := p.ReadFile()
+	data, err := p.ReadFile(ctx)
 	if err != nil {
 		if os.IsNotExist(err) {
 			// TODO: On S3, loop to try to establish consistency?
@@ -152,13 +159,15 @@ func (s *vfsStore) GetExpectedClusterSpec() (*protoetcd.ClusterSpec, error) {
 }
 
 func (s *vfsStore) SetExpectedClusterSpec(spec *protoetcd.ClusterSpec) error {
+	ctx := context.TODO()
+
 	data, err := protoetcd.ToJson(spec)
 	if err != nil {
 		return fmt.Errorf("error serializing cluster spec: %v", err)
 	}
 
 	p := s.commandsBase.Join(EtcdClusterSpec)
-	if err := p.WriteFile(bytes.NewReader([]byte(data)), nil); err != nil {
+	if err := p.WriteFile(ctx, bytes.NewReader([]byte(data)), nil); err != nil {
 		return fmt.Errorf("error writing cluster spec file %s: %v", p.Path(), err)
 	}
 
@@ -166,10 +175,12 @@ func (s *vfsStore) SetExpectedClusterSpec(spec *protoetcd.ClusterSpec) error {
 }
 
 func (s *vfsStore) IsNewCluster() (bool, error) {
+	ctx := context.TODO()
+
 	p := s.commandsBase.Join(EtcdClusterCreated)
 
 	// Note that we use ReadFile so that we use a GET on S3, which is more consistent
-	data, err := p.ReadFile()
+	data, err := p.ReadFile(ctx)
 	if err != nil {
 		if os.IsNotExist(err) {
 			// TODO: On S3, loop to try to establish consistency?
@@ -188,6 +199,8 @@ type etcdClusterCreated struct {
 }
 
 func (s *vfsStore) MarkClusterCreated() error {
+	ctx := context.TODO()
+
 	d := &etcdClusterCreated{
 		Timestamp: time.Now().UnixNano(),
 	}
@@ -198,7 +211,7 @@ func (s *vfsStore) MarkClusterCreated() error {
 	}
 
 	p := s.commandsBase.Join(EtcdClusterCreated)
-	if err := p.WriteFile(bytes.NewReader([]byte(data)), nil); err != nil {
+	if err := p.WriteFile(ctx, bytes.NewReader([]byte(data)), nil); err != nil {
 		return fmt.Errorf("error creating cluster-creation marker file %s: %v", p.Path(), err)
 	}
 	return nil

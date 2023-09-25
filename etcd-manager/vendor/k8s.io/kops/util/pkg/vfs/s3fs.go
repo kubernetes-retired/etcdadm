@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -37,11 +38,10 @@ import (
 )
 
 type S3Path struct {
-	s3Context     *S3Context
-	bucket        string
-	bucketDetails *S3BucketDetails
-	key           string
-	etag          *string
+	s3Context *S3Context
+	bucket    string
+	key       string
+	etag      *string
 
 	// scheme is configurable in case an S3 compatible custom
 	// endpoint is specified
@@ -90,23 +90,6 @@ func (p *S3Path) String() string {
 	return p.Path()
 }
 
-// TerraformProvider returns the provider name and necessary arguments
-func (p *S3Path) TerraformProvider() (*TerraformProvider, error) {
-	ctx := context.TODO()
-
-	if err := p.ensureBucketDetails(ctx); err != nil {
-		return nil, err
-	}
-
-	provider := &TerraformProvider{
-		Name: "aws",
-		Arguments: map[string]string{
-			"region": p.bucketDetails.region,
-		},
-	}
-	return provider, nil
-}
-
 func (p *S3Path) Remove() error {
 	ctx := context.TODO()
 
@@ -126,6 +109,57 @@ func (p *S3Path) Remove() error {
 		// TODO: Check for not-exists, return os.NotExist
 
 		return fmt.Errorf("error deleting %s: %v", p, err)
+	}
+
+	return nil
+}
+
+func (p *S3Path) RemoveAll() error {
+	ctx := context.TODO()
+
+	client, err := p.client(ctx)
+	if err != nil {
+		return err
+	}
+
+	tree, err := p.ReadTree()
+	if err != nil {
+		return err
+	}
+
+	objects := make([]*s3.ObjectIdentifier, len(tree))
+	for i := range tree {
+		s3Object, isS3Object := tree[i].(*S3Path)
+		if !isS3Object {
+			return fmt.Errorf("invalid path in s3fs tree: %s", tree[i].Path())
+		}
+
+		objects[i] = &s3.ObjectIdentifier{
+			Key: aws.String(s3Object.key),
+		}
+	}
+
+	klog.V(8).Infof("removing all file in %s", p)
+
+	request := &s3.DeleteObjectsInput{
+		Bucket: aws.String(p.bucket),
+		Delete: &s3.Delete{},
+	}
+
+	for len(objects) > 0 {
+		// DeleteObjects can only process 1000 objects per call
+		if len(objects) > 1000 {
+			request.Delete.Objects = objects[:1000]
+			objects = objects[1000:]
+		} else {
+			request.Delete.Objects = objects
+			objects = nil
+		}
+
+		_, err = client.DeleteObjectsWithContext(ctx, request)
+		if err != nil {
+			return fmt.Errorf("error removing %d files: %w", len(request.Delete.Objects), err)
+		}
 	}
 
 	return nil
@@ -225,11 +259,11 @@ func (p *S3Path) getServerSideEncryption(ctx context.Context) (sse *string, sseL
 	// standard.
 	sseLog = "-"
 	if p.sse {
-		err := p.ensureBucketDetails(ctx)
+		bucketDetails, err := p.getBucketDetails(ctx)
 		if err != nil {
 			return nil, "", err
 		}
-		defaultEncryption := p.bucketDetails.hasServerSideEncryptionByDefault(ctx)
+		defaultEncryption := bucketDetails.hasServerSideEncryptionByDefault(ctx)
 		if defaultEncryption {
 			sseLog = "DefaultBucketEncryption"
 		} else {
@@ -257,8 +291,7 @@ func (p *S3Path) getRequestACL(aclObj ACL) (*string, error) {
 	return nil, nil
 }
 
-func (p *S3Path) WriteFile(data io.ReadSeeker, aclObj ACL) error {
-	ctx := context.TODO()
+func (p *S3Path) WriteFile(ctx context.Context, data io.ReadSeeker, aclObj ACL) error {
 	client, err := p.client(ctx)
 	if err != nil {
 		return err
@@ -300,12 +333,12 @@ func (p *S3Path) WriteFile(data io.ReadSeeker, aclObj ACL) error {
 // TODO: should we enable versioning?
 var createFileLockS3 sync.Mutex
 
-func (p *S3Path) CreateFile(data io.ReadSeeker, acl ACL) error {
+func (p *S3Path) CreateFile(ctx context.Context, data io.ReadSeeker, acl ACL) error {
 	createFileLockS3.Lock()
 	defer createFileLockS3.Unlock()
 
 	// Check if exists
-	_, err := p.ReadFile()
+	_, err := p.ReadFile(ctx)
 	if err == nil {
 		return os.ErrExist
 	}
@@ -314,11 +347,11 @@ func (p *S3Path) CreateFile(data io.ReadSeeker, acl ACL) error {
 		return err
 	}
 
-	return p.WriteFile(data, acl)
+	return p.WriteFile(ctx, data, acl)
 }
 
 // ReadFile implements Path::ReadFile
-func (p *S3Path) ReadFile() ([]byte, error) {
+func (p *S3Path) ReadFile(ctx context.Context) ([]byte, error) {
 	var b bytes.Buffer
 	_, err := p.WriteTo(&b)
 	if err != nil {
@@ -443,26 +476,22 @@ func (p *S3Path) ReadTree() ([]Path, error) {
 	return paths, nil
 }
 
-func (p *S3Path) ensureBucketDetails(ctx context.Context) error {
-	if p.bucketDetails == nil || p.bucketDetails.region == "" {
-		bucketDetails, err := p.s3Context.getDetailsForBucket(ctx, p.bucket)
-
-		p.bucketDetails = bucketDetails
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (p *S3Path) client(ctx context.Context) (*s3.S3, error) {
-	err := p.ensureBucketDetails(ctx)
+func (p *S3Path) getBucketDetails(ctx context.Context) (*S3BucketDetails, error) {
+	bucketDetails, err := p.s3Context.getDetailsForBucket(ctx, p.bucket)
 	if err != nil {
 		return nil, err
 	}
 
-	client, err := p.s3Context.getClient(p.bucketDetails.region)
+	return bucketDetails, nil
+}
+
+func (p *S3Path) client(ctx context.Context) (*s3.S3, error) {
+	bucketDetails, err := p.getBucketDetails(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := p.s3Context.getClient(bucketDetails.region)
 	if err != nil {
 		return nil, err
 	}
@@ -500,18 +529,16 @@ func (p *S3Path) Hash(a hashing.HashAlgorithm) (*hashing.Hash, error) {
 func (p *S3Path) GetHTTPsUrl(dualstack bool) (string, error) {
 	ctx := context.TODO()
 
-	if p.bucketDetails == nil {
-		bucketDetails, err := p.s3Context.getDetailsForBucket(ctx, p.bucket)
-		if err != nil {
-			return "", fmt.Errorf("failed to get bucket details for %q: %w", p.String(), err)
-		}
-		p.bucketDetails = bucketDetails
+	bucketDetails, err := p.getBucketDetails(ctx)
+	if err != nil {
+		return "", fmt.Errorf("failed to get bucket details for %q: %w", p.String(), err)
 	}
+
 	var url string
 	if dualstack {
-		url = fmt.Sprintf("https://s3.dualstack.%s.amazonaws.com/%s/%s", p.bucketDetails.region, p.bucketDetails.name, p.Key())
+		url = fmt.Sprintf("https://s3.dualstack.%s.amazonaws.com/%s/%s", bucketDetails.region, bucketDetails.name, p.Key())
 	} else {
-		url = fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", p.bucketDetails.name, p.bucketDetails.region, p.Key())
+		url = fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", bucketDetails.name, bucketDetails.region, p.Key())
 	}
 	return strings.TrimSuffix(url, "/"), nil
 }
@@ -604,6 +631,13 @@ type terraformS3File struct {
 	Provider *terraformWriter.Literal `json:"provider,omitempty" cty:"provider"`
 }
 
+type terraformDOFile struct {
+	Bucket  string                   `json:"bucket" cty:"bucket"`
+	Region  string                   `json:"region" cty:"region"`
+	Key     string                   `json:"key" cty:"key"`
+	Content *terraformWriter.Literal `json:"content,omitempty" cty:"content"`
+}
+
 func (p *S3Path) RenderTerraform(w *terraformWriter.TerraformWriter, name string, data io.Reader, acl ACL) error {
 	ctx := context.TODO()
 
@@ -612,30 +646,66 @@ func (p *S3Path) RenderTerraform(w *terraformWriter.TerraformWriter, name string
 		return fmt.Errorf("reading data: %v", err)
 	}
 
-	content, err := w.AddFileBytes("aws_s3_object", name, "content", bytes, false)
-	if err != nil {
-		return fmt.Errorf("rendering S3 file: %v", err)
+	// render DO's terraform
+	if p.scheme == "do" {
+
+		content, err := w.AddFileBytes("digitalocean_spaces_bucket_object", name, "content", bytes, false)
+		if err != nil {
+			return fmt.Errorf("error rendering DO file: %w", err)
+		}
+
+		// retrieve space region from endpoint
+		endpoint := os.Getenv("S3_ENDPOINT")
+		if endpoint == "" {
+			return errors.New("S3 Endpoint is empty")
+		}
+		region := strings.Split(endpoint, ".")[0]
+
+		tf := &terraformDOFile{
+			Bucket:  p.Bucket(),
+			Region:  region,
+			Key:     p.Key(),
+			Content: content,
+		}
+		return w.RenderResource("digitalocean_spaces_bucket_object", name, tf)
+
+	} else {
+		bucketDetails, err := p.getBucketDetails(ctx)
+		if err != nil {
+			return err
+		}
+
+		tfProviderArguments := map[string]string{
+			"region": bucketDetails.region,
+		}
+		w.EnsureTerraformProvider("aws", tfProviderArguments)
+
+		content, err := w.AddFileBytes("aws_s3_object", name, "content", bytes, false)
+		if err != nil {
+			return fmt.Errorf("rendering S3 file: %v", err)
+		}
+
+		sse, _, err := p.getServerSideEncryption(ctx)
+		if err != nil {
+			return err
+		}
+
+		requestACL, err := p.getRequestACL(acl)
+		if err != nil {
+			return err
+		}
+
+		tf := &terraformS3File{
+			Bucket:   p.Bucket(),
+			Key:      p.Key(),
+			Content:  content,
+			SSE:      sse,
+			Acl:      requestACL,
+			Provider: terraformWriter.LiteralTokens("aws", "files"),
+		}
+		return w.RenderResource("aws_s3_object", name, tf)
 	}
 
-	sse, _, err := p.getServerSideEncryption(ctx)
-	if err != nil {
-		return err
-	}
-
-	requestACL, err := p.getRequestACL(acl)
-	if err != nil {
-		return err
-	}
-
-	tf := &terraformS3File{
-		Bucket:   p.Bucket(),
-		Key:      p.Key(),
-		Content:  content,
-		SSE:      sse,
-		Acl:      requestACL,
-		Provider: terraformWriter.LiteralTokens("aws", "files"),
-	}
-	return w.RenderResource("aws_s3_object", name, tf)
 }
 
 // AWSErrorCode returns the aws error code, if it is an awserr.Error, otherwise ""

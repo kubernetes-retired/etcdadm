@@ -18,6 +18,7 @@ package backup
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os"
 	"path"
@@ -46,6 +47,8 @@ type vfsStore struct {
 var _ Store = &vfsStore{}
 
 func (s *vfsStore) AddBackup(srcFile string, sequence string, info *etcd.BackupInfo) (string, error) {
+	ctx := context.TODO()
+
 	now := time.Now()
 
 	if info.Timestamp == 0 {
@@ -63,7 +66,7 @@ func (s *vfsStore) AddBackup(srcFile string, sequence string, info *etcd.BackupI
 		defer f.Close()
 
 		destPath := s.backupsBase.Join(name).Join(DataFilename)
-		err = destPath.WriteFile(f, nil)
+		err = destPath.WriteFile(ctx, f, nil)
 		if err != nil {
 			return "", fmt.Errorf("error copying %q to %q: %v", srcFile, destPath, err)
 		}
@@ -78,7 +81,7 @@ func (s *vfsStore) AddBackup(srcFile string, sequence string, info *etcd.BackupI
 			return "", fmt.Errorf("error marshalling state: %v", err)
 		}
 
-		err = p.WriteFile(bytes.NewReader([]byte(data)), nil)
+		err = p.WriteFile(ctx, bytes.NewReader([]byte(data)), nil)
 		if err != nil {
 			return "", fmt.Errorf("error writing file %q: %v", p, err)
 		}
@@ -140,9 +143,11 @@ func (s *vfsStore) RemoveBackup(backup string) error {
 func (s *vfsStore) LoadInfo(name string) (*etcd.BackupInfo, error) {
 	klog.Infof("Loading info for backup %q", name)
 
+	ctx := context.TODO()
+
 	p := s.backupsBase.Join(name, MetaFilename)
 
-	data, err := p.ReadFile()
+	data, err := p.ReadFile(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error reading file %q: %v", p, err)
 	}

@@ -18,6 +18,7 @@ package vfs
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"path"
@@ -70,6 +71,10 @@ func (p *KubernetesPath) Remove() error {
 	return fmt.Errorf("KubernetesPath::Remove not supported")
 }
 
+func (p *KubernetesPath) RemoveAll() error {
+	return fmt.Errorf("KubernetesPath::RemoveAll not supported")
+}
+
 func (p *KubernetesPath) RemoveAllVersions() error {
 	return p.Remove()
 }
@@ -85,16 +90,16 @@ func (p *KubernetesPath) Join(relativePath ...string) Path {
 	}
 }
 
-func (p *KubernetesPath) WriteFile(data io.ReadSeeker, acl ACL) error {
+func (p *KubernetesPath) WriteFile(ctx context.Context, data io.ReadSeeker, acl ACL) error {
 	return fmt.Errorf("KubernetesPath::WriteFile not supported")
 }
 
-func (p *KubernetesPath) CreateFile(data io.ReadSeeker, acl ACL) error {
+func (p *KubernetesPath) CreateFile(ctx context.Context, data io.ReadSeeker, acl ACL) error {
 	return fmt.Errorf("KubernetesPath::CreateFile not supported")
 }
 
 // ReadFile implements Path::ReadFile
-func (p *KubernetesPath) ReadFile() ([]byte, error) {
+func (p *KubernetesPath) ReadFile(ctx context.Context) ([]byte, error) {
 	var b bytes.Buffer
 	_, err := p.WriteTo(&b)
 	if err != nil {

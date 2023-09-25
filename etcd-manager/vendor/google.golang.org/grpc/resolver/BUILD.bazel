@@ -12,7 +12,6 @@ go_library(
     deps = [
         "//vendor/google.golang.org/grpc/attributes",
         "//vendor/google.golang.org/grpc/credentials",
-        "//vendor/google.golang.org/grpc/internal/pretty",
         "//vendor/google.golang.org/grpc/serviceconfig",
     ],
 )

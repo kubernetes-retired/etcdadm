@@ -1,0 +1,20 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "handshaker",
+    srcs = ["handshaker.go"],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/google/s2a-go/internal/handshaker",
+    importpath = "github.com/google/s2a-go/internal/handshaker",
+    visibility = ["//vendor/github.com/google/s2a-go:__subpackages__"],
+    deps = [
+        "//vendor/github.com/google/s2a-go/internal/authinfo",
+        "//vendor/github.com/google/s2a-go/internal/proto/common_go_proto",
+        "//vendor/github.com/google/s2a-go/internal/proto/s2a_go_proto",
+        "//vendor/github.com/google/s2a-go/internal/record",
+        "//vendor/github.com/google/s2a-go/internal/tokenmanager",
+        "//vendor/google.golang.org/grpc",
+        "//vendor/google.golang.org/grpc/codes",
+        "//vendor/google.golang.org/grpc/credentials",
+        "//vendor/google.golang.org/grpc/grpclog",
+    ],
+)

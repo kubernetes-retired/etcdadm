@@ -17,6 +17,7 @@ limitations under the License.
 package vfs
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -104,7 +105,7 @@ func (p *MemFSPath) Join(relativePath ...string) Path {
 	return current
 }
 
-func (p *MemFSPath) WriteFile(r io.ReadSeeker, acl ACL) error {
+func (p *MemFSPath) WriteFile(ctx context.Context, r io.ReadSeeker, acl ACL) error {
 	data, err := io.ReadAll(r)
 	if err != nil {
 		return fmt.Errorf("error reading data: %v", err)
@@ -114,17 +115,17 @@ func (p *MemFSPath) WriteFile(r io.ReadSeeker, acl ACL) error {
 	return nil
 }
 
-func (p *MemFSPath) CreateFile(data io.ReadSeeker, acl ACL) error {
+func (p *MemFSPath) CreateFile(ctx context.Context, data io.ReadSeeker, acl ACL) error {
 	// Check if exists
 	if p.contents != nil {
 		return os.ErrExist
 	}
 
-	return p.WriteFile(data, acl)
+	return p.WriteFile(ctx, data, acl)
 }
 
 // ReadFile implements Path::ReadFile
-func (p *MemFSPath) ReadFile() ([]byte, error) {
+func (p *MemFSPath) ReadFile(ctx context.Context) ([]byte, error) {
 	if p.contents == nil {
 		return nil, os.ErrNotExist
 	}
@@ -187,6 +188,22 @@ func (p *MemFSPath) Remove() error {
 	return nil
 }
 
+func (p *MemFSPath) RemoveAll() error {
+	tree, err := p.ReadTree()
+	if err != nil {
+		return err
+	}
+
+	for _, filePath := range tree {
+		err := filePath.Remove()
+		if err != nil {
+			return fmt.Errorf("error removing file %s: %w", filePath, err)
+		}
+	}
+
+	return nil
+}
+
 func (p *MemFSPath) RemoveAllVersions() error {
 	return p.Remove()
 }
@@ -210,17 +227,6 @@ func (p *MemFSPath) IsPublic() (bool, error) {
 	return isPublic, nil
 }
 
-// Terraform support for integration tests.
-
-func (p *MemFSPath) TerraformProvider() (*TerraformProvider, error) {
-	return &TerraformProvider{
-		Name: "aws",
-		Arguments: map[string]string{
-			"region": "us-test-1",
-		},
-	}, nil
-}
-
 type terraformMemFSFile struct {
 	Bucket   string                   `json:"bucket" cty:"bucket"`
 	Key      string                   `json:"key" cty:"key"`
@@ -235,6 +241,11 @@ func (p *MemFSPath) RenderTerraform(w *terraformWriter.TerraformWriter, name str
 	if err != nil {
 		return fmt.Errorf("reading data: %v", err)
 	}
+
+	tfProviderArguments := map[string]string{
+		"region": "us-test-1",
+	}
+	w.EnsureTerraformProvider("aws", tfProviderArguments)
 
 	content, err := w.AddFileBytes("aws_s3_object", name, "content", bytes, false)
 	if err != nil {

@@ -15,10 +15,12 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//vendor/github.com/googleapis/gax-go/v2/apierror",
+        "//vendor/github.com/googleapis/gax-go/v2/callctx",
         "//vendor/github.com/googleapis/gax-go/v2/internal",
         "//vendor/google.golang.org/api/googleapi",
         "//vendor/google.golang.org/grpc",
         "//vendor/google.golang.org/grpc/codes",
+        "//vendor/google.golang.org/grpc/metadata",
         "//vendor/google.golang.org/grpc/status",
         "//vendor/google.golang.org/protobuf/encoding/protojson",
         "//vendor/google.golang.org/protobuf/proto",

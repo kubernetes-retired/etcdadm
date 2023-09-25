@@ -1,0 +1,21 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "record",
+    srcs = [
+        "record.go",
+        "ticketsender.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/google/s2a-go/internal/record",
+    importpath = "github.com/google/s2a-go/internal/record",
+    visibility = ["//vendor/github.com/google/s2a-go:__subpackages__"],
+    deps = [
+        "//vendor/github.com/google/s2a-go/internal/handshaker/service",
+        "//vendor/github.com/google/s2a-go/internal/proto/common_go_proto",
+        "//vendor/github.com/google/s2a-go/internal/proto/s2a_go_proto",
+        "//vendor/github.com/google/s2a-go/internal/record/internal/halfconn",
+        "//vendor/github.com/google/s2a-go/internal/tokenmanager",
+        "//vendor/google.golang.org/grpc/codes",
+        "//vendor/google.golang.org/grpc/grpclog",
+    ],
+)

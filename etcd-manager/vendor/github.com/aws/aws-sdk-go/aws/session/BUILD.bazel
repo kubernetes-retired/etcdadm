@@ -31,6 +31,7 @@ go_library(
         "//vendor/github.com/aws/aws-sdk-go/aws/request",
         "//vendor/github.com/aws/aws-sdk-go/internal/ini",
         "//vendor/github.com/aws/aws-sdk-go/internal/shareddefaults",
+        "//vendor/github.com/aws/aws-sdk-go/service/ssooidc",
         "//vendor/github.com/aws/aws-sdk-go/service/sts",
     ],
 )

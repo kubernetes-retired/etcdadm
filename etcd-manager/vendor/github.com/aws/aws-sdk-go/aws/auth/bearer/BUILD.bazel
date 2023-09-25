@@ -1,0 +1,10 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "bearer",
+    srcs = ["token.go"],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/aws/aws-sdk-go/aws/auth/bearer",
+    importpath = "github.com/aws/aws-sdk-go/aws/auth/bearer",
+    visibility = ["//visibility:public"],
+    deps = ["//vendor/github.com/aws/aws-sdk-go/aws"],
+)

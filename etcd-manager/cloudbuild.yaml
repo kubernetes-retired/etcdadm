@@ -1,15 +1,15 @@
 steps:
-- name: gcr.io/bazel-public/bazel:5.4.0
+- name: gcr.io/bazel-public/bazel:6.3.2
   entrypoint: bazel
   args: ['version']
 
-- name: gcr.io/bazel-public/bazel:5.4.0
+- name: gcr.io/bazel-public/bazel:6.3.2
   entrypoint: bazel
   args: ['build', '//cmd/...', '//images:etcd-manager', '//images:etcd-manager-slim', '//images:etcd-backup', '//images:etcd-dump']
   # To build with GCS cache
   #args: ['build', '--google_default_credentials', '--spawn_strategy=remote', '--genrule_strategy=remote', '--strategy=Javac=remote', '--strategy=Closure=remote', '--remote_http_cache=https://storage.googleapis.com/cache-bucket', '//cmd/...']
 
-- name: gcr.io/bazel-public/bazel:5.4.0
+- name: gcr.io/bazel-public/bazel:6.3.2
   entrypoint: bazel
   args: ['test', '//test/...', '--test_output=streamed', '--local_test_jobs=1']
 
