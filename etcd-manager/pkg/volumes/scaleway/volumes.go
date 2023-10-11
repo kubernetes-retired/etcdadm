@@ -21,6 +21,7 @@ import (
 	"os"
 
 	"github.com/scaleway/scaleway-sdk-go/api/instance/v1"
+	ipam "github.com/scaleway/scaleway-sdk-go/api/ipam/v1alpha1"
 	"github.com/scaleway/scaleway-sdk-go/scw"
 	"k8s.io/klog/v2"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/volumes"
@@ -208,11 +209,12 @@ func (a *Volumes) AttachVolume(volume *volumes.Volume) error {
 
 // MyIP returns the first private IP of the running server if successful.
 func (a *Volumes) MyIP() (string, error) {
-	if a.server.PrivateIP == nil || *a.server.PrivateIP == "" {
-		return "", fmt.Errorf("failed to find private IP of server %s", a.server.ID)
+	ip, err := a.getServerIP(a.server.ID)
+	if err != nil {
+		return "", fmt.Errorf("getting IP for server %s: %w", a.server.ID, err)
 	}
-	klog.V(2).Infof("Found first private IP of the running server: %s", *a.server.PrivateIP)
-	return *a.server.PrivateIP, nil
+	klog.V(2).Infof("Found first private IP of the running server: %s", ip)
+	return ip, nil
 }
 
 // getMatchingVolumes returns all the volumes matching matchTags if successful.
@@ -226,4 +228,26 @@ func getMatchingVolumes(instanceAPI *instance.API, zone scw.Zone, matchTags []st
 	}
 	klog.V(6).Infof("Got %d matching volumes", matchingVolumes.TotalCount)
 	return matchingVolumes.Volumes, nil
+}
+
+func (a *Volumes) getServerIP(serverID string) (string, error) {
+	region, err := a.zone.Region()
+	if err != nil {
+		return "", fmt.Errorf("unable to parse Scaleway region: %w", err)
+	}
+
+	ips, err := ipam.NewAPI(a.scwClient).ListIPs(&ipam.ListIPsRequest{
+		Region:     region,
+		ResourceID: scw.StringPtr(serverID),
+		IsIPv6:     scw.BoolPtr(false),
+		Zonal:      scw.StringPtr(a.server.Zone.String()),
+	}, scw.WithAllPages())
+	if err != nil {
+		return "", fmt.Errorf("listing server's IPs: %w", err)
+	}
+
+	if ips.TotalCount < 1 {
+		return "", fmt.Errorf("expected at least 1 IP attached to the server")
+	}
+	return ips.IPs[0].Address.IP.String(), nil
 }

@@ -1,0 +1,16 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "v1alpha1",
+    srcs = ["ipam_sdk.go"],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/scaleway/scaleway-sdk-go/api/ipam/v1alpha1",
+    importpath = "github.com/scaleway/scaleway-sdk-go/api/ipam/v1alpha1",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/scaleway/scaleway-sdk-go/internal/errors",
+        "//vendor/github.com/scaleway/scaleway-sdk-go/internal/marshaler",
+        "//vendor/github.com/scaleway/scaleway-sdk-go/internal/parameter",
+        "//vendor/github.com/scaleway/scaleway-sdk-go/namegenerator",
+        "//vendor/github.com/scaleway/scaleway-sdk-go/scw",
+    ],
+)

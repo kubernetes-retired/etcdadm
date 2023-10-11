@@ -19,7 +19,6 @@ package scaleway
 import (
 	"fmt"
 
-	"github.com/scaleway/scaleway-sdk-go/api/instance/v1"
 	"k8s.io/klog/v2"
 	"sigs.k8s.io/etcdadm/etcd-manager/pkg/privateapi/discovery"
 )
@@ -44,25 +43,16 @@ func (a *Volumes) Poll() (map[string]discovery.Node, error) {
 		}
 		serverID := volume.Server.ID
 
-		server, err := a.instanceAPI.GetServer(&instance.GetServerRequest{
-			ServerID: serverID,
-			Zone:     a.zone,
-		})
-		if err != nil || server == nil {
-			return nil, fmt.Errorf("failed to get the running server: %w", err)
+		ip, err := a.getServerIP(serverID)
+		if err != nil {
+			return nil, fmt.Errorf("getting IP for server %s: %w", serverID, err)
 		}
-		klog.V(2).Infof("Found the running server: %q", server.Server.Name)
 
-		if server.Server.PrivateIP == nil || *server.Server.PrivateIP == "" {
-			return nil, fmt.Errorf("failed to find private IP of server %s: ", serverID)
-		}
-		serverPrivateIP := server.Server.PrivateIP
-
-		klog.V(2).Infof("Discovered volume %s(%s) of type %s attached to server %s(%s)", volume.Name, volume.ID, volume.VolumeType, server.Server.Name, serverID)
+		klog.V(2).Infof("Discovered volume %s(%s) of type %s attached to server %s", volume.Name, volume.ID, volume.VolumeType, serverID)
 		// We use the etcd node ID as the persistent identifier, because the data determines who we are
 		node := discovery.Node{
 			ID:        "vol-" + volume.ID,
-			Endpoints: []discovery.NodeEndpoint{{IP: *serverPrivateIP}},
+			Endpoints: []discovery.NodeEndpoint{{IP: ip}},
 		}
 		peers[node.ID] = node
 	}
