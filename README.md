@@ -35,10 +35,11 @@ For major project goals, see the [roadmap](ROADMAP.md)
    ```
    make container-build
    ```
-   `GOPROXY` env will be inherited:
+    _If you are in a country/region where Internet access is restricted and you cannot download Go dependencies successfully, `make` with the `GOPROXY` environment variable set to a third party you trust, for example:_
    ```
    GOPROXY=https://goproxy.io make container-build
    ```
+   _`goproxy.io` is not endorsed specifically by the project._
 
 ### Creating a new cluster
 
