@@ -37,7 +37,7 @@ For major project goals, see the [roadmap](ROADMAP.md)
    ```
    `GOPROXY` env will be inherited:
    ```
-   GOPROXY=https://goproxy.io make container-build
+   GOPROXY=${YOUR_GOPROXY_URL} make container-build
    ```
 
 ### Creating a new cluster
