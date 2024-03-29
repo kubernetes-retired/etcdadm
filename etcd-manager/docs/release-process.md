@@ -42,28 +42,6 @@ It (currently) takes about 10 minutes to run.
 
 In the meantime, you can compile the release notes...
 
-## Compile release notes
-
-e.g.
-
-```
-git checkout -b relnotes_${VERSION}
-
-PREVIOUS_TAG=`git tag -l | grep etcd-manager/v | tail -n2 | head -n1 | sed -e s@etcd-manager/v@@g`
-LATEST_TAG=`git tag -l | grep etcd-manager/v | tail -n1 | sed -e s@etcd-manager/v@@g`
-git log etcd-manager/v${PREVIOUS_TAG}..etcd-manager/v${LATEST_TAG} --oneline | grep Merge.pull | grep -v Revert..Merge.pull | cut -f 5 -d ' ' | tac  > /tmp/prs
-echo -e "\n# ${LATEST_TAG}\n"  >> etcd-manager/docs/releases/3.0.md
-relnotes  -config etcd-manager/.shipbot.yaml  < /tmp/prs  >> etcd-manager/docs/releases/3.0.md
-```
-
-Review then send a PR with the release notes:
-
-```
-git add -p etcd-manager/docs/releases/3.0.md
-git commit -m "Release notes for etcd-manager ${VERSION}"
-gh pr create --fill
-```
-
 ## Propose promotion of artifacts
 
 The following tool is a prerequisite:
@@ -84,8 +62,8 @@ git checkout main
 git pull
 git checkout -b etcdadm_images_${VERSION}
 
-echo "# ${VERSION}" >> k8s.gcr.io/images/k8s-staging-etcdadm/images.yaml
-kpromo cip --snapshot gcr.io/k8s-staging-etcdadm --snapshot-tag "v${VERSION}" >> k8s.gcr.io/images/k8s-staging-etcdadm/images.yaml
+echo "# ${VERSION}" >> registry.k8s.io/images/k8s-staging-etcdadm/images.yaml
+kpromo cip --snapshot gcr.io/k8s-staging-etcdadm --snapshot-tag "v${VERSION}" >> registry.k8s.io/images/k8s-staging-etcdadm/images.yaml
 ```
 
 You can dry-run the promotion with
@@ -97,7 +75,7 @@ kpromo cip --thin-manifest-dir k8s.gcr.io
 Send the image promotion PR:
 
 ```
-git add -p k8s.gcr.io/images/k8s-staging-etcdadm/images.yaml
+git add -p registry.k8s.io/images/k8s-staging-etcdadm/images.yaml
 git commit -m "Promote etcdadm ${VERSION} images"
 gh pr create --fill --base main --repo kubernetes/k8s.io
 ```
