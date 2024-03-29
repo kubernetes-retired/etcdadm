@@ -12,6 +12,7 @@ go_library(
     importpath = "google.golang.org/protobuf/encoding/protojson",
     visibility = ["//visibility:public"],
     deps = [
+        "//vendor/google.golang.org/protobuf/encoding/protowire",
         "//vendor/google.golang.org/protobuf/internal/encoding/json",
         "//vendor/google.golang.org/protobuf/internal/encoding/messageset",
         "//vendor/google.golang.org/protobuf/internal/errors",

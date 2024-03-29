@@ -2,7 +2,11 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "serialize",
-    srcs = ["keyvalues.go"],
+    srcs = [
+        "keyvalues.go",
+        "keyvalues_no_slog.go",
+        "keyvalues_slog.go",
+    ],
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/k8s.io/klog/v2/internal/serialize",
     importpath = "k8s.io/klog/v2/internal/serialize",
     visibility = ["//vendor/k8s.io/klog/v2:__subpackages__"],

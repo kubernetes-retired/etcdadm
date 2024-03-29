@@ -1,0 +1,22 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "externalaccount",
+    srcs = [
+        "aws.go",
+        "basecredentials.go",
+        "executablecredsource.go",
+        "filecredsource.go",
+        "header.go",
+        "programmaticrefreshcredsource.go",
+        "urlcredsource.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/golang.org/x/oauth2/google/externalaccount",
+    importpath = "golang.org/x/oauth2/google/externalaccount",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/golang.org/x/oauth2",
+        "//vendor/golang.org/x/oauth2/google/internal/impersonate",
+        "//vendor/golang.org/x/oauth2/google/internal/stsexchange",
+    ],
+)

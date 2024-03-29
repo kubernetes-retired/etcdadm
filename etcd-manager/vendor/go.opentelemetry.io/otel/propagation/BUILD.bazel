@@ -1,0 +1,18 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "propagation",
+    srcs = [
+        "baggage.go",
+        "doc.go",
+        "propagation.go",
+        "trace_context.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/go.opentelemetry.io/otel/propagation",
+    importpath = "go.opentelemetry.io/otel/propagation",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/go.opentelemetry.io/otel/baggage",
+        "//vendor/go.opentelemetry.io/otel/trace",
+    ],
+)

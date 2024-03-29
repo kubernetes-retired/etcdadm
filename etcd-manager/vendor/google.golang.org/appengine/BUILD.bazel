@@ -15,7 +15,6 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//vendor/github.com/golang/protobuf/proto",
-        "//vendor/golang.org/x/net/context",
         "//vendor/google.golang.org/appengine/internal",
         "//vendor/google.golang.org/appengine/internal/app_identity",
         "//vendor/google.golang.org/appengine/internal/modules",

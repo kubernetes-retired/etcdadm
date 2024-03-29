@@ -19,6 +19,7 @@ go_library(
         "//vendor/google.golang.org/grpc/connectivity",
         "//vendor/google.golang.org/grpc/credentials",
         "//vendor/google.golang.org/grpc/grpclog",
+        "//vendor/google.golang.org/grpc/internal",
     ] + select({
         "@io_bazel_rules_go//go/platform:android": [
             "//vendor/golang.org/x/sys/unix",

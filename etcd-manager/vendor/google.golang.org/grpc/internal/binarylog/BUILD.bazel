@@ -13,12 +13,13 @@ go_library(
     importpath = "google.golang.org/grpc/internal/binarylog",
     visibility = ["//vendor/google.golang.org/grpc:__subpackages__"],
     deps = [
-        "//vendor/github.com/golang/protobuf/proto",
-        "//vendor/github.com/golang/protobuf/ptypes",
         "//vendor/google.golang.org/grpc/binarylog/grpc_binarylog_v1",
         "//vendor/google.golang.org/grpc/grpclog",
         "//vendor/google.golang.org/grpc/internal/grpcutil",
         "//vendor/google.golang.org/grpc/metadata",
         "//vendor/google.golang.org/grpc/status",
+        "//vendor/google.golang.org/protobuf/proto",
+        "//vendor/google.golang.org/protobuf/types/known/durationpb",
+        "//vendor/google.golang.org/protobuf/types/known/timestamppb",
     ],
 )

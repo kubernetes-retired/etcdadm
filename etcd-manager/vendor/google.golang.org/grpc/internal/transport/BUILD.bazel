@@ -19,13 +19,12 @@ go_library(
     importpath = "google.golang.org/grpc/internal/transport",
     visibility = ["//vendor/google.golang.org/grpc:__subpackages__"],
     deps = [
-        "//vendor/github.com/golang/protobuf/proto",
         "//vendor/golang.org/x/net/http2",
         "//vendor/golang.org/x/net/http2/hpack",
-        "//vendor/google.golang.org/genproto/googleapis/rpc/status",
         "//vendor/google.golang.org/grpc/codes",
         "//vendor/google.golang.org/grpc/credentials",
         "//vendor/google.golang.org/grpc/grpclog",
+        "//vendor/google.golang.org/grpc/internal",
         "//vendor/google.golang.org/grpc/internal/channelz",
         "//vendor/google.golang.org/grpc/internal/credentials",
         "//vendor/google.golang.org/grpc/internal/grpclog",
@@ -44,5 +43,6 @@ go_library(
         "//vendor/google.golang.org/grpc/stats",
         "//vendor/google.golang.org/grpc/status",
         "//vendor/google.golang.org/grpc/tap",
+        "//vendor/google.golang.org/protobuf/proto",
     ],
 )

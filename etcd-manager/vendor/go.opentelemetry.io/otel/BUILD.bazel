@@ -1,0 +1,25 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "otel",
+    srcs = [
+        "doc.go",
+        "error_handler.go",
+        "handler.go",
+        "internal_logging.go",
+        "metric.go",
+        "propagation.go",
+        "trace.go",
+        "version.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/go.opentelemetry.io/otel",
+    importpath = "go.opentelemetry.io/otel",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/go-logr/logr",
+        "//vendor/go.opentelemetry.io/otel/internal/global",
+        "//vendor/go.opentelemetry.io/otel/metric",
+        "//vendor/go.opentelemetry.io/otel/propagation",
+        "//vendor/go.opentelemetry.io/otel/trace",
+    ],
+)

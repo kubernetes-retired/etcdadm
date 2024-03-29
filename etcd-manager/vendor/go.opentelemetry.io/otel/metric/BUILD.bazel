@@ -1,0 +1,22 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "metric",
+    srcs = [
+        "asyncfloat64.go",
+        "asyncint64.go",
+        "config.go",
+        "doc.go",
+        "instrument.go",
+        "meter.go",
+        "syncfloat64.go",
+        "syncint64.go",
+    ],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/go.opentelemetry.io/otel/metric",
+    importpath = "go.opentelemetry.io/otel/metric",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/go.opentelemetry.io/otel/attribute",
+        "//vendor/go.opentelemetry.io/otel/metric/embedded",
+    ],
+)

@@ -7,9 +7,10 @@ go_library(
     importpath = "google.golang.org/grpc/internal/status",
     visibility = ["//vendor/google.golang.org/grpc:__subpackages__"],
     deps = [
-        "//vendor/github.com/golang/protobuf/proto",
-        "//vendor/github.com/golang/protobuf/ptypes",
         "//vendor/google.golang.org/genproto/googleapis/rpc/status",
         "//vendor/google.golang.org/grpc/codes",
+        "//vendor/google.golang.org/protobuf/proto",
+        "//vendor/google.golang.org/protobuf/protoadapt",
+        "//vendor/google.golang.org/protobuf/types/known/anypb",
     ],
 )
