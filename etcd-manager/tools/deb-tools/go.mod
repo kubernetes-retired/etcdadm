@@ -1,6 +1,6 @@
 module sigs.k8s.io/etcdadm/etcd-manager/tools/deb-tools
 
-go 1.16
+go 1.21
 
 require (
 	github.com/blakesmith/ar v0.0.0-20190502131153-809d4375e1fb
