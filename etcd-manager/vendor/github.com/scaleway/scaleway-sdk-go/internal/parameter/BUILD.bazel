@@ -6,4 +6,5 @@ go_library(
     importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/github.com/scaleway/scaleway-sdk-go/internal/parameter",
     importpath = "github.com/scaleway/scaleway-sdk-go/internal/parameter",
     visibility = ["//vendor/github.com/scaleway/scaleway-sdk-go:__subpackages__"],
+    deps = ["//vendor/github.com/scaleway/scaleway-sdk-go/scw"],
 )

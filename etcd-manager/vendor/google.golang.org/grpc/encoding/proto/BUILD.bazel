@@ -7,7 +7,8 @@ go_library(
     importpath = "google.golang.org/grpc/encoding/proto",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/golang/protobuf/proto",
         "//vendor/google.golang.org/grpc/encoding",
+        "//vendor/google.golang.org/protobuf/proto",
+        "//vendor/google.golang.org/protobuf/protoadapt",
     ],
 )

@@ -31,6 +31,7 @@ go_library(
         "net_dev.go",
         "net_ip_socket.go",
         "net_protocols.go",
+        "net_route.go",
         "net_sockstat.go",
         "net_softnet.go",
         "net_tcp.go",

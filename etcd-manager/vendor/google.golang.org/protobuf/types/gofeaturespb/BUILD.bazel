@@ -1,0 +1,14 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "gofeaturespb",
+    srcs = ["go_features.pb.go"],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/google.golang.org/protobuf/types/gofeaturespb",
+    importpath = "google.golang.org/protobuf/types/gofeaturespb",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/google.golang.org/protobuf/reflect/protoreflect",
+        "//vendor/google.golang.org/protobuf/runtime/protoimpl",
+        "//vendor/google.golang.org/protobuf/types/descriptorpb",
+    ],
+)

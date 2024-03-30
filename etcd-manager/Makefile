@@ -132,6 +132,14 @@ vendor:
 	${BAZEL} run //:gazelle
 	make -C tools/deb-tools vendor
 
+.PHONY: goget
+goget:
+	go get $(shell go list -f '{{if not (or .Main .Indirect)}}{{.Path}}{{end}}' -mod=mod -m all)
+	cd tools/deb-tools; go get $(shell go list -f '{{if not (or .Main .Indirect)}}{{.Path}}{{end}}' -mod=mod -m all)
+
+.PHONY: depup
+depup: goget vendor
+
 .PHONY: staticcheck-all
 staticcheck-all:
 	go list ./... | xargs go run honnef.co/go/tools/cmd/staticcheck@v0.2.1

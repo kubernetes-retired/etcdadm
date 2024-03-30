@@ -125,7 +125,7 @@ func WithPollInterval(pollInterval time.Duration) ClientOption {
 // function when polling from the API.
 func WithPollBackoffFunc(f BackoffFunc) ClientOption {
 	return func(client *Client) {
-		client.backoffFunc = f
+		client.pollBackoffFunc = f
 	}
 }
 
@@ -286,11 +286,11 @@ func (c *Client) Do(r *http.Request, v interface{}) (*Response, error) {
 			return response, fmt.Errorf("hcloud: error reading response meta data: %s", err)
 		}
 
-		if resp.StatusCode >= 400 && resp.StatusCode <= 599 {
-			err = errorFromResponse(resp, body)
+		if response.StatusCode >= 400 && response.StatusCode <= 599 {
+			err = errorFromResponse(response, body)
 			if err == nil {
 				err = fmt.Errorf("hcloud: server responded with status code %d", resp.StatusCode)
-			} else if isConflict(err) {
+			} else if IsError(err, ErrorCodeConflict) {
 				c.backoff(retries)
 				retries++
 				continue
@@ -307,14 +307,6 @@ func (c *Client) Do(r *http.Request, v interface{}) (*Response, error) {
 
 		return response, err
 	}
-}
-
-func isConflict(error error) bool {
-	err, ok := error.(Error)
-	if !ok {
-		return false
-	}
-	return err.Code == ErrorCodeConflict
 }
 
 func (c *Client) backoff(retries int) {
@@ -367,7 +359,7 @@ func dumpRequest(r *http.Request) ([]byte, error) {
 	return dumpReq, nil
 }
 
-func errorFromResponse(resp *http.Response, body []byte) error {
+func errorFromResponse(resp *Response, body []byte) error {
 	if !strings.HasPrefix(resp.Header.Get("Content-Type"), "application/json") {
 		return nil
 	}
@@ -379,7 +371,10 @@ func errorFromResponse(resp *http.Response, body []byte) error {
 	if respBody.Error.Code == "" && respBody.Error.Message == "" {
 		return nil
 	}
-	return ErrorFromSchema(respBody.Error)
+
+	hcErr := ErrorFromSchema(respBody.Error)
+	hcErr.response = resp
+	return hcErr
 }
 
 // Response represents a response from the API. It embeds http.Response.

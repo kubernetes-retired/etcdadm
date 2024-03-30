@@ -12,6 +12,7 @@ go_library(
         "//vendor/google.golang.org/grpc/internal/backoff",
         "//vendor/google.golang.org/grpc/internal/envconfig",
         "//vendor/google.golang.org/grpc/internal/grpcrand",
+        "//vendor/google.golang.org/grpc/internal/resolver/dns/internal",
         "//vendor/google.golang.org/grpc/resolver",
         "//vendor/google.golang.org/grpc/serviceconfig",
     ],

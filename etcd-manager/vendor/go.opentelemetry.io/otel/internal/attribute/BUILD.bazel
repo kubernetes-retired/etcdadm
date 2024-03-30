@@ -1,0 +1,9 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "attribute",
+    srcs = ["attribute.go"],
+    importmap = "sigs.k8s.io/etcdadm/etcd-manager/vendor/go.opentelemetry.io/otel/internal/attribute",
+    importpath = "go.opentelemetry.io/otel/internal/attribute",
+    visibility = ["//vendor/go.opentelemetry.io/otel:__subpackages__"],
+)

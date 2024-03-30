@@ -7,7 +7,6 @@ go_library(
         "instance_metadata_sdk.go",
         "instance_sdk.go",
         "instance_utils.go",
-        "security_group_utils.go",
         "server_utils.go",
         "snapshot_utils.go",
         "volume_utils.go",
@@ -16,6 +15,7 @@ go_library(
     importpath = "github.com/scaleway/scaleway-sdk-go/api/instance/v1",
     visibility = ["//visibility:public"],
     deps = [
+        "//vendor/github.com/scaleway/scaleway-sdk-go/api/block/v1alpha1",
         "//vendor/github.com/scaleway/scaleway-sdk-go/api/marketplace/v1:marketplace",
         "//vendor/github.com/scaleway/scaleway-sdk-go/internal/async",
         "//vendor/github.com/scaleway/scaleway-sdk-go/internal/errors",
