@@ -19,6 +19,7 @@ package openstack
 import (
 	"fmt"
 	"net"
+	"sort"
 )
 
 const (
@@ -28,7 +29,15 @@ const (
 )
 
 func GetServerFixedIP(addrs map[string]interface{}, name string, networkCIDR *net.IPNet) (poolAddress string, err error) {
-	for _, address := range addrs {
+	// Introduce some determinism, even though map ordering is random
+	var addressKeys []string
+	for addressKey := range addrs {
+		addressKeys = append(addressKeys, addressKey)
+	}
+	sort.Strings(addressKeys)
+
+	for _, addressKey := range addressKeys {
+		address := addrs[addressKey]
 		if addresses, ok := address.([]interface{}); ok {
 			for _, addr := range addresses {
 				addrMap := addr.(map[string]interface{})
