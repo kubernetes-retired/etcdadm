@@ -4,7 +4,6 @@ go_library(
     name = "google",
     srcs = [
         "appengine.go",
-        "appengine_gen2_flex.go",
         "default.go",
         "doc.go",
         "error.go",
