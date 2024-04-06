@@ -5,7 +5,7 @@ options:
   machineType: 'N1_HIGHCPU_8'
 
 steps:
-- name: golang:1.19
+- name: golang:1.22
   waitFor: ['-']
   env:
   - PULL_BASE_REF=$_PULL_BASE_REF

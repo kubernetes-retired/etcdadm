@@ -2,6 +2,8 @@ module sigs.k8s.io/etcdadm
 
 go 1.18
 
+toolchain go1.22.2
+
 // This is 3.4.14; see https://github.com/etcd-io/etcd/issues/11154 for the reason.
 replace go.etcd.io/etcd => go.etcd.io/etcd v0.5.0-alpha.5.0.20201125193152-8a03d2e9614b // indirect
 
