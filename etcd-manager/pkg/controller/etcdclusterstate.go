@@ -144,7 +144,7 @@ func (s *etcdClusterState) etcdAddMember(ctx context.Context, nodeInfo *protoetc
 	return nil, fmt.Errorf("unable to reach any cluster member, when trying to add new member %q", nodeInfo.PeerUrls)
 }
 
-func (s *etcdClusterState) etcdRemoveMember(ctx context.Context, member *etcdclient.EtcdProcessMember) error {
+func (s *etcdClusterState) etcdRemoveMember(ctx context.Context, nodeInfo *etcdclient.EtcdProcessMember) error {
 	for id, member := range s.members {
 		etcdClient, err := s.newEtcdClient(member)
 		if err != nil {
@@ -152,7 +152,7 @@ func (s *etcdClusterState) etcdRemoveMember(ctx context.Context, member *etcdcli
 			continue
 		}
 
-		err = etcdClient.RemoveMember(ctx, member)
+		err = etcdClient.RemoveMember(ctx, nodeInfo)
 		etcdclient.LoggedClose(etcdClient)
 		if err != nil {
 			klog.Warningf("Remove member call failed on %s: %v", id, err)
@@ -160,5 +160,5 @@ func (s *etcdClusterState) etcdRemoveMember(ctx context.Context, member *etcdcli
 		}
 		return nil
 	}
-	return fmt.Errorf("unable to reach any cluster member, when trying to remove member %s", member)
+	return fmt.Errorf("unable to reach any cluster member, when trying to remove member %s", nodeInfo)
 }
